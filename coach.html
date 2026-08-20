@@ -2025,15 +2025,53 @@ function voirNotesMatch(mi){
   var rows=m.notes.slice().sort(function(a,b){return b.note-a.note;}).map(function(n){
     var stCol=n.statut==='TA'||n.statut==='TB'?'var(--green)':'var(--or)';
     var stLbl=n.statut==='TA'?'Titu A':n.statut==='TB'?'Titu B':n.statut==='RA'?'Rempl A':'Rempl B';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid rgba(249,115,22,.08)">'
+    return '<div class="vn-row" data-joueur="'+n.nom.replace(/"/g,'&quot;')+'" style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid rgba(249,115,22,.08)">'
       +'<div style="flex:1;font-weight:700;font-size:13px">'+n.num+'. '+n.nom+'</div>'
       +'<div style="font-size:10px;color:'+stCol+';font-weight:700">'+stLbl+'</div>'
       +'<div style="font-size:11px;color:var(--gold)">'+n.buts+'⚽ '+n.pd+'🎯</div>'
+      +'<div class="vn-joueurs" style="font-family:Inter,sans-serif;font-size:13px;font-weight:700;color:var(--blue);min-width:40px;text-align:right" title="Moyenne des avis joueurs">—</div>'
       +'<div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:var(--gold);min-width:36px;text-align:right">'+n.note+'/10</div></div>';
   }).join('');
   lb.innerHTML='<div style="background:rgba(10,10,10,.97);border:1px solid var(--or);border-radius:8px;max-width:480px;width:100%;margin:40px auto" onclick="event.stopPropagation()">'
-    +'<div class="bh"><span class="bt">Notes — vs '+m.adversaire+' ('+m.ast+'-'+m.adv+')</span><span class="bc" style="cursor:pointer;font-size:16px" onclick="this.closest(\'.bp-lightbox\').remove()">✕</span></div>'+rows+'</div>';
+    +'<div class="bh"><span class="bt">Notes — vs '+m.adversaire+' ('+m.ast+'-'+m.adv+')</span><span class="bc" style="cursor:pointer;font-size:16px" onclick="this.closest(\'.bp-lightbox\').remove()">✕</span></div>'
+    +'<div style="padding:8px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)"><span style="font-size:10px;color:var(--gris2)">🧑‍🏫 Ta note · <span style="color:var(--blue)">🧑‍🤝‍🧑 avis joueurs</span></span><span style="font-size:11px;cursor:pointer;color:var(--or);font-weight:700" onclick="chargerVotesPourMatch(this,\''+(m.date||'').replace(/'/g,"\\'")+'\',\''+(m.adversaire||'').replace(/'/g,"\\'")+'\')">🔄 Charger avis joueurs</span></div>'
+    +rows+'</div>';
   document.body.appendChild(lb);
+}
+async function chargerVotesPourMatch(btn,date,adversaire){
+  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ notif('⚠ Connexion Firebase pas encore configurée'); return; }
+  var matchKey=date+'|'+adversaire;
+  btn.textContent='Chargement...';
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/votes?pageSize=300');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var docs=data.documents||[];
+    var votes=docs.map(function(d){
+      var f=d.fields||{};
+      return {
+        matchKey:f.matchKey?f.matchKey.stringValue:'',
+        joueurNote:f.joueurNote?f.joueurNote.stringValue:'',
+        note:f.note?parseInt(f.note.integerValue):null
+      };
+    }).filter(function(v){return v.matchKey===matchKey && v.joueurNote;});
+    var parJoueur={};
+    votes.forEach(function(v){ if(!parJoueur[v.joueurNote]) parJoueur[v.joueurNote]=[]; parJoueur[v.joueurNote].push(v.note); });
+    var lb=btn.closest('.bp-lightbox');
+    var trouve=0;
+    lb.querySelectorAll('.vn-row').forEach(function(row){
+      var nom=row.getAttribute('data-joueur');
+      var target=row.querySelector('.vn-joueurs');
+      if(parJoueur[nom] && parJoueur[nom].length){
+        var moy=Math.round((parJoueur[nom].reduce(function(s,v){return s+v;},0)/parJoueur[nom].length)*10)/10;
+        target.textContent=moy+'/10';
+        trouve++;
+      }
+    });
+    btn.textContent=trouve?'✓ '+trouve+' joueur(s) noté(s)':'Aucun avis reçu';
+  }catch(e){
+    btn.textContent='⚠ Erreur';
+  }
 }
 
 // DASHBOARD
