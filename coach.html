@@ -232,6 +232,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <label class="gen-btn2" style="margin-top:6px;display:block;text-align:center;cursor:pointer">📤 RESTAURER UNE SAUVEGARDE
       <input type="file" accept="application/json" onchange="restaurerSauvegarde(this)" style="display:none">
     </label>
+    <button class="gen-btn2" onclick="syncDepuisFirestore(false)" style="margin-top:6px">☁️ SYNCHRONISER DEPUIS LE CLOUD</button>
   </div>
 </div>
 
@@ -2824,10 +2825,49 @@ function recalculerStats(){
   renderFicheCoach();renderRecap();
   notif('✓ Stats recalculées à partir de '+MATCHS.length+' match(s)');
 }
+// SYNCHRO SAISON (Firebase Firestore) — sauvegarde cloud en plus du navigateur
+// Note : PHOTOS et SEANCES_PHOTOS restent uniquement en local (trop volumineux pour Firestore, limite ~1 Mo par document)
+function donneesSaisonSansPhotos(){
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE};
+}
+async function sauvegarderFirestore(){
+  try{
+    var json=JSON.stringify(donneesSaisonSansPhotos());
+    var res=await fetch(FIRESTORE_BASE+'/saison/main',{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{data:{stringValue:json},updated:{stringValue:new Date().toLocaleString('fr-FR')}}})
+    });
+    return res.ok;
+  }catch(e){ return false; }
+}
+async function chargerFirestore(){
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/saison/main');
+    if(!res.ok) return null;
+    var j=await res.json();
+    if(!j.fields || !j.fields.data) return null;
+    return {data:JSON.parse(j.fields.data.stringValue),updated:(j.fields.updated?j.fields.updated.stringValue:'')};
+  }catch(e){ return null; }
+}
+async function syncDepuisFirestore(silencieux){
+  var r=await chargerFirestore();
+  if(r && r.data){
+    appliquerDonnees(r.data);
+    if(!silencieux) notif('☁️ Synchronisé depuis le cloud (mis à jour le '+(r.updated||'?')+')');
+    return true;
+  }else{
+    if(!silencieux) notif('⚠ Rien trouvé sur le cloud pour l\'instant');
+    return false;
+  }
+}
 function sauvegarder(){
   try{
     localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE}));
-    notif('✓ Tout sauvegardé !');
+    notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
+    sauvegarderFirestore().then(function(ok){
+      notif(ok?'☁️ Sauvegardé aussi dans le cloud':'⚠ Sauvegarde cloud impossible (pas internet ?) — la copie locale est OK');
+    });
   }catch(e){
     if(e && e.name==='QuotaExceededError'){
       notif('⚠ Stockage plein — trop de photos dans la bibliothèque. Supprime-en quelques-unes ou utilise des captures d\'écran plus légères.');
@@ -2933,7 +2973,7 @@ function generer(){
   }
 }
 function notif(txt){var el=document.getElementById('notif');el.textContent=txt;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
-window.addEventListener('load',function(){charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();});
+window.addEventListener('load',function(){charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
