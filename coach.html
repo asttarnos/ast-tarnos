@@ -1384,7 +1384,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   </div>
   <div id="fiche-coach-ct"></div>
   <div id="fiche-obj-ct"></div>
-  <div class="blk"><div class="bh"><span class="bt">Réaction du joueur sur ses objectifs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerReactionObjectifs()">🔄 Charger</span></div>
+  <div class="blk"><div class="bh"><span class="bt">Objectifs demandés par le joueur</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerReactionObjectifs()">🔄 Charger</span></div>
     <div id="fiche-obj-reaction-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour voir si le joueur a réagi à ses objectifs.</div></div>
   </div>
 </div>
@@ -2859,41 +2859,43 @@ async function chargerReactionObjectifs(){
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   var docId=encodeURIComponent(j.nom.replace(/\s+/g,'_'));
   try{
-    var res=await fetch(FIRESTORE_BASE+'/objectifs_reactions/'+docId);
-    if(res.status===404){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Ce joueur n\'a pas encore réagi à ses objectifs.</div>'; return; }
+    var res=await fetch(FIRESTORE_BASE+'/objectifs_individuels_demandes/'+docId);
+    if(res.status===404){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Ce joueur n\'a pas encore choisi ses objectifs.</div>'; return; }
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var f=data.fields||{};
-    var accord=f.accord?f.accord.booleanValue:null;
     var message=f.message?f.message.stringValue:'';
     var date=f.dateAffiche?f.dateAffiche.stringValue:'';
-    var propositions=[];
-    try{ propositions=f.propositions?JSON.parse(f.propositions.stringValue):[]; }catch(e){ propositions=[]; }
-    var html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
-      +'<span style="font-size:20px">'+(accord?'👍':'🤔')+'</span>'
-      +'<span style="font-size:12px;font-weight:700;color:'+(accord?'var(--green)':'var(--gold)')+'">'+(accord?'D\'accord avec ses objectifs':'A un doute sur ses objectifs')+'</span>'
-      +'<span style="font-size:10px;color:var(--gris2);margin-left:auto">'+date+'</span></div>'
-      +(message?'<div style="font-size:12px;color:var(--gris);background:rgba(15,15,15,.7);border-radius:5px;padding:10px;margin-bottom:8px">"'+message+'"</div>':'');
-    if(propositions.length){
-      html+='<div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--or);margin-bottom:6px">🎯 Cibles proposées par le joueur</div>';
-      propositions.forEach(function(p){
-        html+='<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(249,115,22,.08);border:1px solid var(--line);border-radius:5px;padding:8px 10px;margin-bottom:6px">'
-          +'<span style="font-size:11.5px">Objectif '+(p.index+1)+' → <b style="color:var(--gold)">'+p.nouvelleCible+'</b></span>'
-          +'<span class="btn2" style="width:auto;padding:5px 10px;font-size:9px;cursor:pointer" onclick="appliquerPropositionCible('+idx+','+p.index+','+p.nouvelleCible+',this)">✓ Appliquer</span>'
-          +'</div>';
-      });
-    }
+    var choix=[];
+    try{ choix=f.choix?JSON.parse(f.choix.stringValue):[]; }catch(e){ choix=[]; }
+    if(!choix.length){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Rien à afficher.</div>'; return; }
+    var html='<div style="font-size:10px;color:var(--gris2);margin-bottom:8px">Choix envoyé le '+date+'</div>'
+      +(message?'<div style="font-size:12px;color:var(--gris);background:rgba(15,15,15,.7);border-radius:5px;padding:10px;margin-bottom:10px">"'+message+'"</div>':'')
+      +'<div style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--or);margin-bottom:6px">🎯 Objectifs demandés par le joueur</div>';
+    choix.forEach(function(c,ci){
+      var t=OBJ_TYPES.find(function(x){return x.id===c.type;});
+      html+='<div style="background:rgba(249,115,22,.08);border:1px solid var(--line);border-radius:5px;padding:8px 10px;margin-bottom:6px;font-size:11.5px">'
+        +(t?t.label:c.type)+' → <b style="color:var(--gold)">'+c.cible+' '+(t?t.unit:'')+'</b></div>';
+    });
+    html+='<span class="btn2" style="width:100%;text-align:center;padding:9px;cursor:pointer;display:block;margin-top:8px" id="btn-appliquer-obj-demande" onclick="appliquerDemandeObjectifs('+idx+', this)">✓ APPLIQUER CES 3 OBJECTIFS</span>';
+    window._demandeObjEnCours=choix;
     ct.innerHTML=html;
   }catch(e){
     ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Erreur de chargement</div>';
   }
 }
-function appliquerPropositionCible(idx,oi,nouvelleCible,btn){
-  if(!OBJECTIFS[idx] || !OBJECTIFS[idx][oi]) return;
-  OBJECTIFS[idx][oi].cible=parseFloat(nouvelleCible);
+function appliquerDemandeObjectifs(idx,btn){
+  var choix=window._demandeObjEnCours;
+  if(!choix || !choix.length) return;
+  OBJECTIFS[idx]=choix.map(function(c){
+    var t=OBJ_TYPES.find(function(x){return x.id===c.type;});
+    var obj={type:c.type,cible:parseFloat(c.cible),label:t?t.label:c.type};
+    if(c.type==='progression_class') obj.rangDepart=rangActuelJoueur(idx);
+    return obj;
+  });
   renderObjectifsFor(idx);
-  if(btn){ btn.textContent='✓ Appliqué'; btn.style.opacity='0.5'; btn.onclick=null; }
-  notif('✓ Nouvelle cible appliquée');
+  if(btn){ btn.textContent='✓ Objectifs appliqués'; btn.style.opacity='0.5'; btn.onclick=null; }
+  notif('✓ Les 3 objectifs du joueur sont maintenant officiels');
 }
 async function chargerVotesObjColl(){
   var ct=document.getElementById('vote-obj-coll-ct');
@@ -4376,8 +4378,9 @@ function generer(){
     var joueursPayload=JOUEURS.map(function(j,idx){
       var c=calcAttrsJoueur(idx);
       var objectifs=calcObjectifsJoueur(idx);
+      var objectifsRaw=(OBJECTIFS[idx]||[]).map(function(o){return {type:o.type,cible:o.cible};});
       var s=STATS[idx];
-      return {num:j.num,nom:j.nom,gardien:c.gardien,note:c.note,attrs:c.attrs,objectifs:objectifs,photo:PHOTOS[idx]||null,
+      return {num:j.num,nom:j.nom,gardien:c.gardien,note:c.note,attrs:c.attrs,objectifs:objectifs,objectifsRaw:objectifsRaw,photo:PHOTOS[idx]||null,
         stats:{buts:s.buts||0,pd:s.pd||0,matchsA:s.matchsA||0,matchsB:s.matchsB||0,matchsJoues:s.matchsJoues||0,titu:s.titu||0,rempl:s.rempl||0,
           cs:s.cs||0,butsEnc:s.butsEnc||0,cj:s.cj||0,cr:s.cr||0,amendes:s.amendes||0,pres:s.pres||0,seances:s.seances||0,
           noteMoy:s.noteMoy?Math.round(s.noteMoy*10)/10:0,notesCount:s.notesCount||0,tpsMoy:s.tpsMoy||0,tpsTotal:s.tpsTotal||0,pts:s.pts||0}};
