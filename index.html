@@ -88,6 +88,13 @@ body{background:radial-gradient(ellipse at top,#161616 0%,#0a0a0a 60%);padding-b
 .effectif-chip{text-align:center}
 .effectif-chip .l{font-size:8px;color:var(--gris2);text-transform:uppercase}
 .effectif-chip .v{font-size:12px;font-weight:700;color:#fff}
+.code-gate{text-align:center;padding:50px 24px}
+.code-gate .ic{font-size:32px;margin-bottom:10px}
+.obj-bar-bg{background:rgba(255,255,255,.08);border-radius:8px;height:8px;overflow:hidden;margin-top:6px}
+.obj-bar-fill{height:100%;background:var(--or);border-radius:8px}
+.tableau-saison{width:100%;border-collapse:collapse;font-size:10.5px}
+.tableau-saison td{padding:5px 4px;border-top:1px solid var(--line);text-align:center;white-space:nowrap}
+.tableau-saison td:first-child,.tableau-saison td:nth-child(2){text-align:left}
 </style>
 </head>
 <body>
@@ -116,21 +123,25 @@ body{background:radial-gradient(ellipse at top,#161616 0%,#0a0a0a 60%);padding-b
   <div class="wrap">
     <div id="scr-accueil" class="screen"></div>
     <div id="scr-effectif" class="screen hidden"></div>
+    <div id="scr-saison" class="screen hidden"></div>
     <div id="scr-planning" class="screen hidden"></div>
     <div id="scr-convocations" class="screen hidden"></div>
     <div id="scr-seances" class="screen hidden"></div>
     <div id="scr-videos" class="screen hidden"></div>
     <div id="scr-messages" class="screen hidden"></div>
+    <div id="scr-coach" class="screen hidden"></div>
   </div>
 
   <div id="bottom-nav">
     <button class="nav-btn on" data-s="accueil" onclick="goNav('accueil')"><span class="ic">🏠</span><span class="lb">Accueil</span></button>
     <button class="nav-btn" data-s="effectif" onclick="goNav('effectif')"><span class="ic">🏆</span><span class="lb">Effectif</span></button>
+    <button class="nav-btn" data-s="saison" onclick="goNav('saison')"><span class="ic">📊</span><span class="lb">Saison</span></button>
     <button class="nav-btn" data-s="planning" onclick="goNav('planning')"><span class="ic">📅</span><span class="lb">Planning</span></button>
     <button class="nav-btn" data-s="convocations" onclick="goNav('convocations')"><span class="ic">📋</span><span class="lb">Convoc.</span></button>
     <button class="nav-btn" data-s="seances" onclick="goNav('seances')"><span class="ic">🎯</span><span class="lb">Séances</span></button>
     <button class="nav-btn" data-s="videos" onclick="goNav('videos')"><span class="ic">🎥</span><span class="lb">Vidéos</span></button>
     <button class="nav-btn" data-s="messages" onclick="goNav('messages')"><span class="ic">💬</span><span class="lb">Messages</span></button>
+    <button class="nav-btn" data-s="coach" onclick="goNav('coach')"><span class="ic">🔒</span><span class="lb">Coach</span></button>
   </div>
 </div>
 
@@ -215,7 +226,14 @@ async function demarrerApp(){
     }
   }
   renderAccueil();
+  renderObjectifsEtSondages();
   renderEffectif();
+  renderPlanning();
+  renderConvocations();
+  renderSeances();
+  renderVideosJoueur();
+  renderSaison();
+  renderCoach();
   renderPlaceholders();
 }
 
@@ -223,13 +241,20 @@ function goNav(s){
   document.querySelectorAll('.screen').forEach(function(el){ el.classList.add('hidden'); });
   document.getElementById('scr-'+s).classList.remove('hidden');
   document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.s===s); });
-  if(s==='accueil'||s==='effectif') actualiserDonnees(false);
+  if(s==='accueil'||s==='effectif'||s==='planning'||s==='convocations'||s==='seances'||s==='videos'||s==='saison'||s==='coach') actualiserDonnees(false);
 }
 async function actualiserDonnees(manuel){
   try{
     await chargerSaison();
     renderAccueil();
+    renderObjectifsEtSondages();
     renderEffectif();
+    renderPlanning();
+    renderConvocations();
+    renderSeances();
+    renderVideosJoueur();
+    renderSaison();
+    renderCoach();
     if(manuel) notif('✓ Données à jour');
   }catch(e){
     if(manuel) notif('⚠ Impossible d\'actualiser — vérifie ta connexion');
@@ -402,15 +427,242 @@ function renderEffectif(){
 
 function renderPlaceholders(){
   var sections=[
-    {id:'planning',ic:'📅',t:'Planning',d:'Le calendrier complet des séances et matchs arrivera bientôt ici.'},
-    {id:'convocations',ic:'📋',t:'Convocations',d:'L\'historique de tes convocations arrivera bientôt ici.'},
-    {id:'seances',ic:'🎯',t:'Séances',d:'Le contenu détaillé des séances arrivera bientôt ici.'},
-    {id:'videos',ic:'🎥',t:'Vidéos',d:'Les vidéos de matchs et séances arriveront bientôt ici.'},
     {id:'messages',ic:'💬',t:'Messages',d:'La messagerie avec le coach arrivera bientôt ici.'}
   ];
   sections.forEach(function(s){
     document.getElementById('scr-'+s.id).innerHTML='<div class="soon"><div class="ic">'+s.ic+'</div><div class="t">'+s.t+'</div><div class="d">'+s.d+'</div></div>';
   });
+}
+function renderPlanning(){
+  var ct=document.getElementById('scr-planning');
+  var items=(SAISON.PLANNING_MENSUEL||[]).map(function(p){ return {raw:p, d:parseDateFr(p.date)}; })
+    .sort(function(a,b){ return (a.d||0)-(b.d||0); });
+  if(!items.length){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucun planning publié pour l\'instant</div></div></div>'; return; }
+  var aujourdhui=new Date(new Date().setHours(0,0,0,0));
+  ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">📅 Planning</span></div><div class="blk-body">'
+    +items.map(function(x){
+      var passe=x.d && x.d<aujourdhui;
+      return '<div class="plan-item" style="'+(passe?'opacity:.45':'')+'"><div class="plan-date">'+esc(x.raw.date)+'</div><div class="plan-theme">'+esc(x.raw.theme||'')+'</div></div>';
+    }).join('')
+    +'</div></div>';
+}
+function renderConvocations(){
+  var ct=document.getElementById('scr-convocations');
+  var items=(SAISON.CONVOCATIONS_HISTORIQUE||[]).slice().reverse();
+  if(!items.length){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucune convocation publiée pour l\'instant</div></div></div>'; return; }
+  var monNomLc=(MON_NOM||'').toLowerCase().trim();
+  ct.innerHTML=items.map(function(c){
+    var nomsA=(c.a||[]).map(function(n){return (n||'').toLowerCase().trim();});
+    var nomsB=(c.b||[]).map(function(n){return (n||'').toLowerCase().trim();});
+    var badge=nomsA.indexOf(monNomLc)!==-1?'<div class="statut-badge statut-a">✓ Équipe A</div>'
+      :nomsB.indexOf(monNomLc)!==-1?'<div class="statut-badge statut-b">✓ Équipe B</div>'
+      :'<div class="statut-badge statut-inconnu">Non convoqué</div>';
+    return '<div class="blk"><div class="blk-body"><div class="convoc-adv">vs '+esc(c.adv||'')+'</div>'
+      +'<div class="convoc-meta">'+esc(c.date||'')+(c.lieu?' — '+(c.lieu==='D'?'🏠 Domicile':'✈ Extérieur'):'')+'</div>'
+      +badge+'</div></div>';
+  }).join('');
+}
+function renderSeances(){
+  var ct=document.getElementById('scr-seances');
+  var items=(SAISON.PLANNING_MENSUEL||[]).map(function(p){ return {raw:p, d:parseDateFr(p.date)}; })
+    .sort(function(a,b){ return (b.d||0)-(a.d||0); });
+  if(!items.length){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucune séance détaillée pour l\'instant</div></div></div>'; return; }
+  ct.innerHTML=items.map(function(x){
+    var sousThemes=x.raw.sousThemes;
+    var listeSous='';
+    if(sousThemes){
+      var arr=Array.isArray(sousThemes)?sousThemes:String(sousThemes).split(',').map(function(s){return s.trim();}).filter(Boolean);
+      if(arr.length) listeSous='<div style="margin-top:6px;font-size:11.5px;color:var(--gris2)">'+arr.map(function(s){return '• '+esc(s);}).join('<br>')+'</div>';
+    }
+    return '<div class="blk"><div class="blk-body"><div style="font-size:11px;color:var(--or);font-weight:700;margin-bottom:4px">'+esc(x.raw.date)+'</div>'
+      +'<div style="font-size:13.5px;color:#fff;font-weight:600">'+esc(x.raw.theme||'')+'</div>'+listeSous+'</div></div>';
+  }).join('');
+}
+function renderVideosJoueur(){
+  var ct=document.getElementById('scr-videos');
+  var items=SAISON.VIDEOS||[];
+  if(!items.length){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucune vidéo partagée pour l\'instant</div></div></div>'; return; }
+  ct.innerHTML=items.map(function(v){
+    return '<div class="blk"><div class="blk-body">'
+      +'<a href="'+esc(v.url)+'" target="_blank" style="text-decoration:none;color:inherit">'
+      +'<div style="display:flex;justify-content:space-between;align-items:baseline"><b style="color:#fff;font-size:13px">'+esc(v.titre||'')+'</b><span style="font-size:10px;color:var(--or)">▶ Ouvrir</span></div>'
+      +'<div style="font-size:10.5px;color:var(--gris2);margin-top:3px">'+esc(v.categorie||'')+(v.date?' — '+esc(v.date):'')+'</div>'
+      +(v.notes?'<div style="font-size:11.5px;color:var(--gris2);margin-top:5px">'+esc(v.notes)+'</div>':'')
+      +'</a></div></div>';
+  }).join('');
+}
+
+function fexNormaliserNom(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+
+// ===== Calendrier / Classements / Bilan (calculs identiques à coach.html) =====
+function renderCalendrierMensuel(){
+  var cal=SAISON.CALENDRIER||[];
+  if(!cal.length) return '<div class="empty-txt">Calendrier non synchronisé pour l\'instant</div>';
+  var matchsR2=(SAISON.MATCHS||[]).filter(function(m){return m.comp==='R2';}).slice().reverse();
+  var utilises=matchsR2.map(function(){return false;});
+  var vusCal={};
+  return '<table class="tableau-saison"><tr style="color:var(--gris2)"><td>J</td><td>Adversaire</td><td>Lieu</td><td>Score</td></tr>'
+    +cal.filter(function(f){return f.comp==='R2';}).map(function(f,idx){
+      var k=fexNormaliserNom(f.adversaire);
+      vusCal[k]=(vusCal[k]||0)+1;
+      var occ=vusCal[k],compteur=0,mt=null,mi=-1;
+      for(var i=0;i<matchsR2.length;i++){
+        if(utilises[i]) continue;
+        if(fexNormaliserNom(matchsR2[i].adversaire)===k){ compteur++; if(compteur===occ){ mt=matchsR2[i]; mi=i; break; } }
+      }
+      if(mt) utilises[mi]=true;
+      return '<tr'+(mt?'':' style="opacity:.45"')+'><td style="color:var(--or);font-weight:700">J'+(idx+1)+'</td><td>'+esc(f.adversaire)+'</td><td>'+(f.lieu==='D'?'🏠':'✈')+'</td><td>'+(mt?(mt.ast+'-'+mt.adv+' '+mt.res):'—')+'</td></tr>';
+    }).join('')+'</table>';
+}
+function calculerClassementAuto(){
+  var stats={},NOM_CLUB=SAISON.NOM_CLUB||'AST Tarnos';
+  function ligne(nom){ if(!stats[nom]) stats[nom]={equipe:nom,j:0,v:0,n:0,d:0,bp:0,bc:0,pts:0}; return stats[nom]; }
+  function appliquer(a,b,sa,sb){
+    var la=ligne(a),lb=ligne(b);
+    la.j++; lb.j++; la.bp+=sa; la.bc+=sb; lb.bp+=sb; lb.bc+=sa;
+    if(sa>sb){la.v++;la.pts+=3;lb.d++;} else if(sa<sb){lb.v++;lb.pts+=3;la.d++;} else {la.n++;lb.n++;la.pts+=1;lb.pts+=1;}
+  }
+  (SAISON.MATCHS||[]).filter(function(m){return m.comp==='R2';}).forEach(function(m){ appliquer(NOM_CLUB,m.adversaire,m.ast,m.adv); });
+  (SAISON.AUTRES_RESULTATS||[]).forEach(function(r){ appliquer(r.eq1,r.eq2,r.s1,r.s2); });
+  return Object.keys(stats).map(function(k){return stats[k];}).sort(function(a,b){ return (b.pts-a.pts)||((b.bp-b.bc)-(a.bp-a.bc))||(b.bp-a.bp); });
+}
+function calculerClassementParLieu(filtreLieu){
+  var stats={},NOM_CLUB=SAISON.NOM_CLUB||'AST Tarnos';
+  function ligne(nom){ if(!stats[nom]) stats[nom]={equipe:nom,j:0,v:0,n:0,d:0,bp:0,bc:0,pts:0}; return stats[nom]; }
+  function crediter(nom,sp,sc){ var l=ligne(nom); l.j++; l.bp+=sp; l.bc+=sc; if(sp>sc){l.v++;l.pts+=3;} else if(sp<sc){l.d++;} else {l.n++;l.pts+=1;} }
+  (SAISON.MATCHS||[]).filter(function(m){return m.comp==='R2';}).forEach(function(m){
+    var estDom=m.lieu==='D';
+    if(filtreLieu==='D'&&estDom) crediter(NOM_CLUB,m.ast,m.adv);
+    if(filtreLieu==='E'&&!estDom) crediter(NOM_CLUB,m.ast,m.adv);
+  });
+  (SAISON.AUTRES_RESULTATS||[]).forEach(function(r){
+    if(filtreLieu==='D') crediter(r.eq1,r.s1,r.s2);
+    if(filtreLieu==='E') crediter(r.eq2,r.s2,r.s1);
+  });
+  return Object.keys(stats).map(function(k){return stats[k];}).sort(function(a,b){ return (b.pts-a.pts)||((b.bp-b.bc)-(a.bp-a.bc))||(b.bp-a.bp); });
+}
+function tableClassement(sorted){
+  var NOM_CLUB=SAISON.NOM_CLUB||'AST Tarnos';
+  if(!sorted.length) return '<div class="empty-txt">Aucun résultat pour l\'instant</div>';
+  return sorted.map(function(e,rang){
+    var isTarnos=e.equipe===NOM_CLUB;
+    return '<div class="pt-row"'+(isTarnos?' style="color:var(--or);font-weight:700"':'')+'><div class="pt-rank">'+(rang+1)+'</div><div class="pt-nom">'+esc(e.equipe)+'</div><div style="font-size:10px;color:var(--gris2);margin-right:8px">'+e.bp+'-'+e.bc+'</div><div class="pt-val">'+e.pts+' pts</div></div>';
+  }).join('');
+}
+function calculerBilanCategorise(){
+  var r2=(SAISON.MATCHS||[]).filter(function(m){return m.comp==='R2';}).slice().reverse();
+  var vus={};
+  var cats={aller:{J:0,V:0,N:0,D:0,BP:0,BC:0},retour:{J:0,V:0,N:0,D:0,BP:0,BC:0},dom:{J:0,V:0,N:0,D:0,BP:0,BC:0},ext:{J:0,V:0,N:0,D:0,BP:0,BC:0}};
+  function acc(cat,m){ cat.J++; cat.BP+=(m.ast||0); cat.BC+=(m.adv||0); if(m.res==='V')cat.V++; else if(m.res==='N')cat.N++; else cat.D++; }
+  r2.forEach(function(m){
+    var clef=fexNormaliserNom(m.adversaire);
+    vus[clef]=(vus[clef]||0)+1;
+    var phase=vus[clef]<=1?'aller':'retour';
+    acc(cats[phase],m);
+    acc(m.lieu==='D'?cats.dom:cats.ext,m);
+  });
+  return cats;
+}
+function renderBilanHtml(){
+  var cats=calculerBilanCategorise();
+  var defs=[{k:'aller',lab:'🔵 Phase aller'},{k:'retour',lab:'🟠 Phase retour'},{k:'dom',lab:'🏠 Domicile'},{k:'ext',lab:'✈ Extérieur'}];
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+defs.map(function(d){
+    var c=cats[d.k],diff=c.BP-c.BC;
+    return '<div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:6px;padding:8px 10px">'
+      +'<div style="font-size:10.5px;font-weight:700;margin-bottom:6px">'+d.lab+' <span style="color:var(--gris2);font-weight:400">('+c.J+' j.)</span></div>'
+      +'<div style="font-size:10px;color:var(--gris2)">V<b style="color:var(--green)"> '+c.V+'</b> N<b style="color:var(--gold)"> '+c.N+'</b> D<b style="color:var(--red)"> '+c.D+'</b></div>'
+      +'<div style="font-size:10px;color:var(--gris2);margin-top:2px">'+c.BP+'-'+c.BC+' <span style="color:'+(diff>0?'var(--green)':diff<0?'var(--red)':'var(--gris2)')+'">('+(diff>0?'+':'')+diff+')</span></div></div>';
+  }).join('')+'</div>';
+}
+function renderSaison(){
+  var ct=document.getElementById('scr-saison');
+  ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">📅 Calendrier de la saison</span></div><div class="blk-body">'+renderCalendrierMensuel()+'</div></div>'
+    +'<div class="blk"><div class="blk-h"><span class="t">🏆 Classement général</span></div><div class="blk-body">'+tableClassement(calculerClassementAuto())+'</div></div>'
+    +'<div class="blk"><div class="blk-h"><span class="t">🏠 Classement Domicile</span></div><div class="blk-body">'+tableClassement(calculerClassementParLieu('D'))+'</div></div>'
+    +'<div class="blk"><div class="blk-h"><span class="t">✈ Classement Extérieur</span></div><div class="blk-body">'+tableClassement(calculerClassementParLieu('E'))+'</div></div>'
+    +'<div class="blk"><div class="blk-h"><span class="t">📊 Bilan par catégorie</span></div><div class="blk-body">'+renderBilanHtml()+'</div></div>'
+    +'<div class="blk"><div class="blk-h"><span class="t">⏱ Temps de jeu</span></div><div class="blk-body" id="saison-tps"></div></div>';
+  var joueurs=SAISON.JOUEURS||[],stats=SAISON.STATS||[];
+  var ranked=joueurs.map(function(j,i){return {num:j.num,nom:j.nom,tps:(stats[i]&&stats[i].tpsTotal)||0,tpsMoy:(stats[i]&&stats[i].tpsMoy)||0};}).sort(function(a,b){return b.tps-a.tps;});
+  document.getElementById('saison-tps').innerHTML=ranked.length?ranked.map(function(p,i){
+    var estMoi=p.num===MON_NUM;
+    return '<div class="pt-row"'+(estMoi?' style="color:var(--or);font-weight:700"':'')+'><div class="pt-rank">'+(i+1)+'</div><div class="pt-nom">'+esc(p.num)+'. '+esc(p.nom)+(estMoi?' (toi)':'')+'</div><div class="pt-val">'+p.tps+' min <span style="color:var(--gris2);font-weight:400">('+p.tpsMoy+'/match)</span></div></div>';
+  }).join(''):'<div class="empty-txt">Aucune donnée pour l\'instant</div>';
+}
+
+// ===== Écran protégé "Coach" (plateau tactique + suivi médical) =====
+var COACH_DEVERROUILLE=(localStorage.getItem('ast_coach_ok')==='1');
+function renderCoach(){
+  var ct=document.getElementById('scr-coach');
+  if(!COACH_DEVERROUILLE){
+    ct.innerHTML='<div class="code-gate"><div class="ic">🔒</div><div style="font-size:14px;color:#fff;font-weight:700;margin-bottom:4px">Espace réservé</div>'
+      +'<div style="font-size:11.5px;color:var(--gris2);margin-bottom:16px">Plateau tactique et suivi médical — code fourni par le coach</div>'
+      +'<input class="fi" id="coach-code" type="password" placeholder="Code d\'accès" style="max-width:200px;margin:0 auto 10px;text-align:center">'
+      +'<button class="btn-or" style="max-width:200px;margin:0 auto" onclick="verifierCodeCoach()">Déverrouiller</button>'
+      +'<div id="coach-code-err" class="err-msg hidden" style="margin-top:10px"></div></div>';
+    return;
+  }
+  var blessures=(SAISON.BLESSURES||[]).filter(function(b){ return b.statut!=='disponible'; });
+  ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">🎨 Plateau tactique</span></div><div class="blk-body">'
+    +'<div style="font-size:11px;color:var(--gris2);margin-bottom:10px">Consultation du système collectif.</div>'
+    +'<iframe src="plateau_tactique_4222.html?mode=consultation" style="width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#000"></iframe>'
+    +'</div></div>'
+    +'<div class="blk"><div class="blk-h"><span class="t">🏥 Suivi médical</span></div><div class="blk-body">'
+    +(blessures.length?blessures.map(function(b){
+      var j=(SAISON.JOUEURS||[])[b.joueurIdx]||{};
+      return '<div style="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:6px">'
+        +'<b style="color:#fff;font-size:12px">'+esc(j.nom||'?')+'</b><span style="color:var(--gris2);font-size:10.5px"> — '+esc(b.zone||'')+(b.nature?' · '+esc(b.nature):'')+'</span>'
+        +'<div style="font-size:10px;color:var(--gris2);margin-top:3px">Depuis le '+esc(b.dateBlessure||'—')+(b.retourEstime?' — retour estimé '+esc(b.retourEstime):'')+'</div></div>';
+    }).join(''):'<div class="empty-txt">Aucune blessure en cours 🎉</div>')
+    +'</div></div>'
+    +'<div style="padding:0 4px"><span style="font-size:10px;color:var(--gris2);text-decoration:underline;cursor:pointer" onclick="verrouillerCoach()">🔒 Reverrouiller cet espace</span></div>';
+}
+function verifierCodeCoach(){
+  var val=(document.getElementById('coach-code').value||'').trim().toUpperCase();
+  if(val==='AST'){
+    COACH_DEVERROUILLE=true;
+    localStorage.setItem('ast_coach_ok','1');
+    renderCoach();
+  }else{
+    var e=document.getElementById('coach-code-err');
+    e.textContent='Code incorrect';
+    e.classList.remove('hidden');
+  }
+}
+function verrouillerCoach(){
+  COACH_DEVERROUILLE=false;
+  localStorage.removeItem('ast_coach_ok');
+  renderCoach();
+}
+
+// ===== Objectifs & sondages (ajoutés sur l'Accueil) =====
+function renderObjectifsEtSondages(){
+  var ct=document.getElementById('scr-accueil');
+  var idx=(SAISON.JOUEURS||[]).findIndex(function(j){return j.num===MON_NUM;});
+  var mesObjectifs=idx!==-1?((SAISON.OBJECTIFS||[])[idx]||[]):[];
+  var html='<div class="blk"><div class="blk-h"><span class="t">🎯 Mes objectifs</span></div><div class="blk-body">';
+  html+=mesObjectifs.length?mesObjectifs.map(function(o){
+    return '<div style="margin-bottom:10px"><div style="font-size:12px;color:#fff">'+esc(o.label||'')+'</div><div style="font-size:10px;color:var(--gris2)">Cible : '+esc(o.cible)+'</div></div>';
+  }).join(''):'<div class="empty-txt">Aucun objectif défini pour l\'instant</div>';
+  html+='</div></div>';
+  var objColl=SAISON.OBJ_COLL||[];
+  html+='<div class="blk"><div class="blk-h"><span class="t">🤝 Objectifs collectifs</span></div><div class="blk-body">';
+  html+=objColl.length?objColl.map(function(o){
+    var pct=o.cible>0?Math.min(100,Math.round((o.actuel||0)/o.cible*100)):0;
+    return '<div style="margin-bottom:10px"><div style="font-size:12px;color:#fff">'+(o.icon||'🎯')+' '+esc(o.label||'')+'</div>'
+      +'<div style="font-size:10px;color:var(--gris2)">'+(o.actuel||0)+' / '+o.cible+' '+esc(o.unit||'')+'</div>'
+      +'<div class="obj-bar-bg"><div class="obj-bar-fill" style="width:'+pct+'%"></div></div></div>';
+  }).join(''):'<div class="empty-txt">Aucun objectif collectif pour l\'instant</div>';
+  html+='</div></div>';
+  var sondages=(SAISON.SONDAGES||[]).filter(function(s){return s.actif;});
+  html+='<div class="blk"><div class="blk-h"><span class="t">📊 Sondage en cours</span></div><div class="blk-body">';
+  html+=sondages.length?sondages.map(function(s){
+    return '<div style="margin-bottom:10px"><div style="font-size:12px;color:#fff;margin-bottom:6px">'+esc(s.question||'')+'</div>'
+      +(s.options||[]).map(function(o){ return '<div style="font-size:11px;color:var(--gris2);padding:4px 8px;background:rgba(255,255,255,.03);border-radius:5px;margin-bottom:3px">'+esc(typeof o==='string'?o:(o.texte||''))+'</div>'; }).join('')
+      +'</div>';
+  }).join(''):'<div class="empty-txt">Aucun sondage en cours</div>';
+  html+='</div></div>';
+  ct.insertAdjacentHTML('beforeend',html);
 }
 
 init();
