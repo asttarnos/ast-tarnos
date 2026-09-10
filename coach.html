@@ -1334,8 +1334,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 <!-- SUIVI MÉDICAL -->
 <div class="scr" id="scr-medical">
   <div class="ph"><div><div class="ph-title">🏥 Suivi médical</div><div class="ph-sub">Blessures en cours et historique</div></div>
-    <span class="bc" style="cursor:pointer;color:var(--or)" onclick="ouvrirNouvelleBlessure()">+ Signaler une blessure</span>
   </div>
+  <div style="padding:0 14px 14px"><button class="btn" onclick="ouvrirNouvelleBlessure()">🩹 SIGNALER UNE NOUVELLE BLESSURE</button></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt r">En cours</span><span class="bc" id="medical-nb-actives">0</span></div>
     <div id="medical-list-actives" style="padding:12px"></div>
   </div>
@@ -2586,7 +2586,7 @@ function nouvelleSaisieSeance(){
 function etoilesInlineHtml(idx,crit,val,contexte){
   var html='<span class="etoiles-inline" data-idx="'+idx+'" data-crit="'+crit+'" data-ctx="'+contexte+'" data-val="'+val+'">';
   for(var i=1;i<=6;i++){
-    html+='<span class="etoile-inline-pick" data-val="'+i+'" style="cursor:pointer;font-size:15px;line-height:1;color:'+(i<=val?'#fbbf24':'#3a3a3a')+'" onclick="clicEtoileInline(this)">★</span>';
+    html+='<span class="etoile-inline-pick" data-val="'+i+'" style="cursor:pointer;font-size:19px;line-height:1;padding:2px 1px;color:'+(i<=val?'#fbbf24':'#3a3a3a')+'" onclick="clicEtoileInline(this)">★</span>';
   }
   html+='</span>';
   return html;
@@ -2625,14 +2625,14 @@ function clicEtoileInline(el){
     row.setAttribute('data-note', moy2);
   }
   wrap.setAttribute('data-val',val);
-  if(moyEl) moyEl.textContent='⭐ '+(ctx==='nouveau'?NOTES_MATCH[idx].note:'');
+  if(moyEl) moyEl.textContent='⭐ Note moyenne : '+(ctx==='nouveau'?NOTES_MATCH[idx].note:moy2)+' / 6';
 }
 function ligneCriteres(idx,nd,contexte){
-  return '<div style="display:flex;flex-wrap:wrap;gap:14px;padding:6px 10px 8px;background:rgba(0,0,0,.25);border-radius:0 0 6px 6px;font-size:10px">'
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;padding:10px 12px;background:rgba(0,0,0,.3);border-radius:0 0 6px 6px">'
     +CRITERES_NOTE.map(function(c){
-      return '<div style="display:flex;align-items:center;gap:5px"><span style="color:var(--gris2)">'+c.ic+' '+c.lab+'</span>'+etoilesInlineHtml(idx,c.k,(nd&&nd[c.k])||3,contexte)+'</div>';
+      return '<div><div style="font-size:11px;color:#fff;font-weight:600;margin-bottom:4px;white-space:nowrap">'+c.ic+' '+c.lab+'</div>'+etoilesInlineHtml(idx,c.k,(nd&&nd[c.k])||3,contexte)+'</div>';
     }).join('')
-    +'<div style="margin-left:auto;font-weight:800;color:var(--gold)" '+(contexte==='nouveau'?'id="moy-nouveau-'+idx+'"':'class="moy-edit"')+'>⭐ '+((nd?Math.round(((nd.consignes+nd.offensif+nd.defensif+nd.esprit)/4)*10)/10:3))+'</div>'
+    +'<div style="grid-column:1/-1;text-align:right;font-weight:800;color:var(--gold);font-size:13px;border-top:1px solid var(--line);padding-top:6px;margin-top:2px" '+(contexte==='nouveau'?'id="moy-nouveau-'+idx+'"':'class="moy-edit"')+'>⭐ Note moyenne : '+((nd?Math.round(((nd.consignes+nd.offensif+nd.defensif+nd.esprit)/4)*10)/10:3))+' / 6</div>'
     +'</div>';
 }
 function fexNormaliserNom(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
