@@ -1,0 +1,17 @@
+{
+  "name": "AST Tarnos - Espace Joueur",
+  "short_name": "AST Joueur",
+  "description": "Espace joueur du club AST Tarnos (R2) - convocations, planning, actualités",
+  "start_url": "./joueur.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#F97316",
+  "lang": "fr",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
