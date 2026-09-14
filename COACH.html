@@ -690,6 +690,9 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">⭐ Votes des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerVotesJoueurs()">🔄 Charger les votes</span></div>
     <div id="votes-joueurs-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger les votes" pour récupérer les auto-évaluations envoyées par les joueurs pour le prochain match convoqué.</div></div>
   </div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🏅 Homme du match (vote joueurs)</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerHommeDuMatch()">🔄 Charger</span></div>
+    <div id="hdm-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Vote réservé aux 14 convoqués du match en cours.</div></div>
+  </div>
   <div class="blk" style="margin-bottom:14px">
     <div class="bh"><span class="bt">Nouveau résultat</span></div>
     <div style="padding:14px">
@@ -1471,6 +1474,10 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 <!-- CONVOCATIONS -->
 <div class="scr" id="scr-convos">
   <div class="ph"><div><div class="ph-title">Convocations</div><div class="ph-sub">Prochain match</div></div></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📋 Répartition des joueurs</span><span class="bc" id="repartition-nb">0 affecté(s)</span></div>
+    <div style="padding:10px 12px 0;font-size:10.5px;color:var(--gris2)">Range chaque joueur dans une seule case — visible ensuite par les joueurs dans leur appli.</div>
+    <div id="repartition-list" style="padding:8px 12px 12px"></div>
+  </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">✅ Disponibilités déclarées</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDisponibilites()">🔄 Charger</span></div>
     <div id="dispo-list" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Renseigne d'abord la date et l'adversaire ci-dessous, puis clique sur "Charger" pour voir qui s'est déclaré disponible ou non pour ce match.</div></div>
   </div>
@@ -2479,6 +2486,7 @@ function reinitialiserPourNouveauClub(){
   EVENEMENTS_PERSO=[];
   INFOS_CLUB={reglement:'',contacts:[]};
   HISTORIQUE_SAISONS=[];
+  AFFECTATIONS_CONVOC={};
 
   try{ sauvegarder(); }catch(e){}
 
@@ -3000,6 +3008,7 @@ function goNav(elOrS){
   if(s==='classement') renderClassement();
   if(s==='medical') renderMedical();
   if(s==='chat') renderChatCoach();
+  if(s==='convos') renderRepartitionJoueurs();
   if(s==='infos-club') renderInfosClub();
   if(s==='entretien') renderEntretien();
   if(s==='suivi-objectifs') renderSuiviObjectifs();
@@ -3278,6 +3287,33 @@ function getMatchKeyConvocation(){
   if(!CONVOS || !CONVOS.adv) return '';
   return (CONVOS.date||'')+'|'+CONVOS.adv;
 }
+async function chargerHommeDuMatch(){
+  var ct=document.getElementById('hdm-ct');
+  var matchKey=getMatchKeyConvocation();
+  if(!matchKey){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Aucune convocation en cours.</div>'; return; }
+  ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/homme_du_match?pageSize=300');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var votes=(data.documents||[]).map(function(d){
+      var f=d.fields||{};
+      return {matchKey:(f.matchKey||{}).stringValue||'',voteur:(f.voteur||{}).stringValue||'',joueurNote:(f.joueurNote||{}).stringValue||''};
+    }).filter(function(v){ return v.matchKey===matchKey && v.joueurNote; });
+    if(!votes.length){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Aucun vote pour ce match pour l\'instant.</div>'; return; }
+    var comptes={};
+    votes.forEach(function(v){ comptes[v.joueurNote]=(comptes[v.joueurNote]||0)+1; });
+    var classement=Object.keys(comptes).map(function(nom){return {nom:nom,n:comptes[nom]};}).sort(function(a,b){return b.n-a.n;});
+    var matchCorrespondant=MATCHS.find(function(m){ return fexNomsCorrespondent(m.adversaire,CONVOS.adv); });
+    var hdmOfficiel=matchCorrespondant&&matchCorrespondant.hommeDuMatch!==null&&matchCorrespondant.hommeDuMatch!==undefined&&JOUEURS[matchCorrespondant.hommeDuMatch]?JOUEURS[matchCorrespondant.hommeDuMatch].nom:null;
+    ct.innerHTML='<div style="font-size:11px;color:var(--gris2);margin-bottom:8px">'+votes.length+' vote(s)'+(hdmOfficiel?' · Désigné par le staff : <b style="color:var(--or)">'+hdmOfficiel+'</b>':' · Pas encore désigné par le staff')+'</div>'
+      +classement.map(function(c,i){
+        return '<div class="jr" style="grid-template-columns:24px 1fr 50px">'+(i===0?'<div style="text-align:center">🏅</div>':'<div></div>')+'<div class="jnom">'+c.nom+(hdmOfficiel===c.nom?' <span style="color:var(--or);font-size:10px">(staff)</span>':'')+'</div><div style="text-align:right;color:var(--gold);font-weight:700">'+c.n+' vote'+(c.n>1?'s':'')+'</div></div>';
+      }).join('');
+  }catch(e){
+    ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Erreur de chargement</div>';
+  }
+}
 async function chargerVotesJoueurs(){
   var ct=document.getElementById('votes-joueurs-ct');
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){
@@ -3297,16 +3333,23 @@ async function chargerVotesJoueurs(){
     var docs=data.documents||[];
     var votes=docs.map(function(d){
       var f=d.fields||{};
+      var noteVal=f.note?(f.note.doubleValue!==undefined?f.note.doubleValue:parseInt(f.note.integerValue)):null;
       return {
         matchKey:f.matchKey?f.matchKey.stringValue:'',
         voteur:f.voteur?f.voteur.stringValue:'',
         joueurNote:f.joueurNote?f.joueurNote.stringValue:'',
-        note:f.note?parseInt(f.note.integerValue):null
+        note:noteVal
       };
     }).filter(function(v){return v.matchKey===matchKey && v.joueurNote;});
     if(!votes.length){
       ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Aucune note reçue pour ce match (vs '+CONVOS.adv+') pour l\'instant.</div>';
       return;
+    }
+    // Match déjà enregistré correspondant (pour comparer avec la notation du coach)
+    var matchCorrespondant=MATCHS.find(function(m){ return fexNomsCorrespondent(m.adversaire,CONVOS.adv); });
+    var noteCoachParNom={};
+    if(matchCorrespondant && matchCorrespondant.notes){
+      matchCorrespondant.notes.forEach(function(n){ noteCoachParNom[n.nom]=n.note; });
     }
     var parJoueur={};
     votes.forEach(function(v){
@@ -3318,11 +3361,12 @@ async function chargerVotesJoueurs(){
     var lignes=Object.keys(parJoueur).map(function(nom){
       var liste=parJoueur[nom];
       var moy=Math.round((liste.reduce(function(s,v){return s+(v.note||0);},0)/liste.length)*10)/10;
-      return {nom:nom, moy:moy, nb:liste.length};
+      return {nom:nom, moy:moy, nb:liste.length, noteCoach:noteCoachParNom.hasOwnProperty(nom)?noteCoachParNom[nom]:null};
     }).sort(function(a,b){return b.moy-a.moy;});
-    ct.innerHTML='<div style="font-size:11px;color:var(--gris2);margin-bottom:10px">'+nomsVoteurs.length+' joueur(s) ont voté — vs '+CONVOS.adv+'</div>'
+    ct.innerHTML='<div style="font-size:11px;color:var(--gris2);margin-bottom:10px">'+nomsVoteurs.length+' joueur(s) ont voté — vs '+CONVOS.adv+(matchCorrespondant?'':' · match pas encore enregistré, comparaison staff indisponible')+'</div>'
+      +'<div class="jr" style="grid-template-columns:1fr 68px 68px;color:var(--gris2);font-size:9px;text-transform:uppercase"><div class="jnom"></div><div style="text-align:center">Joueurs</div><div style="text-align:center">Staff</div></div>'
       +lignes.map(function(l){
-        return '<div class="jr" style="grid-template-columns:1fr 40px 60px"><div class="jnom">'+l.nom+'</div><div style="text-align:center;color:var(--gris2);font-size:11px">'+l.nb+' vote'+(l.nb>1?'s':'')+'</div><div style="text-align:right;color:var(--gold);font-weight:700">'+l.moy+'/10</div></div>';
+        return '<div class="jr" style="grid-template-columns:1fr 68px 68px"><div class="jnom">'+l.nom+' <span style="color:var(--gris2);font-size:9.5px">('+l.nb+' vote'+(l.nb>1?'s':'')+')</span></div><div style="text-align:center;color:var(--gold);font-weight:700">'+l.moy+'/6</div><div style="text-align:center;color:'+(l.noteCoach!==null?'var(--or)':'var(--gris2)')+';font-weight:700">'+(l.noteCoach!==null?l.noteCoach+'/6':'—')+'</div></div>';
       }).join('');
   }catch(e){
     ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Erreur de chargement — vérifie ta connexion</div>';
@@ -4609,6 +4653,43 @@ async function chargerConfirmations(){
     ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Erreur de chargement</div>';
   }
 }
+var CATEGORIES_CONVOC=[
+  {k:'entrainement_a',lab:'Entraînement A'},
+  {k:'entrainement_b',lab:'Entraînement B'},
+  {k:'reprise_course',lab:'Reprise course entraînement'},
+  {k:'blesse_absent',lab:'Blessé / Absent'},
+  {k:'u18',lab:'U18'},
+  {k:'convo_match_a',lab:'CONVO MATCH A'},
+  {k:'convo_match_b',lab:'CONVO MATCH B'},
+  {k:'convo_match_u18',lab:'CONVO U18'}
+];
+function renderRepartitionJoueurs(){
+  var ct=document.getElementById('repartition-list');
+  if(!ct) return;
+  var joueursTries=JOUEURS.map(function(j,i){return {j:j,i:i,affecte:!!AFFECTATIONS_CONVOC[j.num]};})
+    .sort(function(a,b){ return (a.affecte===b.affecte)?0:(a.affecte?1:-1); });
+  ct.innerHTML=joueursTries.map(function(o){
+    var j=o.j,val=AFFECTATIONS_CONVOC[j.num]||'';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;margin-bottom:4px;border-radius:5px;border-left:3px solid '+(o.affecte?'var(--green)':'var(--red)')+';background:'+(o.affecte?'rgba(15,15,15,.5)':'rgba(239,68,68,.08)')+'">'
+      +'<span style="font-size:12px">'+(o.affecte?'':'⚠️ ')+j.num+'. '+j.nom+'</span>'
+      +'<select class="fi" style="width:auto;flex-shrink:0;font-size:11px;padding:6px 8px" onchange="changerAffectationConvoc('+j.num+',this.value)">'
+      +'<option value=""'+(val===''?' selected':'')+'>— Non affecté —</option>'
+      +CATEGORIES_CONVOC.map(function(c){return '<option value="'+c.k+'"'+(val===c.k?' selected':'')+'">'+c.lab+'</option>';}).join('')
+      +'</select></div>';
+  }).join('');
+  majCompteurRepartition();
+}
+function majCompteurRepartition(){
+  var nb=JOUEURS.filter(function(j){return AFFECTATIONS_CONVOC[j.num];}).length;
+  var complet=nb===JOUEURS.length;
+  var el=document.getElementById('repartition-nb');
+  el.textContent=(complet?'✓ ':'⚠️ ')+nb+' affecté(s) / '+JOUEURS.length;
+  el.style.color=complet?'var(--green)':'var(--red)';
+}
+function changerAffectationConvoc(num,val){
+  if(val) AFFECTATIONS_CONVOC[num]=val; else delete AFFECTATIONS_CONVOC[num];
+  renderRepartitionJoueurs();
+}
 async function chargerDisponibilites(){
   var ct=document.getElementById('dispo-list');
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
@@ -5838,6 +5919,7 @@ function appliquerDonnees(p,silencieux){
   if(p.EVENEMENTS_PERSO)EVENEMENTS_PERSO=p.EVENEMENTS_PERSO;
   if(p.INFOS_CLUB)INFOS_CLUB=p.INFOS_CLUB;
   if(p.HISTORIQUE_SAISONS)HISTORIQUE_SAISONS=p.HISTORIQUE_SAISONS;
+  if(p.AFFECTATIONS_CONVOC)AFFECTATIONS_CONVOC=p.AFFECTATIONS_CONVOC;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -5899,7 +5981,7 @@ function recalculerStats(){
 // SYNCHRO SAISON (Firebase Firestore) — sauvegarde cloud en plus du navigateur
 // Note : PHOTOS et SEANCES_PHOTOS restent uniquement en local (trop volumineux pour Firestore, limite ~1 Mo par document)
 function donneesSaisonSansPhotos(){
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,NOM_CLUB};
 }
 async function sauvegarderFirestore(){
   try{
@@ -6800,6 +6882,7 @@ function supprimerEntretien(i){
 // ADVERSAIRES — fiche permanente par équipe adverse
 var ADVERSAIRES=[];
 var HISTORIQUE_SAISONS=[];
+var AFFECTATIONS_CONVOC={};
 var INFOS_CLUB={reglement:'',contacts:[]};
 function trouverOuCreerAdversaire(nom){
   nom=(nom||'').trim();
@@ -8450,7 +8533,7 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(ok){
       notif(ok?'☁️ Sauvegardé aussi dans le cloud':'⚠ Sauvegarde cloud impossible (pas internet ?) — la copie locale est OK');
@@ -8472,7 +8555,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');

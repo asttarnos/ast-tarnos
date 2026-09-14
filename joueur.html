@@ -14,106 +14,106 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0a0a;--bg2:#161310;--surface:#1d1916;--ink:#f5f2ec;--mute:#9a948d;--or:#F97316;--or-deep:#c2410c;--gold:#eab53f;--green:#3fae6a;--red:#e35b52;--blue:#4ea8de;--purple:#b285e8;--hair:rgba(245,242,236,.08);--gris2:var(--mute);--gris:var(--ink);--line:var(--hair);--blanc:var(--ink);--or2:var(--or-deep);--card:var(--surface)}
-html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
-body{background:radial-gradient(1100px 460px at 50% -8%,rgba(249,115,22,.13),transparent 62%),var(--bg);padding-bottom:24px;min-height:100vh}
+:root{--bg:#0c0d0f;--bg2:#101113;--surface:#15171b;--ink:#e8e9eb;--mute:#8b909a;--or:#d97706;--or-deep:#8a5615;--gold:#e0a530;--green:#22a06b;--red:#dc4444;--blue:#4ea8de;--purple:#b285e8;--hair:#24262b;--gris2:var(--mute);--gris:var(--ink);--line:var(--hair);--blanc:var(--ink);--or2:var(--or-deep);--card:var(--surface)}
+html,body{min-height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 .hidden{display:none!important}
-.wrap{max-width:520px;margin:0 auto;padding:18px 16px}
-.brand-title{font-family:'Anton',sans-serif;letter-spacing:.01em;color:var(--ink);font-size:22px}
+.wrap{max-width:520px;margin:0 auto;padding:16px 14px}
+.brand-title{font-family:Roboto Condensed,sans-serif;font-weight:700;letter-spacing:.01em;color:var(--ink);font-size:20px}
 .brand-title .accent{color:var(--or)}
-.brand-sub{font-size:11.5px;color:var(--mute);margin-top:3px}
+.brand-sub{font-size:11px;color:var(--mute);margin-top:3px}
 /* --- Ecran "qui es-tu" --- */
 #scr-login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
 #scr-login .crest{display:block}
-#scr-login .brand-title{font-size:32px;margin-bottom:2px}
-#scr-login .sub{color:var(--mute);font-size:13.5px;margin:22px 0 22px;font-weight:500}
-.fi{width:100%;background:var(--surface);border:1px solid var(--hair);border-radius:10px;color:var(--ink);padding:13px 14px;font-size:15px;font-family:inherit}
+#scr-login .brand-title{font-size:26px;margin-bottom:2px}
+#scr-login .sub{color:var(--mute);font-size:12.5px;margin:20px 0 20px;font-weight:500}
+.fi{width:100%;background:var(--surface);border:1px solid var(--hair);border-radius:5px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit}
 .fi:focus{outline:none;border-color:var(--or)}
-.btn-or{width:100%;background:linear-gradient(160deg,var(--or),var(--or-deep));border:none;color:#fff;font-weight:700;font-size:13.5px;padding:14px;border-radius:10px;margin-top:14px;cursor:pointer;box-shadow:0 6px 20px -6px rgba(249,115,22,.5)}
-.btn-or:disabled{opacity:.35;box-shadow:none}
+.btn-or{width:100%;background:var(--or);border:none;color:#1a0f02;font-weight:700;font-family:'Roboto Condensed',sans-serif;letter-spacing:.02em;text-transform:uppercase;font-size:12.5px;padding:13px;border-radius:5px;margin-top:14px;cursor:pointer}
+.btn-or:disabled{opacity:.35}
 .err-msg{color:var(--red);font-size:12px;margin-top:10px}
 .loading-msg{color:var(--mute);font-size:12px;margin-top:10px}
 /* --- Header appli --- */
-#app-header{position:sticky;top:0;z-index:20;background:rgba(10,9,8,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--hair);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
-#app-header .joueur-nom{font-size:13px;color:var(--ink);font-weight:600}
+#app-header{position:sticky;top:0;z-index:20;background:rgba(12,13,15,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--hair);padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+#app-header .joueur-nom{font-size:12.5px;color:var(--ink);font-weight:600}
 #app-header .changer{font-size:10px;color:var(--mute);cursor:pointer;margin-top:2px}
 /* --- Blocs contenu --- */
-.blk{background:linear-gradient(180deg,var(--surface),var(--bg2));border-radius:16px;margin-bottom:14px;overflow:hidden}
-.blk-h{padding:15px 16px 2px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.blk-h .t{font-size:14px;font-weight:700;color:var(--ink)}
+.blk{background:var(--surface);border:1px solid var(--hair);border-radius:6px;margin-bottom:12px;overflow:hidden}
+.blk-h{padding:9px 12px;border-bottom:1px solid var(--hair);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.blk-h .t{font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
 .blk-h .bc{font-size:10px;color:var(--mute);white-space:nowrap}
-.blk-body{padding:10px 16px 16px}
-.actu-item{background:rgba(255,255,255,.035);border-radius:10px;padding:12px 13px;font-size:13.5px;line-height:1.45;color:var(--ink)}
-.actu-date{font-size:10.5px;color:var(--mute);margin-top:7px}
+.blk-body{padding:12px}
+.actu-item{background:rgba(255,255,255,.03);border-radius:5px;padding:11px 12px;font-size:13px;line-height:1.45;color:var(--ink)}
+.actu-date{font-size:10px;color:var(--mute);margin-top:7px}
 /* --- Hero convocation --- */
-.hero-convoc{background:linear-gradient(160deg,rgba(249,115,22,.16),rgba(249,115,22,.03) 60%);border-radius:16px;margin-bottom:14px;padding:18px 18px 16px;position:relative;overflow:hidden}
-.hero-convoc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--or),transparent)}
-.hero-eyebrow{font-size:11px;color:var(--or);font-weight:600;margin-bottom:6px}
-.convoc-adv{font-family:'Anton',sans-serif;font-size:24px;color:var(--ink);line-height:1.05}
-.convoc-meta{font-size:12px;color:var(--mute);margin-top:5px}
-.statut-badge{display:inline-block;margin-top:12px;padding:6px 13px;border-radius:20px;font-size:11px;font-weight:700}
-.statut-a{background:rgba(63,174,106,.16);color:var(--green)}
-.statut-b{background:rgba(78,168,222,.16);color:var(--blue)}
-.statut-bl{background:rgba(227,91,82,.16);color:var(--red)}
-.statut-inconnu{background:rgba(255,255,255,.06);color:var(--mute)}
-.plan-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair)}
+.hero-convoc{background:linear-gradient(160deg,rgba(217,119,6,.10),transparent 65%);border:1px solid var(--hair);border-radius:6px;margin-bottom:12px;padding:16px;position:relative;overflow:hidden}
+.hero-eyebrow{font-family:'Roboto Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--or);margin-bottom:8px}
+.convoc-adv{font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:20px;color:var(--ink);line-height:1.1}
+.convoc-meta{font-size:11.5px;color:var(--mute);margin-top:5px}
+.statut-badge{display:inline-block;margin-top:12px;padding:5px 11px;border-radius:4px;font-size:10.5px;font-weight:700}
+.statut-a{background:rgba(34,160,107,.14);color:var(--green)}
+.statut-b{background:rgba(78,168,222,.14);color:var(--blue)}
+.statut-bl{background:rgba(220,68,68,.14);color:var(--red)}
+.statut-inconnu{background:rgba(255,255,255,.05);color:var(--mute)}
+.plan-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
 .plan-item:last-child{border-bottom:none}
-.plan-date{font-size:11px;color:var(--or);font-weight:700;min-width:70px}
-.plan-theme{font-size:13px;color:var(--ink);flex:1;padding-left:10px}
-.empty-txt{font-size:12px;color:var(--mute);text-align:center;padding:10px 0}
+.plan-date{font-family:'Roboto Condensed',sans-serif;font-size:10.5px;color:var(--or);font-weight:700;min-width:70px}
+.plan-theme{font-size:12.5px;color:var(--ink);flex:1;padding-left:10px}
+.empty-txt{font-size:11.5px;color:var(--mute);text-align:center;padding:10px 0}
 .soon{text-align:center;padding:70px 24px;color:var(--mute)}
-.soon .ic{font-size:36px;margin-bottom:14px;opacity:.7}
-.soon .t{font-size:15px;color:var(--ink);font-weight:700;margin-bottom:6px}
-.soon .d{font-size:12.5px;line-height:1.5}
-/* --- Nav (ancienne barre du bas, remplacée par le hub) --- */
-.hub-pole-titre{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:.02em;margin:22px 4px 12px}
+.soon .ic{font-size:32px;margin-bottom:14px;opacity:.6}
+.soon .t{font-family:'Roboto Condensed',sans-serif;font-size:14px;color:var(--ink);font-weight:700;margin-bottom:6px}
+.soon .d{font-size:12px;line-height:1.5}
+/* --- Hub : menu liste, style pro --- */
+.hub-hero{padding:16px 4px 18px;border-bottom:1px solid var(--hair);margin-bottom:4px;display:flex;align-items:center;gap:12px}
+.hub-crest{width:38px;height:41px;flex-shrink:0}
+.hub-crest img{width:100%;height:100%;object-fit:contain}
+.hub-crest-title{font-family:'Roboto Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.01em;line-height:1.1}
+.hub-crest-sub{font-size:10.5px;color:var(--or);font-weight:600;letter-spacing:.04em;margin-top:2px;text-transform:uppercase}
+.hub-pole-titre{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink);margin:18px 4px 6px;padding-top:4px}
 .hub-pole-titre:first-child{margin-top:2px}
-.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.hub-hero{text-align:center;padding:14px 0 24px}
-.hub-crest{width:78px;height:84px;margin:0 auto 12px}
-.hub-crest img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 20px rgba(249,115,22,.3))}
-.hub-crest-title{font-family:'Anton',sans-serif;font-size:30px;letter-spacing:.01em}
-.hub-crest-sub{font-size:12.5px;color:var(--or);font-weight:700;letter-spacing:.08em;margin-top:4px}
-.hub-tuile{background:linear-gradient(155deg,var(--surface) 0%,var(--bg2) 100%);border-radius:14px;cursor:pointer;position:relative;overflow:hidden;min-height:112px;display:flex;flex-direction:column;justify-content:flex-end;background-size:cover;background-position:center}
-.hub-tuile::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.25) 55%,rgba(0,0,0,.1) 100%);z-index:1}
-.hub-tuile::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--tc,var(--or));z-index:2}
-.hub-tuile-inner{padding:14px;position:relative;z-index:2}
-.hub-tuile .ic{font-size:26px;margin-bottom:8px;opacity:.95}
-.hub-tuile .t{font-size:15.5px;font-weight:800;color:var(--ink);line-height:1.2}
-.hub-tuile.locked .t::after{content:' 🔒';opacity:.75}
-.hub-badge-new{position:absolute;top:10px;right:10px;width:11px;height:11px;border-radius:50%;background:var(--or);box-shadow:0 0 0 3px rgba(249,115,22,.25),0 0 8px rgba(249,115,22,.6);z-index:3}
-.hub-badge-attente{position:absolute;top:8px;right:8px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(227,91,82,.25),0 0 8px rgba(227,91,82,.6);z-index:3}
+.hub-grid{display:block;border:1px solid var(--hair);border-radius:6px;overflow:hidden}
+.hub-tuile{background:var(--surface);cursor:pointer;position:relative;display:flex;align-items:center;gap:11px;padding:12px 13px;border-bottom:1px solid var(--hair);background-image:none!important}
+.hub-tuile:last-child{border-bottom:none}
+.hub-tuile::after,.hub-tuile::before{display:none!important}
+.hub-tuile .ic{font-size:16px;width:20px;text-align:center;flex-shrink:0;opacity:.85}
+.hub-tuile-inner{display:flex;align-items:center;gap:11px;padding:0;flex:1;min-width:0}
+.hub-tuile .t{font-size:13px;font-weight:500;color:var(--ink);line-height:1.2;flex:1}
+.hub-tuile.locked .t::after{content:' · verrouillé';color:var(--mute);font-weight:400;font-size:11px}
+.hub-tuile-inner::after{content:'\203A';color:var(--mute);font-size:16px;margin-left:auto;flex-shrink:0}
+.hub-badge-new{position:static;width:7px;height:7px;border-radius:50%;background:var(--or);box-shadow:none;margin-left:8px;flex-shrink:0}
+.hub-badge-attente{position:static;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:none;margin-left:8px;flex-shrink:0}
 /* --- Effectif / classement --- */
 .podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin-bottom:6px}
-.podium-c{flex:1;background:rgba(255,255,255,.035);border-radius:12px;padding:14px 6px 12px;text-align:center}
-.podium-c.p1{background:linear-gradient(160deg,rgba(234,181,63,.18),rgba(234,181,63,.03));order:2;padding-top:8px}
+.podium-c{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--hair);border-radius:5px;padding:14px 6px 12px;text-align:center}
+.podium-c.p1{border-color:rgba(224,165,48,.4);order:2;padding-top:8px}
 .podium-c.p2{order:1}
 .podium-c.p3{order:3}
-.podium-rank{font-family:'Anton',sans-serif;font-size:14px;color:var(--mute)}
-.podium-med{font-size:24px;margin:5px 0}
-.podium-nom{font-size:10.5px;color:var(--ink);font-weight:600;line-height:1.25;min-height:26px}
-.podium-pts{font-family:'Anton',sans-serif;font-size:18px;color:var(--gold)}
+.podium-rank{font-family:'Roboto Condensed',sans-serif;font-size:13px;color:var(--mute)}
+.podium-med{font-size:20px;margin:5px 0}
+.podium-nom{font-size:10px;color:var(--ink);font-weight:600;line-height:1.25;min-height:26px}
+.podium-pts{font-family:'Roboto Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--gold)}
 .podium-lbl{font-size:8px;color:var(--mute)}
-.pt-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--hair);font-size:12px}
+.pt-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--hair);font-size:11.5px}
 .pt-row:last-child{border-bottom:none}
-.pt-rank{width:20px;color:var(--mute);font-weight:700;font-size:11px}
+.pt-rank{width:20px;color:var(--mute);font-weight:700;font-size:10.5px;font-family:'Roboto Condensed',sans-serif}
 .pt-nom{flex:1;color:var(--ink)}
-.pt-val{color:var(--gold);font-weight:700;min-width:52px;text-align:right}
-.effectif-card{background:rgba(255,255,255,.035);border-radius:14px;padding:13px 14px;margin-bottom:8px}
-.effectif-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.effectif-nom{font-size:13px;font-weight:700;color:var(--ink)}
-.effectif-note{font-family:'Anton',sans-serif;color:var(--or);font-size:15px}
+.pt-val{color:var(--gold);font-weight:700;font-family:'Roboto Condensed',sans-serif;min-width:52px;text-align:right}
+.effectif-card{background:rgba(255,255,255,.03);border:1px solid var(--hair);border-radius:6px;padding:12px 13px;margin-bottom:8px}
+.effectif-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.effectif-nom{font-size:12.5px;font-weight:600;color:var(--ink)}
+.effectif-note{font-family:Roboto Condensed,sans-serif;font-weight:700;color:var(--or);font-size:14px}
 .effectif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 6px}
 .effectif-chip{text-align:center}
-.effectif-chip .l{font-size:8px;color:var(--mute)}
-.effectif-chip .v{font-size:12px;font-weight:700;color:var(--ink);margin-top:1px}
+.effectif-chip .l{font-size:8px;color:var(--mute);text-transform:uppercase}
+.effectif-chip .v{font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--ink);margin-top:1px}
 .code-gate{text-align:center;padding:50px 24px}
-.code-gate .ic{font-size:32px;margin-bottom:10px}
-.obj-bar-bg{background:rgba(255,255,255,.08);border-radius:8px;height:8px;overflow:hidden;margin-top:6px}
-.obj-bar-fill{height:100%;background:var(--or);border-radius:8px}
-.tableau-saison{width:100%;border-collapse:collapse;font-size:10.5px}
-.tableau-saison td{padding:5px 4px;border-top:1px solid var(--line);text-align:center;white-space:nowrap}
-.tableau-saison td:first-child,.tableau-saison td:nth-child(2){text-align:left}
+.code-gate .ic{font-size:28px;margin-bottom:10px;opacity:.7}
+.obj-bar-bg{background:var(--hair);border-radius:3px;height:5px;overflow:hidden;margin-top:6px}
+.obj-bar-fill{height:100%;background:var(--or);border-radius:3px}
+.tableau-saison{width:100%;border-collapse:collapse;font-size:10px}
+.tableau-saison td{padding:5px 4px;border-top:1px solid var(--hair);text-align:center;white-space:nowrap;font-family:'Roboto Condensed',sans-serif}
+.tableau-saison td:first-child,.tableau-saison td:nth-child(2){text-align:left;font-family:'Inter',sans-serif}
 </style>
 </head>
 <body>
@@ -146,12 +146,10 @@ body{background:radial-gradient(1100px 460px at 50% -8%,rgba(249,115,22,.13),tra
     <div id="scr-accueil" class="screen hidden"></div>
     <div id="scr-mesmatchs" class="screen hidden"></div>
     <div id="scr-sante" class="screen hidden"></div>
-    <div id="scr-questionnaire" class="screen hidden"></div>
     <div id="scr-infosclub" class="screen hidden"></div>
     <div id="scr-calannuel" class="screen hidden"></div>
     <div id="scr-effectif" class="screen hidden"></div>
     <div id="scr-macarte" class="screen hidden"></div>
-    <div id="scr-trombi" class="screen hidden"></div>
     <div id="scr-entrainement" class="screen hidden"></div>
     <div id="scr-formephysique" class="screen hidden"></div>
     <div id="scr-saison" class="screen hidden"></div>
@@ -282,7 +280,6 @@ async function demarrerApp(){
   renderSondage();
   renderEffectif();
   renderMaCarte();
-  renderTrombinoscope();
   renderPlanning();
   renderConvocations();
   renderSeances();
@@ -290,7 +287,6 @@ async function demarrerApp(){
   renderSaison();
   renderTempsJeu();
   renderSante();
-  renderQuestionnaire();
   renderCalendrierAnnuelJoueur();
   renderPrepaAdversaire();
   renderJourDeMatch();
@@ -378,7 +374,6 @@ function renderHub(){
       {ic:'⭐',t:'Mes matchs & notes',s:'mesmatchs'},
       {ic:'📆',t:'Calendrier annuel',s:'calannuel'},
       {ic:'🩹',t:'Déclarer une blessure',s:'sante'},
-      {ic:'📋',t:'Questionnaire santé',s:'questionnaire'},
       {ic:'📄',t:'Docs & contacts',s:'infosclub'},
       {ic:'💬',t:'Messages',s:'messages'}
     ]},
@@ -398,7 +393,6 @@ function renderHub(){
     ]},
     {titre:'Effectif',tc:'var(--purple)',tuiles:[
       {ic:'🎴',t:'Ma carte',s:'macarte'},
-      {ic:'📸',t:'Trombinoscope',s:'trombi'},
       {ic:'👥',t:'Stats effectif',s:'effectif'},
       {ic:'⏱',t:'Temps de jeu',s:'tempsjeu'},
       {ic:'🔒',t:'Espace coach',s:'coach',lock:true}
@@ -418,7 +412,7 @@ function renderHub(){
 function goNav(s){
   document.querySelectorAll('.screen').forEach(function(el){ el.classList.add('hidden'); });
   document.getElementById('scr-'+s).classList.remove('hidden');
-  if(s==='accueil'||s==='mesmatchs'||s==='effectif'||s==='macarte'||s==='trombi'||s==='entrainement'||s==='planning'||s==='convocations'||s==='jourmatch'||s==='prepa'||s==='statslive'||s==='seances'||s==='videos'||s==='saison'||s==='tempsjeu'||s==='coach'||s==='sante'||s==='questionnaire'||s==='infosclub'||s==='calannuel'||s==='messages'||s==='formephysique'){
+  if(s==='accueil'||s==='mesmatchs'||s==='effectif'||s==='macarte'||s==='entrainement'||s==='planning'||s==='convocations'||s==='jourmatch'||s==='prepa'||s==='statslive'||s==='seances'||s==='videos'||s==='saison'||s==='tempsjeu'||s==='coach'||s==='sante'||s==='infosclub'||s==='calannuel'||s==='messages'||s==='formephysique'){
     actualiserDonnees(false).then(function(){ marquerTuileVue(s); });
   }
 }
@@ -431,7 +425,6 @@ async function actualiserDonnees(manuel){
     renderSondage();
     renderEffectif();
     renderMaCarte();
-    renderTrombinoscope();
     renderPlanning();
     renderConvocations();
     renderSeances();
@@ -439,7 +432,6 @@ async function actualiserDonnees(manuel){
     renderSaison();
     renderTempsJeu();
     renderSante();
-    renderQuestionnaire();
     renderCalendrierAnnuelJoueur();
     renderPrepaAdversaire();
     renderJourDeMatch();
@@ -645,7 +637,7 @@ async function renderMesMatchs(){
   html+='</div></div>';
 
   // Mes dernières notes de match (mêmes 4 critères que côté coach)
-  var CRITERES=[{k:'consignes',lab:'Respect des consignes',ic:'📋'},{k:'offensif',lab:'Apport offensif',ic:'⚔️'},{k:'defensif',lab:'Apport défensif',ic:'🛡️'},{k:'esprit',lab:"État d'esprit",ic:'🔥'}];
+  var CRITERES=[{k:'consignes',lab:'Respect des consignes',ic:'📋'},{k:'offensif',lab:'Apport offensif',ic:'⚔️'},{k:'defensif',lab:'Apport défensif',ic:'🛡️'},{k:'esprit',lab:"État d'esprit / combativité",ic:'🔥'}];
   var mesNotes=[];
   (SAISON.MATCHS||[]).forEach(function(m){
     var n=(m.notes||[]).find(function(x){ return x.num===MON_NUM; });
@@ -660,11 +652,18 @@ async function renderMesMatchs(){
       return '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)">'
         +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'
         +'<div><b style="color:#fff;font-size:13px">vs '+esc(m.adversaire||'')+'</b><span style="color:var(--gris2);font-size:10.5px;margin-left:6px">'+esc(m.date||'')+'</span></div>'
-        +'<div style="color:var(--gold);font-family:Anton,sans-serif;font-size:15px">'+(n.note||0)+'/6</div></div>'
+        +'<div style="color:var(--gold);font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:15px">'+(n.note||0)+'/6</div></div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:10.5px;color:var(--gris2);margin-bottom:8px">'
         +'<span>'+statutLab+'</span><span>⚽ '+(n.buts||0)+' but(s)</span><span>🎯 '+(n.pd||0)+' passe(s) D.</span><span>⏱ '+(n.tps||0)+' min</span>'
         +((n.cj||0)>0?'<span style="color:var(--gold)">🟨 '+n.cj+'</span>':'')+((n.cr||0)>0?'<span style="color:var(--red)">🟥</span>':'')
         +'</div>'
+        +(function(){
+          if(m.hommeDuMatch===null||m.hommeDuMatch===undefined) return '';
+          var hdm=(SAISON.JOUEURS||[])[m.hommeDuMatch];
+          if(!hdm) return '';
+          var cMoi=hdm.num===MON_NUM;
+          return '<div style="font-size:10.5px;margin-bottom:8px;color:'+(cMoi?'var(--or)':'var(--mute)')+';font-weight:'+(cMoi?'700':'400')+'">🏅 Homme du match (coach) : '+esc(hdm.nom)+(cMoi?' — toi !':'')+'</div>';
+        })()
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px">'
         +CRITERES.map(function(c){
           var v=nd[c.k]||0;
@@ -696,24 +695,51 @@ async function renderMesMatchs(){
     html+='</div></div>';
   }
 
-  // Voter la performance de mes coéquipiers (dernier match)
+  // Voter la performance de mes coéquipiers (dernier match) — réservé aux 14 convoqués
   var dernierMatch=(SAISON.MATCHS||[])[0];
   if(dernierMatch){
     var matchKey=(dernierMatch.date||'')+'|'+dernierMatch.adversaire;
-    var dejaVote=(await chargerMesVotesEnvoyes(matchKey)).length>0;
-    var coequipiers=(SAISON.JOUEURS||[]).filter(function(j){return j.num!==MON_NUM;});
-    html+='<div class="blk"><div class="blk-h"><span class="t">🗳 Noter mes coéquipiers</span><span class="bc" style="font-size:9.5px;color:var(--mute)">vs '+esc(dernierMatch.adversaire)+'</span></div><div class="blk-body">';
-    if(dejaVote){
-      html+='<div class="empty-txt">✓ Tu as déjà envoyé tes notes pour ce match</div>';
-    }else{
-      html+='<div style="font-size:10.5px;color:var(--mute);margin-bottom:10px">Note chaque coéquipier sur 10 pour ce match. Laisse à 0 ceux que tu ne notes pas.</div>'
-        +coequipiers.map(function(j){
-          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--hair)"><span style="font-size:12px">'+esc(j.nom)+'</span>'
-            +'<select class="ninput vote-coequipier" data-nom="'+esc(j.nom)+'" style="width:52px"><option value="0">–</option>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('')+'</select></div>';
-        }).join('')
-        +'<button class="btn-or" style="margin-top:14px" onclick="envoyerVotesCoequipiers(\''+matchKey.replace(/'/g,"\\'")+'\')">Envoyer mes notes</button>';
+    var convDernierMatch=convocationPourMatch(dernierMatch.adversaire);
+    var nomsConvoquesMatch=convDernierMatch?[].concat(convDernierMatch.a||[],convDernierMatch.b||[]).map(function(n){return (n||'').toLowerCase().trim();}):null;
+    var monNomLcVote=(MON_NOM||'').toLowerCase().trim();
+    var jEtaisConvoque=nomsConvoquesMatch&&nomsConvoquesMatch.indexOf(monNomLcVote)!==-1;
+    if(jEtaisConvoque){
+      var dejaVote=(await chargerMesVotesEnvoyes(matchKey)).length>0;
+      var coequipiers=(SAISON.JOUEURS||[]).filter(function(j){ return j.num!==MON_NUM && nomsConvoquesMatch.indexOf((j.nom||'').toLowerCase().trim())!==-1; });
+      html+='<div class="blk"><div class="blk-h"><span class="t">🗳 Noter mes coéquipiers</span><span class="bc" style="font-size:9.5px;color:var(--mute)">vs '+esc(dernierMatch.adversaire)+'</span></div><div class="blk-body">';
+      if(dejaVote){
+        html+='<div class="empty-txt">✓ Tu as déjà envoyé tes notes pour ce match</div>';
+      }else if(!coequipiers.length){
+        html+='<div class="empty-txt">Aucun coéquipier convoqué à noter</div>';
+      }else{
+        html+='<div style="font-size:10.5px;color:var(--mute);margin-bottom:12px">Mêmes critères que le coach, réservé aux 14 convoqués de ce match.</div>'
+          +coequipiers.map(function(j,ci){
+            return '<div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--hair)">'
+              +'<div style="font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:8px">'+esc(j.nom)+'</div>'
+              +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 14px">'
+              +CRITERES_NOTE_JOUEUR.map(function(c){
+                return '<div><div style="font-size:9.5px;color:var(--mute);margin-bottom:3px">'+c.ic+' '+c.lab+'</div><div class="vote-crit-stars" data-nom="'+esc(j.nom)+'" data-crit="'+c.k+'" data-val="3">'+etoilesVoteHtml(3)+'</div></div>';
+              }).join('')
+              +'</div></div>';
+          }).join('')
+          +'<button class="btn-or" style="margin-top:4px" onclick="envoyerVotesCoequipiers(\''+matchKey.replace(/'/g,"\\'")+'\')">Envoyer mes notes</button>';
+      }
+      html+='</div></div>';
+
+      // Homme du match — un seul choix, réservé aux convoqués
+      var dejaVoteHDM=await chargerMonVoteHDM(matchKey);
+      html+='<div class="blk"><div class="blk-h"><span class="t">🏅 Homme du match — vote joueurs</span></div><div class="blk-body">';
+      if(dejaVoteHDM){
+        html+='<div class="empty-txt">✓ Tu as voté pour '+esc(dejaVoteHDM)+'</div>';
+      }else if(!coequipiers.length){
+        html+='<div class="empty-txt">Aucun coéquipier convoqué</div>';
+      }else{
+        html+=coequipiers.map(function(j){
+          return '<div onclick="voterHommeDuMatch(\''+matchKey.replace(/'/g,"\\'")+'\',\''+j.nom.replace(/'/g,"\\'")+'\')" style="padding:10px 12px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:12.5px;color:var(--ink)">'+esc(j.nom)+'</div>';
+        }).join('');
+      }
+      html+='</div></div>';
     }
-    html+='</div></div>';
   }
 
   ct.innerHTML=html;
@@ -753,6 +779,58 @@ async function envoyerDebrief(matchKey){
     notif('⚠ Envoi impossible — vérifie ta connexion');
   }
 }
+var CRITERES_NOTE_JOUEUR=[
+  {k:'consignes',lab:'Respect des consignes',ic:'📋'},
+  {k:'offensif',lab:'Apport offensif',ic:'⚔️'},
+  {k:'defensif',lab:'Apport défensif',ic:'🛡️'},
+  {k:'esprit',lab:"État d'esprit / combativité",ic:'🔥'}
+];
+function etoilesVoteHtml(val){
+  var h='';
+  for(var i=1;i<=6;i++){ h+='<span onclick="event.stopPropagation();clicEtoileVote(this,'+i+')" style="cursor:pointer;font-size:15px;color:'+(i<=val?'#fbbf24':'#3a3a3a')+'">★</span>'; }
+  return h;
+}
+function clicEtoileVote(spanEl,val){
+  var wrap=spanEl.parentElement;
+  wrap.dataset.val=val;
+  wrap.innerHTML=etoilesVoteHtml(val);
+}
+function convocationPourMatch(adversaire){
+  var conv=SAISON.CONVOS||{};
+  if(conv.adv && fexNomsCorrespondent(conv.adv,adversaire)) return conv;
+  var trouve=null;
+  (SAISON.CONVOCATIONS_HISTORIQUE||[]).forEach(function(c){ if(fexNomsCorrespondent(c.adv,adversaire)) trouve=c; });
+  return trouve;
+}
+async function chargerMonVoteHDM(matchKey){
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/homme_du_match?pageSize=300');
+    if(!res.ok) return null;
+    var data=await res.json();
+    var trouve=null;
+    (data.documents||[]).forEach(function(doc){
+      var f=doc.fields||{};
+      if((f.voteur||{}).stringValue===MON_NOM && (f.matchKey||{}).stringValue===matchKey){
+        trouve=(f.joueurNote||{}).stringValue||null;
+      }
+    });
+    return trouve;
+  }catch(e){ return null; }
+}
+async function voterHommeDuMatch(matchKey,nomJoueur){
+  var body={fields:{
+    matchKey:{stringValue:matchKey},
+    voteur:{stringValue:MON_NOM},
+    joueurNote:{stringValue:nomJoueur}
+  }};
+  try{
+    await fetch(FIRESTORE_BASE+'/homme_du_match',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    notif('✓ Vote enregistré');
+    renderMesMatchs();
+  }catch(e){
+    notif('⚠ Envoi impossible — vérifie ta connexion');
+  }
+}
 async function chargerMesVotesEnvoyes(matchKey){
   try{
     var res=await fetch(FIRESTORE_BASE+'/votes?pageSize=300');
@@ -765,20 +843,27 @@ async function chargerMesVotesEnvoyes(matchKey){
   }catch(e){ return []; }
 }
 async function envoyerVotesCoequipiers(matchKey){
-  var selects=document.querySelectorAll('.vote-coequipier');
-  var envois=[];
-  selects.forEach(function(sel){
-    var note=parseInt(sel.value);
-    if(note>0) envois.push({nom:sel.dataset.nom,note:note});
+  var parJoueur={};
+  document.querySelectorAll('.vote-crit-stars').forEach(function(el){
+    var nom=el.dataset.nom, crit=el.dataset.crit, val=parseInt(el.dataset.val)||3;
+    parJoueur[nom]=parJoueur[nom]||{};
+    parJoueur[nom][crit]=val;
   });
-  if(!envois.length){ notif('⚠ Note au moins un coéquipier'); return; }
+  var noms=Object.keys(parJoueur);
+  if(!noms.length){ notif('⚠ Aucun coéquipier à noter'); return; }
   try{
-    for(var i=0;i<envois.length;i++){
+    for(var i=0;i<noms.length;i++){
+      var nd=parJoueur[noms[i]];
+      var moy=Math.round(((nd.consignes+nd.offensif+nd.defensif+nd.esprit)/4)*10)/10;
       var body={fields:{
         matchKey:{stringValue:matchKey},
         voteur:{stringValue:MON_NOM},
-        joueurNote:{stringValue:envois[i].nom},
-        note:{integerValue:String(envois[i].note)}
+        joueurNote:{stringValue:noms[i]},
+        note:{doubleValue:moy},
+        consignes:{integerValue:String(nd.consignes)},
+        offensif:{integerValue:String(nd.offensif)},
+        defensif:{integerValue:String(nd.defensif)},
+        esprit:{integerValue:String(nd.esprit)}
       }};
       await fetch(FIRESTORE_BASE+'/votes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     }
@@ -847,7 +932,7 @@ function renderTrombinoscope(){
       var col=TROMBI_COULEURS[i%TROMBI_COULEURS.length];
       var estMoi=j.num===MON_NUM;
       return '<div style="text-align:center">'
-        +'<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(160deg,'+col+',rgba(0,0,0,.4));margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-family:Anton,sans-serif;font-size:20px;color:#fff'+(estMoi?';box-shadow:0 0 0 3px var(--or)':'')+'">'+esc(initialesJoueur(j.nom))+'</div>'
+        +'<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(160deg,'+col+',rgba(0,0,0,.4));margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:20px;color:#fff'+(estMoi?';box-shadow:0 0 0 3px var(--or)':'')+'">'+esc(initialesJoueur(j.nom))+'</div>'
         +'<div style="font-size:10.5px;color:var(--ink);font-weight:600;line-height:1.2">'+esc(j.nom)+(estMoi?' <span style="color:var(--or)">(toi)</span>':'')+'</div>'
         +'<div style="font-size:9px;color:var(--mute)">N°'+esc(j.num)+'</div>'
         +'</div>';
@@ -876,7 +961,7 @@ function renderMaCarte(){
   });
   var html='<div class="hero-convoc" style="text-align:center;padding-top:24px">'
     +'<div class="hero-eyebrow" style="text-align:center">🎴 '+esc(MON_NOM)+'</div>'
-    +'<div style="font-family:Anton,sans-serif;font-size:52px;color:var(--gold);line-height:1;text-shadow:0 0 24px rgba(234,181,63,.4)">'+detail.note+'</div>'
+    +'<div style="font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:52px;color:var(--gold);line-height:1">'+detail.note+'</div>'
     +'<div style="font-size:11px;color:var(--mute);margin-top:4px">Note globale · '+rang+'<sup>'+(rang===1?'er':'e')+'</sup> de l\'effectif ('+joueurs.length+' joueurs)</div>'
     +'</div>';
   var badges=calculerBadges(idx);
@@ -888,12 +973,13 @@ function renderMaCarte(){
   html+='<div class="blk"><div class="blk-h"><span class="t">📊 Mes attributs</span></div><div class="blk-body">'
     +detail.attrs.map(function(a){
       var moy=moyEffectif[a.label];
-      var moyVal=moy&&moy.n>1?Math.round((moy.sum/moy.n)*10)/10:null;
-      var delta=moyVal!==null?Math.round((a.val-moyVal)*10)/10:null;
+      var moyVal6=moy&&moy.n>1?Math.round((moy.sum/moy.n)/10*6*10)/10:null;
+      var val6=Math.round(a.val/10*6*10)/10;
+      var delta=moyVal6!==null?Math.round((val6-moyVal6)*10)/10:null;
       var deltaCol=delta>0.3?'var(--green)':(delta<-0.3?'var(--red)':'var(--mute)');
       var etoiles='';
-      for(var i=1;i<=10;i++){ etoiles+='<span style="font-size:13px;color:'+(i<=a.val?'#fbbf24':'#3a3a3a')+'">★</span>'; }
-      return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--ink);font-weight:600">'+a.label+'</span><span style="color:var(--gold);font-weight:700">'+a.val+'/10</span></div>'
+      for(var i=1;i<=6;i++){ etoiles+='<span style="font-size:15px;color:'+(i<=Math.round(val6)?'#fbbf24':'#3a3a3a')+'">★</span>'; }
+      return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--ink);font-weight:600">'+a.label+'</span><span style="color:var(--gold);font-weight:700">'+val6+'/6</span></div>'
         +'<div>'+etoiles+'</div>'
         +(delta!==null?'<div style="font-size:9.5px;color:'+deltaCol+';margin-top:2px">'+(delta>0?'+':'')+delta+' vs moyenne effectif</div>':'')
         +'</div>';
@@ -1049,21 +1135,40 @@ function renderPlanning(){
     +'</div></div>';
   ct.innerHTML=calendrierHtml+planningHtml;
 }
+var LABELS_CATEGORIES_CONVOC={
+  entrainement_a:'Entraînement A',
+  entrainement_b:'Entraînement B',
+  reprise_course:'Reprise course entraînement',
+  blesse_absent:'Blessé / Absent',
+  u18:'U18',
+  convo_match_a:'CONVO MATCH A',
+  convo_match_b:'CONVO MATCH B',
+  convo_match_u18:'CONVO U18'
+};
 function renderConvocations(){
   var ct=document.getElementById('scr-convocations');
+  var maCategorie=(SAISON.AFFECTATIONS_CONVOC||{})[MON_NUM];
+  var html='<div class="hero-convoc"><div class="hero-eyebrow">📋 Ma catégorie actuelle</div>'
+    +(maCategorie?'<div class="convoc-adv">'+esc(LABELS_CATEGORIES_CONVOC[maCategorie]||maCategorie)+'</div>':'<div class="empty-txt" style="text-align:left;padding:4px 0 0">Pas encore affecté par le coach</div>')
+    +'</div>';
   var items=(SAISON.CONVOCATIONS_HISTORIQUE||[]).slice().reverse();
-  if(!items.length){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucune convocation publiée pour l\'instant</div></div></div>'; return; }
   var monNomLc=(MON_NOM||'').toLowerCase().trim();
-  ct.innerHTML=items.map(function(c){
+  var lignes=items.map(function(c){
     var nomsA=(c.a||[]).map(function(n){return (n||'').toLowerCase().trim();});
     var nomsB=(c.b||[]).map(function(n){return (n||'').toLowerCase().trim();});
-    var badge=nomsA.indexOf(monNomLc)!==-1?'<div class="statut-badge statut-a">✓ Équipe A</div>'
-      :nomsB.indexOf(monNomLc)!==-1?'<div class="statut-badge statut-b">✓ Équipe B</div>'
-      :'<div class="statut-badge statut-inconnu">Non convoqué</div>';
-    return '<div class="blk"><div class="blk-body"><div class="convoc-adv">vs '+esc(c.adv||'')+'</div>'
-      +'<div class="convoc-meta">'+esc(c.date||'')+(c.lieu?' — '+(c.lieu==='D'?'🏠 Domicile':'✈ Extérieur'):'')+'</div>'
-      +badge+'</div></div>';
+    var estA=nomsA.indexOf(monNomLc)!==-1, estB=nomsB.indexOf(monNomLc)!==-1;
+    var badgeCol=estA?'var(--green)':estB?'var(--blue)':'var(--mute)';
+    var badgeTxt=estA?'Équipe A':estB?'Équipe B':'Non convoqué';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair)">'
+      +'<div style="min-width:0"><div style="font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vs '+esc(c.adv||'')+'</div>'
+      +'<div style="font-size:10.5px;color:var(--mute);margin-top:2px">'+esc(c.date||'')+(c.lieu?' · '+(c.lieu==='D'?'🏠 Domicile':'✈ Extérieur'):'')+'</div></div>'
+      +'<div style="font-size:10px;font-weight:700;color:'+badgeCol+';white-space:nowrap;flex-shrink:0">'+badgeTxt+'</div>'
+      +'</div>';
   }).join('');
+  html+='<div class="blk"><div class="blk-h"><span class="t">📋 Historique des convocations match</span><span class="bc" style="font-size:9.5px;color:var(--mute)">'+items.length+' au total</span></div><div class="blk-body">'
+    +(items.length?lignes:'<div class="empty-txt">Aucune convocation publiée pour l\'instant</div>')
+    +'</div></div>';
+  ct.innerHTML=html;
 }
 function renderSeances(){
   var ct=document.getElementById('scr-seances');
@@ -1604,7 +1709,7 @@ function renderEcranStatsLive(){
         +'<span onclick="event.stopPropagation();statsLiveIncrementer(\''+t.k+'\',-1)" style="position:absolute;top:6px;right:8px;font-size:15px;color:var(--mute);padding:2px 6px">–</span>'
         +'<div style="font-size:19px;margin-bottom:2px">'+t.ic+'</div>'
         +'<div style="font-size:10px;color:var(--mute);margin-bottom:4px;line-height:1.2">'+t.lab+'</div>'
-        +'<div style="font-family:Anton,sans-serif;font-size:30px;color:'+t.col+'">'+val+'</div>'
+        +'<div style="font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:30px;color:'+t.col+'">'+val+'</div>'
         +'</div>';
     }).join('')
     +'</div>'
@@ -1706,7 +1811,7 @@ function renderCalendrierAnnuelJoueur(){
   ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">📆 Calendrier annuel</span></div><div class="blk-body">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
     +'<span onclick="cajChangerMois(-1)" style="cursor:pointer;font-size:18px;padding:4px 10px">‹</span>'
-    +'<span id="caj-mois-titre" style="font-family:Anton,sans-serif;font-size:15px"></span>'
+    +'<span id="caj-mois-titre" style="font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:15px"></span>'
     +'<span onclick="cajChangerMois(1)" style="cursor:pointer;font-size:18px;padding:4px 10px">›</span>'
     +'</div>'
     +'<div id="caj-grille" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>'
