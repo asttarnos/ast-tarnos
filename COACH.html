@@ -384,6 +384,9 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div class="kc go"><div class="kl">⚽ Matchs</div><div class="kv" id="d-matchs">0</div><div class="ks2">cette saison</div></div>
     <div class="kc b"><div class="kl">🏆 Bilan</div><div class="kv" id="d-bilan">-</div><div class="ks2">V-N-D</div></div>
   </div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🔔 Points à regarder</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="renderAlertesCoach()">🔄 Actualiser</span></div>
+    <div id="d-alertes" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Actualiser" pour générer les alertes de la semaine.</div></div>
+  </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Forme récente</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="goNav('bilan')">Voir le bilan complet →</span></div>
     <div id="d-forme" style="padding:12px;text-align:center"></div>
   </div>
@@ -1211,6 +1214,9 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
     <div style="padding:12px 12px 4px;font-size:10px;color:var(--gris2)">La validation se fait via le bouton "AJOUTER LE MATCH ET VALIDER NOTES" en haut de l'écran.</div>
   </div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📝 Debriefs express des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDebriefsMatchs()">🔄 Charger</span></div>
+    <div id="debriefs-matchs-list" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Ce que les joueurs retiennent eux-mêmes après un match. Clique sur "Charger" pour les voir.</div></div>
+  </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🔢 Stats live (comptées par les joueurs)</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerStatsLive()">🔄 Charger</span></div>
     <div id="stats-live-list" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Un joueur non-titulaire peut suivre un coéquipier en direct depuis son appli (passes, frappes, ballons récupérés/perdus, duels). Clique sur "Charger" pour voir ce qui a été compté.</div></div>
   </div>
@@ -1439,6 +1445,14 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <button class="btn" onclick="ajouterContactClub()">+ AJOUTER</button>
     </div>
     <div id="contacts-club-list" style="padding:0 14px 14px"></div>
+  </div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📈 Historique des saisons</span></div>
+    <div style="padding:14px">
+      <div style="font-size:11px;color:var(--gris2);margin-bottom:10px">Archive un instantané complet de l'effectif (stats, notes, présences) pour le retrouver les saisons suivantes — sans effacer les données actuelles.</div>
+      <input class="fi" id="archive-annee" placeholder="Ex: 2025/2026" style="margin-bottom:10px">
+      <button class="btn" onclick="archiverSaison()">📦 ARCHIVER LA SAISON ACTUELLE</button>
+    </div>
+    <div id="historique-saisons-list" style="padding:0 14px 14px"></div>
   </div>
 </div>
 
@@ -2464,6 +2478,7 @@ function reinitialiserPourNouveauClub(){
   FICHES_EXERCICES=[]; fexFicheEnCoursId=null;
   EVENEMENTS_PERSO=[];
   INFOS_CLUB={reglement:'',contacts:[]};
+  HISTORIQUE_SAISONS=[];
 
   try{ sauvegarder(); }catch(e){}
 
@@ -3913,6 +3928,97 @@ function renderDashPostit(){
       return '<span style="font-size:11px;color:#451a03;font-weight:600">'+(CA_ICONES[e.type]||'•')+' '+e.texte+'</span>';
     }).join('<span style="color:#a8763e">·</span>')+'</div>';
 }
+async function renderAlertesCoach(){
+  var ct=document.getElementById('d-alertes');
+  if(!ct) return;
+  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
+  ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Analyse en cours...</div>';
+  var alertes=[];
+  var nbDispoReponses=0, nbFormeReponses=0;
+
+  // 1. Charge / risque : joueur avec temps de jeu élevé + blessure/gêne active
+  BLESSURES.filter(function(b){ return b.statut!=='disponible'; }).forEach(function(b){
+    var s=STATS[b.joueurIdx], j=JOUEURS[b.joueurIdx];
+    if(s && j && (s.tpsMoy||0)>=70){
+      alertes.push({type:'risque',icone:'🚩',texte:j.nom+' a un temps de jeu moyen élevé ('+s.tpsMoy+' min) et signale : '+(b.zone||'une gêne en cours')});
+    }
+  });
+
+  // 2. Rotation : disponible plusieurs fois mais jamais aligné
+  try{
+    var resD=await fetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
+    if(resD.ok){
+      var dataD=await resD.json();
+      var parJoueurD={};
+      (dataD.documents||[]).forEach(function(doc){
+        var f=doc.fields||{};
+        var nom=(f.joueurNom||{}).stringValue, rep=(f.reponse||{}).stringValue;
+        if(!nom) return;
+        nbDispoReponses++;
+        parJoueurD[nom]=parJoueurD[nom]||{dispo:0,indispo:0};
+        if(rep==='dispo') parJoueurD[nom].dispo++; else parJoueurD[nom].indispo++;
+      });
+      Object.keys(parJoueurD).forEach(function(nom){
+        var idx=JOUEURS.findIndex(function(j){return j.nom===nom;});
+        if(idx===-1) return;
+        var d=parJoueurD[nom], s=STATS[idx];
+        if(d.dispo>=3 && ((s.matchsA||0)+(s.matchsB||0))===0){
+          alertes.push({type:'rotation',icone:'⚖️',texte:nom+' s\'est déclaré disponible '+d.dispo+' fois mais n\'a pas encore été aligné en match'});
+        }
+      });
+    }
+  }catch(e){}
+
+  // 3. Forme en baisse sur les 3 derniers relevés
+  try{
+    var resF=await fetch(FIRESTORE_BASE+'/forme?pageSize=300');
+    if(resF.ok){
+      var dataF=await resF.json();
+      var parJoueurF={};
+      (dataF.documents||[]).forEach(function(doc){
+        var f=doc.fields||{};
+        var nom=(f.joueur||{}).stringValue;
+        var forme=f.forme?parseInt(f.forme.integerValue||f.forme.stringValue):null;
+        var date=(f.dateEnvoi||{}).stringValue||'';
+        if(!nom||forme===null) return;
+        nbFormeReponses++;
+        parJoueurF[nom]=parJoueurF[nom]||[];
+        parJoueurF[nom].push({forme:forme,date:date});
+      });
+      Object.keys(parJoueurF).forEach(function(nom){
+        var arr=parJoueurF[nom].sort(function(a,b){return a.date.localeCompare(b.date);});
+        if(arr.length>=3){
+          var d3=arr.slice(-3).map(function(x){return x.forme;});
+          if(d3[0]>d3[1] && d3[1]>d3[2]){
+            alertes.push({type:'forme',icone:'📉',texte:nom+' déclare une forme en baisse sur ses 3 derniers relevés ('+d3.join(' → ')+')'});
+          }
+        }
+      });
+    }
+  }catch(e){}
+
+  // 4. Trou dans la préparation tactique
+  var comptes={};
+  THEMES_PLANNING.forEach(function(t){ comptes[t]=0; });
+  FICHES_EXERCICES.forEach(function(f){
+    (f.procedes||[]).forEach(function(p){
+      if(p.theme && p.elements && p.elements.length) comptes[p.theme]=(comptes[p.theme]||0)+1;
+    });
+  });
+  var themesVides=THEMES_PLANNING.filter(function(t){ return (comptes[t]||0)===0; });
+  if(themesVides.length){
+    alertes.push({type:'prepa',icone:'📋',texte:themesVides.length+' thème(s) tactique(s) jamais travaillé(s) : '+themesVides.slice(0,3).join(', ')+(themesVides.length>3?'…':'')});
+  }
+
+  // 5. Résumé hebdo
+  var resume='📰 Au total : '+nbDispoReponses+' réponse(s) de disponibilité, '+nbFormeReponses+' relevé(s) de forme, '+FICHES_EXERCICES.length+' fiche(s) d\'exercice.';
+
+  var couleurs={risque:'var(--red)',rotation:'var(--gold)',forme:'var(--blue)',prepa:'var(--purple)'};
+  ct.innerHTML='<div style="font-size:11px;color:var(--gris2);margin-bottom:10px">'+resume+'</div>'
+    +(alertes.length?alertes.map(function(a){
+      return '<div style="background:rgba(15,15,15,.7);border-left:3px solid '+couleurs[a.type]+';border-radius:5px;padding:10px 12px;margin-bottom:6px;font-size:12px">'+a.icone+' '+a.texte+'</div>';
+    }).join(''):'<div style="text-align:center;padding:10px;color:var(--green);font-size:12px">✓ Rien de particulier à signaler</div>');
+}
 function updateDash(){
   var champNom=document.getElementById('param-nom-club');
   if(champNom) champNom.value=NOM_CLUB;
@@ -4242,6 +4348,41 @@ function renderSuiviObjectifs(){
 function renderInfosClub(){
   document.getElementById('infos-reglement').value=INFOS_CLUB.reglement||'';
   renderContactsClub();
+  renderHistoriqueSaisons();
+}
+function archiverSaison(){
+  var annee=document.getElementById('archive-annee').value.trim();
+  if(!annee){ notif('⚠ Indique une saison (ex: 2025/2026)'); return; }
+  if(!confirm('Archiver la saison "'+annee+'" ? Un instantané complet de l\'effectif actuel sera sauvegardé, sans toucher à tes données en cours.')) return;
+  var snapshot={
+    annee:annee,
+    dateArchivage:new Date().toLocaleDateString('fr-FR'),
+    joueurs:JOUEURS.map(function(j,i){
+      var s=STATS[i]||{};
+      var note=calcAttrsJoueur(i).note;
+      return {num:j.num,nom:j.nom,note:note,pres:s.pres||0,seances:s.seances||0,matchsJoues:s.matchsJoues||0,buts:s.buts||0,pd:s.pd||0,noteMoy:s.noteMoy||0,tpsTotal:s.tpsTotal||0,pts:s.pts||0};
+    }),
+    classementFinal:calculerClassementAuto?calculerClassementAuto().slice(0,5):[]
+  };
+  HISTORIQUE_SAISONS.unshift(snapshot);
+  document.getElementById('archive-annee').value='';
+  renderHistoriqueSaisons();
+  notif('✓ Saison "'+annee+'" archivée — pense à synchroniser pour la rendre visible aux joueurs');
+}
+function supprimerArchiveSaison(i){
+  if(!confirm('Supprimer cette archive de saison ? Irréversible.')) return;
+  HISTORIQUE_SAISONS.splice(i,1);
+  renderHistoriqueSaisons();
+}
+function renderHistoriqueSaisons(){
+  var ct=document.getElementById('historique-saisons-list');
+  if(!ct) return;
+  ct.innerHTML=HISTORIQUE_SAISONS.length?HISTORIQUE_SAISONS.map(function(sa,i){
+    return '<div style="background:rgba(15,15,15,.7);border:1px solid var(--line);border-radius:5px;padding:10px 12px;margin-bottom:6px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+sa.annee+'</b><span style="cursor:pointer" onclick="supprimerArchiveSaison('+i+')">🗑</span></div>'
+      +'<div style="font-size:10px;color:var(--gris2)">Archivée le '+sa.dateArchivage+' — '+sa.joueurs.length+' joueur(s)</div>'
+      +'</div>';
+  }).join(''):'<div style="text-align:center;padding:10px;color:var(--gris2);font-size:12px">Aucune saison archivée pour l\'instant</div>';
 }
 function sauvegarderReglement(){
   INFOS_CLUB.reglement=document.getElementById('infos-reglement').value;
@@ -4324,6 +4465,37 @@ async function renderChatCoach(){
       +'</div>';
   }).join(''):'<div style="text-align:center;padding:14px;color:var(--gris2);font-size:12px">Aucun message pour l\'instant</div>';
   ct.scrollTop=ct.scrollHeight;
+}
+async function chargerDebriefsMatchs(){
+  var ct=document.getElementById('debriefs-matchs-list');
+  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
+  ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/debriefs_matchs?pageSize=300');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var docs=(data.documents||[]).map(function(d){
+      var f=d.fields||{};
+      return {
+        joueurNom:(f.joueurNom||{}).stringValue||'',
+        matchKey:(f.matchKey||{}).stringValue||'',
+        bienMarche:(f.bienMarche||{}).stringValue||'',
+        aCoince:(f.aCoince||{}).stringValue||'',
+        dateEnvoi:(f.dateEnvoi||{}).stringValue||''
+      };
+    }).sort(function(a,b){ return (b.dateEnvoi||'').localeCompare(a.dateEnvoi||''); });
+    if(!docs.length){ ct.innerHTML='<div style="text-align:center;padding:14px;color:var(--gris2);font-size:12px">Aucun debrief pour l\'instant</div>'; return; }
+    ct.innerHTML=docs.map(function(o){
+      var advPart=(o.matchKey||'').split('|')[1]||o.matchKey;
+      return '<div style="background:rgba(15,15,15,.7);border:1px solid var(--line);border-left:3px solid var(--or);border-radius:5px;padding:10px 12px;margin-bottom:8px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-family:Inter,sans-serif;font-weight:700;font-size:12.5px">'+o.joueurNom+'</span><span style="font-size:9px;color:var(--gris2)">vs '+advPart+'</span></div>'
+        +(o.bienMarche?'<div style="font-size:11px;color:var(--green);margin-bottom:3px">✓ '+o.bienMarche+'</div>':'')
+        +(o.aCoince?'<div style="font-size:11px;color:var(--gold)">△ '+o.aCoince+'</div>':'')
+        +'</div>';
+    }).join('');
+  }catch(e){
+    ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Erreur de chargement</div>';
+  }
 }
 async function chargerStatsLive(){
   var ct=document.getElementById('stats-live-list');
@@ -5665,6 +5837,7 @@ function appliquerDonnees(p,silencieux){
   if(p.FICHES_EXERCICES)FICHES_EXERCICES=p.FICHES_EXERCICES;
   if(p.EVENEMENTS_PERSO)EVENEMENTS_PERSO=p.EVENEMENTS_PERSO;
   if(p.INFOS_CLUB)INFOS_CLUB=p.INFOS_CLUB;
+  if(p.HISTORIQUE_SAISONS)HISTORIQUE_SAISONS=p.HISTORIQUE_SAISONS;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -5726,7 +5899,7 @@ function recalculerStats(){
 // SYNCHRO SAISON (Firebase Firestore) — sauvegarde cloud en plus du navigateur
 // Note : PHOTOS et SEANCES_PHOTOS restent uniquement en local (trop volumineux pour Firestore, limite ~1 Mo par document)
 function donneesSaisonSansPhotos(){
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,NOM_CLUB};
 }
 async function sauvegarderFirestore(){
   try{
@@ -6626,6 +6799,7 @@ function supprimerEntretien(i){
 
 // ADVERSAIRES — fiche permanente par équipe adverse
 var ADVERSAIRES=[];
+var HISTORIQUE_SAISONS=[];
 var INFOS_CLUB={reglement:'',contacts:[]};
 function trouverOuCreerAdversaire(nom){
   nom=(nom||'').trim();
@@ -8276,7 +8450,7 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(ok){
       notif(ok?'☁️ Sauvegardé aussi dans le cloud':'⚠ Sauvegarde cloud impossible (pas internet ?) — la copie locale est OK');
@@ -8298,7 +8472,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
