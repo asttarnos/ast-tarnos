@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ast-tarnos-v5';
+const CACHE_NAME = 'ast-tarnos-v6';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -43,7 +43,7 @@ self.addEventListener('fetch', function(event) {
   // les mises à jour immédiatement. Le cache ne sert que si le réseau est indisponible (hors-ligne).
   if (event.request.mode === 'navigate' || event.request.url.endsWith('.html')) {
     event.respondWith(
-      fetch(event.request).then(function(response) {
+      fetch(event.request, { cache: 'no-store' }).then(function(response) {
         if (response && response.status === 200) {
           var responseClone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, responseClone); });
