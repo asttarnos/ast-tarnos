@@ -115,6 +115,18 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 .tableau-saison{width:100%;border-collapse:collapse;font-size:12px}
 .tableau-saison td{padding:5px 4px;border-top:1px solid var(--hair);text-align:center;white-space:nowrap;font-family:'Roboto Condensed',sans-serif}
 .tableau-saison td:first-child,.tableau-saison td:nth-child(2){text-align:left;font-family:'Inter',sans-serif}
+.onb-overlay{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;padding:0}
+.onb-skip{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;font-size:12px;color:var(--mute);cursor:pointer;z-index:2}
+.onb-slide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 28px}
+.onb-slide .ic{font-size:52px;margin-bottom:22px}
+.onb-slide h2{font-family:'Roboto Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.onb-slide p{font-size:14px;color:var(--mute);line-height:1.6;max-width:320px}
+.onb-slide .demo{margin-top:22px}
+.onb-dots{display:flex;gap:7px;justify-content:center;padding-bottom:18px}
+.onb-dot{width:7px;height:7px;border-radius:50%;background:var(--hair)}
+.onb-dot.on{background:var(--or);width:20px;border-radius:4px;transition:width .2s}
+.onb-nav{display:flex;gap:10px;padding:16px 24px calc(24px + env(safe-area-inset-bottom,0px))}
+.onb-nav .btn-or{margin-top:0}
 </style>
 </head>
 <body>
@@ -130,6 +142,14 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 </div>
 
 <div id="app" class="hidden">
+  <div id="onb-overlay" class="onb-overlay hidden">
+    <div class="onb-skip" onclick="fermerOnboarding()">Passer</div>
+    <div class="onb-slide" id="onb-slide-content"></div>
+    <div class="onb-dots" id="onb-dots"></div>
+    <div class="onb-nav">
+      <button class="btn-or" id="onb-btn-next" onclick="onbSuivant()">Suivant</button>
+    </div>
+  </div>
   <div id="app-header">
     <div style="display:flex;align-items:center;gap:8px">
       <span onclick="goHub()" style="cursor:pointer;display:flex;align-items:center;gap:4px;padding:10px 12px 10px 8px;margin:-10px 0 -10px -8px;border-radius:8px" title="Retour au menu"><span style="font-size:22px;line-height:1;color:var(--or)">‹</span><span style="font-size:14.5px;font-weight:700;color:var(--ink)">Menu</span></span>
@@ -262,6 +282,35 @@ function changerJoueur(){
   location.reload();
 }
 
+var ONB_SLIDES=[
+  {ic:'👋',titre:'Bienvenue sur ton espace',texte:"Toutes les infos de l'équipe au même endroit : convocations, séances, notes, classements... on te fait le tour en quelques écrans."},
+  {ic:'🗂️',titre:'4 grandes zones',texte:"Le menu d'accueil est rangé en 4 pôles — Club, Entraînement, Match & compétition, Effectif. Touche un titre de pôle pour voir tout ce qu'il contient."},
+  {ic:'🔔',titre:'Les pastilles',texte:'Un point orange = du nouveau à voir. Un badge rouge "!" = une réponse t\'es demandée (disponibilité, sondage...). Elles disparaissent une fois consultées.'},
+  {ic:'✓',titre:'Réponds vite',texte:"Convocation, disponibilité, sondage — plus tu réponds vite, plus c'est simple pour le coach. Tout se fait en un ou deux clics."},
+  {ic:'🎴',titre:"C'est parti !",texte:"Retrouve ta carte perso dans Effectif, et n'hésite pas à tout explorer. Bonne saison !"}
+];
+var ONB_INDEX=0;
+function demarrerOnboardingSiPremiereFois(){
+  var vu=localStorage.getItem('ast_onboarding_'+MON_NUM);
+  if(vu) return;
+  ONB_INDEX=0;
+  document.getElementById('onb-overlay').classList.remove('hidden');
+  onbRenderSlide();
+}
+function onbRenderSlide(){
+  var s=ONB_SLIDES[ONB_INDEX];
+  document.getElementById('onb-slide-content').innerHTML='<div class="ic">'+s.ic+'</div><h2>'+esc(s.titre)+'</h2><p>'+esc(s.texte)+'</p>';
+  document.getElementById('onb-dots').innerHTML=ONB_SLIDES.map(function(_,i){ return '<div class="onb-dot'+(i===ONB_INDEX?' on':'')+'"></div>'; }).join('');
+  document.getElementById('onb-btn-next').textContent=(ONB_INDEX===ONB_SLIDES.length-1)?"C'est parti":'Suivant';
+}
+function onbSuivant(){
+  if(ONB_INDEX<ONB_SLIDES.length-1){ ONB_INDEX++; onbRenderSlide(); }
+  else{ fermerOnboarding(); }
+}
+function fermerOnboarding(){
+  localStorage.setItem('ast_onboarding_'+MON_NUM,'1');
+  document.getElementById('onb-overlay').classList.add('hidden');
+}
 async function demarrerApp(){
   document.getElementById('scr-login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
@@ -297,6 +346,7 @@ async function demarrerApp(){
   renderMessages();
   renderCoach();
   renderPlaceholders();
+  demarrerOnboardingSiPremiereFois();
 }
 
 async function goHub(){
