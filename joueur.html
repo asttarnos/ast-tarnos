@@ -23,10 +23,10 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 .brand-title .accent{color:var(--or)}
 .brand-sub{font-size:13px;color:var(--mute);margin-top:3px}
 /* --- Ecran "qui es-tu" --- */
-#scr-login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
-#scr-login .crest{display:block}
-#scr-login .brand-title{font-size:26px;margin-bottom:2px}
-#scr-login .sub{color:var(--mute);font-size:14.5px;margin:20px 0 20px;font-weight:500}
+#scr-login,#scr-pin{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
+#scr-login .crest,#scr-pin .crest{display:block}
+#scr-login .brand-title,#scr-pin .brand-title{font-size:26px;margin-bottom:2px}
+#scr-login .sub,#scr-pin .sub{color:var(--mute);font-size:14.5px;margin:20px 0 20px;font-weight:500}
 .fi{width:100%;background:var(--surface);border:1px solid var(--hair);border-radius:5px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit}
 .fi:focus{outline:none;border-color:var(--or)}
 .btn-or{width:100%;background:var(--or);border:none;color:#1a0f02;font-weight:700;font-family:'Roboto Condensed',sans-serif;letter-spacing:.02em;text-transform:uppercase;font-size:14.5px;padding:13px;border-radius:5px;margin-top:14px;cursor:pointer}
@@ -128,6 +128,8 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 .onb-nav{display:flex;gap:10px;padding:16px 24px calc(24px + env(safe-area-inset-bottom,0px))}
 .onb-nav .btn-or{margin-top:0}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 </head>
 <body>
 
@@ -139,6 +141,17 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
   <select class="fi" id="login-select"><option value="">Chargement de l'effectif...</option></select>
   <button class="btn-or" id="login-btn" disabled onclick="validerLogin()">C'est parti</button>
   <div id="login-err" class="err-msg hidden"></div>
+</div>
+
+<div id="scr-pin" class="hidden">
+  <img class="crest" src="" alt="AST Tarnos" style="width:56px;height:auto;margin:0 auto 14px;display:block;filter:drop-shadow(0 6px 16px rgba(217,119,6,.3))" id="pin-crest">
+  <div class="brand-title" id="pin-titre">Crée ton code</div>
+  <div id="pin-nom-affiche" style="color:var(--or);font-weight:700;font-size:13px;margin-top:4px"></div>
+  <div class="sub" id="pin-sous-titre">Choisis 4 chiffres.</div>
+  <input class="fi" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:12px" onkeydown="if(event.key==='Enter')validerPin()">
+  <button class="btn-or" onclick="validerPin()">Valider</button>
+  <div id="pin-err" class="err-msg hidden"></div>
+  <div onclick="document.getElementById('scr-pin').classList.add('hidden');document.getElementById('scr-login').classList.remove('hidden');" style="margin-top:16px;font-size:11px;color:var(--mute);cursor:pointer;text-align:center">‹ Choisir un autre nom</div>
 </div>
 
 <div id="app" class="hidden">
@@ -221,6 +234,68 @@ var MON_NUM=null, MON_NOM=null;
 
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 
+// ===== Notifications push (Firebase Cloud Messaging) =====
+// ⚠️ À compléter : va dans Firebase Console → ⚙️ Paramètres du projet → Cloud Messaging
+// La clé VAPID se trouve dans l'onglet "Cloud Messaging" → "Certificats Web Push" → "Générer une paire de clés"
+var FCM_VAPID_KEY='BIiq0wKfDq0J4LmDlfoo1hmqpW94OKzGaDmKGmWFiVx0gd0zBc6d2Quc_2gZA89Vw4a7Z-V-sSpG3DP36jCNGYY';
+var FIREBASE_CONFIG={
+  apiKey:'AIzaSyC2Ip1OWL505ZfXIuvt7UHHy3t7wr6Vq1U',
+  authDomain:FIREBASE_PROJECT_ID+'.firebaseapp.com',
+  projectId:FIREBASE_PROJECT_ID,
+  storageBucket:FIREBASE_PROJECT_ID+'.firebasestorage.app',
+  messagingSenderId:'512648656255',
+  appId:'1:512648656255:web:9243b8d6139e9ac82f564a'
+};
+function notifsConfigurees(){
+  return FCM_VAPID_KEY.indexOf('ICI')===-1 && FIREBASE_CONFIG.apiKey.indexOf('ICI')===-1;
+}
+async function activerNotifications(){
+  var statutEl=document.getElementById('notif-push-statut');
+  if(!notifsConfigurees()){
+    if(statutEl) statutEl.textContent='⚠ Notifications pas encore configurées par le coach (clés Firebase manquantes)';
+    return;
+  }
+  if(!('Notification' in window) || !('serviceWorker' in navigator)){
+    if(statutEl) statutEl.textContent='⚠ Ton navigateur ne supporte pas les notifications';
+    return;
+  }
+  try{
+    var permission=await Notification.requestPermission();
+    if(permission!=='granted'){
+      if(statutEl) statutEl.textContent='⚠ Notifications refusées — tu peux changer ça dans les réglages de ton téléphone';
+      localStorage.setItem('ast_notifs_actives_'+MON_NUM,'0');
+      return;
+    }
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    var messaging=firebase.messaging();
+    var reg=await navigator.serviceWorker.ready;
+    var token=await messaging.getToken({vapidKey:FCM_VAPID_KEY,serviceWorkerRegistration:reg});
+    if(!token){ if(statutEl) statutEl.textContent='⚠ Impossible de générer le jeton — réessaie'; return; }
+    await fetch(FIRESTORE_BASE+'/fcm_tokens/'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+      num:{integerValue:String(MON_NUM)},
+      nom:{stringValue:MON_NOM},
+      token:{stringValue:token},
+      dateMaj:{stringValue:new Date().toISOString()}
+    }})});
+    localStorage.setItem('ast_notifs_actives_'+MON_NUM,'1');
+    if(statutEl) statutEl.textContent='✓ Notifications activées';
+    renderNotifPushBanniere();
+  }catch(e){
+    if(statutEl) statutEl.textContent='⚠ Erreur : '+e.message;
+  }
+}
+function renderNotifPushBanniere(){
+  var ct=document.getElementById('notif-push-banniere');
+  if(!ct) return;
+  if(!notifsConfigurees()){ ct.innerHTML=''; return; }
+  var actif=localStorage.getItem('ast_notifs_actives_'+MON_NUM)==='1';
+  if(actif){ ct.innerHTML=''; return; }
+  ct.innerHTML='<div class="blk" style="border-color:rgba(217,119,6,.4)"><div class="blk-body" style="display:flex;align-items:center;gap:12px">'
+    +'<span style="font-size:22px">🔔</span>'
+    +'<div style="flex:1"><div style="font-size:12.5px;font-weight:600;color:var(--ink)">Active les notifications</div><div style="font-size:10.5px;color:var(--mute);margin-top:2px" id="notif-push-statut">Sois prévenu direct pour les convocations et messages</div></div>'
+    +'<span onclick="activerNotifications()" style="background:var(--or);color:#1a0f02;font-weight:700;font-size:11px;padding:8px 14px;border-radius:6px;cursor:pointer;white-space:nowrap">Activer</span>'
+    +'</div></div>';
+}
 async function chargerSaison(){
   var res=await fetch(FIRESTORE_BASE+'/saison/main');
   if(!res.ok) throw new Error('HTTP '+res.status);
@@ -233,6 +308,7 @@ async function chargerSaison(){
 
 function init(){
   document.getElementById('login-crest').src=PHOTO_LOGO;
+  document.getElementById('pin-crest').src=PHOTO_LOGO;
   var savedNum=localStorage.getItem('ast_joueur_num');
   var savedNom=localStorage.getItem('ast_joueur_nom');
   if(savedNum!==null && savedNom){
@@ -270,9 +346,7 @@ function validerLogin(){
   if(!val) return;
   var parts=val.split('|');
   MON_NUM=parseInt(parts[0]); MON_NOM=parts.slice(1).join('|');
-  localStorage.setItem('ast_joueur_num',MON_NUM);
-  localStorage.setItem('ast_joueur_nom',MON_NOM);
-  demarrerApp();
+  lancerEtapePin();
 }
 
 function changerJoueur(){
@@ -280,6 +354,96 @@ function changerJoueur(){
   localStorage.removeItem('ast_joueur_num');
   localStorage.removeItem('ast_joueur_nom');
   location.reload();
+}
+
+// ===== Code PIN à 4 chiffres =====
+async function hashPin(pin){
+  var enc=new TextEncoder().encode('ast-'+pin+'-tarnos');
+  var buf=await crypto.subtle.digest('SHA-256',enc);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+var PIN_MODE=null; // 'creer' ou 'verifier'
+var PIN_PREMIERE_SAISIE=null;
+async function lancerEtapePin(){
+  document.getElementById('scr-login').classList.add('hidden');
+  document.getElementById('scr-pin').classList.remove('hidden');
+  document.getElementById('pin-nom-affiche').textContent=MON_NOM;
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-err').classList.add('hidden');
+  PIN_PREMIERE_SAISIE=null;
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM);
+    if(res.ok){
+      PIN_MODE='verifier';
+      document.getElementById('pin-titre').textContent='Entre ton code';
+      document.getElementById('pin-sous-titre').textContent='Le code à 4 chiffres que tu as créé la première fois.';
+    }else{
+      PIN_MODE='creer';
+      document.getElementById('pin-titre').textContent='Crée ton code';
+      document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+    }
+  }catch(e){
+    PIN_MODE='creer';
+    document.getElementById('pin-titre').textContent='Crée ton code';
+    document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+  }
+  document.getElementById('pin-input').focus();
+}
+async function validerPin(){
+  var val=document.getElementById('pin-input').value.trim();
+  var errEl=document.getElementById('pin-err');
+  errEl.classList.add('hidden');
+  if(!/^\d{4}$/.test(val)){ errEl.textContent='⚠ Entre exactement 4 chiffres'; errEl.classList.remove('hidden'); return; }
+  if(PIN_MODE==='creer'){
+    if(PIN_PREMIERE_SAISIE===null){
+      PIN_PREMIERE_SAISIE=val;
+      document.getElementById('pin-input').value='';
+      document.getElementById('pin-sous-titre').textContent='Retape le même code pour confirmer.';
+      document.getElementById('pin-input').focus();
+      return;
+    }
+    if(val!==PIN_PREMIERE_SAISIE){
+      errEl.textContent='⚠ Les deux codes ne correspondent pas, recommence';
+      errEl.classList.remove('hidden');
+      PIN_PREMIERE_SAISIE=null;
+      document.getElementById('pin-input').value='';
+      document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+      return;
+    }
+    var hash=await hashPin(val);
+    try{
+      await fetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{pinHash:{stringValue:hash}}})});
+    }catch(e){
+      errEl.textContent='⚠ Impossible d\'enregistrer le code — vérifie ta connexion';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    finaliserConnexion();
+  }else{
+    var hashSaisi=await hashPin(val);
+    try{
+      var res=await fetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM);
+      var data=await res.json();
+      var hashAttendu=((data.fields||{}).pinHash||{}).stringValue;
+      if(hashSaisi===hashAttendu){
+        finaliserConnexion();
+      }else{
+        errEl.textContent='⚠ Code incorrect';
+        errEl.classList.remove('hidden');
+        document.getElementById('pin-input').value='';
+      }
+    }catch(e){
+      errEl.textContent='⚠ Impossible de vérifier — vérifie ta connexion';
+      errEl.classList.remove('hidden');
+    }
+  }
+}
+function finaliserConnexion(){
+  document.getElementById('scr-pin').classList.add('hidden');
+  localStorage.setItem('ast_joueur_num',MON_NUM);
+  localStorage.setItem('ast_joueur_nom',MON_NOM);
+  localStorage.setItem('ast_pin_verifie_'+MON_NUM,'1');
+  demarrerApp();
 }
 
 var ONB_SLIDES=[
@@ -311,12 +475,41 @@ function fermerOnboarding(){
   localStorage.setItem('ast_onboarding_'+MON_NUM,'1');
   document.getElementById('onb-overlay').classList.add('hidden');
 }
+var RENDER_MAP={
+  accueil:[renderAccueil,renderNotifPushBanniere,renderSondage],
+  mesmatchs:[renderMesMatchs,renderObjectifs],
+  macarte:[renderMaCarte],
+  effectif:[renderEffectif],
+  entrainement:[renderEffectif],
+  messages:[renderMessages],
+  planning:[renderPlanning],
+  convocations:[renderConvocations],
+  seances:[renderSeances],
+  videos:[renderVideosJoueur],
+  saison:[renderSaison],
+  tempsjeu:[renderTempsJeu],
+  formephysique:[renderFormePhysique],
+  infosclub:[renderInfosClub],
+  statslive:[renderEcranStatsLive],
+  jourmatch:[renderJourDeMatch],
+  prepa:[renderPrepaAdversaire],
+  calannuel:[renderCalendrierAnnuelJoueur],
+  sante:[renderSante],
+  coach:[renderCoach]
+};
+var DERNIERE_MAJ_SAISON=0;
+var DUREE_CACHE_MS=60000; // 1 minute : au-delà, une nouvelle navigation redemande les données fraîches
+async function rendreEcran(s){
+  var fns=RENDER_MAP[s];
+  if(!fns) return;
+  for(var i=0;i<fns.length;i++){ await fns[i](); }
+}
 async function demarrerApp(){
   document.getElementById('scr-login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('hdr-nom').textContent=MON_NOM;
   if(!SAISON){
-    try{ await chargerSaison(); }catch(e){
+    try{ await chargerSaison(); DERNIERE_MAJ_SAISON=Date.now(); }catch(e){
       document.getElementById('scr-hub').innerHTML='<div class="blk"><div class="blk-body"><div class="err-msg">⚠ Impossible de charger les données ('+esc(e.message)+'). Tire vers le bas pour réessayer ou relance l\'appli.</div></div></div>';
       document.getElementById('scr-hub').classList.remove('hidden');
       return;
@@ -324,28 +517,6 @@ async function demarrerApp(){
   }
   await calculerActionsEnAttente();
   renderHub();
-  renderAccueil();
-  renderMesMatchs();
-  renderObjectifs();
-  renderSondage();
-  renderEffectif();
-  renderMaCarte();
-  renderPlanning();
-  renderConvocations();
-  renderSeances();
-  renderVideosJoueur();
-  renderSaison();
-  renderTempsJeu();
-  renderSante();
-  renderCalendrierAnnuelJoueur();
-  renderPrepaAdversaire();
-  renderJourDeMatch();
-  renderEcranStatsLive();
-  renderInfosClub();
-  renderFormePhysique();
-  renderMessages();
-  renderCoach();
-  renderPlaceholders();
   demarrerOnboardingSiPremiereFois();
 }
 
@@ -479,34 +650,26 @@ function renderHub(){
 function goNav(s){
   document.querySelectorAll('.screen').forEach(function(el){ el.classList.add('hidden'); });
   document.getElementById('scr-'+s).classList.remove('hidden');
-  if(s==='accueil'||s==='mesmatchs'||s==='effectif'||s==='macarte'||s==='entrainement'||s==='planning'||s==='convocations'||s==='jourmatch'||s==='prepa'||s==='statslive'||s==='seances'||s==='videos'||s==='saison'||s==='tempsjeu'||s==='coach'||s==='sante'||s==='infosclub'||s==='calannuel'||s==='messages'||s==='formephysique'){
-    actualiserDonnees(false).then(function(){ marquerTuileVue(s); });
+  if(RENDER_MAP[s]){
+    actualiserDonnees(false,s).then(function(){ marquerTuileVue(s); });
   }
 }
-async function actualiserDonnees(manuel){
+async function actualiserDonnees(manuel,ecranCible){
   try{
-    await chargerSaison();
-    renderAccueil();
-    renderMesMatchs();
-    renderObjectifs();
-    renderSondage();
-    renderEffectif();
-    renderMaCarte();
-    renderPlanning();
-    renderConvocations();
-    renderSeances();
-    renderVideosJoueur();
-    renderSaison();
-    renderTempsJeu();
-    renderSante();
-    renderCalendrierAnnuelJoueur();
-    renderPrepaAdversaire();
-    renderJourDeMatch();
-    renderEcranStatsLive();
-    renderInfosClub();
-    renderFormePhysique();
-    renderMessages();
-    renderCoach();
+    var maintenant=Date.now();
+    if(manuel || !DERNIERE_MAJ_SAISON || (maintenant-DERNIERE_MAJ_SAISON)>DUREE_CACHE_MS){
+      await chargerSaison();
+      DERNIERE_MAJ_SAISON=Date.now();
+    }
+    if(ecranCible){
+      await rendreEcran(ecranCible);
+    }else{
+      // Rafraîchissement manuel (🔄) sans écran précis : on ne recalcule que l'écran actuellement visible
+      var visible=document.querySelector('.screen:not(.hidden)');
+      var idVisible=visible?visible.id.replace('scr-',''):null;
+      if(idVisible==='hub'){ await calculerActionsEnAttente(); renderHub(); }
+      else if(idVisible) await rendreEcran(idVisible);
+    }
     if(manuel) notif('✓ Données à jour');
   }catch(e){
     if(manuel) notif('⚠ Impossible d\'actualiser — vérifie ta connexion');
@@ -530,7 +693,7 @@ function parseDateFr(str){
 
 function renderAccueil(){
   var ct=document.getElementById('scr-accueil');
-  var html='';
+  var html='<div id="notif-push-banniere"></div>';
 
   // Dernière actualité du coach
   var actus=SAISON.ACTUALITES||[];
