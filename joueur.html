@@ -30,6 +30,7 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 .fi{width:100%;background:#0a0b0d;border:1.5px solid rgba(255,255,255,.2);border-radius:5px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit}
 .fi:focus{border-color:var(--or);background:#111316;outline:none;box-shadow:0 0 0 3px rgba(217,119,6,.18)}
 .fl{font-family:'Roboto Condensed',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--or);text-transform:uppercase;display:block;margin-bottom:6px}
+input[type=range]{accent-color:var(--or)}
 .fi:focus{outline:none;border-color:var(--or)}
 .btn-or{width:100%;background:var(--or);border:none;color:#1a0f02;font-weight:700;font-family:'Roboto Condensed',sans-serif;letter-spacing:.02em;text-transform:uppercase;font-size:14.5px;padding:13px;border-radius:5px;margin-top:14px;cursor:pointer}
 .btn-or:disabled{opacity:.35}
@@ -1416,17 +1417,17 @@ function renderSeances(){
   var ct=document.getElementById('scr-seances');
   var items=(SAISON.PLANNING_MENSUEL||[]).map(function(p){ return {raw:p, d:parseDateFr(p.date)}; })
     .sort(function(a,b){ return (b.d||0)-(a.d||0); });
-  if(!items.length){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucune séance détaillée pour l\'instant</div></div></div>'; return; }
-  ct.innerHTML=items.map(function(x){
+  var corps=items.length?items.map(function(x){
     var sousThemes=x.raw.sousThemes;
     var listeSous='';
     if(sousThemes){
       var arr=Array.isArray(sousThemes)?sousThemes:String(sousThemes).split(',').map(function(s){return s.trim();}).filter(Boolean);
-      if(arr.length) listeSous='<div style="margin-top:6px;font-size:13.5px;color:var(--gris2)">'+arr.map(function(s){return '• '+esc(s);}).join('<br>')+'</div>';
+      if(arr.length) listeSous='<div style="margin-top:6px;font-size:13.5px;color:var(--mute)">'+arr.map(function(s){return '• '+esc(s);}).join('<br>')+'</div>';
     }
-    return '<div class="blk"><div class="blk-body"><div style="font-size:13px;color:var(--or);font-weight:700;margin-bottom:4px">'+esc(x.raw.date)+'</div>'
-      +'<div style="font-size:13.5px;color:#fff;font-weight:600">'+esc(x.raw.theme||'')+'</div>'+listeSous+'</div></div>';
-  }).join('');
+    return '<div style="padding:12px 0;border-bottom:1px solid var(--hair)"><div style="font-size:12px;color:var(--or);font-weight:700;margin-bottom:4px">'+esc(x.raw.date)+'</div>'
+      +'<div style="font-size:13.5px;color:#fff;font-weight:600">'+esc(x.raw.theme||'')+'</div>'+listeSous+'</div>';
+  }).join(''):'<div class="empty-txt">Aucune séance détaillée pour l\'instant</div>';
+  ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">📝 Détail des séances</span></div><div class="blk-body">'+corps+'</div></div>';
 }
 async function chargerMesMomentsVideo(){
   try{
