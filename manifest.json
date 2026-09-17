@@ -2,7 +2,7 @@
   "name": "AST Tarnos - Espace Joueur",
   "short_name": "AST Joueur",
   "description": "Espace joueur du club AST Tarnos (R2) - convocations, planning, actualités",
-  "start_url": "./joueur.html",
+  "start_url": "./JOUEUR.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

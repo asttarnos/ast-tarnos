@@ -1,9 +1,34 @@
-const CACHE_NAME = 'ast-tarnos-v6';
+// ===== Notifications push (Firebase Cloud Messaging) =====
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+// ⚠️ Mêmes valeurs que dans JOUEUR.html (var FIREBASE_CONFIG) — à compléter depuis la console Firebase
+firebase.initializeApp({
+  apiKey:'AIzaSyC2Ip1OWL505ZfXIuvt7UHHy3t7wr6Vq1U',
+  authDomain:'notes-match-ast.firebaseapp.com',
+  projectId:'notes-match-ast',
+  storageBucket:'notes-match-ast.firebasestorage.app',
+  messagingSenderId:'512648656255',
+  appId:'1:512648656255:web:9243b8d6139e9ac82f564a'
+});
+try{
+  var messaging=firebase.messaging();
+  messaging.onBackgroundMessage(function(payload){
+    var titre=(payload.notification&&payload.notification.title)||'AST Tarnos';
+    var options={
+      body:(payload.notification&&payload.notification.body)||'',
+      icon:'./icons/icon-192.png',
+      badge:'./icons/icon-192.png'
+    };
+    self.registration.showNotification(titre,options);
+  });
+}catch(e){ /* config pas encore complétée, on ignore */ }
+
+const CACHE_NAME = 'ast-tarnos-v7';
 const URLS_TO_CACHE = [
   './',
   './index.html',
   './coach.html',
-  './joueur.html',
+  './JOUEUR.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -39,7 +64,7 @@ self.addEventListener('fetch', function(event) {
   if (event.request.url.indexOf('firestore.googleapis.com') !== -1) {
     return;
   }
-  // Les pages HTML (coach.html, joueur.html...) : réseau en priorité pour voir
+  // Les pages HTML (COACH.html, JOUEUR.html...) : réseau en priorité pour voir
   // les mises à jour immédiatement. Le cache ne sert que si le réseau est indisponible (hors-ligne).
   if (event.request.mode === 'navigate' || event.request.url.endsWith('.html')) {
     event.respondWith(
