@@ -1628,7 +1628,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
         </div>
       </div>
       <div style="display:flex;gap:12px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
-        <img id="photo-preview" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--or);background:rgba(255,255,255,.05)">
+        <img id="photo-preview" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid #ffffff;box-shadow:0 0 0 3px var(--or),0 4px 14px rgba(0,0,0,.5);background:rgba(255,255,255,.05)">
         <div>
           <label class="fl" style="margin-bottom:4px">Photo du joueur</label>
           <input class="fi" type="file" accept="image/*" onchange="setPlayerPhoto(this)" style="font-size:11px">
@@ -1661,22 +1661,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 
 <!-- TEMPS DE JEU / ROTATION -->
 <div class="scr" id="scr-rotation">
-  <div class="ph"><div><div class="ph-title">⏱️ Temps de jeu</div><div class="ph-sub">Rotation et équité — analysable sous plusieurs angles</div></div></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Angle d'analyse</span></div>
-    <div style="padding:14px">
-      <select class="fi" id="rotation-angle" onchange="renderRotation()">
-        <option value="temps_total">Temps total cumulé (minutes)</option>
-        <option value="temps_moy">Temps moyen par match</option>
-        <option value="titu">Nombre de titularisations</option>
-        <option value="rempl">Nombre d'entrées en jeu (banc)</option>
-        <option value="matchs">Nombre de matchs joués</option>
-        <option value="equite">Écart à la moyenne d'équipe (équité)</option>
-      </select>
-    </div>
-  </div>
-  <div class="blk"><div class="bh"><span class="bt" id="rotation-titre">Temps total cumulé</span><span class="bc" id="rotation-moy"></span></div>
-    <div id="rotation-list" style="padding:12px"></div>
-  </div>
+  <div class="ph"><div><div class="ph-title">⏱️ Temps de jeu</div><div class="ph-sub">Rotation et équité — les 5 angles d'un coup d'œil</div></div></div>
+  <div id="rotation-grille" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px"></div>
 </div>
 
 <!-- OBJECTIFS COLLECTIFS -->
@@ -2501,8 +2487,9 @@ function renderRecap(){
     function chip(lbl,val,color){
       return '<div class="recap-chip"><div class="rc-lbl">'+lbl+'</div><div class="rc-val"'+(color?' style="color:'+color+'"':'')+'>'+val+'</div></div>';
     }
+    var photoHdr=PHOTOS[i]?'<img src="'+PHOTOS[i]+'" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ffffff;box-shadow:0 0 0 2px var(--or);flex-shrink:0">':'';
     return '<div class="recap-card">'
-      +'<div class="recap-card-hdr"><div class="recap-nom">'+j.num+'. '+j.nom+'</div><div class="recap-note">'+note+'/100</div></div>'
+      +'<div class="recap-card-hdr"><div style="display:flex;align-items:center;gap:10px">'+photoHdr+'<div class="recap-nom">'+j.num+'. '+j.nom+'</div></div><div class="recap-note">'+note+'/100</div></div>'
       +'<div class="recap-grid">'
       +chip('Points','<span style="color:var(--gold)">'+(s.pts||0)+' pts</span>')
       +chip('Amendes','<span style="color:var(--red)">'+(s.amendes||0)+' €</span>')
@@ -4064,7 +4051,7 @@ function renderFicheCoach(){
   document.getElementById('attr-phys').value=am.phys;
   document.getElementById('attr-ment').value=am.ment;
   var photo=PHOTOS[idx];
-  document.getElementById('photo-preview').src=photo||'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56"><rect width="56" height="56" fill="%23111"/></svg>';
+  document.getElementById('photo-preview').src=photo||'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="76" height="76"><rect width="76" height="76" fill="%23111"/></svg>';
   var sorted=STATS.map(function(x,i){return {pts:x.pts||0,i:i};}).sort(function(a,b){return b.pts-a.pts;});
   var rank=sorted.findIndex(function(x){return x.i===idx;})+1;
   var c=calcAttrsJoueur(idx);
@@ -7125,42 +7112,29 @@ function ajouterFicheAdversaireManuelle(){
 
 // TEMPS DE JEU / ROTATION
 function renderRotation(){
-  var angle=document.getElementById('rotation-angle').value;
-  var config={
-    temps_total:{titre:'Temps total cumulé',unit:'min',get:function(s){return s.tpsTotal||0;}},
-    temps_moy:{titre:'Temps moyen par match',unit:'min/m',get:function(s){return s.tpsMoy||0;}},
-    titu:{titre:'Titularisations',unit:'fois',get:function(s){return s.titu||0;}},
-    rempl:{titre:'Entrées en jeu (banc)',unit:'fois',get:function(s){return s.rempl||0;}},
-    matchs:{titre:'Matchs joués',unit:'matchs',get:function(s){return s.matchsJoues||0;}},
-    equite:{titre:'Écart à la moyenne d\'équipe',unit:'min',get:function(s){return s.tpsTotal||0;}}
-  };
-  var cfg=config[angle];
-  document.getElementById('rotation-titre').textContent=cfg.titre;
-
-  var data=JOUEURS.map(function(j,i){return {j:j,v:cfg.get(STATS[i])};});
-  var joueurs_actifs=data.filter(function(d){return (STATS[JOUEURS.indexOf(d.j)].matchsJoues||0)>0;});
-  var moyenne=joueurs_actifs.length?Math.round(joueurs_actifs.reduce(function(s,d){return s+d.v;},0)/joueurs_actifs.length):0;
-  document.getElementById('rotation-moy').textContent=angle==='equite'?'Moyenne équipe : '+moyenne+' min':'';
-
-  if(angle==='equite'){
-    data.sort(function(a,b){return a.v-b.v;});
-  }else{
+  var configs=[
+    {k:'temps_total',titre:'Temps total cumulé',ic:'⏱️',unit:'min',col:'var(--or)',get:function(s){return s.tpsTotal||0;}},
+    {k:'temps_moy',titre:'Temps moyen / match',ic:'📊',unit:'min',col:'var(--blue)',get:function(s){return s.tpsMoy||0;}},
+    {k:'titu',titre:'Titularisations',ic:'🟢',unit:'fois',col:'var(--green)',get:function(s){return s.titu||0;}},
+    {k:'rempl',titre:'Entrées en jeu (banc)',ic:'🔄',unit:'fois',col:'var(--gold)',get:function(s){return s.rempl||0;}},
+    {k:'matchs',titre:'Matchs joués',ic:'⚽',unit:'matchs',col:'var(--purple)',get:function(s){return s.matchsJoues||0;}}
+  ];
+  var ct=document.getElementById('rotation-grille');
+  ct.innerHTML=configs.map(function(cfg){
+    var data=JOUEURS.map(function(j,i){return {j:j,v:cfg.get(STATS[i])};});
     data.sort(function(a,b){return b.v-a.v;});
-  }
-  var max=Math.max.apply(null,data.map(function(d){return d.v;}).concat([1]));
-
-  document.getElementById('rotation-list').innerHTML=data.map(function(d){
-    var pct=max>0?Math.round(d.v/max*100):0;
-    var col='var(--or)';
-    if(angle==='equite'){
-      var ecart=d.v-moyenne;
-      col=ecart<-moyenne*0.4?'var(--red)':ecart>moyenne*0.4?'var(--gold)':'var(--green)';
-    }
-    var label=angle==='equite'?(d.v+' min ('+(d.v>=moyenne?'+':'')+(d.v-moyenne)+')'):(d.v+' '+cfg.unit);
-    return '<div style="margin-bottom:10px">'
-      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="font-weight:700">'+d.j.nom+'</span><span style="color:'+col+';font-weight:700;font-family:Inter,sans-serif">'+label+'</span></div>'
-      +'<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px"></div></div>'
-      +'</div>';
+    var top=data.slice(0,10);
+    var max=Math.max.apply(null,top.map(function(d){return d.v;}).concat([1]));
+    return '<div class="blk" style="margin:0"><div class="bh" style="border-top:3px solid '+cfg.col+'"><span class="bt">'+cfg.ic+' '+cfg.titre+'</span></div>'
+      +'<div style="padding:12px">'
+      +top.map(function(d){
+        var pct=max>0?Math.round(d.v/max*100):0;
+        return '<div style="margin-bottom:8px">'
+          +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%">'+d.j.nom+'</span><span style="color:'+cfg.col+';font-weight:700;font-family:Inter,sans-serif">'+d.v+' '+cfg.unit+'</span></div>'
+          +'<div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+cfg.col+';border-radius:3px"></div></div>'
+          +'</div>';
+      }).join('')
+      +'</div></div>';
   }).join('');
 }
 
