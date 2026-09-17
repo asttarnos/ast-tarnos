@@ -1297,6 +1297,7 @@ async function chargerMessagesChat(){
     var msgs=(data.documents||[]).map(function(doc){
       var f=doc.fields||{};
       return {
+        id:(doc.name||'').split('/').pop(),
         auteur:(f.auteur||{}).stringValue||'',
         texte:(f.texte||{}).stringValue||'',
         role:(f.role||{}).stringValue||'joueur',
@@ -1306,6 +1307,15 @@ async function chargerMessagesChat(){
     window._chatSignature=JSON.stringify({n:msgs.length,last:msgs.length?msgs[msgs.length-1].date:''});
     return msgs;
   }catch(e){ return []; }
+}
+async function supprimerMessageChat(id){
+  if(!confirm('Supprimer ce message ?')) return;
+  try{
+    await fetch(FIRESTORE_BASE+'/messages_chat/'+id,{method:'DELETE'});
+    await renderMessages();
+  }catch(e){
+    notif('⚠ Suppression impossible — vérifie ta connexion');
+  }
 }
 async function envoyerMessageChat(){
   var input=document.getElementById('chat-input');
@@ -1339,7 +1349,7 @@ async function renderMessages(){
       var estMoi=m.auteur===MON_NOM;
       var estCoach=m.role==='coach';
       return '<div style="margin-bottom:10px;text-align:'+(estMoi?'right':'left')+'">'
-        +'<div style="font-size:11px;color:'+(estCoach?'var(--or)':'var(--mute)')+';margin-bottom:2px">'+esc(m.auteur)+(estCoach?' (coach)':'')+'</div>'
+        +'<div style="font-size:11px;color:'+(estCoach?'var(--or)':'var(--mute)')+';margin-bottom:2px">'+esc(m.auteur)+(estCoach?' (coach)':'')+(estMoi?' · <span style="cursor:pointer;text-decoration:underline" onclick="supprimerMessageChat(\''+m.id+'\')">supprimer</span>':'')+'</div>'
         +'<div style="display:inline-block;max-width:80%;text-align:left;padding:8px 12px;border-radius:10px;font-size:14.5px;background:'+(estMoi?'rgba(249,115,22,.18)':(estCoach?'rgba(249,115,22,.1)':'rgba(255,255,255,.05)'))+'">'+esc(m.texte)+'</div>'
         +'</div>';
     }).join(''):'<div class="empty-txt">Aucun message pour l\'instant — lance la discussion !</div>')
