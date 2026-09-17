@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Roboto+Condensed:wght@400;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--or:#d97706;--or2:#8a5615;--green:#22a06b;--red:#dc4444;--gold:#e0a530;--blue:#4ea8de;--purple:#b285e8;--silver:#9ca3af;--bronze:#c2793d;--gris:#f3f4f6;--gris2:#9aa0a8;--line:rgba(255,255,255,.16)}
+:root{--or:#d97706;--or2:#8a5615;--green:#22a06b;--red:#dc4444;--gold:#e0a530;--blue:#4ea8de;--purple:#b285e8;--silver:#9ca3af;--bronze:#c2793d;--gris:#f8f9fa;--gris2:#a3a9b0;--line:rgba(255,255,255,.22)}
 html,body{height:100%;overflow:hidden;font-family:'Roboto Condensed',sans-serif;color:var(--gris)}
 body{background:#08090a}
 .bg{position:fixed;inset:0;z-index:0;background:#0c0d0f}
@@ -60,8 +60,8 @@ body{background:#08090a}
 .scr.bg-bureau{background:#0c0d0f}
 .scr.on{display:block}
 .obj-bar-in,.pt-bar{transition:width .6s ease}
-.blk{background:#1e222a;border:1px solid var(--line);border-radius:9px;margin-bottom:12px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.45)}
-.bh{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.045)}
+.blk{background:#242a34;border:1.5px solid var(--line);border-radius:9px;margin-bottom:12px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.bh{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-bottom:1.5px solid var(--line);background:rgba(255,255,255,.06)}
 .bt{font-family:'Roboto Condensed',sans-serif;font-size:15.5px;font-weight:800;letter-spacing:.01em;color:#fff;text-transform:uppercase}
 .repartition-colonnes{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch}
 .colonne-convoc{flex:0 0 200px;background:rgba(255,255,255,.025);border-radius:8px;min-height:400px;transition:background .15s}
@@ -75,7 +75,7 @@ body{background:#08090a}
 .bc{font-size:10px;color:var(--gris2)}
 .ph{padding:18px 0 14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;position:relative;z-index:2}
 .ph::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:5px;border-radius:3px;background:var(--or);box-shadow:0 0 12px rgba(217,119,6,.6)}
-.ph-title{font-family:'Roboto Condensed',sans-serif;font-size:40px;font-weight:900;letter-spacing:-.01em;color:#fff;line-height:1.02;text-shadow:0 2px 18px rgba(217,119,6,.25)}
+.ph-title{font-family:'Roboto Condensed',sans-serif;font-size:48px;font-weight:900;letter-spacing:-.015em;color:#fff;line-height:1;text-shadow:0 2px 22px rgba(217,119,6,.3)}
 .ph-sub{font-size:12.5px;color:var(--gris2);margin-top:5px;font-weight:600}
 .dash-watermark{display:none}
 .hero-band{position:relative;overflow:hidden;border-radius:9px;padding:18px 20px;margin-bottom:14px;background:linear-gradient(160deg,rgba(217,119,6,.12),rgba(217,119,6,.02) 65%);border:1px solid rgba(217,119,6,.25)}
@@ -1993,6 +1993,25 @@ Repli défensif après perte"></textarea>
   </div>
 </div>
 
+<!-- A CREUSER -->
+<div class="scr" id="scr-a-creuser">
+  <div class="ph"><div><div class="ph-title">🔬 À creuser</div><div class="ph-sub">Tout ce qu'on a exploré ensemble mais pas encore validé concrètement</div></div></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Ajouter une piste</span></div>
+    <div style="padding:14px">
+      <div class="fg"><label class="fl">Titre</label><input class="fi" id="ac-titre" placeholder="Ex: Historique multi-saisons enrichi"></div>
+      <label class="fl">Description</label>
+      <textarea class="fi" id="ac-description" rows="2" style="margin:6px 0 12px" placeholder="De quoi il s'agit, où ça en est..."></textarea>
+      <button class="btn" onclick="ajouterPisteACreuser()">+ AJOUTER</button>
+    </div>
+  </div>
+  <div class="blk"><div class="bh"><span class="bt go">🔬 À creuser</span><span class="bc" id="ac-nb-creuser">0</span></div>
+    <div id="ac-liste-creuser" style="padding:14px"></div>
+  </div>
+  <div class="blk" style="margin-top:14px"><div class="bh"><span class="bt g">✓ Validées</span><span class="bc" id="ac-nb-valide">0</span></div>
+    <div id="ac-liste-valide" style="padding:14px"></div>
+  </div>
+</div>
+
 <!-- BIBLIOTHEQUE SEANCES (PHOTOS) -->
 <div class="scr bg-bureau" id="scr-biblio">
   <div class="ph"><div><div class="ph-title">📸 Bibliothèque Séances</div><div class="ph-sub">Photos, PDF et liens vidéo/internet — votre base de ressources</div></div></div>
@@ -2335,6 +2354,7 @@ function reinitialiserPourNouveauClub(){
   HISTORIQUE_SAISONS=[];
   AFFECTATIONS_CONVOC={};
   BIBLIOTHEQUE_GENERALE=[];
+  A_CREUSER=[];
 
   try{ sauvegarder(); }catch(e){}
 
@@ -2685,8 +2705,10 @@ function supprimerJoueur(){
   var idx=parseInt(sel.value)||0;
   if(!JOUEURS[idx]) return;
   var nom=JOUEURS[idx].nom;
+  var numSupprime=JOUEURS[idx].num;
   if(!confirm('Supprimer définitivement '+nom+' de l\'effectif ?\n\nSes stats, son historique et ses objectifs seront perdus. Cette action est irréversible.')) return;
   [JOUEURS,STATS,ATTRS_MANUELS,OBJECTIFS,PHOTOS,SEANCE_SAISIE,FORME_HISTORIQUE,NOTE_HISTORIQUE].forEach(function(arr){ if(arr && arr.length>idx) arr.splice(idx,1); });
+  if(AFFECTATIONS_CONVOC && AFFECTATIONS_CONVOC.hasOwnProperty(numSupprime)) delete AFFECTATIONS_CONVOC[numSupprime];
   renderFicheSel();
   renderPresList();
   renderNotifList();
@@ -2719,6 +2741,7 @@ var POLES=[
     {s:'notifs-push',ic:'🔔',l:'Notifications push'},
     {s:'infos-club',ic:'📄',l:'Docs & contacts club'},
     {s:'biblio-generale',ic:'🗄️',l:'Bibliothèque générale'},
+    {s:'a-creuser',ic:'🔬',l:'À creuser'},
     {s:'sondage',ic:'📊',l:'Sondage'},
     {s:'activite',ic:'📶',l:"Qui utilise l'appli"}
   ]},
@@ -2876,6 +2899,7 @@ function goNav(elOrS){
   if(s==='chat') renderChatCoach();
   if(s==='convos') renderRepartitionJoueurs();
   if(s==='biblio-generale') renderBibliothequeGenerale();
+  if(s==='a-creuser') renderACreuser();
   if(s==='infos-club') renderInfosClub();
   if(s==='entretien') renderEntretien();
   if(s==='suivi-objectifs') renderSuiviObjectifs();
@@ -4715,6 +4739,52 @@ function renderBibliothequeGenerale(){
       +'</div>';
   }).join(''):'<div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">'+(BIBLIOTHEQUE_GENERALE.length?'Aucun résultat pour cette recherche':'Rien dans la bibliothèque pour l\'instant')+'</div>';
 }
+function ajouterPisteACreuser(){
+  var titre=document.getElementById('ac-titre').value.trim();
+  var description=document.getElementById('ac-description').value.trim();
+  if(!titre){ notif('⚠ Titre obligatoire'); return; }
+  A_CREUSER.unshift({titre:titre,description:description,statut:'a_creuser'});
+  document.getElementById('ac-titre').value='';
+  document.getElementById('ac-description').value='';
+  renderACreuser();
+  notif('✓ Ajouté — pense à synchroniser');
+}
+function validerPisteACreuser(i){
+  A_CREUSER[i].statut='valide';
+  renderACreuser();
+}
+function reouvrirPisteACreuser(i){
+  A_CREUSER[i].statut='a_creuser';
+  renderACreuser();
+}
+function supprimerPisteACreuser(i){
+  if(!confirm('Supprimer cette piste ?')) return;
+  A_CREUSER.splice(i,1);
+  renderACreuser();
+}
+function renderACreuser(){
+  var ctC=document.getElementById('ac-liste-creuser');
+  var ctV=document.getElementById('ac-liste-valide');
+  if(!ctC) return;
+  var enCours=[], validees=[];
+  A_CREUSER.forEach(function(p,i){ (p.statut==='valide'?validees:enCours).push({p:p,i:i}); });
+  document.getElementById('ac-nb-creuser').textContent=enCours.length;
+  document.getElementById('ac-nb-valide').textContent=validees.length;
+  ctC.innerHTML=enCours.length?enCours.map(function(o){
+    return '<div style="background:rgba(15,15,15,.7);border:1px solid var(--line);border-left:3px solid var(--or);border-radius:6px;padding:12px 14px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><b style="font-size:13px">'+o.p.titre+'</b>'
+      +'<div style="display:flex;gap:10px;flex-shrink:0"><span style="cursor:pointer;color:var(--green);font-size:11px;font-weight:700" onclick="validerPisteACreuser('+o.i+')">✓ Valider</span><span style="cursor:pointer" onclick="supprimerPisteACreuser('+o.i+')">🗑</span></div></div>'
+      +(o.p.description?'<div style="font-size:11.5px;color:var(--gris2);margin-top:6px;line-height:1.5">'+o.p.description+'</div>':'')
+      +'</div>';
+  }).join(''):'<div style="text-align:center;padding:16px;color:var(--gris2);font-size:12px">Rien en attente — tout est validé ou la liste est vide</div>';
+  ctV.innerHTML=validees.length?validees.map(function(o){
+    return '<div style="background:rgba(34,160,107,.06);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:6px;padding:12px 14px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><b style="font-size:13px">'+o.p.titre+'</b>'
+      +'<div style="display:flex;gap:10px;flex-shrink:0"><span style="cursor:pointer;color:var(--gris2);font-size:11px" onclick="reouvrirPisteACreuser('+o.i+')">↺ Rouvrir</span><span style="cursor:pointer" onclick="supprimerPisteACreuser('+o.i+')">🗑</span></div></div>'
+      +(o.p.description?'<div style="font-size:11.5px;color:var(--gris2);margin-top:6px;line-height:1.5">'+o.p.description+'</div>':'')
+      +'</div>';
+  }).join(''):'<div style="text-align:center;padding:16px;color:var(--gris2);font-size:12px">Aucune piste validée pour l\'instant</div>';
+}
 async function chargerDisponibilites(){
   var ct=document.getElementById('dispo-list');
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
@@ -6000,6 +6070,7 @@ function appliquerDonnees(p,silencieux){
   if(p.HISTORIQUE_SAISONS)HISTORIQUE_SAISONS=p.HISTORIQUE_SAISONS;
   if(p.AFFECTATIONS_CONVOC)AFFECTATIONS_CONVOC=p.AFFECTATIONS_CONVOC;
   if(p.BIBLIOTHEQUE_GENERALE)BIBLIOTHEQUE_GENERALE=p.BIBLIOTHEQUE_GENERALE;
+  if(p.A_CREUSER)A_CREUSER=p.A_CREUSER;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -6061,7 +6132,7 @@ function recalculerStats(){
 // SYNCHRO SAISON (Firebase Firestore) — sauvegarde cloud en plus du navigateur
 // Note : PHOTOS et SEANCES_PHOTOS restent uniquement en local (trop volumineux pour Firestore, limite ~1 Mo par document)
 function donneesSaisonSansPhotos(){
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,NOM_CLUB};
 }
 async function sauvegarderFirestore(){
   try{
@@ -6963,6 +7034,15 @@ function supprimerEntretien(i){
 var ADVERSAIRES=[];
 var HISTORIQUE_SAISONS=[];
 var BIBLIOTHEQUE_GENERALE=[];
+var A_CREUSER=[
+  {titre:'Carte mentale match (PDF)',description:"Modèle imprimable à remplir à la main avant chaque match — adversaire, plan de jeu, effectif, objectifs.",statut:'a_creuser'},
+  {titre:'Fiche observation joueur (PDF)',description:"Pour noter tes observations quand tu vas voir un match — technique, physique, mental, conclusion.",statut:'a_creuser'},
+  {titre:'Affiche match (image/HTML)',description:"Visuel dynamique pour annoncer le prochain match — logo, adversaire, mot du coach, compo, modèle de jeu.",statut:'a_creuser'},
+  {titre:'Vidéo de préparation avant match',description:"Séquence animée de 2-3 min (convocation, compo, analyse adversaire, consignes). Démo construite avec des données d'exemple — pas encore branchée sur les vraies données Firestore.",statut:'a_creuser'},
+  {titre:'Alertes Dashboard saison à saison',description:"Les 5 alertes existent mais ne comparent que l'instant présent. Avec l'historique multi-saisons, on pourrait comparer une saison à l'autre.",statut:'a_creuser'},
+  {titre:'Reconstruire le plateau tactique',description:"Le fichier externe plateau_tactique_4222.html chargé en iframe est introuvable — l'écran est peut-être cassé chez les utilisateurs. À reconstruire directement dans COACH.html.",statut:'a_creuser'},
+  {titre:'Nettoyage automatique des vieilles données',description:"Votes, disponibilités, messages... s'accumulent dans Firestore sans jamais être supprimés. Un bouton pourrait archiver puis purger les données de plus de X mois.",statut:'a_creuser'}
+];
 var AFFECTATIONS_CONVOC={};
 var INFOS_CLUB={reglement:'',contacts:[]};
 function trouverOuCreerAdversaire(nom){
@@ -8614,7 +8694,7 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(ok){
       notif(ok?'☁️ Sauvegardé aussi dans le cloud':'⚠ Sauvegarde cloud impossible (pas internet ?) — la copie locale est OK');
@@ -8636,7 +8716,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
