@@ -5666,7 +5666,7 @@ function renderSondage(){
   document.getElementById('sondage-question').value='';
   document.getElementById('sondage-options').value='';
   var ct=document.getElementById('sondages-list');
-  if(!SONDAGES.length){ ct.innerHTML='<div class="blk"><div style="padding:14px;color:var(--gris2);font-size:12px">Aucun sondage créé pour l\'instant.</div></div>'; return; }
+  if(!SONDAGES.length){ ct.innerHTML='<div class="blk"><div class="bh"><span class="bt">Sondages publiés</span></div><div style="padding:16px;text-align:center;color:var(--gris2);font-size:12px">Aucun sondage créé pour l\'instant.</div></div>'; return; }
   ct.innerHTML=SONDAGES.map(function(s,idx){
     var statutCol=s.actif?'var(--green)':'var(--gris2)';
     var statutLbl=s.actif?'🟢 Actif':'⚫ Clôturé';
