@@ -1303,13 +1303,38 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 <div class="scr" id="scr-classement">
   <div class="ph"><div><div class="ph-title">📊 Classement</div><div class="ph-sub">R2 Poule F — Nouvelle-Aquitaine</div></div></div>
   <div class="blk" style="margin-bottom:14px" id="prochain-match-blk"></div>
+
+  <div class="fg2" style="margin-bottom:14px">
+    <div class="blk" style="margin:0"><div class="bh"><span class="bt">Classement actuel</span><span class="bc" style="font-size:9px;color:var(--gris2)">calculé automatiquement</span></div>
+      <div id="classement-list" style="padding:8px"></div>
+    </div>
+    <div class="blk" style="margin:0"><div class="bh"><span class="bt">Évolution des places</span><span class="bc" id="classement-hist-nb">0 instantané</span></div>
+      <div id="classement-evolution" style="padding:14px"></div>
+      <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:6px">
+        <button class="gen-btn2" onclick="enregistrerInstantaneClassement()">📸 Enregistrer un instantané</button>
+        <span style="cursor:pointer;font-size:10px;color:var(--red);text-decoration:underline" onclick="viderHistoriqueClassement()">🗑 Vider l'historique (si noms mélangés / doublons)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fg2" style="margin-bottom:14px">
+    <div class="blk" style="margin:0"><div class="bh"><span class="bt">🏠 Classement Domicile</span></div><div id="classement-dom-full" style="padding:8px"></div></div>
+    <div class="blk" style="margin:0"><div class="bh"><span class="bt">✈ Classement Extérieur</span></div><div id="classement-ext-full" style="padding:8px"></div></div>
+  </div>
+
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">📅 Mon tableau — journée par journée</span><span class="bc" style="font-size:9px;color:var(--gris2)">généré automatiquement</span></div>
+    <div id="classement-domext-summary" style="padding:10px 14px;display:flex;gap:10px"></div>
+    <div id="classement-domext-list" style="padding:0 8px 8px"></div>
+  </div>
+
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Comment ça marche</span></div>
     <div style="padding:12px 14px;font-size:11px;color:var(--gris2)">
       ⚠ La récupération automatique depuis le site de la ligue n'est pas possible depuis un navigateur (restriction de sécurité standard sur ces sites). Tes propres matchs se comptabilisent tout seuls (via "Résultat du jour" ci-dessus ou l'écran Matchs). Pour les matchs <b style="color:#fff">entre les autres équipes</b> de la poule, saisis-les ci-dessous (à retrouver sur
       <a href="https://epreuves.fff.fr/competition/club/533943-a-s-t-football/equipe/2026_15870_SEM_1/classement" target="_blank" style="color:var(--or)">FFF — A.S.T Football</a>) — le classement complet se recalcule alors automatiquement pour toutes les équipes.
     </div>
   </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">➕ Résultat entre 2 autres équipes</span></div>
+
+  <div class="blk"><div class="bh"><span class="bt go">➕ Résultat entre 2 autres équipes</span><span class="bc" style="font-size:9px;color:var(--gris2)">génère tout le classement ci-dessus</span></div>
     <div style="padding:12px 14px">
       <datalist id="dl-equipes-poule"></datalist>
       <div class="fg2" style="margin-bottom:8px">
@@ -1324,23 +1349,6 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <button class="gen-btn2" onclick="ajouterAutreResultat()">+ AJOUTER CE RÉSULTAT</button>
       <div id="autres-resultats-list" style="margin-top:10px"></div>
     </div>
-  </div>
-  <div class="blk" style="margin-bottom:14px">
-    <div class="bh"><span class="bt">Classement complet</span><span class="bc" style="font-size:9px;color:var(--gris2)">calculé automatiquement</span></div>
-    <div id="classement-list" style="padding:8px"></div>
-    <div style="padding:0 12px 12px"><button class="btn" onclick="enregistrerInstantaneClassement()">📸 ENREGISTRER UN INSTANTANÉ (pour le graphique)</button></div>
-  </div>
-  <div class="fg2" style="margin-bottom:14px">
-    <div class="blk" style="margin:0"><div class="bh"><span class="bt">🏠 Classement Domicile</span></div><div id="classement-dom-full" style="padding:8px"></div></div>
-    <div class="blk" style="margin:0"><div class="bh"><span class="bt">✈ Classement Extérieur</span></div><div id="classement-ext-full" style="padding:8px"></div></div>
-  </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">📅 Mon tableau — journée par journée</span><span class="bc" style="font-size:9px;color:var(--gris2)">généré automatiquement</span></div>
-    <div id="classement-domext-summary" style="padding:10px 14px;display:flex;gap:10px"></div>
-    <div id="classement-domext-list" style="padding:0 8px 8px"></div>
-  </div>
-  <div class="blk"><div class="bh"><span class="bt">Évolution du classement</span><span class="bc" id="classement-hist-nb">0 instantané</span></div>
-    <div id="classement-evolution" style="padding:14px"></div>
-    <div style="padding:0 14px 14px"><span style="cursor:pointer;font-size:10px;color:var(--red);text-decoration:underline" onclick="viderHistoriqueClassement()">🗑 Vider l'historique (si noms mélangés / doublons)</span></div>
   </div>
 </div>
 
