@@ -1497,6 +1497,21 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="info-box">ℹ️ Seuls les joueurs ayant appuyé sur "Activer" dans leur appli reçoivent ces notifications. Ça nécessite d'avoir déployé la Cloud Function associée (voir la checklist fournie).</div>
 </div>
 
+<!-- CORRECTION STATS SUSPECTES -->
+<div class="scr" id="scr-correction-buts">
+  <div class="ph"><div><div class="ph-title">🩹 Corriger des stats suspectes</div><div class="ph-sub">Repère les valeurs anormales (souvent confondues avec le temps de jeu)</div></div></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Seuil de détection</span></div>
+    <div style="padding:14px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:var(--gris2)">Signaler tout "Buts" ou "Passes D." saisi au-dessus de</span>
+      <input class="fi ninput" type="number" id="seuil-suspect" value="6" style="width:70px">
+      <button class="gen-btn2" onclick="renderCorrectionButs()">🔄 Analyser</button>
+    </div>
+  </div>
+  <div class="blk"><div class="bh"><span class="bt">Entrées suspectes</span><span class="bc" id="correction-nb">0</span></div>
+    <div id="correction-liste" style="padding:8px"></div>
+  </div>
+</div>
+
 <!-- MESSAGERIE JOUEURS -->
 <div class="scr" id="scr-chat">
   <div class="ph"><div><div class="ph-title">💬 Messagerie joueurs</div><div class="ph-sub">Discussion d'équipe — visible par tous</div></div></div>
@@ -2742,6 +2757,7 @@ var POLES=[
   ]},
   {id:'match',label:'Match & Compétition',icon:'⚽',color:'#38bdf8',screens:[
     {s:'matchs',ic:'⚽',l:'Matchs'},
+    {s:'correction-buts',ic:'🩹',l:'Corriger des stats suspectes'},
     {s:'adversaires',ic:'🔍',l:'Adversaires'},
     {s:'bilan',ic:'🏆',l:'Bilan de Saison'},
     {s:'classement',ic:'📊',l:'Classement'},
@@ -2894,6 +2910,7 @@ function goNav(elOrS){
   if(s==='chat') renderChatCoach();
   if(s==='convos') renderRepartitionJoueurs();
   if(s==='biblio-generale') renderBibliothequeGenerale();
+  if(s==='correction-buts') renderCorrectionButs();
   if(s==='a-creuser') renderACreuser();
   if(s==='infos-club') renderInfosClub();
   if(s==='entretien') renderEntretien();
@@ -4780,8 +4797,37 @@ function renderACreuser(){
       +'</div>';
   }).join(''):'<div style="text-align:center;padding:16px;color:var(--gris2);font-size:12px">Aucune piste validée pour l\'instant</div>';
 }
+function renderCorrectionButs(){
+  var ct=document.getElementById('correction-liste');
+  var seuil=parseInt(document.getElementById('seuil-suspect').value)||6;
+  var suspectes=[];
+  MATCHS.forEach(function(m,mi){
+    (m.notes||[]).forEach(function(n,ni){
+      if((n.buts||0)>seuil) suspectes.push({mi:mi,ni:ni,champ:'buts',label:'Buts',m:m,n:n});
+      if((n.pd||0)>seuil) suspectes.push({mi:mi,ni:ni,champ:'pd',label:'Passes D.',m:m,n:n});
+    });
+  });
+  document.getElementById('correction-nb').textContent=suspectes.length;
+  if(!suspectes.length){ ct.innerHTML='<div style="text-align:center;padding:20px;color:var(--green);font-size:12px">✓ Rien de suspect au-dessus de '+seuil+'</div>'; return; }
+  ct.innerHTML=suspectes.map(function(o,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap">'
+      +'<div style="flex:1;min-width:180px"><b style="font-size:12.5px">'+o.n.nom+'</b><div style="font-size:10px;color:var(--gris2)">vs '+(o.m.adversaire||'?')+' — '+(o.m.date||'?')+'</div></div>'
+      +'<span style="font-size:10.5px;color:var(--gris2)">'+o.label+' actuel : <b style="color:var(--red)">'+o.n[o.champ]+'</b></span>'
+      +'<input class="fi ninput" type="number" min="0" id="corr-val-'+i+'" style="width:70px" placeholder="nouvelle valeur">'
+      +'<span style="cursor:pointer;padding:7px 12px;background:rgba(34,160,107,.15);color:var(--green);border-radius:6px;font-size:11px;font-weight:700" onclick="appliquerCorrectionBut('+o.mi+','+o.ni+',\''+o.champ+'\',\'corr-val-'+i+'\')">✓ Corriger</span>'
+      +'<span style="cursor:pointer;padding:7px 12px;background:rgba(255,255,255,.06);color:var(--gris2);border-radius:6px;font-size:11px" onclick="appliquerCorrectionBut('+o.mi+','+o.ni+',\''+o.champ+'\',null,0)">C\'était 0</span>'
+      +'</div>';
+  }).join('');
+}
+function appliquerCorrectionBut(mi,ni,champ,inputId,forceVal){
+  var val=inputId?parseInt(document.getElementById(inputId).value):forceVal;
+  if(isNaN(val)||val===null){ notif('⚠ Entre une valeur'); return; }
+  MATCHS[mi].notes[ni][champ]=val;
+  recalculerStats();
+  renderCorrectionButs();
+  notif('✓ Corrigé — stats recalculées');
+}
 async function chargerDisponibilites(){
-  var ct=document.getElementById('dispo-list');
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
   var adv=document.getElementById('c-adv').value.trim();
   var date=document.getElementById('c-date').value.trim();
