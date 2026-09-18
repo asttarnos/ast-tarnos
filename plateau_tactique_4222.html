@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Projet de jeu 4-2-2-2 - Plateau tactique anime</title>
+<style>
+  :root{
+    --bg:#0d0d0d; --card:#1b1b1b; --orange:#e8622c;
+    --white:#ffffff; --muted:#bfbfbf; --green:#1f6b3e;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--white);
+    font-family:"Trebuchet MS", Arial, sans-serif; padding:28px 20px 40px;
+  }
+  h1{
+    font-family:"Impact","Arial Black",sans-serif; font-weight:400;
+    letter-spacing:0.5px; font-size:30px; margin:0 0 4px;
+  }
+  .sub{color:var(--muted); font-style:italic; margin:0 0 20px; font-size:14px;}
+  .modes{display:flex; gap:8px; margin-bottom:18px;}
+  .mode-btn{
+    font-family:"Impact","Arial Black",sans-serif; font-weight:400; letter-spacing:0.5px;
+    background:var(--card); color:var(--white); border:1.5px solid #3a3a3a;
+    padding:9px 18px; border-radius:6px; cursor:pointer; font-size:13px;
+  }
+  .mode-btn.active{background:var(--orange); border-color:var(--orange); color:#1a0d05;}
+  .tab-group-label{font-size:10.5px; letter-spacing:1px; color:#777; text-transform:uppercase; margin:4px 0 4px;}
+  .layout{display:flex; gap:20px; flex-wrap:nowrap; align-items:flex-start; max-width:1500px; margin:0 auto; overflow-x:auto;}
+  .board-wrap{flex:0 0 auto;}
+  .panel{flex:0 0 300px; min-width:280px; max-width:300px;}
+  .compo-wrap{flex:0 0 190px; min-width:180px;}
+  .compo-row{display:flex; align-items:center; gap:6px; margin-bottom:6px;}
+  .compo-row .compo-label{width:34px; flex:0 0 34px; font-size:11px; font-weight:bold; text-align:center; padding:4px 2px; border-radius:4px; color:#fff;}
+  .compo-row input{
+    flex:1; min-width:0; background:var(--card); color:var(--white); border:1.5px solid #3a3a3a;
+    border-radius:4px; padding:6px 8px; font-family:inherit; font-size:13px;
+  }
+  .compo-row input:focus{border-color:var(--orange); outline:none;}
+  svg{background:var(--green); border-radius:10px; display:block; box-shadow:0 6px 24px rgba(0,0,0,.5);}
+  svg.clickable{cursor:crosshair; touch-action:none;}
+  .controls{display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 6px;}
+  button.ctrl{
+    font-family:"Impact","Arial Black",sans-serif; font-weight:400; letter-spacing:0.5px;
+    background:var(--card); color:var(--white); border:1.5px solid #3a3a3a;
+    padding:9px 16px; border-radius:6px; cursor:pointer; font-size:13px;
+  }
+  button.ctrl:hover{border-color:var(--orange);}
+  button.ctrl.active{background:var(--orange); border-color:var(--orange); color:#1a0d05;}
+  #playBtn, #demoBtn{background:var(--orange); border-color:var(--orange); color:#1a0d05;}
+  #playBtn.playing, #demoBtn.playing{background:#2a2a2a; color:var(--orange); border-color:var(--orange);}
+  .eyebrow{color:var(--orange); font-family:"Impact","Arial Black",sans-serif; font-size:13px; letter-spacing:1px; margin:0 0 4px;}
+  .phase-title{font-family:"Impact","Arial Black",sans-serif; font-weight:400; font-size:24px; margin:0 0 6px;}
+  .phase-desc{color:var(--muted); font-size:13.5px; font-style:italic; margin:0 0 18px; min-height:36px;}
+  .role{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #262626;}
+  .dot{width:26px; height:26px; border-radius:50%; flex:0 0 26px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; color:#fff; margin-top:2px;}
+  .role-txt b{display:block; font-size:14px; margin-bottom:2px;}
+  .role-txt span{font-size:12.5px; color:var(--muted); line-height:1.4;}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11px; color:var(--muted);}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .legend i{width:10px; height:10px; border-radius:50%; display:inline-block;}
+  .hint{font-size:12.5px; color:var(--muted); font-style:italic; margin:10px 0 0;}
+  #ballModePanel{display:none;}
+  .phase-desc, #roles{display:none;}
+  #modePhase, #phaseModePanel{display:none !important;}
+  .free-notes{width:100%; max-width:100%; background:var(--card); color:var(--white); border:1.5px solid #3a3a3a; border-radius:6px; padding:10px; font-family:inherit; font-size:13px; resize:vertical; min-height:180px;}
+  .note-bubble{
+    position:absolute; z-index:50; width:220px; background:#f5f0e6; color:#1a1a1a;
+    border:2px solid #1a1a1a; border-radius:14px; padding:10px 12px; box-shadow:0 8px 22px rgba(0,0,0,.5);
+    display:none;
+  }
+  .note-bubble.show{display:block;}
+  .note-bubble-tail{
+    position:absolute; width:16px; height:16px; background:#f5f0e6; border-left:2px solid #1a1a1a; border-bottom:2px solid #1a1a1a;
+    transform:rotate(45deg); bottom:-9px; left:24px;
+  }
+  .note-bubble.tail-top .note-bubble-tail{ bottom:auto; top:-9px; left:24px; border-left:none; border-bottom:none; border-right:2px solid #1a1a1a; border-top:2px solid #1a1a1a; }
+  .note-bubble-name{font-family:"Impact","Arial Black",sans-serif; font-weight:400; letter-spacing:0.4px; font-size:14px; margin-bottom:6px; color:#c0392b;}
+  .note-bubble textarea{
+    width:100%; box-sizing:border-box; border:1.5px solid #ccc3ac; border-radius:8px; padding:6px 8px;
+    font-family:inherit; font-size:12.5px; resize:vertical; background:#fffdf8; color:#1a1a1a;
+  }
+  .note-bubble-actions{display:flex; justify-content:flex-end; gap:6px; margin-top:8px;}
+  .note-bubble-actions button{padding:6px 12px; font-size:11.5px;}
+  .seq-step-btn{width:38px; height:38px; border-radius:50%; border:2px solid #444; background:#1e1e1e; color:#ccc; font-weight:700; cursor:pointer; font-size:14px;}
+  .seq-step-btn.filled{border-color:var(--orange); background:#3a2410; color:var(--orange);}
+  .seq-step-btn.active{border-color:#fff; box-shadow:0 0 0 2px var(--orange);}
+</style>
+</head>
+<body>
+
+<h1>PROJET DE JEU 4-2-2-2</h1>
+<p class="sub">Plateau tactique anime - le placement de chacun a travers les 4 phases de jeu</p>
+
+<div class="tab-group-label">SITUATIONS DE JEU</div>
+<div class="modes" style="margin-bottom:6px;">
+  <button class="mode-btn space-btn active" data-space="avec">AVEC BALLON</button>
+  <button class="mode-btn space-btn" data-space="sans">SANS BALLON</button>
+</div>
+
+<div class="tab-group-label">COUPS DE PIED ARRETES</div>
+<div class="modes" style="margin-bottom:8px;">
+  <button class="mode-btn space-btn" data-space="corner_off">CORNER OFF</button>
+  <button class="mode-btn space-btn" data-space="corner_def">CORNER DEF</button>
+  <button class="mode-btn space-btn" data-space="coup_franc">COUP DE PIED ARRETE</button>
+  <span class="hint" id="spaceIndicator" style="margin-left:10px; align-self:center; display:inline;">Espace actif : avec ballon (en possession)</span>
+</div>
+
+<div class="modes">
+  <button class="mode-btn active" id="modeBall">Suivre le ballon</button>
+  <button class="mode-btn" id="modeEdit">Mode edition (glisser les joueurs)</button>
+  <button class="mode-btn" id="modeSeq">Sequence de mouvement</button>
+  <label class="hint" style="display:flex;align-items:center;gap:6px;margin:0 4px;cursor:pointer;user-select:none">
+    <input type="checkbox" id="oppToggle" style="width:16px;height:16px;accent-color:var(--orange)"> Afficher l'adversaire
+  </label>
+  <button class="mode-btn" id="lockBtn" style="margin-left:auto;">Verrouiller le systeme</button>
+</div>
+
+<div id="seqPanel" style="display:none; max-width:960px; margin:0 auto 14px; background:var(--card); border:1px solid #333; border-radius:10px; padding:12px 16px;">
+  <div class="eyebrow" style="margin-bottom:8px;">SEQUENCE DE MOUVEMENT — 7 ETAPES MAX</div>
+  <div id="seqSteps" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button type="button" class="ctrl" id="seqSave">Enregistrer cette etape</button>
+    <button type="button" class="ctrl" id="seqClear">Effacer cette etape</button>
+    <button type="button" class="ctrl" id="seqPlay">Lire la sequence</button>
+    <button type="button" class="ctrl" id="seqClearAll">Tout effacer</button>
+  </div>
+  <p class="hint" id="seqHint" style="margin-top:8px;">Positionne les joueurs pour l'etape 1, clique "Enregistrer cette etape", puis passe a l'etape suivante.</p>
+</div>
+
+<div class="layout">
+  <div class="board-wrap" style="position:relative;">
+    <svg id="pitch" viewBox="0 0 100 130" width="460" height="598"></svg>
+    <div class="legend" id="legend"></div>
+    <p class="hint" id="ballHint">Clique n'importe ou sur le terrain pour deplacer le ballon : l'equipe se replace selon les principes des 4 phases.</p>
+    <div id="noteBubble" class="note-bubble">
+      <div id="noteBubbleTail" class="note-bubble-tail"></div>
+      <div id="noteBubbleName" class="note-bubble-name"></div>
+      <textarea id="noteBubbleText" rows="3" placeholder="Ex: monter au signal du coach, attention au hors-jeu..."></textarea>
+      <div class="note-bubble-actions">
+        <button type="button" class="ctrl" id="noteBubbleCancel">Annuler</button>
+        <button type="button" class="ctrl" id="noteBubbleSave" style="background:var(--orange);border-color:var(--orange);color:#1a0d05;">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="compo-wrap">
+    <div class="eyebrow" style="margin-bottom:6px;">COMPO</div>
+    <p class="hint" style="margin:0 0 10px;">Entre les noms : ca se repercute directement sur le terrain.</p>
+    <div id="compoFields"></div>
+    <div class="controls" style="margin-top:10px;">
+      <button class="ctrl" id="clearCompoBtn">Effacer la compo</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="phaseModePanel">
+      <div class="controls" id="phaseButtons"></div>
+      <div class="controls">
+        <button class="ctrl" id="playBtn">Lecture automatique</button>
+      </div>
+    </div>
+
+    <div id="ballModePanel">
+      <div class="controls">
+        <button class="ctrl" id="demoBtn">Demo automatique</button>
+      </div>
+    </div>
+
+    <div id="editModePanel" style="display:none;">
+      <label class="hint" for="placementNote" style="display:block; margin-bottom:4px;">Notes / consignes pour ce placement :</label>
+      <textarea id="placementNote" placeholder="Ex: monter au signal du coach, attention au hors-jeu, viser le 2e poteau..." rows="3" style="width:100%; max-width:420px; background:var(--card); color:var(--white); border:1.5px solid #3a3a3a; border-radius:6px; padding:8px; font-family:inherit; font-size:13px; resize:vertical; margin-bottom:10px;"></textarea>
+      <div class="controls">
+        <button class="ctrl" id="saveZoneBtn">Enregistrer cette position pour cette zone</button>
+      </div>
+      <div class="controls">
+        <button class="ctrl" id="resetZoneBtn">Reinitialiser cette zone</button>
+        <button class="ctrl" id="resetAllBtn">Effacer toutes mes positions</button>
+      </div>
+      <div class="controls">
+        <button class="ctrl" id="exportBtn">Exporter la configuration (fichier)</button>
+        <button class="ctrl" id="importBtn">Importer une configuration</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+      <p class="hint" id="zoneStatus" style="display:block;"></p>
+    </div>
+    <p class="hint" id="viewNote" style="display:none;"></p>
+
+    <div class="eyebrow" style="margin-top:14px;">NOTES LIBRES</div>
+    <textarea id="freeNotes" class="free-notes" placeholder="Consignes libres, à écrire ici pendant la séance ou avant le match..."></textarea>
+
+    <div class="eyebrow" id="phaseEyebrow">PHASE 1</div>
+    <div class="phase-title" id="phaseTitle">Organisation offensive</div>
+    <div class="phase-desc" id="phaseDesc">Le bloc s'etire au maximum, largeur assuree par les lateraux</div>
+
+    <div id="roles"></div>
+  </div>
+</div>
+
+<script>
+const COL_HEX = {DC:"#3b82c4", DL:"#1da97c", P:"#d85a30", I:"#8b7bd8", BU:"#d89a2e", GB:"#5a5a56"};
+const duosStd = [["DC1","DC2","DC"],["DLg","DLd","DL"],["P1","P2","P"],["Ig","Id","I"],["B9","B10","BU"]];
+
+// ===== Positions de depart dediees aux coups de pied arretes =====
+const SET_PIECE_DEFAULTS = {
+  corner_off: {
+    GB:[50,122], DC1:[38,58], DC2:[62,58],
+    DLg:[96,4], DLd:[20,26],
+    P1:[44,10], P2:[56,10],
+    Ig:[35,16], Id:[65,16],
+    B9:[50,22], B10:[42,7]
+  },
+  corner_def: {
+    GB:[50,124], DC1:[42,112], DC2:[58,112],
+    DLg:[30,116], DLd:[70,116],
+    P1:[50,120], P2:[38,108],
+    Ig:[62,108], Id:[50,105],
+    B9:[35,60], B10:[65,60]
+  },
+  coup_franc: {
+    GB:[50,122], DC1:[40,55], DC2:[60,55],
+    DLg:[18,50], DLd:[82,50],
+    P1:[46,26], P2:[54,26],
+    Ig:[38,20], Id:[62,20],
+    B9:[50,14], B10:[50,22]
+  }
+};
+const OPP_SET_PIECE_DEFAULTS = {
+  corner_off: { // adversaire defend notre corner
+    OGB:[50,4], ODC1:[42,16], ODC2:[58,16],
+    ODL1:[35,10], ODL2:[65,10],
+    OM1:[44,8], OM2:[56,8],
+    OM3:[50,12], OM4:[50,22],
+    OA1:[20,55], OA2:[80,55]
+  },
+  corner_def: { // adversaire attaque, nous defendons
+    OGB:[50,126], ODC1:[38,62], ODC2:[62,62],
+    ODL1:[96,108], ODL2:[4,108],
+    OM1:[44,118], OM2:[56,118],
+    OM3:[38,124], OM4:[62,124],
+    OA1:[50,120], OA2:[50,110]
+  },
+  coup_franc: { // mur adverse
+    OGB:[50,4], ODC1:[46,15], ODC2:[54,15],
+    ODL1:[42,15], ODL2:[58,15],
+    OM1:[50,30], OM2:[50,40],
+    OM3:[30,45], OM4:[70,45],
+    OA1:[38,60], OA2:[62,60]
+  }
+};
+
+const PHASES = [
+  {
+    key:"p1", eyebrow:"PHASE 1", title:"Organisation offensive",
+    desc:"Le bloc s'etire au maximum, largeur assuree par les lateraux",
+    players:{
+      GB:[50,98,"GB","GB"], DC1:[36,80,"DC","DC"], DC2:[64,80,"DC","DC"],
+      DLg:[12,84,"DL","DL"], DLd:[88,84,"DL","DL"], P1:[38,58,"P1","P"], P2:[62,52,"P2","P"],
+      Ig:[34,38,"I","I"], Id:[66,38,"I","I"], B9:[40,16,"9","BU"], B10:[62,26,"10","BU"],
+    },
+    roles:[
+      ["Centraux","DC","Sortent de balle, un peut monter en relayeur si le pivot se decale"],
+      ["Lateraux","DL","Seule source de largeur : montent haut et larges, creent le 1v1 exterieur"],
+      ["Pivots","P","P1 reste bas et securise, P2 se projette et alimente les interieurs"],
+      ["Interieurs","I","Jeu entre les lignes, decrochages, creent le surnombre central"],
+      ["Attaquants","BU","Un fixe (appui, dos au but), un mobile (decroche, casse les lignes)"],
+    ],
+  },
+  {
+    key:"p2", eyebrow:"PHASE 2", title:"Transition defensive",
+    desc:"Reaction immediate a la perte de balle, bloc resserre",
+    players:{
+      GB:[50,100,"GB","GB"], DC1:[40,88,"DC","DC"], DC2:[60,88,"DC","DC"],
+      DLg:[22,92,"DL","DL"], DLd:[78,92,"DL","DL"], P1:[40,68,"P1","P"], P2:[60,62,"P2","P"],
+      Ig:[36,48,"I","I"], Id:[64,48,"I","I"], B9:[40,28,"9","BU"], B10:[60,33,"10","BU"],
+    },
+    roles:[
+      ["Centraux","DC","Couverture immediate des courses adverses, gerent le hors-jeu"],
+      ["Lateraux","DL","Repli rapide et resserre : point critique du systeme"],
+      ["Pivots","P","P1 premier rideau devant la defense, P2 premier presseur"],
+      ["Interieurs","I","Premiers declencheurs du contre-pressing"],
+      ["Attaquants","BU","Orientent le pressing sur le relanceur adverse"],
+    ],
+  },
+  {
+    key:"p3", eyebrow:"PHASE 3", title:"Organisation defensive - bascule 4-4-1-1",
+    desc:"Passage a un bloc bas en 4-4-1-1 pour fermer les couloirs",
+    players:{
+      GB:[50,105,"GB","GB"], DC1:[38,90,"DC","DC"], DC2:[62,90,"DC","DC"],
+      DLg:[14,85,"DL","DL"], DLd:[86,85,"DL","DL"], Ig:[12,63,"I","I"], P1:[38,58,"P1","P"],
+      P2:[62,58,"P2","P"], Id:[88,63,"I","I"], B9:[50,38,"9","BU"], B10:[50,20,"10","BU"],
+    },
+    roles:[
+      ["Centraux","DC","Ligne de 4 inchangee, glissements lateraux"],
+      ["Lateraux","DL","Ligne de 4 inchangee, ferment les couloirs bas"],
+      ["Pivots","P","Forment le double axe central de la ligne de 4 milieu"],
+      ["Interieurs","I","Sortent sur les cotes : deviennent les 2 milieux excentres"],
+      ["Attaquants","BU","Se superposent : un presse haut, l'autre redescend en soutien"],
+    ],
+  },
+  {
+    key:"p4", eyebrow:"PHASE 4", title:"Transition offensive",
+    desc:"Recuperation haute, contre-attaque verticale et etiree",
+    players:{
+      GB:[50,100,"GB","GB"], DC1:[38,85,"DC","DC"], DC2:[62,85,"DC","DC"],
+      DLg:[6,68,"DL","DL"], DLd:[94,68,"DL","DL"], P1:[40,60,"P1","P"], P2:[60,48,"P2","P"],
+      Ig:[22,32,"I","I"], Id:[78,32,"I","I"], B9:[38,10,"9","BU"], B10:[62,18,"10","BU"],
+    },
+    roles:[
+      ["Centraux","DC","Premiere passe de transition vers les pivots"],
+      ["Lateraux","DL","Montee immediate en soutien large"],
+      ["Pivots","P","P1 relais court, P2 conduit ou lance les attaquants"],
+      ["Interieurs","I","Point fort du systeme : accelerent vers les attaquants"],
+      ["Attaquants","BU","Courses en profondeur immediates, cibles n1 de la transition"],
+    ],
+  },
+];
+
+const BALL_KEYFRAMES = [
+  { yCenter: 113.75, phase: PHASES[2], label: "Bloc bas (comme Phase 3)" },
+  { yCenter: 81.25,  phase: PHASES[1], label: "Bloc resserre (comme Phase 2)" },
+  { yCenter: 48.75,  phase: PHASES[0], label: "Bloc de construction (comme Phase 1)" },
+  { yCenter: 16.25,  phase: PHASES[3], label: "Bloc avance (comme Phase 4)" },
+];
+
+const H_BANDS = [0, 32.5, 65, 97.5, 130];
+const H_LABELS = ["Zone offensive", "Progression", "Construction", "Zone defensive"];
+const V_LANES = [0, 20, 40, 60, 80, 100];
+const V_LABELS = ["Couloir G", "Demi-esp. G", "Axe", "Demi-esp. D", "Couloir D"];
+
+function zoneIndexFor(x, y){
+  let ci = V_LANES.findIndex((v,i)=> i<V_LANES.length-1 && x>=V_LANES[i] && x<V_LANES[i+1]);
+  if(x >= 100) ci = 4;
+  if(ci < 0) ci = 0;
+  let ri = H_BANDS.findIndex((v,i)=> i<H_BANDS.length-1 && y>=H_BANDS[i] && y<H_BANDS[i+1]);
+  if(y >= 130) ri = 3;
+  if(ri < 0) ri = 0;
+  return ri*5 + ci;
+}
+function zoneBounds(idx){
+  const ri = Math.floor(idx/5), ci = idx%5;
+  return { x0:V_LANES[ci], x1:V_LANES[ci+1], y0:H_BANDS[ri], y1:H_BANDS[ri+1] };
+}
+function zoneLabel(idx){
+  const ri = Math.floor(idx/5), ci = idx%5;
+  return H_LABELS[ri] + " - " + V_LABELS[ci];
+}
+
+const MAX_PLACEMENTS = 3;
+const EDIT_CODE = "AST";
+let activeSpace = "avec";
+let editUnlocked = false;
+let customZones = {};
+let systemLocked = false;
+
+function zoneCenterFallback(idx){
+  const ri = Math.floor(idx/5), ci = idx%5;
+  return [ (V_LANES[ci]+V_LANES[ci+1])/2, (H_BANDS[ri]+H_BANDS[ri+1])/2 ];
+}
+function spaceKeys(space){
+  return { custom: "plateau4222_customZones_" + space, lock: "plateau4222_locked_" + space };
+}
+function loadSpace(space){
+  const keys = spaceKeys(space);
+  let raw = null;
+  try{ raw = localStorage.getItem(keys.custom); }catch(e){ raw = null; }
+  if(raw === null && space === "avec"){
+    try{ raw = localStorage.getItem("plateau4222_customZones"); }catch(e){ raw = null; }
+  }
+  let parsed = {};
+  try{ parsed = JSON.parse(raw || "{}"); }catch(e){ parsed = {}; }
+  customZones = {};
+  Object.keys(parsed).forEach(function(idx){
+    customZones[idx] = Array.isArray(parsed[idx]) ? parsed[idx] : [{ ball: zoneCenterFallback(idx), players: parsed[idx] }];
+  });
+  let lockRaw = null;
+  try{ lockRaw = localStorage.getItem(keys.lock); }catch(e){ lockRaw = null; }
+  if(lockRaw === null && space === "avec"){
+    try{ lockRaw = localStorage.getItem("plateau4222_locked"); }catch(e){ lockRaw = null; }
+  }
+  systemLocked = lockRaw === "1";
+}
+function saveCustomZones(){
+  const keys = spaceKeys(activeSpace);
+  try{ localStorage.setItem(keys.custom, JSON.stringify(customZones)); }catch(e){}
+}
+function saveLockState(){
+  const keys = spaceKeys(activeSpace);
+  try{ localStorage.setItem(keys.lock, systemLocked ? "1" : "0"); }catch(e){}
+}
+function dist2(a,b){ const dx=a[0]-b[0], dy=a[1]-b[1]; return dx*dx+dy*dy; }
+function nearestPlacement(zoneIdx, x, y){
+  const arr = customZones[zoneIdx];
+  if(!arr || !arr.length) return null;
+  let best = arr[0], bestD = dist2(arr[0].ball, [x,y]);
+  for(let i=1;i<arr.length;i++){
+    const d = dist2(arr[i].ball, [x,y]);
+    if(d < bestD){ bestD = d; best = arr[i]; }
+  }
+  return best;
+}
+function nearestPlacementIndex(zoneIdx, x, y, thresh){
+  const arr = customZones[zoneIdx];
+  if(!arr) return -1;
+  for(let i=0;i<arr.length;i++){
+    if(dist2(arr[i].ball,[x,y]) <= thresh*thresh) return i;
+  }
+  return -1;
+}
+loadSpace(activeSpace);
+
+const svgns = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("pitch");
+
+function el(tag, attrs){
+  const e = document.createElementNS(svgns, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+svg.appendChild(el("rect",{x:0,y:0,width:100,height:130,fill:"none",stroke:"#ffffff","stroke-width":0.6}));
+svg.appendChild(el("line",{x1:0,y1:65,x2:100,y2:65,stroke:"#ffffff","stroke-width":0.4}));
+svg.appendChild(el("circle",{cx:50,cy:65,r:9.15,fill:"none",stroke:"#ffffff","stroke-width":0.4}));
+svg.appendChild(el("circle",{cx:50,cy:65,r:0.6,fill:"#ffffff"}));
+svg.appendChild(el("rect",{x:21,y:0,width:58,height:18,fill:"none",stroke:"#ffffff","stroke-width":0.4}));
+svg.appendChild(el("rect",{x:36,y:0,width:28,height:6,fill:"none",stroke:"#ffffff","stroke-width":0.4}));
+svg.appendChild(el("rect",{x:21,y:112,width:58,height:18,fill:"none",stroke:"#ffffff","stroke-width":0.4}));
+svg.appendChild(el("rect",{x:36,y:124,width:28,height:6,fill:"none",stroke:"#ffffff","stroke-width":0.4}));
+[20,40,60,80].forEach(x=>{
+  svg.appendChild(el("line",{x1:x,y1:0,x2:x,y2:130,stroke:"#ffffff","stroke-width":0.25,"stroke-dasharray":"1.2,1.2",opacity:0.5}));
+});
+[32.5,97.5].forEach(y=>{
+  svg.appendChild(el("line",{x1:0,y1:y,x2:100,y2:y,stroke:"#ffffff","stroke-width":0.25,"stroke-dasharray":"1.2,1.2",opacity:0.5}));
+});
+
+const zoneRect = el("rect",{x:0,y:0,width:0,height:0,fill:"#e8622c",opacity:0,"fill-opacity":0.28,stroke:"#e8622c","stroke-width":0.4});
+svg.appendChild(zoneRect);
+function showZoneHighlight(idx){
+  const b = zoneBounds(idx);
+  zoneRect.setAttribute("x", b.x0);
+  zoneRect.setAttribute("y", 130-b.y1);
+  zoneRect.setAttribute("width", b.x1-b.x0);
+  zoneRect.setAttribute("height", b.y1-b.y0);
+  zoneRect.setAttribute("opacity", 1);
+}
+function hideZoneHighlight(){ zoneRect.setAttribute("opacity", 0); }
+
+const linkEls = {};
+duosStd.forEach(([k1,k2,g])=>{
+  const line = el("line",{stroke:COL_HEX[g],"stroke-width":0.6,"stroke-dasharray":"1.6,1.2",opacity:0.9});
+  svg.appendChild(line);
+  linkEls[k1+"_"+k2] = line;
+});
+
+const dotEls = {};
+const labelEls = {};
+const nameLabelEls = {};
+const noteBadgeEls = {};
+let draggingKey = null;
+let dragMoved = false;
+let suppressClick = false;
+let playerNotes = {};
+try{ playerNotes = JSON.parse(localStorage.getItem("plateau4222_playerNotes") || "{}"); }catch(e){ playerNotes = {}; }
+function savePlayerNotes(){ try{ localStorage.setItem("plateau4222_playerNotes", JSON.stringify(playerNotes)); }catch(e){} }
+function noteKey(playerKey){ return activeSpace + "_" + zoneIndexFor(currentBall[0], currentBall[1]) + "_" + playerKey; }
+function refreshNoteBadge(key){
+  const has = !!(playerNotes[noteKey(key)] && playerNotes[noteKey(key)].trim());
+  noteBadgeEls[key].setAttribute("fill", has ? "#f5c542" : "rgba(255,255,255,.28)");
+}
+Object.keys(PHASES[0].players).forEach(key=>{
+  const c = el("circle",{r:2.7,fill:COL_HEX[PHASES[0].players[key][3]],stroke:"#ffffff","stroke-width":0.35});
+  c.style.cursor = "default";
+  c.addEventListener("pointerdown", function(e){
+    if((currentMode !== "edit" && currentMode !== "seq") || systemLocked) return;
+    draggingKey = key;
+    dragMoved = false;
+    try{ c.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  svg.appendChild(c);
+  dotEls[key] = c;
+  const t = el("text",{"font-size":2.3,"font-weight":"bold",fill:"#ffffff","text-anchor":"middle","dominant-baseline":"central","pointer-events":"none"});
+  svg.appendChild(t);
+  labelEls[key] = t;
+  const nt = el("text",{
+    "font-size":2.1,"font-weight":"bold",fill:"#ffffff","text-anchor":"middle",
+    stroke:"#0d0d0d","stroke-width":0.55,"paint-order":"stroke","pointer-events":"none",
+  });
+  svg.appendChild(nt);
+  nameLabelEls[key] = nt;
+  const badge = el("circle",{r:0.95,fill:"rgba(255,255,255,.28)",stroke:"#1a1a1a","stroke-width":0.3});
+  badge.style.cursor = "pointer";
+  badge.addEventListener("pointerdown", function(e){ e.preventDefault(); e.stopPropagation(); });
+  badge.addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    openNoteBubble(key, badge);
+  });
+  svg.appendChild(badge);
+  noteBadgeEls[key] = badge;
+});
+
+function openNoteBubble(key, badgeEl){
+  const bubble = document.getElementById("noteBubble");
+  const boardRect = document.querySelector(".board-wrap").getBoundingClientRect();
+  const badgeRect = badgeEl.getBoundingClientRect();
+  const bx = badgeRect.left + badgeRect.width/2 - boardRect.left;
+  const by = badgeRect.top + badgeRect.height/2 - boardRect.top;
+  bubble.dataset.key = key;
+  document.getElementById("noteBubbleName").textContent = "Consigne — " + (rosterNames[key] || STATIC_LABELS[key]);
+  document.getElementById("noteBubbleText").value = playerNotes[noteKey(key)] || "";
+  bubble.classList.add("show");
+  const bubbleW = 220, bubbleH = 140;
+  let left = bx - 30, top = by - bubbleH - 14;
+  let tailTop = false;
+  if(top < 4){ top = by + 14; tailTop = true; }
+  if(left < 4) left = 4;
+  if(left + bubbleW > boardRect.width - 4) left = boardRect.width - bubbleW - 4;
+  bubble.style.left = left + "px";
+  bubble.style.top = top + "px";
+  bubble.classList.toggle("tail-top", tailTop);
+  document.getElementById("noteBubbleTail").style.left = Math.max(10, Math.min(bubbleW-30, bx-left-8)) + "px";
+  setTimeout(function(){ document.getElementById("noteBubbleText").focus(); }, 30);
+}
+function closeNoteBubble(){
+  document.getElementById("noteBubble").classList.remove("show");
+}
+document.getElementById("noteBubbleCancel").onclick = function(){ closeNoteBubble(); };
+document.getElementById("noteBubbleSave").onclick = function(){
+  const bubble = document.getElementById("noteBubble");
+  const key = bubble.dataset.key;
+  const val = document.getElementById("noteBubbleText").value.trim();
+  const k = noteKey(key);
+  if(val){ playerNotes[k] = val; } else { delete playerNotes[k]; }
+  savePlayerNotes();
+  refreshNoteBadge(key);
+  closeNoteBubble();
+};
+document.addEventListener("pointerdown", function(e){
+  const bubble = document.getElementById("noteBubble");
+  if(!bubble.classList.contains("show")) return;
+  if(bubble.contains(e.target)) return;
+  if(e.target.tagName === "circle" && e.target.getAttribute("r") === "0.95") return;
+  closeNoteBubble();
+});
+
+window.addEventListener("pointermove", function(e){
+  if(!draggingKey || (currentMode !== "edit" && currentMode !== "seq")) return;
+  const rect = svg.getBoundingClientRect();
+  const px = (e.clientX - rect.left) / rect.width * 100;
+  const py = (e.clientY - rect.top) / rect.height * 130;
+  let x = Math.max(3, Math.min(97, px));
+  let y = Math.max(3, Math.min(127, 130 - py));
+  current[draggingKey] = [x, y];
+  dragMoved = true;
+  render();
+});
+window.addEventListener("pointerup", function(){
+  if(draggingKey){
+    if(dragMoved) suppressClick = true;
+    const idx = zoneIndexFor(currentBall[0], currentBall[1]);
+    updateZoneStatus(idx);
+  }
+  draggingKey = null;
+});
+
+const ballGroup = el("g",{opacity:0});
+const ballCircle = el("circle",{r:2.6,fill:"#ffffff",stroke:"#1a1a1a","stroke-width":0.35});
+const ballPent = el("polygon",{points:"0,-1.1 1.05,-0.34 0.65,0.9 -0.65,0.9 -1.05,-0.34",fill:"#1a1a1a"});
+ballGroup.appendChild(ballCircle);
+ballGroup.appendChild(ballPent);
+svg.appendChild(ballGroup);
+
+// ===== Equipe adverse (optionnelle, positionnable) =====
+const OPP_COL = "#c0392b";
+const OPP_KEYS = ["OGB","ODC1","ODC2","ODL1","ODL2","OM1","OM2","OM3","OM4","OA1","OA2"];
+const OPP_DEFAULT_SANS = {
+  OGB:[50,4], ODC1:[38,16], ODC2:[62,16], ODL1:[16,18], ODL2:[84,18],
+  OM1:[30,34], OM2:[70,34], OM3:[42,44], OM4:[58,44], OA1:[40,58], OA2:[60,58]
+};
+const OPP_DEFAULT_AVEC = {
+  OGB:[50,6], ODC1:[38,22], ODC2:[62,22], ODL1:[20,26], ODL2:[80,26],
+  OM1:[32,42], OM2:[68,42], OM3:[44,50], OM4:[56,50], OA1:[40,68], OA2:[60,68]
+};
+let oppVisible = false;
+let oppPos = {};
+const oppGroup = el("g",{});
+const oppDotEls = {}, oppLabelEls = {};
+OPP_KEYS.forEach(function(k,i){
+  const c = el("circle",{r:2.7,fill:OPP_COL,stroke:"#ffffff","stroke-width":0.35});
+  c.style.cursor = "default";
+  c.addEventListener("pointerdown", function(e){
+    if((currentMode !== "edit" && currentMode !== "seq") || systemLocked) return;
+    draggingOppKey = k;
+    dragMoved = false;
+    try{ c.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault(); e.stopPropagation();
+  });
+  oppGroup.appendChild(c);
+  oppDotEls[k] = c;
+  const t = el("text",{"font-size":2.1,"font-weight":"bold",fill:"#ffffff","text-anchor":"middle","dominant-baseline":"central","pointer-events":"none"});
+  oppGroup.appendChild(t);
+  oppLabelEls[k] = t;
+});
+svg.appendChild(oppGroup);
+let draggingOppKey = null;
+window.addEventListener("pointermove", function(e){
+  if(!draggingOppKey || (currentMode !== "edit" && currentMode !== "seq")) return;
+  const rect = svg.getBoundingClientRect();
+  const px = (e.clientX - rect.left) / rect.width * 100;
+  const py = (e.clientY - rect.top) / rect.height * 130;
+  let x = Math.max(2, Math.min(98, px));
+  let y = Math.max(2, Math.min(128, 130 - py));
+  oppPos[draggingOppKey] = [x, y];
+  dragMoved = true;
+  renderOpp();
+});
+window.addEventListener("pointerup", function(){
+  if(draggingOppKey){ if(dragMoved) suppressClick = true; saveOppPos(); }
+  draggingOppKey = null;
+});
+function oppStorageKey(){ return "plateau4222_opp_" + activeSpace; }
+function saveOppPos(){ try{ localStorage.setItem(oppStorageKey(), JSON.stringify(oppPos)); }catch(e){} }
+function loadOppPos(){
+  let raw = null;
+  try{ raw = localStorage.getItem(oppStorageKey()); }catch(e){}
+  if(raw){ try{ oppPos = JSON.parse(raw); return; }catch(e){} }
+  if(OPP_SET_PIECE_DEFAULTS[activeSpace]){
+    oppPos = Object.assign({}, OPP_SET_PIECE_DEFAULTS[activeSpace]);
+  }else{
+    oppPos = Object.assign({}, (activeSpace === "sans" ? OPP_DEFAULT_SANS : OPP_DEFAULT_AVEC));
+  }
+}
+function renderOpp(){
+  oppGroup.style.display = oppVisible ? "block" : "none";
+  if(!oppVisible) return;
+  OPP_KEYS.forEach(function(k){
+    const p = oppPos[k] || [50,50];
+    oppDotEls[k].setAttribute("cx", p[0]);
+    oppDotEls[k].setAttribute("cy", 130 - p[1]);
+    oppLabelEls[k].setAttribute("x", p[0]);
+    oppLabelEls[k].setAttribute("y", 130 - p[1]);
+    oppLabelEls[k].textContent = k === "OGB" ? "G" : (k.replace(/^O/,"").replace(/\d+$/,"") || "?");
+  });
+}
+loadOppPos();
+
+let current = {};
+let currentLabels = {};
+Object.entries(PHASES[0].players).forEach(([k,v])=>{ current[k] = [v[0], v[1]]; currentLabels[k] = v[2]; });
+let currentBall = [50, 65];
+
+const ROSTER_KEY = "plateau4222_roster";
+let rosterNames = {};
+try{ rosterNames = JSON.parse(localStorage.getItem(ROSTER_KEY) || "{}"); }catch(e){ rosterNames = {}; }
+function saveRoster(){
+  try{ localStorage.setItem(ROSTER_KEY, JSON.stringify(rosterNames)); }catch(e){}
+}
+
+function render(){
+  Object.keys(current).forEach(k=>{
+    const x = current[k][0], y = current[k][1];
+    dotEls[k].setAttribute("cx", x);
+    dotEls[k].setAttribute("cy", 130 - y);
+    labelEls[k].setAttribute("x", x);
+    labelEls[k].setAttribute("y", 130 - y);
+    labelEls[k].textContent = currentLabels[k];
+    nameLabelEls[k].setAttribute("x", x);
+    nameLabelEls[k].setAttribute("y", (130 - y) + 4.6);
+    nameLabelEls[k].textContent = rosterNames[k] || "";
+    noteBadgeEls[k].setAttribute("cx", x + 2.1);
+    noteBadgeEls[k].setAttribute("cy", (130 - y) - 2.1);
+    refreshNoteBadge(k);
+  });
+  duosStd.forEach(([k1,k2,g])=>{
+    const line = linkEls[k1+"_"+k2];
+    line.setAttribute("x1", current[k1][0]);
+    line.setAttribute("y1", 130 - current[k1][1]);
+    line.setAttribute("x2", current[k2][0]);
+    line.setAttribute("y2", 130 - current[k2][1]);
+  });
+  const bx = currentBall[0], by = currentBall[1];
+  ballGroup.setAttribute("transform", "translate(" + bx + "," + (130-by) + ")");
+}
+render();
+
+let animId = null;
+function animateTo(targetPlayers, targetBall, duration, targetLabels){
+  const start = {};
+  Object.keys(current).forEach(k=>{ start[k] = [current[k][0], current[k][1]]; });
+  const startBall = [currentBall[0], currentBall[1]];
+  const t0 = performance.now();
+  if(animId) cancelAnimationFrame(animId);
+  function step(now){
+    let tt = Math.min(1, (now - t0) / duration);
+    const eased = tt < 0.5 ? 2*tt*tt : 1 - Math.pow(-2*tt+2,2)/2;
+    Object.keys(current).forEach(k=>{
+      const sx=start[k][0], sy=start[k][1];
+      const ex=targetPlayers[k][0], ey=targetPlayers[k][1];
+      current[k] = [ sx+(ex-sx)*eased, sy+(ey-sy)*eased ];
+    });
+    if(targetBall){
+      currentBall = [ startBall[0]+(targetBall[0]-startBall[0])*eased, startBall[1]+(targetBall[1]-startBall[1])*eased ];
+    }
+    if(targetLabels) currentLabels = targetLabels;
+    render();
+    if(tt < 1){ animId = requestAnimationFrame(step); }
+  }
+  animId = requestAnimationFrame(step);
+}
+
+let phaseIndex = 0;
+let playing = false;
+let playTimer = null;
+
+function labelsFrom(playersDict){
+  const l = {};
+  Object.entries(playersDict).forEach(([k,v])=>{ l[k]=v[2]; });
+  return l;
+}
+
+function showPhase(idx, animated){
+  phaseIndex = idx;
+  const ph = PHASES[idx];
+  document.getElementById("phaseEyebrow").textContent = ph.eyebrow;
+  document.getElementById("phaseTitle").textContent = ph.title;
+  document.getElementById("phaseDesc").textContent = ph.desc;
+  renderRoles(ph.roles);
+
+  document.querySelectorAll(".phase-btn").forEach((b,i)=>{ b.classList.toggle("active", i===idx); });
+
+  ballGroup.setAttribute("opacity", 0);
+  if(animated){ animateTo(ph.players, null, 900, labelsFrom(ph.players)); }
+  else{
+    Object.entries(ph.players).forEach(([k,v])=>{ current[k]=[v[0],v[1]]; });
+    currentLabels = labelsFrom(ph.players);
+    render();
+  }
+}
+
+function renderRoles(roles){
+  const rolesDiv = document.getElementById("roles");
+  rolesDiv.innerHTML = "";
+  roles.forEach(([label, group, text])=>{
+    const row = document.createElement("div");
+    row.className = "role";
+    row.innerHTML = "<div class=\"dot\" style=\"background:" + COL_HEX[group] + "\">" + label.slice(0,2).toUpperCase() + "</div>" +
+      "<div class=\"role-txt\"><b style=\"color:" + COL_HEX[group] + "\">" + label + "</b><span>" + text + "</span></div>";
+    rolesDiv.appendChild(row);
+  });
+}
+
+const btnRow = document.getElementById("phaseButtons");
+PHASES.forEach((ph, i)=>{
+  const b = document.createElement("button");
+  b.className = "ctrl phase-btn" + (i===0 ? " active" : "");
+  b.textContent = "Phase " + (i+1);
+  b.onclick = function(){ stopPlaying(); showPhase(i, true); };
+  btnRow.appendChild(b);
+});
+
+function stopPlaying(){
+  playing = false;
+  document.getElementById("playBtn").classList.remove("playing");
+  document.getElementById("playBtn").textContent = "Lecture automatique";
+  if(playTimer) clearInterval(playTimer);
+}
+
+document.getElementById("playBtn").onclick = function(){
+  playing = !playing;
+  const btn = document.getElementById("playBtn");
+  if(playing){
+    btn.classList.add("playing");
+    btn.textContent = "Pause";
+    playTimer = setInterval(function(){
+      const next = (phaseIndex + 1) % PHASES.length;
+      showPhase(next, true);
+    }, 2200);
+  } else {
+    stopPlaying();
+  }
+};
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+function formationFor(x, y){
+  if(SET_PIECE_DEFAULTS[activeSpace]){
+    const pos = SET_PIECE_DEFAULTS[activeSpace];
+    return { players: pos, labels: STATIC_LABELS, activeLabel: SPACE_LABELS[activeSpace] || "", refPhase: PHASES[0] };
+  }
+  return blendedFormation(x, y);
+}
+function blendedFormation(ballX, ballY){
+  ballY = Math.max(0, Math.min(130, ballY));
+  ballX = Math.max(0, Math.min(100, ballX));
+
+  let lower = BALL_KEYFRAMES[0], upper = BALL_KEYFRAMES[BALL_KEYFRAMES.length-1], t = 0;
+  if(ballY >= BALL_KEYFRAMES[0].yCenter){
+    lower = BALL_KEYFRAMES[0]; upper = BALL_KEYFRAMES[0]; t = 0;
+  } else if(ballY <= BALL_KEYFRAMES[BALL_KEYFRAMES.length-1].yCenter){
+    lower = BALL_KEYFRAMES[BALL_KEYFRAMES.length-1]; upper = lower; t = 0;
+  } else {
+    for(let i=0; i<BALL_KEYFRAMES.length-1; i++){
+      const a = BALL_KEYFRAMES[i], b = BALL_KEYFRAMES[i+1];
+      if(ballY <= a.yCenter && ballY >= b.yCenter){
+        lower = b; upper = a;
+        t = (a.yCenter - ballY) / (a.yCenter - b.yCenter);
+        break;
+      }
+    }
+  }
+
+  const shiftX = (ballX - 50) * 0.3;
+  const blended = {};
+  const labels = {};
+  Object.keys(PHASES[0].players).forEach(function(k){
+    const pa = lower.phase.players[k];
+    const pb = upper.phase.players[k];
+    let x = lerp(pa[0], pb[0], t) + shiftX;
+    let y = lerp(pa[1], pb[1], t);
+    x = Math.max(4, Math.min(96, x));
+    blended[k] = [x, y];
+    labels[k] = pa[2];
+  });
+
+  const activeLabel = t < 0.5 ? lower.label : upper.label;
+  return { players: blended, labels: labels, activeLabel: activeLabel, refPhase: t < 0.5 ? lower.phase : upper.phase };
+}
+
+const STATIC_LABELS = { GB:"GB", DC1:"DC", DC2:"DC", DLg:"DL", DLd:"DL", P1:"P1", P2:"P2", Ig:"I", Id:"I", B9:"9", B10:"10" };
+const SNAP_THRESH = 6;
+let activeZoneIdx = -1;
+let activePlacementIndex = -1;
+
+function updateBallInfo(refPhase, blendLabel){
+  document.getElementById("phaseEyebrow").textContent = spaceEyebrowLabel();
+  document.getElementById("phaseTitle").textContent = blendLabel;
+  document.getElementById("phaseDesc").textContent = "Positionnement de l'equipe adapte a l'endroit du ballon, sur les principes de " + refPhase.title.toLowerCase();
+  renderRoles(refPhase.roles);
+}
+
+function updateZoneStatus(idx){
+  const el2 = document.getElementById("zoneStatus");
+  if(!el2) return;
+  const arr = customZones[idx] || [];
+  let extra = "";
+  if(activePlacementIndex >= 0) extra = " - edition du placement " + (activePlacementIndex+1);
+  else extra = " - nouveau placement (pas encore enregistre)";
+  el2.textContent = "Zone actuelle : " + zoneLabel(idx) + " - " + arr.length + "/" + MAX_PLACEMENTS + " enregistre(s)" + extra + (systemLocked ? " - SYSTEME VERROUILLE" : "");
+}
+
+function loadPlacement(placement, idx, animated){
+  document.getElementById("phaseEyebrow").textContent = spaceEyebrowLabel();
+  document.getElementById("phaseTitle").textContent = zoneLabel(idx);
+  document.getElementById("phaseDesc").textContent = "Position personnalisee enregistree pour cette zone.";
+  renderRoles(blendedFormation(placement.ball[0],placement.ball[1]).refPhase.roles);
+  const noteField = document.getElementById("placementNote");
+  if(noteField) noteField.value = placement.note || "";
+  const viewNote = document.getElementById("viewNote");
+  if(currentMode !== "edit"){
+    if(placement.note){ viewNote.textContent = "Note : " + placement.note; viewNote.style.display = "block"; }
+    else { viewNote.style.display = "none"; }
+  } else {
+    viewNote.style.display = "none";
+  }
+  if(animated){ animateTo(placement.players, placement.ball, 800, STATIC_LABELS); }
+  else{
+    Object.entries(placement.players).forEach(function(entry){ current[entry[0]]=entry[1]; });
+    currentLabels = STATIC_LABELS;
+    currentBall = [placement.ball[0], placement.ball[1]];
+    render();
+  }
+  ballGroup.setAttribute("opacity", 1);
+}
+
+function goToBall(x, y, animated){
+  const idx = zoneIndexFor(x,y);
+  showZoneHighlight(idx);
+  activeZoneIdx = idx;
+
+  if(currentMode === "edit"){
+    const arr = customZones[idx] || [];
+    const pIdx = nearestPlacementIndex(idx, x, y, SNAP_THRESH);
+    activePlacementIndex = pIdx;
+    updateZoneStatus(idx);
+    if(pIdx >= 0){ loadPlacement(arr[pIdx], idx, animated); return; }
+    const r = formationFor(x, y);
+    renderRoles(r.refPhase.roles);
+    document.getElementById("phaseEyebrow").textContent = spaceEyebrowLabel();
+    document.getElementById("phaseTitle").textContent = zoneLabel(idx);
+    document.getElementById("phaseDesc").textContent = "Nouveau placement : glisse les joueurs puis enregistre.";
+    const noteField = document.getElementById("placementNote");
+    if(noteField) noteField.value = "";
+    if(animated){ animateTo(r.players, [x,y], 800, r.labels); }
+    else{
+      Object.entries(r.players).forEach(function(entry){ current[entry[0]]=entry[1]; });
+      currentLabels = r.labels;
+      currentBall = [x,y];
+      render();
+    }
+    ballGroup.setAttribute("opacity", 1);
+    return;
+  }
+
+  const placement = nearestPlacement(idx, x, y);
+  if(placement){
+    loadPlacement(placement, idx, animated);
+    return;
+  }
+  document.getElementById("viewNote").style.display = "none";
+
+  if(systemLocked){
+    document.getElementById("phaseEyebrow").textContent = spaceEyebrowLabel();
+    document.getElementById("phaseTitle").textContent = zoneLabel(idx);
+    document.getElementById("phaseDesc").textContent = "Systeme verrouille : aucun placement enregistre pour cette zone (position automatique affichee a titre indicatif).";
+  }
+
+  const r = formationFor(x, y);
+  if(!systemLocked) updateBallInfo(r.refPhase, r.activeLabel);
+  else renderRoles(r.refPhase.roles);
+  if(animated){
+    animateTo(r.players, [x,y], 800, r.labels);
+  } else {
+    Object.entries(r.players).forEach(function(entry){ current[entry[0]]=entry[1]; });
+    currentLabels = r.labels;
+    currentBall = [x,y];
+    render();
+  }
+  ballGroup.setAttribute("opacity", 1);
+}
+
+svg.addEventListener("click", function(e){
+  if(currentMode !== "ball" && currentMode !== "edit") return;
+  if(draggingKey) return;
+  if(suppressClick){ suppressClick = false; return; }
+  const rect = svg.getBoundingClientRect();
+  const px = (e.clientX - rect.left) / rect.width * 100;
+  const py = (e.clientY - rect.top) / rect.height * 130;
+  const dataX = px;
+  const dataY = 130 - py;
+  stopDemo();
+  goToBall(dataX, dataY, true);
+});
+
+let demoPlaying = false;
+let demoTimer = null;
+const DEMO_POINTS = [ [50,15], [15,45], [85,45], [50,80], [20,115], [80,115], [50,65] ];
+let demoIdx = 0;
+
+function stopDemo(){
+  demoPlaying = false;
+  document.getElementById("demoBtn").classList.remove("playing");
+  document.getElementById("demoBtn").textContent = "Demo automatique";
+  if(demoTimer) clearInterval(demoTimer);
+}
+
+document.getElementById("demoBtn").onclick = function(){
+  demoPlaying = !demoPlaying;
+  const btn = document.getElementById("demoBtn");
+  if(demoPlaying){
+    btn.classList.add("playing");
+    btn.textContent = "Pause";
+    demoIdx = 0;
+    goToBall(DEMO_POINTS[0][0], DEMO_POINTS[0][1], true);
+    demoTimer = setInterval(function(){
+      demoIdx = (demoIdx + 1) % DEMO_POINTS.length;
+      goToBall(DEMO_POINTS[demoIdx][0], DEMO_POINTS[demoIdx][1], true);
+    }, 2000);
+  } else {
+    stopDemo();
+  }
+};
+
+let currentMode = "ball";
+function deactivateAllModeBtns(){
+  ["modeBall","modeEdit","modeSeq"].forEach(function(id){ document.getElementById(id).classList.remove("active"); });
+  document.getElementById("seqPanel").style.display = "none";
+}
+function setDotCursors(cursorVal){
+  Object.values(dotEls).forEach(function(c){ c.style.cursor = cursorVal; });
+}
+document.getElementById("modeBall").onclick = function(){
+  currentMode = "ball";
+  deactivateAllModeBtns();
+  document.getElementById("modeBall").classList.add("active");
+  document.getElementById("phaseModePanel").style.display = "none";
+  document.getElementById("ballModePanel").style.display = "block";
+  document.getElementById("editModePanel").style.display = "none";
+  document.getElementById("ballHint").textContent = "Clique n'importe ou sur le terrain pour deplacer le ballon : l'equipe se replace selon les principes des 4 phases.";
+  document.getElementById("ballHint").style.display = "block";
+  svg.classList.add("clickable");
+  setDotCursors("default");
+  stopPlaying();
+  goToBall(50, 65, true);
+};
+document.getElementById("modeEdit").onclick = function(){
+  if(!editUnlocked){
+    const code = prompt("Code d'acces pour modifier les placements :");
+    if(code === null) return;
+    if(code.trim().toUpperCase() !== EDIT_CODE){
+      alert("Code incorrect.");
+      return;
+    }
+    editUnlocked = true;
+  }
+  currentMode = "edit";
+  deactivateAllModeBtns();
+  document.getElementById("modeEdit").classList.add("active");
+  document.getElementById("phaseModePanel").style.display = "none";
+  document.getElementById("ballModePanel").style.display = "none";
+  document.getElementById("editModePanel").style.display = "block";
+  document.getElementById("ballHint").textContent = "Clique pour choisir une zone, puis glisse chaque joueur ou tu veux. Enregistre pour figer cette zone.";
+  document.getElementById("ballHint").style.display = "block";
+  svg.classList.add("clickable");
+  setDotCursors("grab");
+  stopPlaying();
+  stopDemo();
+  goToBall(currentBall[0], currentBall[1], true);
+};
+
+document.getElementById("modeSeq").onclick = function(){
+  if(!editUnlocked){
+    const code = prompt("Code d'acces pour modifier les placements :");
+    if(code === null) return;
+    if(code.trim().toUpperCase() !== EDIT_CODE){
+      alert("Code incorrect.");
+      return;
+    }
+    editUnlocked = true;
+  }
+  currentMode = "seq";
+  deactivateAllModeBtns();
+  document.getElementById("modeSeq").classList.add("active");
+  document.getElementById("phaseModePanel").style.display = "none";
+  document.getElementById("ballModePanel").style.display = "none";
+  document.getElementById("editModePanel").style.display = "none";
+  document.getElementById("seqPanel").style.display = "block";
+  document.getElementById("ballHint").style.display = "none";
+  hideZoneHighlight();
+  svg.classList.remove("clickable");
+  setDotCursors("grab");
+  stopPlaying();
+  stopDemo();
+  stopSeqPlay();
+  loadSequence(activeSpace);
+  goToSeqStep(seqStepIndex);
+};
+
+// ===== Sequence de mouvement (6-7 etapes), reutilisable sur tous les espaces =====
+const SEQ_MAX_STEPS = 7;
+let sequences = {};
+let seqStepIndex = 0;
+let seqPlaying = false, seqPlayTimer = null;
+function seqStorageKey(space){ return "plateau4222_seq_" + space; }
+function loadSequence(space){
+  let raw = null;
+  try{ raw = localStorage.getItem(seqStorageKey(space)); }catch(e){}
+  let arr = null;
+  try{ arr = raw ? JSON.parse(raw) : null; }catch(e){ arr = null; }
+  if(!Array.isArray(arr)) arr = [];
+  while(arr.length < SEQ_MAX_STEPS) arr.push(null);
+  sequences[space] = arr.slice(0, SEQ_MAX_STEPS);
+  seqStepIndex = 0;
+}
+function saveSequenceToStorage(space){
+  try{ localStorage.setItem(seqStorageKey(space), JSON.stringify(sequences[space])); }catch(e){}
+}
+function renderSeqSteps(){
+  const ct = document.getElementById("seqSteps");
+  ct.innerHTML = "";
+  const arr = sequences[activeSpace] || [];
+  for(let i=0;i<SEQ_MAX_STEPS;i++){
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "seq-step-btn" + (arr[i] ? " filled" : "") + (i === seqStepIndex ? " active" : "");
+    btn.textContent = String(i+1);
+    btn.title = "Etape " + (i+1) + (arr[i] ? " (enregistree)" : " (vide)");
+    btn.onclick = function(){ stopSeqPlay(); goToSeqStep(i); };
+    ct.appendChild(btn);
+  }
+}
+function goToSeqStep(i){
+  seqStepIndex = Math.max(0, Math.min(SEQ_MAX_STEPS-1, i));
+  const arr = sequences[activeSpace] || [];
+  const step = arr[seqStepIndex];
+  if(step && step.own){
+    Object.keys(step.own).forEach(function(k){ if(current[k]) current[k] = step.own[k].slice(); });
+    currentLabels = Object.assign({}, STATIC_LABELS);
+    if(step.opp){ oppPos = Object.assign({}, step.opp); }
+    if(typeof step.oppVisible === "boolean"){
+      oppVisible = step.oppVisible;
+      document.getElementById("oppToggle").checked = oppVisible;
+    }
+    render();
+    renderOpp();
+    document.getElementById("seqHint").textContent = "Etape " + (seqStepIndex+1) + " chargee. Deplace les joueurs si besoin puis re-enregistre.";
+  } else {
+    document.getElementById("seqHint").textContent = "Etape " + (seqStepIndex+1) + " vide : positionne les joueurs puis clique \"Enregistrer cette etape\".";
+  }
+  renderSeqSteps();
+}
+document.getElementById("seqSave").onclick = function(){
+  const arr = sequences[activeSpace];
+  const own = {};
+  Object.keys(current).forEach(function(k){ own[k] = current[k].slice(); });
+  arr[seqStepIndex] = { own: own, opp: Object.assign({}, oppPos), oppVisible: oppVisible };
+  saveSequenceToStorage(activeSpace);
+  renderSeqSteps();
+  document.getElementById("seqHint").textContent = "Etape " + (seqStepIndex+1) + " enregistree.";
+};
+document.getElementById("seqClear").onclick = function(){
+  const arr = sequences[activeSpace];
+  arr[seqStepIndex] = null;
+  saveSequenceToStorage(activeSpace);
+  renderSeqSteps();
+  document.getElementById("seqHint").textContent = "Etape " + (seqStepIndex+1) + " effacee.";
+};
+document.getElementById("seqClearAll").onclick = function(){
+  if(!confirm("Effacer toute la sequence de cet espace (" + (SPACE_LABELS[activeSpace]||activeSpace) + ") ?")) return;
+  sequences[activeSpace] = new Array(SEQ_MAX_STEPS).fill(null);
+  saveSequenceToStorage(activeSpace);
+  seqStepIndex = 0;
+  renderSeqSteps();
+};
+function stopSeqPlay(){
+  seqPlaying = false;
+  document.getElementById("seqPlay").textContent = "Lire la sequence";
+  if(seqPlayTimer) clearInterval(seqPlayTimer);
+}
+document.getElementById("seqPlay").onclick = function(){
+  if(seqPlaying){ stopSeqPlay(); return; }
+  const filled = [];
+  (sequences[activeSpace] || []).forEach(function(s,i){ if(s) filled.push(i); });
+  if(filled.length < 2){ alert("Enregistre au moins 2 etapes pour lire une sequence."); return; }
+  seqPlaying = true;
+  document.getElementById("seqPlay").textContent = "Pause";
+  let ptr = 0;
+  seqStepIndex = filled[0];
+  const first = sequences[activeSpace][filled[0]];
+  Object.keys(first.own).forEach(function(k){ if(current[k]) current[k] = first.own[k].slice(); });
+  if(first.opp) oppPos = Object.assign({}, first.opp);
+  render(); renderOpp(); renderSeqSteps();
+  seqPlayTimer = setInterval(function(){
+    ptr = (ptr + 1) % filled.length;
+    seqStepIndex = filled[ptr];
+    const step = sequences[activeSpace][filled[ptr]];
+    animateTo(step.own, null, 900, STATIC_LABELS);
+    if(step.opp){ oppPos = Object.assign({}, step.opp); renderOpp(); }
+    renderSeqSteps();
+    if(ptr === filled.length - 1){ setTimeout(stopSeqPlay, 900); }
+  }, 1700);
+};
+
+document.getElementById("saveZoneBtn").onclick = function(){
+  if(systemLocked){ alert("Le systeme est verrouille. Deverrouille-le pour modifier les placements."); return; }
+  const idx = activeZoneIdx >= 0 ? activeZoneIdx : zoneIndexFor(currentBall[0], currentBall[1]);
+  const snap = {};
+  Object.keys(current).forEach(function(k){ snap[k] = [current[k][0], current[k][1]]; });
+  const noteVal = (document.getElementById("placementNote") || {}).value || "";
+  const placement = { ball: [currentBall[0], currentBall[1]], players: snap, note: noteVal };
+  if(!customZones[idx]) customZones[idx] = [];
+  if(activePlacementIndex >= 0 && customZones[idx][activePlacementIndex]){
+    customZones[idx][activePlacementIndex] = placement;
+  } else {
+    if(customZones[idx].length >= MAX_PLACEMENTS){
+      alert("Maximum de " + MAX_PLACEMENTS + " placements atteint pour cette zone. Supprime-en un avant d'en ajouter un nouveau.");
+      return;
+    }
+    customZones[idx].push(placement);
+    activePlacementIndex = customZones[idx].length - 1;
+  }
+  saveCustomZones();
+  updateZoneStatus(idx);
+};
+document.getElementById("resetZoneBtn").onclick = function(){
+  if(systemLocked){ alert("Le systeme est verrouille. Deverrouille-le pour modifier les placements."); return; }
+  const idx = activeZoneIdx >= 0 ? activeZoneIdx : zoneIndexFor(currentBall[0], currentBall[1]);
+  if(!customZones[idx] || activePlacementIndex < 0){
+    delete customZones[idx];
+  } else {
+    customZones[idx].splice(activePlacementIndex, 1);
+    if(customZones[idx].length === 0) delete customZones[idx];
+  }
+  activePlacementIndex = -1;
+  saveCustomZones();
+  goToBall(currentBall[0], currentBall[1], true);
+};
+document.getElementById("resetAllBtn").onclick = function(){
+  if(systemLocked){ alert("Le systeme est verrouille. Deverrouille-le pour modifier les placements."); return; }
+  if(!confirm("Effacer toutes les positions personnalisees enregistrees sur toutes les zones ?")) return;
+  customZones = {};
+  activePlacementIndex = -1;
+  saveCustomZones();
+  goToBall(currentBall[0], currentBall[1], true);
+};
+
+document.getElementById("exportBtn").onclick = function(){
+  const payload = { customZones: customZones, systemLocked: systemLocked, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const d = new Date();
+  const stamp = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  a.download = "plateau_4222_config_" + stamp + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById("importBtn").onclick = function(){
+  document.getElementById("importFile").click();
+};
+document.getElementById("importFile").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      const data = JSON.parse(evt.target.result);
+      if(!data || typeof data.customZones !== "object") throw new Error("format invalide");
+      customZones = data.customZones;
+      if(typeof data.systemLocked === "boolean"){
+        systemLocked = data.systemLocked;
+        saveLockState();
+        const btn = document.getElementById("lockBtn");
+        btn.textContent = systemLocked ? "Deverrouiller le systeme" : "Verrouiller le systeme";
+        btn.classList.toggle("active", systemLocked);
+        setDotCursors(systemLocked ? "default" : (currentMode === "edit" ? "grab" : "default"));
+      }
+      saveCustomZones();
+      activePlacementIndex = -1;
+      goToBall(currentBall[0], currentBall[1], true);
+      alert("Configuration importee avec succes.");
+    }catch(err){
+      alert("Fichier invalide, impossible d'importer cette configuration.");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("lockBtn").onclick = function(){
+  if(systemLocked){
+    if(!editUnlocked){
+      const code = prompt("Code d'acces pour deverrouiller :");
+      if(code === null) return;
+      if(code.trim().toUpperCase() !== EDIT_CODE){ alert("Code incorrect."); return; }
+      editUnlocked = true;
+    }
+  }
+  systemLocked = !systemLocked;
+  saveLockState();
+  const btn = document.getElementById("lockBtn");
+  btn.textContent = systemLocked ? "Deverrouiller le systeme" : "Verrouiller le systeme";
+  btn.classList.toggle("active", systemLocked);
+  setDotCursors(systemLocked ? "default" : (currentMode === "edit" ? "grab" : "default"));
+  updateZoneStatus(activeZoneIdx >= 0 ? activeZoneIdx : zoneIndexFor(currentBall[0], currentBall[1]));
+  goToBall(currentBall[0], currentBall[1], true);
+};
+
+const SPACE_LABELS = {
+  avec: "avec ballon (en possession)",
+  sans: "sans ballon (hors possession)",
+  corner_off: "corner offensif",
+  corner_def: "corner defensif",
+  coup_franc: "coup de pied arrete",
+};
+const SPACE_EYEBROW = {
+  avec: "BALLON", sans: "SANS BALLON",
+  corner_off: "CORNER OFF", corner_def: "CORNER DEF", coup_franc: "COUP DE PIED ARRETE",
+};
+
+function spaceEyebrowLabel(){
+  return SPACE_EYEBROW[activeSpace] || "BALLON";
+}
+
+function applyLockButtonUI(){
+  const btn = document.getElementById("lockBtn");
+  btn.textContent = systemLocked ? "Deverrouiller le systeme" : "Verrouiller le systeme";
+  btn.classList.toggle("active", systemLocked);
+}
+
+function switchSpace(space){
+  if(space === activeSpace) return;
+  activeSpace = space;
+  loadSpace(activeSpace);
+  loadOppPos();
+  renderOpp();
+  activeZoneIdx = -1;
+  activePlacementIndex = -1;
+  document.querySelectorAll(".space-btn").forEach(function(btn){
+    btn.classList.toggle("active", btn.getAttribute("data-space") === space);
+  });
+  document.getElementById("spaceIndicator").textContent = "Espace actif : " + (SPACE_LABELS[space] || space);
+  applyLockButtonUI();
+  setDotCursors(systemLocked ? "default" : (currentMode === "edit" || currentMode === "seq" ? "grab" : "default"));
+  if(currentMode === "seq"){
+    stopSeqPlay();
+    loadSequence(activeSpace);
+    goToSeqStep(0);
+  } else if(currentMode === "phase"){ showPhase(0, true); }
+  else { goToBall(currentBall[0], currentBall[1], true); }
+}
+document.querySelectorAll(".space-btn").forEach(function(btn){
+  btn.onclick = function(){ switchSpace(btn.getAttribute("data-space")); };
+});
+
+
+
+const COMPO_FIELDS = [
+  ["GB", "GB", "Gardien"],
+  ["DC1", "DC", "Def. central G"],
+  ["DC2", "DC", "Def. central D"],
+  ["DLg", "DL", "Lateral gauche"],
+  ["DLd", "DL", "Lateral droit"],
+  ["P1", "P", "Pivot 1"],
+  ["P2", "P", "Pivot 2"],
+  ["Ig", "I", "Interieur gauche"],
+  ["Id", "I", "Interieur droit"],
+  ["B9", "BU", "Attaquant 9"],
+  ["B10", "BU", "Attaquant 10"],
+];
+const compoFieldsDiv = document.getElementById("compoFields");
+COMPO_FIELDS.forEach(function(f){
+  const key = f[0], group = f[1], label = f[2];
+  const row = document.createElement("div");
+  row.className = "compo-row";
+  const lab = document.createElement("div");
+  lab.className = "compo-label";
+  lab.style.background = COL_HEX[group];
+  lab.textContent = STATIC_LABELS[key];
+  lab.title = label;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = label;
+  input.value = rosterNames[key] || "";
+  input.maxLength = 18;
+  input.addEventListener("input", function(){
+    rosterNames[key] = input.value;
+    saveRoster();
+    render();
+  });
+  row.appendChild(lab);
+  row.appendChild(input);
+  compoFieldsDiv.appendChild(row);
+});
+document.getElementById("clearCompoBtn").onclick = function(){
+  if(!confirm("Effacer tous les noms de la compo ?")) return;
+  rosterNames = {};
+  saveRoster();
+  document.querySelectorAll("#compoFields input").forEach(function(inp){ inp.value = ""; });
+  render();
+};
+
+const legend = document.getElementById("legend");
+[["Centraux","DC"],["Lateraux","DL"],["Pivots","P"],["Interieurs","I"],["Attaquants","BU"]].forEach(function(pair){
+  const span = document.createElement("span");
+  span.innerHTML = "<i style=\"background:" + COL_HEX[pair[1]] + "\"></i>" + pair[0];
+  legend.appendChild(span);
+});
+
+document.getElementById("ballHint").style.display = "none";
+try{
+  var fn = document.getElementById("freeNotes");
+  fn.value = localStorage.getItem("plateau4222_freeNotes") || "";
+  fn.addEventListener("input", function(){
+    try{ localStorage.setItem("plateau4222_freeNotes", fn.value); }catch(e){}
+  });
+}catch(e){}
+document.getElementById("oppToggle").addEventListener("change", function(e){
+  oppVisible = e.target.checked;
+  renderOpp();
+});
+renderOpp();
+document.getElementById("modeBall").onclick();
+applyLockButtonUI();
+</script>
+
+</body>
+</html>
