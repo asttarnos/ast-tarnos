@@ -287,6 +287,170 @@ async function activerNotifications(){
     if(statutEl) statutEl.textContent='⚠ Erreur : '+e.message;
   }
 }
+// ===== Objectifs collectifs : vote des joueurs =====
+var OBJ_COLL_TYPES=[
+  {cat:'Championnat',id:'top3',label:'Finir dans le Top 3 de la poule',icon:'🏆'},
+  {cat:'Championnat',id:'premier_tiers',label:'Finir dans le premier tiers du classement',icon:'📊'},
+  {cat:'Championnat',id:'montee',label:'Jouer la montée (finir dans les 2 premiers)',icon:'📈'},
+  {cat:'Championnat',id:'maintien',label:'Assurer le maintien',icon:'🛡️'},
+  {cat:'Championnat',id:'invincible_domicile',label:'Invincible à domicile sur la saison',icon:'🏠'},
+  {cat:'Championnat',id:'invincible_exterieur',label:"Invincible à l'extérieur sur la saison",icon:'✈'},
+  {cat:'Championnat',id:'victoires_consec',label:'Série de victoires consécutives',icon:'🔥'},
+  {cat:'Championnat',id:'defaites_max',label:'Ne pas perdre plus de X matchs sur la saison',icon:'📉'},
+  {cat:'Coupes',id:'coupe_france_tours',label:'Coupe de France — tours passés',icon:'🇫🇷'},
+  {cat:'Coupes',id:'coupe_aquitaine',label:'Coupe Nouvelle-Aquitaine — tour atteint',icon:'🏅'},
+  {cat:'Coupes',id:'coupe_landes',label:'Coupe des Landes — tour atteint',icon:'🎖️'},
+  {cat:'Défense',id:'buts_enc_max',label:'Buts encaissés max sur la saison',icon:'🛑'},
+  {cat:'Défense',id:'clean_sheets_saison',label:'Clean sheets sur la saison',icon:'🧤'},
+  {cat:'Défense',id:'matchs_sans_but_consec',label:'Matchs consécutifs sans encaisser',icon:'🥅'},
+  {cat:'Défense',id:'moy_buts_enc',label:'Moyenne de buts encaissés/match',icon:'📐'},
+  {cat:'Attaque',id:'buts_marques_saison',label:'Buts marqués sur la saison',icon:'⚽'},
+  {cat:'Attaque',id:'moy_buts_marques',label:'Moyenne de buts marqués/match',icon:'📈'},
+  {cat:'Attaque',id:'matchs_consec_marques',label:'Matchs consécutifs en marquant',icon:'🔥'},
+  {cat:'Entraînement',id:'presence_moy_equipe',label:'Présence moyenne équipe',icon:'✅'},
+  {cat:'Entraînement',id:'zero_forfait',label:'0 forfait sur la saison',icon:'📋'},
+  {cat:'Entraînement',id:'cr_max_equipe',label:'Cartons rouges max sur la saison',icon:'🟥'},
+  {cat:'Entraînement',id:'cj_max_equipe',label:'Cartons jaunes cumulés max',icon:'🟨'}
+];
+var MAX_CHOIX_OBJ_COLL=3;
+var MES_CHOIX_OBJ_COLL=null; // null = pas encore chargé
+
+async function chargerMonVoteObjColl(){
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/votes_objectifs_collectifs/'+MON_NUM);
+    if(!res.ok) return [];
+    var doc=await res.json();
+    var f=doc.fields||{};
+    if(!f.choix) return [];
+    try{ return JSON.parse(f.choix.stringValue)||[]; }catch(e){ return []; }
+  }catch(e){ return []; }
+}
+
+function basculerChoixObjColl(id){
+  var i=MES_CHOIX_OBJ_COLL.indexOf(id);
+  if(i!==-1){ MES_CHOIX_OBJ_COLL.splice(i,1); }
+  else{
+    if(MES_CHOIX_OBJ_COLL.length>=MAX_CHOIX_OBJ_COLL){ notif('⚠ '+MAX_CHOIX_OBJ_COLL+' objectifs maximum — retires-en un d\'abord'); return; }
+    MES_CHOIX_OBJ_COLL.push(id);
+  }
+  dessinerVoteObjColl();
+}
+
+async function envoyerVoteObjColl(){
+  if(!MES_CHOIX_OBJ_COLL || !MES_CHOIX_OBJ_COLL.length){ notif('⚠ Choisis au moins un objectif'); return; }
+  var body={fields:{
+    joueur:{stringValue:MON_NOM},
+    joueurNum:{integerValue:String(MON_NUM)},
+    choix:{stringValue:JSON.stringify(MES_CHOIX_OBJ_COLL)},
+    dateVote:{stringValue:new Date().toISOString()},
+    dateAffiche:{stringValue:new Date().toLocaleDateString('fr-FR')}
+  }};
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/votes_objectifs_collectifs/'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    notif('✓ Tes objectifs ont été envoyés au coach');
+    VOTE_OBJ_COLL_ENVOYE=true;
+    dessinerVoteObjColl();
+  }catch(e){ notif('⚠ Envoi impossible — vérifie ta connexion'); }
+}
+
+var VOTE_OBJ_COLL_ENVOYE=false;
+
+function dessinerVoteObjColl(){
+  var ct=document.getElementById('vote-obj-coll-joueur');
+  if(!ct) return;
+  var cats=[];
+  OBJ_COLL_TYPES.forEach(function(t){ if(cats.indexOf(t.cat)===-1) cats.push(t.cat); });
+  var html='<div class="blk"><div class="blk-h"><span class="t">🎯 Les objectifs de la saison — ton avis</span></div><div class="blk-body">';
+  html+='<div style="font-size:12px;color:var(--mute);margin-bottom:10px">Choisis les '+MAX_CHOIX_OBJ_COLL+' objectifs qui comptent le plus pour toi cette saison. Le coach voit le total de l\'équipe.</div>';
+  cats.forEach(function(cat){
+    html+='<div style="font-size:11px;color:var(--or);letter-spacing:.08em;text-transform:uppercase;margin:12px 0 6px;font-weight:700">'+cat+'</div>';
+    OBJ_COLL_TYPES.filter(function(t){return t.cat===cat;}).forEach(function(t){
+      var choisi=MES_CHOIX_OBJ_COLL.indexOf(t.id)!==-1;
+      html+='<div onclick="basculerChoixObjColl(\''+t.id+'\')" style="display:flex;align-items:center;gap:9px;font-size:13.5px;padding:9px 11px;border-radius:8px;margin-bottom:5px;cursor:pointer;background:'+(choisi?'rgba(249,115,22,.18)':'rgba(255,255,255,.035)')+';border:1px solid '+(choisi?'var(--or)':'transparent')+';color:'+(choisi?'var(--or)':'var(--ink)')+';font-weight:'+(choisi?'700':'400')+'">'
+        +'<span style="font-size:15px">'+(choisi?'✓':t.icon)+'</span><span style="flex:1">'+esc(t.label)+'</span></div>';
+    });
+  });
+  html+='<div style="display:flex;align-items:center;gap:10px;margin-top:14px">'
+    +'<span onclick="envoyerVoteObjColl()" style="flex:1;text-align:center;background:var(--or);color:#1a0f02;font-weight:700;font-size:13px;padding:11px 14px;border-radius:8px;cursor:pointer">'+(VOTE_OBJ_COLL_ENVOYE?'Mettre à jour mes choix':'Envoyer mes choix')+'</span>'
+    +'<span style="font-size:12px;color:var(--mute);white-space:nowrap">'+MES_CHOIX_OBJ_COLL.length+'/'+MAX_CHOIX_OBJ_COLL+'</span></div>';
+  if(VOTE_OBJ_COLL_ENVOYE) html+='<div style="font-size:11.5px;color:var(--green);margin-top:8px">✓ Vote enregistré — tu peux le modifier quand tu veux</div>';
+  html+='</div></div>';
+  ct.innerHTML=html;
+}
+
+async function renderVoteObjColl(){
+  var scr=document.getElementById('scr-saison');
+  if(!scr) return;
+  if(!document.getElementById('vote-obj-coll-joueur')){
+    scr.insertAdjacentHTML('beforeend','<div id="vote-obj-coll-joueur"></div>');
+  }
+  if(MES_CHOIX_OBJ_COLL===null){
+    var deja=await chargerMonVoteObjColl();
+    MES_CHOIX_OBJ_COLL=deja.slice(0,MAX_CHOIX_OBJ_COLL);
+    VOTE_OBJ_COLL_ENVOYE=deja.length>0;
+  }
+  dessinerVoteObjColl();
+}
+
+// ===== Infos du coach : on relève la boîte à messages (sans serveur) =====
+async function chargerNotifsCoach(){
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/notifications?pageSize=30');
+    if(!res.ok) return [];
+    var data=await res.json();
+    return (data.documents||[]).map(function(d){
+      var f=d.fields||{};
+      return {
+        titre:(f.titre||{}).stringValue||'',
+        corps:(f.corps||{}).stringValue||'',
+        date:(f.dateEnvoi||{}).stringValue||d.updateTime||d.createTime||''
+      };
+    }).filter(function(n){ return n.titre||n.corps; })
+      .sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+  }catch(e){ return []; }
+}
+
+function cleNotifVue(){ return 'ast_derniere_notif_'+MON_NUM; }
+
+async function verifierNouvellesNotifs(){
+  var notifs=await chargerNotifsCoach();
+  if(!notifs.length) return notifs;
+  var derniere=notifs[0];
+  var vue='';
+  try{ vue=localStorage.getItem(cleNotifVue())||''; }catch(e){}
+  if(derniere.date && derniere.date!==vue){
+    try{ localStorage.setItem(cleNotifVue(),derniere.date); }catch(e){}
+    // Si le joueur a accepté les notifications, on en affiche une vraie ; sinon un bandeau dans l'appli suffit
+    try{
+      if(window.Notification && Notification.permission==='granted'){
+        new Notification(derniere.titre||'AST Tarnos',{body:derniere.corps||'',icon:'./icons/icon-192.png',badge:'./icons/icon-192.png',tag:'ast-info-coach'});
+      }
+    }catch(e){}
+    notif('📣 '+(derniere.titre||'Nouveau message du coach'));
+  }
+  return notifs;
+}
+
+async function renderNotifsCoach(){
+  var ct=document.getElementById('scr-accueil');
+  if(!ct) return;
+  var notifs=await verifierNouvellesNotifs();
+  if(!notifs.length) return;
+  var html='<div class="blk"><div class="blk-h"><span class="t">🔔 Dernières infos</span></div><div class="blk-body">';
+  html+=notifs.slice(0,5).map(function(n,i){
+    var d=n.date?new Date(n.date):null;
+    var quand=d&&!isNaN(d)?d.toLocaleDateString('fr-FR')+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    return '<div style="padding:10px 0'+(i?';border-top:1px solid rgba(255,255,255,.07)':'')+'">'
+      +'<div style="font-size:14px;font-weight:700;color:#fff">'+esc(n.titre)+'</div>'
+      +(n.corps?'<div style="font-size:13px;color:var(--ink);margin-top:3px">'+esc(n.corps)+'</div>':'')
+      +(quand?'<div style="font-size:11px;color:var(--mute);margin-top:4px">'+quand+'</div>':'')
+      +'</div>';
+  }).join('');
+  html+='</div></div>';
+  ct.insertAdjacentHTML('beforeend',html);
+}
+
 function renderNotifPushBanniere(){
   var ct=document.getElementById('notif-push-banniere');
   if(!ct) return;
@@ -479,7 +643,7 @@ function fermerOnboarding(){
   document.getElementById('onb-overlay').classList.add('hidden');
 }
 var RENDER_MAP={
-  accueil:[renderAccueil,renderNotifPushBanniere,renderSondage],
+  accueil:[renderAccueil,renderNotifPushBanniere,renderSondage,renderNotifsCoach],
   mesmatchs:[renderMesMatchs,renderObjectifs],
   macarte:[renderMaCarte],
   effectif:[renderEffectif],
@@ -489,7 +653,7 @@ var RENDER_MAP={
   convocations:[renderConvocations],
   seances:[renderSeances],
   videos:[renderVideosJoueur],
-  saison:[renderSaison],
+  saison:[renderSaison,renderVoteObjColl],
   tempsjeu:[renderTempsJeu],
   formephysique:[renderFormePhysique],
   infosclub:[renderInfosClub],
@@ -520,6 +684,7 @@ async function demarrerApp(){
   }
   await calculerActionsEnAttente();
   renderHub();
+  verifierNouvellesNotifs();
   demarrerOnboardingSiPremiereFois();
 }
 
