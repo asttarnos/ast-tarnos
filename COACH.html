@@ -295,8 +295,28 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .bdt-actions-box{width:100%;max-width:420px;background:#12151b;border:1.5px solid var(--or);border-radius:16px;overflow:hidden}
 .bdt-actions-nom{padding:16px;font-size:19px;font-weight:800;text-align:center;border-bottom:1px solid rgba(255,255,255,.14)}
 .bdt-actions-grille{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
-.bdt-actions-grille button{border:none;border-radius:12px;padding:22px 8px;font-size:15px;font-weight:700;cursor:pointer;background:#232936;color:#fff}
+.bdt-actions-grille button{border:none;border-radius:12px;padding:17px 8px;font-size:13.5px;font-weight:700;cursor:pointer;background:#232936;color:#fff;line-height:1.35}
 .bdt-actions-grille button.but{background:var(--or);color:#160c02}
+.bdt-compteurs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 10px 8px;flex-shrink:0}
+.bdt-cpt{background:#161a21;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:7px 4px;text-align:center}
+.bdt-cpt-lab{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:#9aa0a8;line-height:1.25;min-height:22px}
+.bdt-cpt-val{font-size:22px;font-weight:900;line-height:1;margin:2px 0 4px}
+.bdt-cpt-btns{display:flex;gap:4px;justify-content:center}
+.bdt-cpt-btns button{width:34px;height:30px;border-radius:8px;border:none;background:#2a2f3a;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+.bdt-cpt-btns button.plus{background:var(--or);color:#160c02}
+.bdt-joueur.terrain{border-color:var(--green);border-left-width:4px}
+.bdt-joueur.banc{opacity:.55}
+.bdt-bandeau{padding:7px 14px;font-size:11.5px;color:#ffd9a8;background:rgba(217,119,6,.16);border-bottom:1px solid rgba(217,119,6,.35);flex-shrink:0;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.bdt-bandeau button{background:var(--or);border:none;color:#160c02;font-weight:700;font-size:11px;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.bdt-notes{position:fixed;inset:0;z-index:920;background:#07080a;display:none;flex-direction:column}
+.bdt-notes.on{display:flex}
+.bdt-notes-haut{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:2px solid var(--or);flex-shrink:0}
+.bdt-notes-corps{flex:1;overflow-y:auto;padding:10px 12px}
+.bdt-note-j{background:#161a21;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;margin-bottom:10px}
+.bdt-note-nom{font-size:15px;font-weight:700;margin-bottom:8px}
+.bdt-crit{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.bdt-crit-lab{font-size:12px;color:#c9ced6}
+.bdt-etoiles span{font-size:24px;cursor:pointer;padding:0 1px;line-height:1}
 @media (max-width:520px){ .bdt-eq-pts{font-size:52px} .bdt-grille{grid-template-columns:repeat(2,1fr)} }
 .fex-bulle{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);max-width:132px;min-width:44px;white-space:normal;text-align:center;background:#fff;color:#111;font-family:'Roboto Condensed',sans-serif;font-size:10px;font-weight:700;line-height:1.25;padding:5px 8px;border:2px solid #111;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.45);z-index:9;pointer-events:none}
 .fex-bulle::after{content:'';position:absolute;bottom:-13px;left:28%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:13px solid #111}
@@ -373,22 +393,36 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <button onclick="bdtChronoReset()">↺</button>
     </div>
   </div>
+  <div class="bdt-compteurs">
+    <div class="bdt-cpt"><div class="bdt-cpt-lab">Situations créées</div><div class="bdt-cpt-val" id="bdt-sit-nous">0</div>
+      <div class="bdt-cpt-btns"><button onclick="bdtCompteurEquipe('sitNous',-1)">−</button><button class="plus" onclick="bdtCompteurEquipe('sitNous',1)">+</button></div></div>
+    <div class="bdt-cpt"><div class="bdt-cpt-lab">Frappes adverses</div><div class="bdt-cpt-val" id="bdt-frappes-adv">0</div>
+      <div class="bdt-cpt-btns"><button onclick="bdtCompteurEquipe('frappesAdv',-1)">−</button><button class="plus" onclick="bdtCompteurEquipe('frappesAdv',1)">+</button></div></div>
+    <div class="bdt-cpt"><div class="bdt-cpt-lab">Situations adverses</div><div class="bdt-cpt-val" id="bdt-sit-adv">0</div>
+      <div class="bdt-cpt-btns"><button onclick="bdtCompteurEquipe('sitAdv',-1)">−</button><button class="plus" onclick="bdtCompteurEquipe('sitAdv',1)">+</button></div></div>
+  </div>
+  <div class="bdt-bandeau" id="bdt-bandeau"></div>
   <div class="bdt-corps"><div class="bdt-grille" id="bdt-grille"></div></div>
   <div class="bdt-journal" id="bdt-journal"></div>
   <div class="bdt-bas">
     <button class="bdt-annuler" onclick="bdtAnnulerDernier()">↩ Annuler</button>
-    <button class="bdt-fin" onclick="bdtTerminer()">✓ Terminer le match</button>
+    <button class="bdt-annuler" onclick="bdtOuvrirNotes()">⭐ Bilan à chaud</button>
+    <button class="bdt-fin" onclick="bdtTerminer()">✓ Terminer</button>
   </div>
+</div>
+<div class="bdt-notes" id="bdt-notes">
+  <div class="bdt-notes-haut">
+    <div style="flex:1;font-size:15px;font-weight:700">⭐ Bilan à chaud</div>
+    <button class="bdt-sortie" onclick="bdtFermerNotes()">✕</button>
+  </div>
+  <div style="padding:8px 14px;font-size:11.5px;color:#9aa0a8;flex-shrink:0">Quatre critères, six étoiles chacun. La note du match est leur moyenne — tant que c'est frais.</div>
+  <div class="bdt-notes-corps" id="bdt-notes-corps"></div>
+  <div class="bdt-bas"><button class="bdt-fin" onclick="bdtFermerNotes()">✓ Terminé</button></div>
 </div>
 <div class="bdt-actions" id="bdt-actions" onclick="if(event.target===this) bdtFermerActions()">
   <div class="bdt-actions-box">
     <div class="bdt-actions-nom" id="bdt-actions-nom"></div>
-    <div class="bdt-actions-grille">
-      <button class="but" onclick="bdtAction('but')">⚽<br>But</button>
-      <button onclick="bdtAction('pd')">🅰️<br>Passe D.</button>
-      <button onclick="bdtAction('cj')">🟨<br>Jaune</button>
-      <button onclick="bdtAction('cr')">🟥<br>Rouge</button>
-    </div>
+    <div class="bdt-actions-grille" id="bdt-actions-grille"></div>
     <div style="padding:0 14px 14px"><button style="width:100%;border:none;border-radius:12px;padding:14px;background:#2a2f3a;color:#fff;font-size:13px;font-weight:700;cursor:pointer" onclick="bdtFermerActions()">Annuler</button></div>
   </div>
 </div>
@@ -3242,7 +3276,7 @@ function validerNotes(){
   NOTES_MATCH.forEach(function(nm,i){
     if(!numsPresents[String(JOUEURS[i].num)]) return; // retiré de la liste : jamais sauvegardé
     if(nm.statut!=='ABS'){
-      notesSnapshot.push({num:JOUEURS[i].num,nom:JOUEURS[i].nom,statut:nm.statut,note:nm.note,buts:nm.buts,pd:nm.pd,tps:nm.tps,cj:nm.cj,cr:nm.cr});
+      notesSnapshot.push({num:JOUEURS[i].num,nom:JOUEURS[i].nom,statut:nm.statut,note:nm.note,buts:nm.buts,pd:nm.pd,tps:nm.tps,cj:nm.cj,cr:nm.cr,bdt:nm.bdt||null});
     }
     if(nm.statut==='ABS') return; // absent de ce match : aucune stat ajoutée
     STATS[i].buts+=nm.buts;STATS[i].pd+=nm.pd;STATS[i].cj+=nm.cj;STATS[i].cr+=nm.cr;
@@ -3257,9 +3291,18 @@ function validerNotes(){
     STATS[i].tpsMoy=STATS[i].matchsJoues>0?Math.round(STATS[i].tpsTotal/STATS[i].matchsJoues):0;
     if(nm.buts>0) STATS[i].matchsConsecButs++;else STATS[i].matchsConsecButs=0;
   });
-  if(MATCHS.length){ MATCHS[0].notes=notesSnapshot; }
+  if(MATCHS.length){
+    MATCHS[0].notes=notesSnapshot;
+    // Déroulé et compteurs relevés au bord de touche, s'il y en a
+    if(BDT_DERNIER_MATCH){
+      MATCHS[0].bdtEquipe=BDT_DERNIER_MATCH.equipe;
+      MATCHS[0].bdtEvenements=BDT_DERNIER_MATCH.evenements;
+      MATCHS[0].bdtDuree=BDT_DERNIER_MATCH.duree;
+      BDT_DERNIER_MATCH=null;
+    }
+  }
   // reset la saisie pour le prochain match (évite tout doublon)
-  NOTES_MATCH.forEach(function(nm){nm.buts=0;nm.pd=0;nm.tps=0;nm.cj=0;nm.cr=0;nm.note=3;nm.noteDetail={consignes:3,offensif:3,defensif:3,esprit:3};nm.statut='TA';});
+  NOTES_MATCH.forEach(function(nm){nm.buts=0;nm.pd=0;nm.tps=0;nm.cj=0;nm.cr=0;nm.bdt=null;nm.note=3;nm.noteDetail={consignes:3,offensif:3,defensif:3,esprit:3};nm.statut='TA';});
   document.querySelectorAll('#notif-list input, #notif-list select').forEach(function(el){
     if(el.type==='number') el.value='';
     else if(el.tagName==='SELECT') el.selectedIndex=0;
@@ -3711,6 +3754,7 @@ function renderMatchs(){
       +'<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">'
       +'<span style="font-size:14px;cursor:pointer" title="Modifier score/temps de jeu/stats" onclick="event.stopPropagation();ouvrirEditionMatch('+mi+')">✏️</span>'
       +'<span style="font-size:14px;cursor:pointer" title="Compte-rendu de la semaine" onclick="event.stopPropagation();ouvrirCompteRendu('+mi+')">📝'+(m.compteRendu&&(m.compteRendu.positif||m.compteRendu.negatif||m.compteRendu.axes)?'<span style="color:var(--or)">●</span>':'')+'</span>'
+      +'<span style="font-size:14px;cursor:pointer" title="Fiche bilan du match (imprimer / PDF)" onclick="event.stopPropagation();genererFicheMatchPDF('+mi+')">🖨️</span>'
       +'<span style="font-size:14px;cursor:pointer" title="Supprimer ce match" onclick="event.stopPropagation();supprimerMatch('+mi+')">🗑</span>'
       +'</div></div>';
   }).join(''):'<div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Aucun match</div>';
@@ -4125,8 +4169,13 @@ function voirNotesMatch(mi){
     var stLbl=n.statut==='TA'?'Titu A':n.statut==='TB'?'Titu B':n.statut==='RA'?'Rempl A':n.statut==='RB'?'Rempl B':'Banc';
     var nd=n.noteDetail;
     var detailCrit=nd?('📋'+nd.consignes+' ⚔️'+nd.offensif+' 🛡️'+nd.defensif+' 🔥'+nd.esprit):'';
+    var relBdt='';
+    if(n.bdt){
+      var libBdt={frappeCad:'🎯',frappeHors:'↗️',recup:'🔄',perte:'❌',arret:'🧤',capte:'🤲',relanceRatee:'🦶'};
+      relBdt=Object.keys(n.bdt).map(function(k){ return (libBdt[k]||k)+(n.bdt[k]>1?'×'+n.bdt[k]:''); }).join(' ');
+    }
     return '<div class="vn-row" data-joueur="'+n.nom.replace(/"/g,'&quot;')+'" style="display:grid;grid-template-columns:1fr 50px 45px 45px 70px;align-items:center;gap:5px;padding:9px 12px;border-bottom:1px solid rgba(249,115,22,.08)">'
-      +'<div style="font-weight:700;font-size:12.5px">'+n.num+'. '+n.nom+'<div style="font-size:9px;color:'+stCol+';font-weight:700">'+stLbl+'</div></div>'
+      +'<div style="font-weight:700;font-size:12.5px">'+n.num+'. '+n.nom+'<div style="font-size:9px;color:'+stCol+';font-weight:700">'+stLbl+(relBdt?(' <span style="color:var(--gris2)">· '+relBdt+'</span>'):'')+'</div></div>'
       +'<div style="font-size:10px;color:var(--blue);text-align:center">'+(n.tps||0)+' min</div>'
       +'<div style="font-size:10px;color:var(--gold);text-align:center">'+n.buts+'⚽</div>'
       +'<div style="font-size:10px;color:var(--purple);text-align:center">'+n.pd+'🎯</div>'
@@ -5596,7 +5645,7 @@ async function chargerActivite(){
     });
     var actifs=[],inactifs=[];
     JOUEURS.forEach(function(j){
-      var cle=Object.keys(derniere).find(function(n){ return fexNomsCorrespondent(n,j.nom); });
+      var cle=Object.keys(derniere).find(function(n){ return memeJoueur(n,j.nom); });
       if(cle) actifs.push({j:j,date:derniere[cle]});
       else inactifs.push(j);
     });
@@ -9614,7 +9663,9 @@ function collecterFeuilleMatch(){
 // Rien n'est écrit dans la saison ici — tout est reversé dans l'écran Matchs à la fin,
 // pour garder une seule porte d'entrée vers les statistiques.
 var BDT={ouvert:false, nous:0, eux:0, adversaire:'', lieu:'D', date:'', joueurs:[], evenements:[],
-         chronoT:0, chronoActif:false, chronoTimer:null, miTemps:null};
+         chronoT:0, chronoActif:false, chronoTimer:null, miTemps:null,
+         groupe:'a', modeCompo:true, surTerrain:{}, entree:{}, minutes:{}, titulaires:{}, notes:{},
+         equipe:{sitNous:0, frappesAdv:0, sitAdv:0}};
 
 function bdtOuvrir(){
   var conv=CONVOS||{};
@@ -9623,19 +9674,14 @@ function bdtOuvrir(){
   BDT.lieu=conv.lieu||(prochain?prochain.lieu:'D')||'D';
   BDT.date=conv.date||(prochain?prochain.date:'')||new Date().toLocaleDateString('fr-FR');
   BDT.nous=0; BDT.eux=0; BDT.evenements=[]; BDT.chronoT=0; BDT.miTemps=null;
+  BDT.modeCompo=true; BDT.surTerrain={}; BDT.entree={}; BDT.minutes={}; BDT.titulaires={}; BDT.notes={};
+  BDT.equipe={sitNous:0, frappesAdv:0, sitAdv:0};
   bdtChronoStop();
 
-  // Les convoqués d'abord ; à défaut, tout l'effectif
-  var noms=[].concat(conv.a||[], conv.b||[]);
-  var liste=[];
-  if(noms.length){
-    noms.forEach(function(nom){
-      var idx=JOUEURS.findIndex(function(j){ return fexNomsCorrespondent(j.nom,nom); });
-      if(idx>=0 && liste.indexOf(idx)===-1) liste.push(idx);
-    });
-  }
-  if(!liste.length) liste=JOUEURS.map(function(j,i){ return i; });
-  BDT.joueurs=liste;
+  // On ne travaille que sur le groupe convoqué pour CE match.
+  // Mélanger équipe A et équipe B afficherait trente noms un samedi après-midi.
+  BDT.groupe=((conv.a||[]).length?'a':((conv.b||[]).length?'b':'tous'));
+  bdtAppliquerGroupe();
 
   document.getElementById('bdt-adv').textContent=(BDT.lieu==='D'?'Domicile':'Extérieur')+' · '+(BDT.adversaire||'Adversaire à renseigner')+(BDT.date?' · '+BDT.date:'');
   document.getElementById('bdt-nous').textContent=(NOM_CLUB||'AST').split(' ')[0];
@@ -9644,6 +9690,79 @@ function bdtOuvrir(){
   document.getElementById('bdt').classList.add('on');
   bdtRender();
 }
+// Quels joueurs sont affichés : l'équipe A, l'équipe B, ou tout l'effectif faute de convocation
+// ===== Retrouver un joueur à partir d'un nom saisi à la main =====
+// fexNomsCorrespondent a été écrit pour des noms de CLUBS ("Audenge" ≈ "Audenge ES") :
+// sa règle « même premier mot » confondrait Thomas MARTIN et Thomas DUBOIS.
+// Pour des joueurs, on compare l'ensemble des mots du nom.
+function motsDuNom(t){
+  return fexNormaliserNom(t).replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(function(m){ return m.length>1; });
+}
+function memeJoueur(a,b){
+  var ma=motsDuNom(a), mb=motsDuNom(b);
+  if(!ma.length || !mb.length) return false;
+  if(ma.join(' ')===mb.join(' ')) return true;
+  var court=ma.length<=mb.length?ma:mb, long=ma.length<=mb.length?mb:ma;
+  // tous les mots du nom le plus court doivent figurer dans l'autre
+  // (« Sam PAPAIX » retrouve « Sam PAPAIX BELLO », « PAPAIX » aussi)
+  return court.every(function(m){ return long.indexOf(m)!==-1; });
+}
+// Deux passes : d'abord les correspondances exactes, ensuite les partielles.
+// Ainsi « Thomas » ne prend pas la place d'un « Thomas MARTIN » écrit en toutes lettres.
+function apparierNoms(noms){
+  var pris={}, resultat=[];
+  function chercher(nom, exact){
+    for(var i=0;i<JOUEURS.length;i++){
+      if(pris[i]) continue;
+      if(exact ? (motsDuNom(JOUEURS[i].nom).join(' ')===motsDuNom(nom).join(' ')) : memeJoueur(JOUEURS[i].nom, nom)) return i;
+    }
+    return -1;
+  }
+  var restants=[];
+  (noms||[]).forEach(function(nom){
+    var idx=chercher(nom,true);
+    if(idx>=0){ pris[idx]=true; resultat.push(idx); } else restants.push(nom);
+  });
+  restants.forEach(function(nom){
+    var idx=chercher(nom,false);
+    if(idx>=0){ pris[idx]=true; resultat.push(idx); }
+  });
+  resultat.sort(function(a,b){ return a-b; });
+  return resultat;
+}
+
+function bdtNomsDuGroupe(){
+  var conv=CONVOS||{};
+  if(BDT.groupe==='a') return conv.a||[];
+  if(BDT.groupe==='b') return conv.b||[];
+  return null;
+}
+function bdtAppliquerGroupe(){
+  var noms=bdtNomsDuGroupe();
+  var liste=(noms && noms.length)?apparierNoms(noms):[];
+  if(!liste.length){ liste=JOUEURS.map(function(j,i){ return i; }); BDT.groupe='tous'; }
+  BDT.joueurs=liste;
+  bdtRender();
+}
+function bdtChangerGroupe(){
+  var conv=CONVOS||{};
+  var dispo=[];
+  if((conv.a||[]).length) dispo.push('a');
+  if((conv.b||[]).length) dispo.push('b');
+  dispo.push('tous');
+  var i=dispo.indexOf(BDT.groupe);
+  BDT.groupe=dispo[(i+1)%dispo.length];
+  // on repart d'une composition vierge : le groupe a changé
+  BDT.surTerrain={}; BDT.entree={}; BDT.titulaires={}; BDT.minutes={};
+  BDT.modeCompo=true;
+  bdtAppliquerGroupe();
+}
+function bdtLibelleGroupe(){
+  if(BDT.groupe==='a') return 'Équipe A';
+  if(BDT.groupe==='b') return 'Équipe B';
+  return 'Tout l\'effectif';
+}
+
 function bdtFermer(){
   if(BDT.evenements.length && !confirm('Quitter le mode bord de touche ? Ce qui a été saisi sera perdu si tu n\'as pas terminé le match.')) return;
   bdtChronoStop();
@@ -9654,18 +9773,25 @@ function bdtScore(qui,d){
   if(qui==='nous') BDT.nous=Math.max(0,BDT.nous+d); else BDT.eux=Math.max(0,BDT.eux+d);
   bdtRender();
 }
+function bdtCompteurEquipe(cle,d){
+  BDT.equipe[cle]=Math.max(0,(BDT.equipe[cle]||0)+d);
+  bdtRender();
+}
 function bdtFmtChrono(s){
   var m=Math.floor(s/60), r=s%60;
   return (m<10?'0':'')+m+':'+(r<10?'0':'')+r;
 }
 function bdtChrono(){
   if(BDT.chronoActif){ bdtChronoStop(); return; }
+  BDT.modeCompo=false; // coup d'envoi : on ne désigne plus les titulaires
   BDT.chronoActif=true;
   document.getElementById('bdt-chrono-btn').textContent='⏸ Pause';
   BDT.chronoTimer=setInterval(function(){
     BDT.chronoT++;
     var el=document.getElementById('bdt-chrono');
     if(el) el.textContent=bdtFmtChrono(BDT.chronoT);
+    // les temps de jeu affichés sur les tuiles suivent le chrono
+    if(BDT.chronoT%15===0) bdtRender();
   },1000);
 }
 function bdtChronoStop(){
@@ -9683,10 +9809,99 @@ function bdtMiTemps(){
   bdtRender();
 }
 
+// Les faits de match qu'on relève au bord du terrain, selon le poste.
+// Buts, passes et cartons alimentent les statistiques existantes ;
+// les autres sont conservés match par match dans la feuille de match.
+var BDT_ACTIONS_CHAMP=[
+  {k:'but',        ic:'⚽',  lab:'But',              cls:'but'},
+  {k:'pd',         ic:'🅰️', lab:'Passe D.'},
+  {k:'frappeCad',  ic:'🎯',  lab:'Frappe cadrée'},
+  {k:'frappeHors', ic:'↗️', lab:'Frappe non cadrée'},
+  {k:'recup',      ic:'🔄',  lab:'Récupération'},
+  {k:'perte',      ic:'❌',  lab:'Perte de balle'},
+  {k:'horsJeu',    ic:'⛳',  lab:'Hors-jeu'},
+  {k:'cb',         ic:'⬜',  lab:'Blanc'},
+  {k:'cj',         ic:'🟨',  lab:'Jaune'},
+  {k:'cr',         ic:'🟥',  lab:'Rouge'}
+];
+var BDT_ACTIONS_GARDIEN=[
+  {k:'arret',      ic:'🧤',  lab:'Arrêt sur frappe', cls:'but'},
+  {k:'capte',      ic:'🤲',  lab:'Ballon capté'},
+  {k:'relanceRatee',ic:'🦶', lab:'Relance ratée'},
+  {k:'pd',         ic:'🅰️', lab:'Passe D.'},
+  {k:'cb',         ic:'⬜',  lab:'Blanc'},
+  {k:'cj',         ic:'🟨',  lab:'Jaune'},
+  {k:'cr',         ic:'🟥',  lab:'Rouge'}
+];
+var BDT_LIB={but:'⚽ But', pd:'🅰️ Passe décisive', frappeCad:'🎯 Frappe cadrée',
+  frappeHors:'↗️ Frappe non cadrée', recup:'🔄 Récupération', perte:'❌ Perte de balle',
+  arret:'🧤 Arrêt', capte:'🤲 Ballon capté', relanceRatee:'🦶 Relance ratée',
+  horsJeu:'⛳ Hors-jeu', cb:'⬜ Carton blanc (10 min)',
+  cj:'🟨 Carton jaune', cr:'🟥 Carton rouge',
+  entre:'🔺 Entre en jeu', sort:'🔻 Sort'};
+
+function bdtEstGardien(idx){
+  var am=(typeof ATTRS_MANUELS!=='undefined' && ATTRS_MANUELS[idx])?ATTRS_MANUELS[idx]:null;
+  if(am && typeof am.gardien!=='undefined') return !!am.gardien;
+  return !!(JOUEURS[idx] && JOUEURS[idx].gardien);
+}
+
+// ===== Qui est sur le terrain =====
+// Le temps de jeu se calcule tout seul : on additionne les intervalles passés sur le terrain.
+function bdtMinuteCourante(){ return Math.floor(BDT.chronoT/60); }
+function bdtSurTerrain(idx){ return !!BDT.surTerrain[idx]; }
+function bdtNbSurTerrain(){ return Object.keys(BDT.surTerrain).filter(function(k){ return BDT.surTerrain[k]; }).length; }
+
+function bdtFaireEntrer(idx,silencieux){
+  if(bdtSurTerrain(idx)) return;
+  var min=bdtMinuteCourante();
+  BDT.surTerrain[idx]=true;
+  BDT.entree[idx]=min;
+  if(min===0 && !BDT.chronoActif) BDT.titulaires[idx]=true;
+  if(!silencieux) BDT.evenements.push({type:'entre', idx:idx, minute:min,
+    texte:min+"' — 🔺 Entre en jeu · "+(JOUEURS[idx]?JOUEURS[idx].nom:'')});
+}
+function bdtFaireSortir(idx,silencieux){
+  if(!bdtSurTerrain(idx)) return;
+  var min=bdtMinuteCourante();
+  BDT.minutes[idx]=(BDT.minutes[idx]||0)+Math.max(0,min-(BDT.entree[idx]||0));
+  BDT.surTerrain[idx]=false;
+  delete BDT.entree[idx];
+  if(!silencieux) BDT.evenements.push({type:'sort', idx:idx, minute:min,
+    texte:min+"' — 🔻 Sort · "+(JOUEURS[idx]?JOUEURS[idx].nom:'')});
+}
+function bdtTempsDeJeu(idx){
+  var t=BDT.minutes[idx]||0;
+  if(bdtSurTerrain(idx)) t+=Math.max(0,bdtMinuteCourante()-(BDT.entree[idx]||0));
+  return t;
+}
+function bdtBasculerCompo(){
+  BDT.modeCompo=!BDT.modeCompo;
+  bdtRender();
+}
+function bdtToutLeMondeSurLeBanc(){
+  BDT.joueurs.forEach(function(idx){ BDT.surTerrain[idx]=false; });
+  BDT.entree={}; BDT.titulaires={}; BDT.minutes={};
+  bdtRender();
+}
+
 var BDT_JOUEUR_SEL=null;
 function bdtChoisirJoueur(idx){
+  // Avant le coup d'envoi, un appui sur une tuile désigne simplement les titulaires
+  if(BDT.modeCompo){
+    if(bdtSurTerrain(idx)) bdtFaireSortir(idx,true); else bdtFaireEntrer(idx,true);
+    bdtRender();
+    return;
+  }
   BDT_JOUEUR_SEL=idx;
-  document.getElementById('bdt-actions-nom').textContent=JOUEURS[idx]?JOUEURS[idx].nom:'Joueur';
+  var gardien=bdtEstGardien(idx);
+  document.getElementById('bdt-actions-nom').textContent=(JOUEURS[idx]?JOUEURS[idx].nom:'Joueur')+(gardien?' · gardien':'');
+  var actions=(gardien?BDT_ACTIONS_GARDIEN:BDT_ACTIONS_CHAMP).slice();
+  // Entrer ou sortir, selon l'endroit où il se trouve
+  actions.push(bdtSurTerrain(idx)?{k:'sort',ic:'🔻',lab:'Sort du terrain'}:{k:'entre',ic:'🔺',lab:'Entre en jeu'});
+  document.getElementById('bdt-actions-grille').innerHTML=actions.map(function(a){
+    return '<button'+(a.cls?' class="'+a.cls+'"':'')+' onclick="bdtAction(\''+a.k+'\')">'+a.ic+'<br>'+a.lab+'</button>';
+  }).join('');
   document.getElementById('bdt-actions').classList.add('on');
 }
 function bdtFermerActions(){
@@ -9696,10 +9911,14 @@ function bdtFermerActions(){
 function bdtAction(type){
   var idx=BDT_JOUEUR_SEL;
   if(idx==null){ bdtFermerActions(); return; }
+  // Premier fait de match saisi : on lance le chrono tout seul,
+  // sinon tout serait horodaté à 0' et la minute ne servirait à rien.
+  if(type==='entre'){ bdtFaireEntrer(idx); bdtFermerActions(); bdtRender(); return; }
+  if(type==='sort'){ bdtFaireSortir(idx); bdtFermerActions(); bdtRender(); return; }
+  if(!BDT.chronoActif && BDT.chronoT===0) bdtChrono();
   var nom=JOUEURS[idx]?JOUEURS[idx].nom:'Joueur';
-  var libelles={but:'⚽ But', pd:'🅰️ Passe décisive', cj:'🟨 Carton jaune', cr:'🟥 Carton rouge'};
   var minute=Math.floor(BDT.chronoT/60);
-  BDT.evenements.push({type:type, idx:idx, minute:minute, texte:minute+"' — "+libelles[type]+' · '+nom});
+  BDT.evenements.push({type:type, idx:idx, minute:minute, texte:minute+"' — "+(BDT_LIB[type]||type)+' · '+nom});
   if(type==='but') BDT.nous++;
   bdtFermerActions();
   bdtRender();
@@ -9716,15 +9935,35 @@ function bdtCompteur(idx,type){
 function bdtRender(){
   document.getElementById('bdt-score-nous').textContent=BDT.nous;
   document.getElementById('bdt-score-eux').textContent=BDT.eux;
+  document.getElementById('bdt-sit-nous').textContent=BDT.equipe.sitNous||0;
+  document.getElementById('bdt-frappes-adv').textContent=BDT.equipe.frappesAdv||0;
+  document.getElementById('bdt-sit-adv').textContent=BDT.equipe.sitAdv||0;
+  var bandeau=document.getElementById('bdt-bandeau');
+  var nbGroupe=BDT.joueurs.length, nbTerrain=bdtNbSurTerrain();
+  bandeau.style.display='flex';
+  if(BDT.modeCompo){
+    bandeau.innerHTML='<span>👥 <b>'+bdtLibelleGroupe()+'</b> · '+nbGroupe+' convoqué'+(nbGroupe>1?'s':'')
+      +' — touche tes titulaires (<b>'+nbTerrain+'</b> sur le terrain)</span>'
+      +'<span style="display:flex;gap:6px"><button onclick="bdtChangerGroupe()">Changer de groupe</button>'
+      +'<button onclick="bdtToutLeMondeSurLeBanc()">Effacer</button>'
+      +'<button onclick="bdtBasculerCompo()">Terminé</button></span>';
+  }else{
+    bandeau.innerHTML='<span>⚽ <b>'+nbTerrain+' sur le terrain</b> · '+Math.max(0,nbGroupe-nbTerrain)+' sur le banc ('+bdtLibelleGroupe()+')</span>'
+      +'<button onclick="bdtBasculerCompo()">👥 Compo</button>';
+  }
   document.getElementById('bdt-grille').innerHTML=BDT.joueurs.map(function(idx){
     var j=JOUEURS[idx]; if(!j) return '';
-    var b=bdtCompteur(idx,'but'), a=bdtCompteur(idx,'pd'), cj=bdtCompteur(idx,'cj'), cr=bdtCompteur(idx,'cr');
     var badges=[];
-    if(b) badges.push('⚽'+(b>1?'×'+b:''));
-    if(a) badges.push('🅰️'+(a>1?'×'+a:''));
-    if(cj) badges.push('🟨'+(cj>1?'×'+cj:''));
-    if(cr) badges.push('🟥');
-    return '<div class="bdt-joueur" onclick="bdtChoisirJoueur('+idx+')">'
+    [['but','⚽'],['arret','🧤'],['pd','🅰️'],['frappeCad','🎯'],['frappeHors','↗️'],
+     ['capte','🤲'],['recup','🔄'],['perte','❌'],['relanceRatee','🦶'],['cj','🟨'],['cr','🟥']].forEach(function(pair){
+      var n=bdtCompteur(idx,pair[0]);
+      if(n) badges.push(pair[1]+(n>1?'×'+n:''));
+    });
+    var surT=bdtSurTerrain(idx);
+    var tps=bdtTempsDeJeu(idx);
+    if(surT && tps) badges.unshift('⏱'+tps+"'");
+    else if(!surT && tps) badges.unshift('⏱'+tps+"' (sorti)");
+    return '<div class="bdt-joueur '+(surT?'terrain':'banc')+'" onclick="bdtChoisirJoueur('+idx+')">'
       +'<div class="n">'+echapForme(j.nom)+'</div>'
       +(badges.length?'<div class="b">'+badges.join(' ')+'</div>':'')
       +'</div>';
@@ -9735,10 +9974,55 @@ function bdtRender(){
     : '<div style="color:#6b7280">Touche un joueur pour lui attribuer un but, une passe ou un carton.</div>';
 }
 
+// ===== Bilan à chaud : les 4 critères, 6 étoiles chacun =====
+function bdtOuvrirNotes(){
+  var ayantJoue=BDT.joueurs.filter(function(idx){ return bdtTempsDeJeu(idx)>0 || bdtSurTerrain(idx) || BDT.titulaires[idx]; });
+  if(!ayantJoue.length) ayantJoue=BDT.joueurs.slice();
+  var ct=document.getElementById('bdt-notes-corps');
+  ct.innerHTML=ayantJoue.map(function(idx){
+    var n=BDT.notes[idx]||{};
+    return '<div class="bdt-note-j">'
+      +'<div class="bdt-note-nom">'+echapForme(JOUEURS[idx]?JOUEURS[idx].nom:'')+' <span style="font-size:11px;color:#9aa0a8;font-weight:400">'+bdtTempsDeJeu(idx)+" min</span> <span id=\"bdt-moy-"+idx+'" style="float:right;color:var(--or)">'+(bdtMoyenneNote(idx)||'—')+'</span></div>'
+      +CRITERES_NOTE.map(function(c){
+        var val=n[c.k]||0;
+        var etoiles='';
+        for(var i=1;i<=6;i++){
+          etoiles+='<span onclick="bdtNoter('+idx+',\''+c.k+'\','+i+')" style="color:'+(i<=val?'#fbbf24':'#3a3f4a')+'" data-j="'+idx+'" data-c="'+c.k+'" data-v="'+i+'">★</span>';
+        }
+        return '<div class="bdt-crit"><span class="bdt-crit-lab">'+c.ic+' '+c.lab+'</span><span class="bdt-etoiles">'+etoiles+'</span></div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+  document.getElementById('bdt-notes').classList.add('on');
+}
+function bdtFermerNotes(){ document.getElementById('bdt-notes').classList.remove('on'); }
+function bdtNoter(idx,critere,valeur){
+  if(!BDT.notes[idx]) BDT.notes[idx]={};
+  BDT.notes[idx][critere]=valeur;
+  document.querySelectorAll('.bdt-etoiles span[data-j="'+idx+'"][data-c="'+critere+'"]').forEach(function(e){
+    e.style.color=(parseInt(e.getAttribute('data-v'))<=valeur)?'#fbbf24':'#3a3f4a';
+  });
+  var moy=document.getElementById('bdt-moy-'+idx);
+  if(moy) moy.textContent=bdtMoyenneNote(idx)||'—';
+}
+function bdtMoyenneNote(idx){
+  var n=BDT.notes[idx];
+  if(!n) return null;
+  var total=0, nb=0;
+  CRITERES_NOTE.forEach(function(c){ if(n[c.k]){ total+=n[c.k]; nb++; } });
+  if(nb<CRITERES_NOTE.length) return null;
+  return Math.round((total/CRITERES_NOTE.length)*10)/10;
+}
+
 // Tout est reversé dans l'écran Matchs : le coach y finit la saisie (temps de jeu, notes) et valide.
 function bdtTerminer(){
-  if(!confirm('Reporter ce match dans l\'écran Matchs ?\n\nScore : '+BDT.nous+'–'+BDT.eux+'\n'+BDT.evenements.filter(function(e){return e.type!=='mitemps';}).length+' fait(s) de match saisis.')) return;
+  var faits=BDT.evenements.filter(function(e){ return e.type!=='mitemps' && e.type!=='entre' && e.type!=='sort'; }).length;
+  if(!confirm('Reporter ce match dans l\'écran Matchs ?\n\nScore : '+BDT.nous+'–'+BDT.eux+'\n'
+    +faits+' fait(s) de match · '+bdtNbSurTerrain()+' joueur(s) encore sur le terrain')) return;
   bdtChronoStop();
+  // On ferme les temps de jeu encore ouverts à la minute du coup de sifflet final
+  BDT.joueurs.forEach(function(idx){ if(bdtSurTerrain(idx)) bdtFaireSortir(idx,true); });
+
   function set(id,val){ var el=document.getElementById(id); if(el) el.value=val; }
   set('m-adv',BDT.adversaire);
   set('m-ast',BDT.nous);
@@ -9746,7 +10030,8 @@ function bdtTerminer(){
   set('m-date',BDT.date);
   set('m-lieu',BDT.lieu);
   if(BDT.miTemps){ set('m-mt-ast',BDT.miTemps.nous); set('m-mt-adv',BDT.miTemps.eux); }
-  // stats individuelles
+
+  var totalCadrees=0, totalFrappes=0;
   if(typeof NOTES_MATCH!=='undefined' && NOTES_MATCH){
     BDT.joueurs.forEach(function(idx){
       if(!NOTES_MATCH[idx]) return;
@@ -9754,12 +10039,168 @@ function bdtTerminer(){
       NOTES_MATCH[idx].pd=bdtCompteur(idx,'pd');
       NOTES_MATCH[idx].cj=bdtCompteur(idx,'cj');
       NOTES_MATCH[idx].cr=bdtCompteur(idx,'cr');
+      // Temps de jeu calculé à partir des entrées et sorties : plus de saisie à la main
+      var tps=BDT.minutes[idx]||0;
+      NOTES_MATCH[idx].tps=tps;
+      // Titulaire, entré en cours de match, ou resté sur le banc
+      if(BDT.titulaires[idx]) NOTES_MATCH[idx].statut='TA';
+      else if(tps>0) NOTES_MATCH[idx].statut='RA';
+      else NOTES_MATCH[idx].statut='ABS';
+      // Note du bilan à chaud, si elle a été faite
+      var moy=bdtMoyenneNote(idx);
+      if(moy!=null){ NOTES_MATCH[idx].note=moy; NOTES_MATCH[idx].noteDetail=Object.assign({},BDT.notes[idx]); }
+      // Les relevés qui n'ont pas de colonne dans les stats de saison
+      var extra={};
+      ['frappeCad','frappeHors','recup','perte','arret','capte','relanceRatee','horsJeu','cb'].forEach(function(k){
+        var n=bdtCompteur(idx,k);
+        if(n) extra[k]=n;
+      });
+      NOTES_MATCH[idx].bdt=Object.keys(extra).length?extra:null;
+      totalCadrees+=bdtCompteur(idx,'frappeCad');
+      totalFrappes+=bdtCompteur(idx,'frappeCad')+bdtCompteur(idx,'frappeHors');
     });
   }
+  if(totalFrappes){ set('m-tirs-cadres',totalCadrees); set('m-tirs-total',totalFrappes); }
+
+  // Compteurs d'équipe et déroulé du match : conservés pour la fiche bilan
+  BDT_DERNIER_MATCH={
+    equipe:Object.assign({}, BDT.equipe, {tirsCadres:totalCadrees, tirsTotal:totalFrappes}),
+    evenements:BDT.evenements.slice(),
+    miTemps:BDT.miTemps,
+    duree:bdtMinuteCourante()
+  };
+
   BDT.ouvert=false;
   document.getElementById('bdt').classList.remove('on');
   goNav('matchs');
-  notif('✓ Match reporté — complète le temps de jeu et les notes, puis valide');
+  notif('✓ Match reporté — temps de jeu et notes inclus, vérifie et valide');
+}
+var BDT_DERNIER_MATCH=null;
+
+// ===== Fiche bilan du match =====
+// Une page qui rassemble ce qui a été relevé : score, déroulé, stats d'équipe et de chacun.
+function genererFicheMatchPDF(mi){
+  var m=MATCHS[mi];
+  if(!m){ notif('⚠ Match introuvable'); return; }
+  function esc(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
+  var eq=m.bdtEquipe||{};
+  var notes=(m.notes||[]).slice();
+
+  var logo='';
+  var img=document.querySelector('.side-logo img');
+  if(img) logo='<img class="logo" src="'+img.getAttribute('src')+'" alt="">';
+
+  var resLbl=m.res==='V'?'VICTOIRE':(m.res==='N'?'MATCH NUL':'DÉFAITE');
+  var resCol=m.res==='V'?'#2c8a5b':(m.res==='N'?'#b8860b':'#c0392b');
+
+  // --- Statistiques d'équipe ---
+  var stats=[];
+  if(m.mtAst!=null && m.mtAdv!=null) stats.push(['Mi-temps', m.mtAst+' – '+m.mtAdv]);
+  if(m.tirsCadres||m.tirsTotal) stats.push(['Frappes (cadrées / total)', (m.tirsCadres||0)+' / '+(m.tirsTotal||0)]);
+  if(eq.sitNous!=null) stats.push(['Situations de but créées', eq.sitNous||0]);
+  if(eq.sitAdv!=null) stats.push(['Situations adverses', eq.sitAdv||0]);
+  if(eq.frappesAdv!=null) stats.push(['Frappes adverses', eq.frappesAdv||0]);
+  if(m.cornersObtenus||m.cornersConcedes) stats.push(['Corners (obtenus / concédés)', (m.cornersObtenus||0)+' / '+(m.cornersConcedes||0)]);
+  if(m.fautesCommises||m.fautesObtenues) stats.push(['Fautes (commises / obtenues)', (m.fautesCommises||0)+' / '+(m.fautesObtenues||0)]);
+  var horsJeu=0, recup=0, pertes=0, arrets=0;
+  notes.forEach(function(n){ if(n.bdt){ horsJeu+=n.bdt.horsJeu||0; recup+=n.bdt.recup||0; pertes+=n.bdt.perte||0; arrets+=n.bdt.arret||0; } });
+  if(horsJeu) stats.push(['Hors-jeu signalés', horsJeu]);
+  if(recup||pertes) stats.push(['Récupérations / pertes', recup+' / '+pertes]);
+  if(arrets) stats.push(['Arrêts du gardien', arrets]);
+  var statsHtml=stats.length?stats.map(function(s){
+    return '<div class="stat"><span>'+esc(s[0])+'</span><b>'+esc(s[1])+'</b></div>';
+  }).join(''):'<div class="vide">Aucune statistique d\'équipe relevée sur ce match</div>';
+
+  // --- Déroulé ---
+  var derouleHtml='<div class="vide">Aucun déroulé relevé — le mode bord de touche n\'a pas été utilisé pour ce match</div>';
+  if(m.bdtEvenements && m.bdtEvenements.length){
+    derouleHtml='<div class="timeline">'+m.bdtEvenements.map(function(e){
+      var fort=(e.type==='but'||e.type==='mitemps');
+      return '<div class="tl'+(fort?' fort':'')+'">'+esc(e.texte)+'</div>';
+    }).join('')+'</div>';
+  }
+
+  // --- Joueurs ---
+  var libBdt={frappeCad:'🎯 cadrée',frappeHors:'↗️ non cadrée',recup:'🔄 récup.',perte:'❌ perte',
+              arret:'🧤 arrêt',capte:'🤲 capté',relanceRatee:'🦶 relance ratée',horsJeu:'⛳ hors-jeu',cb:'⬜ blanc'};
+  var stLbl={TA:'Titulaire A',RA:'Remplaçant A',TB:'Titulaire B',RB:'Remplaçant B',BN:'Banc'};
+  notes.sort(function(a,b){ return (b.note||0)-(a.note||0); });
+  var joueursHtml=notes.length?notes.map(function(n){
+    var rel=n.bdt?Object.keys(n.bdt).map(function(k){ return (libBdt[k]||k)+(n.bdt[k]>1?' ×'+n.bdt[k]:''); }).join(' · '):'';
+    var cartons=[];
+    if(n.cj) cartons.push('🟨'+(n.cj>1?'×'+n.cj:''));
+    if(n.cr) cartons.push('🟥');
+    return '<tr>'
+      +'<td class="nom">'+esc(n.num)+'. '+esc(n.nom)+'<div class="st">'+esc(stLbl[n.statut]||n.statut||'')+(rel?(' · '+rel):'')+'</div></td>'
+      +'<td class="c">'+(n.tps||0)+"'</td>"
+      +'<td class="c">'+(n.buts||0)+'</td>'
+      +'<td class="c">'+(n.pd||0)+'</td>'
+      +'<td class="c">'+(cartons.join(' ')||'—')+'</td>'
+      +'<td class="c note">'+(n.note||'—')+'</td>'
+      +'</tr>';
+  }).join(''):'<tr><td colspan="6" class="vide">Aucune note saisie pour ce match</td></tr>';
+
+  var cr=m.compteRendu||{};
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Fiche match — '+esc(m.adversaire)+'</title>'
+   +'<style>'
+   +'@page{size:A4 portrait;margin:10mm}'
+   +'*{box-sizing:border-box;margin:0;padding:0}'
+   +'body{font-family:"Trebuchet MS",Arial,sans-serif;color:#1b1b1b;background:#fff;font-size:11px}'
+   +'.head{display:flex;align-items:center;gap:14px;border-bottom:3px solid #E8622C;padding-bottom:10px;margin-bottom:12px}'
+   +'.logo{width:52px;height:52px;object-fit:contain}'
+   +'.head-txt{flex:1}'
+   +'.titre{font-size:20px;font-weight:bold;line-height:1.15}'
+   +'.sous{font-size:11px;color:#666;margin-top:3px}'
+   +'.score{text-align:center;background:#111;color:#fff;border-radius:8px;padding:8px 16px;min-width:108px}'
+   +'.score b{display:block;font-size:30px;line-height:1;color:#E8622C}'
+   +'.score span{font-size:9px;letter-spacing:.12em;text-transform:uppercase}'
+   +'.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}'
+   +'.box{border:1px solid #ddd;border-radius:6px;padding:10px 12px;margin-bottom:12px;break-inside:avoid}'
+   +'.box-h{font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:.07em;color:#E8622C;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:5px}'
+   +'.stat{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #eee;font-size:11px}'
+   +'.stat b{font-size:12px}'
+   +'.timeline .tl{padding:3px 0 3px 10px;border-left:2px solid #e3e3e3;font-size:10.5px;color:#555}'
+   +'.timeline .tl.fort{border-left-color:#E8622C;color:#111;font-weight:bold}'
+   +'table{width:100%;border-collapse:collapse}'
+   +'th{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#888;text-align:center;padding:4px 3px;border-bottom:1.5px solid #ddd}'
+   +'th.g{text-align:left}'
+   +'td{padding:5px 3px;border-bottom:1px solid #f0f0f0;font-size:11px;vertical-align:top}'
+   +'td.c{text-align:center}'
+   +'td.nom{font-weight:bold}'
+   +'td.note{font-weight:bold;color:#E8622C;font-size:13px}'
+   +'.st{font-weight:normal;font-size:8.5px;color:#888;margin-top:1px}'
+   +'.vide{font-size:10px;color:#999;font-style:italic;padding:6px 0;text-align:center}'
+   +'.mot{min-height:52px;border:1px dashed #bbb;border-radius:6px;padding:8px;font-size:11px;line-height:1.55;white-space:pre-wrap}'
+   +'.pied{margin-top:8px;display:flex;justify-content:space-between;font-size:8.5px;color:#999;border-top:1px solid #eee;padding-top:6px}'
+   +'</style></head><body>'
+   +'<div class="head">'+logo
+   +'<div class="head-txt"><div class="titre">'+esc(NOM_CLUB||'AST Tarnos')+' &nbsp;—&nbsp; '+esc(m.adversaire)+'</div>'
+   +'<div class="sous">'+esc(m.date||'')+' · '+(m.lieu==='D'?'à domicile':'à l\'extérieur')+' · '+esc(m.comp||'')
+   +(m.bdtDuree?(' · '+m.bdtDuree+' minutes relevées'):'')+'</div></div>'
+   +'<div class="score"><b>'+(m.ast||0)+' – '+(m.adv||0)+'</b><span style="color:'+resCol+'">'+resLbl+'</span></div></div>'
+
+   +'<div class="cols">'
+   +'<div><div class="box"><div class="box-h">Statistiques du match</div>'+statsHtml+'</div></div>'
+   +'<div><div class="box"><div class="box-h">Déroulé</div>'+derouleHtml+'</div></div>'
+   +'</div>'
+
+   +'<div class="box"><div class="box-h">Les joueurs</div>'
+   +'<table><thead><tr><th class="g">Joueur</th><th>Min</th><th>Buts</th><th>Passes</th><th>Cartons</th><th>Note</th></tr></thead>'
+   +'<tbody>'+joueursHtml+'</tbody></table></div>'
+
+   +'<div class="cols">'
+   +'<div class="box"><div class="box-h">Ce qui a marché</div><div class="mot">'+esc(cr.positif||'')+'</div></div>'
+   +'<div class="box"><div class="box-h">Ce qui a coincé</div><div class="mot">'+esc(cr.negatif||'')+'</div></div>'
+   +'</div>'
+   +'<div class="box"><div class="box-h">Axes de travail pour la semaine</div><div class="mot">'+esc(cr.axes||'')+'</div></div>'
+   +'<div class="pied"><span>'+esc(NOM_CLUB||'AST Tarnos')+' — fiche de match</span><span>Édité le '+new Date().toLocaleDateString('fr-FR')+'</span></div>'
+   +'</body></html>';
+
+  var w=window.open('','_blank');
+  if(!w){ notif('⚠ Autorise les fenêtres pop-up pour imprimer la fiche'); return; }
+  w.document.write(html); w.document.close();
+  setTimeout(function(){ w.print(); },700);
 }
 
 function genererBilanJoueurPDF(idx, motDuCoach){

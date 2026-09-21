@@ -539,6 +539,18 @@ function couperBulle(txt,parLigne,maxLignes){
   return lignes;
 }
 
+// Comparaison de noms : deux joueurs qui partagent un prénom ne doivent pas être confondus
+function motsDuNom(t){
+  return fexNormaliserNom(t).replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(function(m){ return m.length>1; });
+}
+function memeJoueur(a,b){
+  var ma=motsDuNom(a), mb=motsDuNom(b);
+  if(!ma.length || !mb.length) return false;
+  if(ma.join(' ')===mb.join(' ')) return true;
+  var court=ma.length<=mb.length?ma:mb, long=ma.length<=mb.length?mb:ma;
+  return court.every(function(m){ return long.indexOf(m)!==-1; });
+}
+
 async function renderProjetJeu(){
   var ct=document.getElementById('scr-projetjeu');
   if(!ct) return;
@@ -553,7 +565,7 @@ async function renderProjetJeu(){
   // Quel plot est le mien ? on compare le nom saisi par le coach dans la COMPO
   var cleMoi=null, maNote='';
   (sit.joueurs||[]).forEach(function(j){
-    if(!cleMoi && j.nom && fexNomsCorrespondent(j.nom, MON_NOM)){ cleMoi=j.cle; maNote=j.note||''; }
+    if(!cleMoi && j.nom && memeJoueur(j.nom, MON_NOM)){ cleMoi=j.cle; maNote=j.note||''; }
   });
 
   var html='<div class="blk"><div class="blk-h"><span class="t">🧠 '+esc(publie.titre||'Projet de jeu')+'</span></div>'
