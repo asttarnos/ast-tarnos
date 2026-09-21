@@ -254,6 +254,105 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 
 
 
+
+
+/* ===== Le tableau de bord vivant : l'appli sait quel jour on est ===== */
+#dash-vivant{padding:18px 16px 40px;max-width:1180px;margin:0 auto}
+.dv-hero{display:flex;align-items:center;gap:26px;flex-wrap:wrap;
+  background:linear-gradient(120deg,rgba(217,119,6,.16),rgba(217,119,6,.03) 58%,transparent);
+  border:1px solid rgba(217,119,6,.32);border-radius:16px;padding:22px 26px;margin-bottom:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.dv-logo{width:clamp(76px,10vw,118px);height:auto;object-fit:contain;flex:0 0 auto;
+  filter:drop-shadow(0 10px 26px rgba(249,115,22,.34))}
+.dv-centre{flex:1;min-width:230px}
+.dv-jx{font-family:'Roboto Condensed',sans-serif;font-weight:900;line-height:.86;letter-spacing:-.03em;
+  font-size:clamp(52px,9vw,96px);color:var(--or);text-shadow:0 5px 26px rgba(217,119,6,.42)}
+.dv-jx.jourj{color:#fff;text-shadow:0 0 34px rgba(217,119,6,.85)}
+.dv-adv{font-family:'Roboto Condensed',sans-serif;font-weight:800;text-transform:uppercase;
+  font-size:clamp(20px,3.1vw,33px);color:#fff;line-height:1.05;margin-top:7px;letter-spacing:.01em}
+.dv-meta{font-size:12.5px;color:var(--gris2);margin-top:7px;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+.dv-etiq{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--or);border:1px solid rgba(217,119,6,.5);border-radius:20px;padding:4px 12px;margin-bottom:10px}
+.dv-meteo{flex:0 0 auto;text-align:center;min-width:104px;background:rgba(255,255,255,.04);
+  border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.dv-meteo .ic{font-size:30px;line-height:1}
+.dv-meteo .t{font-family:'Roboto Condensed',sans-serif;font-size:23px;font-weight:800;color:#fff;margin-top:3px}
+.dv-meteo .d{font-size:10px;color:var(--gris2);margin-top:3px;line-height:1.45}
+
+.dv-scene{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:12px;align-items:start}
+.dv-carte{background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  border-top:3px solid var(--tc,var(--or));box-shadow:0 5px 20px rgba(0,0,0,.42)}
+.dv-carte h3{font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--tc,var(--or));margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.dv-l{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px}
+.dv-l:last-child{border-bottom:none}
+.dv-l .k{color:var(--gris2);flex:1;min-width:0}
+.dv-l .v{color:#fff;font-weight:700;text-align:right;white-space:nowrap}
+.dv-l .v.alerte{color:#f0a41f}
+.dv-l .v.bon{color:var(--green)}
+.dv-l .v.mauvais{color:var(--red)}
+.dv-vide{font-size:11.5px;color:var(--gris2);font-style:italic;line-height:1.6}
+.dv-action{display:block;width:100%;margin-top:11px;padding:10px 14px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--gris2);font-family:'Roboto Condensed',sans-serif;font-size:11px;
+  font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-align:center}
+.dv-action:hover{border-color:var(--or);color:var(--or)}
+.dv-forme{display:flex;gap:5px;margin-top:4px}
+.dv-forme b{width:25px;height:25px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#0d0f13}
+/* le jour du match, un seul bouton compte */
+.dv-live{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(100deg,#f0a41f,#d97706 52%,#b45309);border-radius:15px;padding:24px 26px;cursor:pointer;
+  box-shadow:0 12px 40px rgba(217,119,6,.5),0 0 0 1px rgba(255,255,255,.16) inset;transition:transform .14s,filter .14s}
+.dv-live:hover{filter:brightness(1.07);transform:translateY(-2px)}
+.dv-live .ic{font-size:46px;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.3))}
+.dv-live .t{font-family:'Roboto Condensed',sans-serif;font-size:27px;font-weight:900;text-transform:uppercase;
+  color:#1a0f02;line-height:1.05;letter-spacing:.005em}
+.dv-live .d{font-size:12.5px;color:rgba(26,15,2,.82);font-weight:700;margin-top:3px}
+@media(max-width:620px){
+  #dash-vivant{padding:14px 12px 30px}
+  .dv-hero{padding:18px;gap:16px}
+  .dv-meteo{min-width:0;flex:1}
+  .dv-live{padding:20px 16px}
+  .dv-live .t{font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){ .dv-live{transition:none} .dv-live:hover{transform:none} }
+/* ===== Calendrier des séances ===== */
+.cs-tete{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;flex-wrap:wrap}
+.cs-mois{font-family:'Roboto Condensed',sans-serif;font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#fff;min-width:170px;text-align:center}
+.cs-nav{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--gris2);font-size:16px;cursor:pointer}
+.cs-nav:hover{border-color:var(--or);color:var(--or)}
+.cs-grille{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding:0 14px 14px}
+.cs-jour-ent{text-align:center;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gris2);padding-bottom:5px}
+.cs-case{min-height:82px;background:#12161c;border:1px solid var(--line);border-radius:7px;padding:5px;cursor:pointer;
+  display:flex;flex-direction:column;gap:3px;transition:border-color .12s,background .12s}
+.cs-case:hover{border-color:var(--or);background:#171c23}
+.cs-case.vide{background:transparent;border-color:transparent;cursor:default}
+.cs-case.hors{opacity:.32}
+.cs-case.aujourdhui{border-color:var(--or);box-shadow:0 0 0 1px var(--or) inset}
+.cs-case.selection{border-color:#fff;box-shadow:0 0 0 1px #fff inset}
+.cs-num{font-size:11px;font-weight:800;color:var(--gris2);line-height:1}
+.cs-case.aujourdhui .cs-num{color:var(--or)}
+.cs-match{font-size:8.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:rgba(78,168,222,.22);
+  border:1px solid rgba(78,168,222,.55);border-radius:4px;padding:2px 4px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs-chip{font-size:8.8px;font-weight:700;line-height:1.3;border-radius:4px;padding:3px 5px;color:#0d0f13;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cs-fiche{font-size:8.5px;color:var(--or);font-weight:700;margin-top:auto}
+.cs-editeur{border-top:1px solid var(--line);padding:14px}
+.cs-legende{display:flex;gap:9px;flex-wrap:wrap;padding:0 14px 14px}
+.cs-leg{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--gris2)}
+.cs-leg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.cs-recap-l{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.cs-recap-l:last-child{border-bottom:none}
+.cs-recap-n{font-size:10.5px;flex:1;min-width:0}
+.cs-recap-b{height:6px;border-radius:3px;flex:0 0 78px}
+.cs-recap-c{font-size:10.5px;font-weight:800;color:var(--gris2);flex:0 0 18px;text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:700px){
+  .cs-case{min-height:62px;padding:3px}
+  .cs-chip{font-size:0;padding:0;height:6px;border-radius:3px}
+  .cs-match{font-size:0;padding:0;height:6px}
+  .cs-fiche{font-size:8px}
+}
 /* ===== Feuille de match : quatre colonnes côte à côte, rien empilé ===== */
 .fm-colonnes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
 .fm-colonnes>.blk{margin:0;height:auto}
@@ -593,8 +692,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v14</b> · 21/09/2026<br>
-      <span style="opacity:.7">Feuille de match en 4 colonnes · Bannières orange</span>
+      AST COACH <b style="color:var(--or)">v15</b> · 21/09/2026<br>
+      <span style="opacity:.7">Accueil vivant · Calendrier des séances</span>
     </div>
   </div>
 </div>
@@ -604,7 +703,18 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 
 <!-- DASHBOARD -->
 <div class="scr on" id="scr-dash" style="position:relative;overflow:hidden">
-  <div class="blk" style="margin:12px 12px 0"><div class="bh" style="cursor:pointer" onclick="var b=document.getElementById('param-club-blk');b.style.display=b.style.display==='none'?'block':'none'"><span class="bt">⚙️ Paramètres du club</span></div>
+    <!-- Les réglages du club sont descendus en bas de l'accueil : on les ouvre rarement. -->
+
+  <!-- L'accueil sait quel jour on est : il ne montre pas la même chose
+       le mardi de la semaine de préparation et le samedi à 14h. -->
+  <div id="dash-vivant"></div>
+  <div id="dash-accueil" style="display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7vh 20px 9vh;min-height:58vh">
+    <img id="dash-logo-img" alt="" style="width:min(62vw,430px);height:auto;object-fit:contain;filter:drop-shadow(0 20px 55px rgba(249,115,22,.32))">
+    <div id="dash-logo-nom" style="margin-top:26px;font-family:Inter,sans-serif;font-weight:800;font-size:clamp(24px,4.4vw,42px);letter-spacing:.07em;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.75)">AST TARNOS</div>
+    <div style="width:64px;height:3px;background:var(--or);border-radius:2px;margin-top:20px"></div>
+  </div>
+  <!-- Blocs d'infos retirés de l'accueil : on les retrouve dans les écrans dédiés (Bilan, Calendrier, Récap...) -->
+  <div class="blk" style="margin:24px 12px 12px"><div class="bh" style="cursor:pointer" onclick="var b=document.getElementById('param-club-blk');b.style.display=b.style.display==='none'?'block':'none'"><span class="bt">⚙️ Paramètres du club</span></div>
     <div id="param-club-blk" style="display:none;padding:12px">
       <div class="fg"><label class="fl">Nom du club (affiché partout dans l'appli et les PDF)</label>
         <div style="display:flex;gap:8px;margin-top:4px">
@@ -647,13 +757,6 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       </div>
     </div>
   </div>
-  <div id="dash-accueil" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7vh 20px 9vh;min-height:58vh">
-    <img id="dash-logo-img" alt="" style="width:min(62vw,430px);height:auto;object-fit:contain;filter:drop-shadow(0 20px 55px rgba(249,115,22,.32))">
-    <div id="dash-logo-nom" style="margin-top:26px;font-family:Inter,sans-serif;font-weight:800;font-size:clamp(24px,4.4vw,42px);letter-spacing:.07em;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.75)">AST TARNOS</div>
-    <div style="margin-top:8px;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--or);text-shadow:0 2px 8px rgba(0,0,0,.8)">Séniors · R2 Poule F</div>
-    <div style="width:64px;height:3px;background:var(--or);border-radius:2px;margin-top:20px"></div>
-  </div>
-  <!-- Blocs d'infos retirés de l'accueil : on les retrouve dans les écrans dédiés (Bilan, Calendrier, Récap...) -->
   <div id="dash-anciens-blocs" style="display:none">
   <div class="hero-band" style="position:relative;z-index:1">
     <div class="hero-eyebrow" id="hero-club-affiche">AST Tarnos · Séniors R2</div>
@@ -2520,6 +2623,29 @@ Repli défensif après perte"></textarea>
   <button class="btn fex-only-presentation" style="display:none;position:fixed;top:14px;right:14px;width:auto;padding:10px 18px;z-index:999;background:#c0392b;box-shadow:0 4px 14px rgba(0,0,0,.6)" onclick="fexTogglePresentation(false)">✕ QUITTER LA PRÉSENTATION</button>
 </div>
 
+<!-- CALENDRIER DES SÉANCES -->
+<div class="scr" id="scr-seances-cal">
+  <div class="ph"><div><div class="ph-title">🗓️ Calendrier des séances</div><div class="ph-sub">Ce qui a été travaillé, jour par jour — et la fiche d'exercices qui va avec</div></div></div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,2.1fr) minmax(0,1fr);gap:14px;align-items:start" class="cs-layout">
+    <div class="blk" style="margin:0">
+      <div class="cs-tete">
+        <button class="cs-nav" onclick="calSeancesMois(-1)">‹</button>
+        <span class="cs-mois" id="cs-mois">—</span>
+        <button class="cs-nav" onclick="calSeancesMois(1)">›</button>
+        <button class="gen-btn2" style="width:auto;padding:7px 12px;margin:0" onclick="calSeancesMois(0)">Ce mois-ci</button>
+      </div>
+      <div class="cs-grille" id="cs-grille"></div>
+      <div class="cs-legende" id="cs-legende"></div>
+      <div class="cs-editeur" id="cs-editeur"></div>
+    </div>
+
+    <div class="blk" style="margin:0"><div class="bh"><span class="bt go">Le mois en un coup d'œil</span><span class="bc" id="cs-nb">0</span></div>
+      <div id="cs-recap" style="padding:12px"></div>
+    </div>
+  </div>
+</div>
+
 <!-- DOCS À IMPRIMER -->
 <div class="scr" id="scr-imprimer">
   <div class="ph"><div><div class="ph-title">🖨️ Docs à imprimer</div><div class="ph-sub">Tout ce qui sort de l'appli sur papier — un aperçu, un clic, c'est prêt</div></div></div>
@@ -3493,6 +3619,7 @@ var POLES=[
     {s:'generateur',ic:'🧩',l:'Générateur de séance'},
     {s:'chrono',ic:'⏱️',l:'Chrono & Fractionné'},
     {s:'planning',ic:'📅',l:'Planning mensuel'},
+    {s:'seances-cal',ic:'🗓️',l:'Calendrier des séances'},
     {s:'videos',ic:'🎬',l:'Vidéos'},
     {s:'biblio',ic:'📸',l:'Bibliothèque Séances'},
     {s:'constructeur',ic:'🎨',l:'Constructeur d\'exercices'}
@@ -3593,6 +3720,7 @@ function goNav(elOrS){
   majBreadcrumb(s);
   if(s==='dash') updateDash();
   if(s==='imprimer') renderDocsImprimer();
+  if(s==='seances-cal') renderCalSeances();
   if(s==='effectif') renderFicheCoach();
   if(s==='recap') renderRecap();
   if(s==='points') renderPointsEntrainement();
@@ -4776,9 +4904,259 @@ async function renderAlertesCoach(){
       return '<div style="background:var(--carte);border-left:3px solid '+couleurs[a.type]+';border-radius:5px;padding:10px 12px;margin-bottom:6px;font-size:12px">'+a.icone+' '+a.texte+'</div>';
     }).join(''):'<div style="text-align:center;padding:10px;color:var(--green);font-size:12px">✓ Rien de particulier à signaler</div>');
 }
+// ===== Tableau de bord vivant =====
+// L'appli connaît le calendrier : elle montre ce qui compte aujourd'hui,
+// pas une moyenne de la saison. Tout vient de données déjà saisies.
+var DV_METEO=null, DV_METEO_CLE=null, DV_CLOUD=null, DV_CLOUD_CLE=null;
+
+function dvJourDe(c){
+  var d=parserDateCalendrierMatch(c.date);
+  return d?new Date(d.y,d.m,d.d):null;
+}
+function dvMinuit(dt){ return new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()); }
+function dvEcartJours(dt){ return Math.round((dvMinuit(dt)-dvMinuit(new Date()))/86400000); }
+
+function dvProchainMatch(){
+  var futur=(CALENDRIER||[]).map(function(c){ return {c:c, d:dvJourDe(c)}; })
+    .filter(function(o){ return o.d && dvEcartJours(o.d)>=0; })
+    .sort(function(a,b){ return a.d-b.d; });
+  return futur.length?futur[0]:null;
+}
+function dvDernierMatch(){
+  var passe=(CALENDRIER||[]).map(function(c){ return {c:c, d:dvJourDe(c)}; })
+    .filter(function(o){ return o.d && dvEcartJours(o.d)<0; })
+    .sort(function(a,b){ return b.d-a.d; });
+  return passe.length?passe[0]:null;
+}
+function dvResultatEnregistre(adversaire){
+  var m=null;
+  (MATCHS||[]).forEach(function(x){
+    if(fexNomsCorrespondent(x.adversaire||'', adversaire||'')) m=x;
+  });
+  return m;
+}
+function dvBlessesActifs(){
+  return (BLESSURES||[]).filter(function(b){ return !b.dateRetour; })
+    .map(function(b){ var j=JOUEURS[b.joueurIdx]; return j?(j.nom+(b.zone?(' · '+b.zone):'')):null; })
+    .filter(Boolean);
+}
+function dvCinqDerniers(){
+  return (MATCHS||[]).slice(-5).map(function(m){ return m.res||'?'; });
+}
+function dvCouleurRes(r){ return r==='V'?'#22a06b':(r==='N'?'#9ca3af':(r==='D'?'#dc4444':'#3a3f4a')); }
+
+// La météo du jour du match — Open-Meteo, sans clé, uniquement dans les 7 jours
+var DV_ICONES={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+async function dvChargerMeteo(dateMatch){
+  var cle=dateMatch.toISOString().slice(0,10);
+  if(DV_METEO_CLE===cle) return DV_METEO;
+  DV_METEO_CLE=cle;
+  try{
+    var url='https://api.open-meteo.com/v1/forecast?latitude=43.54&longitude=-1.46'
+      +'&daily=weather_code,temperature_2m_max,precipitation_probability_max,wind_speed_10m_max'
+      +'&timezone=Europe%2FParis&start_date='+cle+'&end_date='+cle;
+    var r=await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var d=await r.json();
+    if(!d.daily || !d.daily.time || !d.daily.time.length) throw new Error('vide');
+    DV_METEO={code:d.daily.weather_code[0], temp:Math.round(d.daily.temperature_2m_max[0]),
+      pluie:d.daily.precipitation_probability_max[0], vent:Math.round(d.daily.wind_speed_10m_max[0])};
+  }catch(e){ DV_METEO=null; }
+  return DV_METEO;
+}
+
+// Les réponses des joueurs vivent dans le cloud : on les lit sans bloquer l'affichage
+async function dvChargerCloud(adversaire){
+  var cle=adversaire||'';
+  if(DV_CLOUD_CLE===cle) return DV_CLOUD;
+  DV_CLOUD_CLE=cle;
+  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ DV_CLOUD=null; return null; }
+  try{
+    var r=await fetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var data=await r.json();
+    var dernier={};
+    (data.documents||[]).forEach(function(doc){
+      var f=doc.fields||{};
+      var nom=(f.joueurNom||{}).stringValue||'';
+      var evc=(f.evenementCle||{}).stringValue||'';
+      var rep=(f.reponse||{}).stringValue||'';
+      var quand=(f.dateReponse||{}).stringValue||'';
+      if(!nom || !fexNomsCorrespondent(evc.split('|')[1]||'', cle)) return;
+      if(!dernier[nom] || quand>dernier[nom].quand) dernier[nom]={rep:rep, quand:quand};
+    });
+    var oui=0, non=0;
+    Object.keys(dernier).forEach(function(n){
+      if(dernier[n].rep==='oui'||dernier[n].rep==='present') oui++;
+      else if(dernier[n].rep==='non'||dernier[n].rep==='absent') non++;
+    });
+    DV_CLOUD={repondu:Object.keys(dernier).length, oui:oui, non:non};
+  }catch(e){ DV_CLOUD=null; }
+  return DV_CLOUD;
+}
+
+function dvCarte(titre, couleur, corps, action){
+  return '<div class="dv-carte" style="--tc:'+couleur+'"><h3>'+titre+'</h3>'+corps+(action||'')+'</div>';
+}
+function dvLigne(k, v, classe){
+  return '<div class="dv-l"><span class="k">'+esc2(k)+'</span><span class="v'+(classe?(' '+classe):'')+'">'+v+'</span></div>';
+}
+
+function renderDashVivant(){
+  var ct=document.getElementById('dash-vivant');
+  if(!ct) return;
+  var logo=(document.querySelector('.side-logo img')||{}).src||'';
+  var prochain=dvProchainMatch();
+
+  if(!prochain){
+    ct.innerHTML='<div class="dv-hero">'
+      +(logo?'<img class="dv-logo" src="'+logo+'" alt="">':'')
+      +'<div class="dv-centre"><div class="dv-adv">'+esc2(NOM_CLUB)+'</div>'
+      +'<div class="dv-meta">Séniors · R2 Poule F</div>'
+      +'<div class="dv-vide" style="margin-top:10px">Aucun match à venir dans le calendrier. Ajoute les prochaines journées pour que cet écran se remplisse.</div></div></div>'
+      +'<div class="dv-scene">'+dvCarte('📅 Le calendrier','#4ea8de','<div class="dv-vide">La saison n\'a plus de match programmé.</div>',
+        '<button class="dv-action" onclick="goNav(\'calendrier\')">Ouvrir le calendrier</button>')+'</div>';
+    return;
+  }
+
+  var c=prochain.c, jours=dvEcartJours(prochain.d);
+  var lieu=c.lieu==='E'?'À l\'extérieur':(c.lieu==='D'?'À domicile':'');
+  var etiquette, jx;
+  if(jours===0){ etiquette='C\'est aujourd\'hui'; jx='JOUR J'; }
+  else if(jours===1){ etiquette='C\'est demain'; jx='J-1'; }
+  else { etiquette=(jours<=3?'La mise en place':(jours<=8?'La semaine de préparation':'Prochain rendez-vous')); jx='J-'+jours; }
+
+  var hero='<div class="dv-hero">'
+    +(logo?'<img class="dv-logo" src="'+logo+'" alt="">':'')
+    +'<div class="dv-centre">'
+      +'<span class="dv-etiq">'+esc2(etiquette)+'</span>'
+      +'<div class="dv-jx'+(jours===0?' jourj':'')+'">'+jx+'</div>'
+      +'<div class="dv-adv">'+esc2(c.adversaire||'Adversaire à venir')+'</div>'
+      +'<div class="dv-meta">'+esc2([c.date,lieu,c.comp].filter(Boolean).join(' · '))+'</div>'
+    +'</div>'
+    +'<div class="dv-meteo" id="dv-meteo" style="display:none"></div>'
+  +'</div>';
+
+  ct.innerHTML=hero+'<div class="dv-scene" id="dv-scene">'+dvScene(c, jours)+'</div>';
+
+  if(jours<=7) dvChargerMeteo(prochain.d).then(dvAfficherMeteo);
+  if(jours<=8) dvChargerCloud(c.adversaire).then(function(){ 
+    var s=document.getElementById('dv-scene');
+    if(s && document.getElementById('scr-dash').classList.contains('on')) s.innerHTML=dvScene(c, jours);
+  });
+}
+
+function dvAfficherMeteo(m){
+  var el=document.getElementById('dv-meteo');
+  if(!el) return;
+  if(!m){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML='<div class="ic">'+(DV_ICONES[m.code]||'🌡️')+'</div>'
+    +'<div class="t">'+m.temp+'°</div>'
+    +'<div class="d">'+(m.pluie!=null?(m.pluie+' % pluie<br>'):'')+m.vent+' km/h</div>';
+}
+
+function dvScene(c, jours){
+  // ---------- LE JOUR DU MATCH : une rampe de lancement, rien d'autre ----------
+  if(jours===0){
+    var compo=(COMPOSITIONS||[])[COMPOSITIONS.length-1];
+    var convoques=((CONVOS||{}).a||[]).length;
+    return '<div class="dv-live" onclick="bdtOuvrir()">'
+        +'<span class="ic">📣</span>'
+        +'<div><div class="t">Mode bord de touche</div>'
+        +'<div class="d">Compo, buts, cartons, temps de jeu — tout se reporte tout seul après le match.</div></div>'
+      +'</div>'
+      +dvCarte('👥 Le groupe','#b285e8',
+        dvLigne('Convoqués', convoques||'—')
+        +dvLigne('Compo prête', compo?esc2((compo.nom||'sans nom')+' · '+(compo.formation||'')):'aucune', compo?'bon':'alerte')
+        +dvLigne('À l\'infirmerie', dvBlessesActifs().length||'aucun', dvBlessesActifs().length?'alerte':'bon'),
+        '<button class="dv-action" onclick="goNav(\'convos\')">Voir la convocation</button>')
+      +dvCarte('📋 Avant le coup d\'envoi','#d97706',
+        '<div class="dv-vide">La feuille de match et la carte mentale, si tu veux les avoir en main.</div>',
+        '<button class="dv-action" onclick="goNav(\'feuille-match\')">Feuille de match</button>'
+        +'<button class="dv-action" onclick="genererCarteMentaleMatch()">Carte mentale</button>');
+  }
+
+  // ---------- J-1 à J-3 : le groupe ----------
+  if(jours<=3){
+    var conv=(CONVOS||{}), nbA=(conv.a||[]).length, nbB=(conv.b||[]).length;
+    var blesses=dvBlessesActifs();
+    var cloud=DV_CLOUD;
+    var corpsGroupe=dvLigne('Équipe A', nbA||'—', nbA?'':'alerte')
+      +(nbB?dvLigne('Équipe B', nbB):'')
+      +(cloud?dvLigne('Ont répondu', cloud.repondu+' joueur'+(cloud.repondu>1?'s':''), cloud.repondu>=nbA?'bon':'alerte'):'')
+      +(cloud&&cloud.non?dvLigne('Se sont dits absents', cloud.non, 'mauvais'):'')
+      +dvLigne('À l\'infirmerie', blesses.length||'aucun', blesses.length?'alerte':'bon');
+    return dvCarte('👥 Le groupe','#b285e8', corpsGroupe,
+        '<button class="dv-action" onclick="goNav(\'convos\')">Ouvrir les convocations</button>')
+      +dvCarte('🧠 Ce qu\'il reste à caler','#d97706',
+        '<div class="dv-vide">La carte mentale rassemble l\'adversaire, le plan, les coups de pied arrêtés et ton discours sur une page.</div>',
+        '<button class="dv-action" onclick="genererCarteMentaleMatch()">Ouvrir la carte mentale</button>'
+        +'<button class="dv-action" onclick="goNav(\'compos\')">Préparer la compo</button>')
+      +(blesses.length?dvCarte('🏥 Indisponibles','#dc4444',
+        blesses.slice(0,5).map(function(n){ return dvLigne(n,'',''); }).join(''),
+        '<button class="dv-action" onclick="goNav(\'medical\')">Suivi médical</button>'):'');
+  }
+
+  // ---------- J-4 à J-8 : l'adversaire ----------
+  if(jours<=8){
+    var a=(ADVERSAIRES||[]).find(function(x){ return fexNomsCorrespondent(x.nom||'', c.adversaire||''); });
+    var fiche=(a && a.fiches && a.fiches.length)?a.fiches[0]:null;
+    var bilan=(typeof bilanContreAdversaire==='function')?bilanContreAdversaire(c.adversaire||''):null;
+    var corpsAdv=fiche
+      ? dvLigne('Avec le ballon', esc2(fiche.dispoPoss||'—'))
+        +dvLigne('À la perte', esc2(fiche.dispoDef||'—'))
+        +(fiche.surveiller?dvLigne('À surveiller', esc2(String(fiche.surveiller).slice(0,44))):'')
+      : '<div class="dv-vide">Aucune fiche sur '+esc2(c.adversaire||'cet adversaire')+'. C\'est le moment de la remplir.</div>';
+    if(bilan && bilan.matchs) corpsAdv+=dvLigne('Notre bilan contre eux', bilan.v+'V · '+bilan.n+'N · '+bilan.d+'D');
+    var cloud2=DV_CLOUD, nbGroupe=((CONVOS||{}).a||[]).length;
+    return dvCarte('🔍 '+esc2(c.adversaire||'L\'adversaire'),'#dc4444', corpsAdv,
+        '<button class="dv-action" onclick="goNav(\'adversaires\')">Fiche adversaire</button>'
+        +'<button class="dv-action" onclick="genererFicheObservation(\''+esc2(c.adversaire||'')+'\')">Fiche d\'observation</button>')
+      +dvCarte('🏋️ La semaine','#22a06b',
+        dvLigne('Séances rattachées ce mois-ci', (PLANNING_MENSUEL||[]).filter(function(pp){
+            var d=parseFrDateSimple(pp.date);
+            return d && d.getMonth()===new Date().getMonth() && d.getFullYear()===new Date().getFullYear();
+          }).length)
+        +dvLigne('Fiches en bibliothèque', (FICHES_EXERCICES||[]).length),
+        '<button class="dv-action" onclick="goNav(\'seances-cal\')">Calendrier des séances</button>')
+      +dvCarte('📲 Les réponses des joueurs','#4ea8de',
+        cloud2
+          ? dvLigne('Ont donné leur disponibilité', cloud2.repondu+(nbGroupe?(' sur '+nbGroupe):''), (nbGroupe&&cloud2.repondu>=nbGroupe)?'bon':'alerte')
+            +(cloud2.non?dvLigne('Indisponibles', cloud2.non, 'mauvais'):'')
+          : '<div class="dv-vide">Réponses non chargées — vérifie ta connexion, ou ouvre l\'écran des convocations.</div>',
+        '<button class="dv-action" onclick="goNav(\'convos\')">Relancer le groupe</button>');
+  }
+
+  // ---------- Plus loin : la saison ----------
+  var dernier=dvDernierMatch();
+  var res=dernier?dvResultatEnregistre(dernier.c.adversaire):null;
+  var cinq=dvCinqDerniers();
+  var corpsSaison=dvLigne('Matchs joués', (MATCHS||[]).length)
+    +(cinq.length?'<div class="dv-l"><span class="k">Les 5 derniers</span><span class="v"><span class="dv-forme">'
+      +cinq.map(function(r){ return '<b style="background:'+dvCouleurRes(r)+'">'+r+'</b>'; }).join('')+'</span></span></div>':'')
+    +dvLigne('À l\'infirmerie', dvBlessesActifs().length||'aucun', dvBlessesActifs().length?'alerte':'bon');
+  var corpsDernier=dernier
+    ? (res
+        ? dvLigne(esc2(dernier.c.adversaire||''), (res.butsPour!=null?(res.butsPour+' – '+res.butsContre):'—'),
+            res.res==='V'?'bon':(res.res==='D'?'mauvais':''))
+        : '<div class="dv-vide">Le match contre '+esc2(dernier.c.adversaire||'')+' n\'est pas encore enregistré.</div>')
+    : '<div class="dv-vide">Pas encore de match joué cette saison.</div>';
+  return dvCarte('📊 Où on en est','#4ea8de', corpsSaison,
+      '<button class="dv-action" onclick="goNav(\'bilan\')">Bilan de saison</button>')
+    +dvCarte('⚽ Le dernier match','#d97706', corpsDernier,
+      '<button class="dv-action" onclick="goNav(\'matchs\')">Ouvrir les matchs</button>')
+    +dvCarte('🏋️ L\'entraînement','#22a06b',
+      dvLigne('Séances au calendrier', (PLANNING_MENSUEL||[]).length)
+      +dvLigne('Fiches d\'exercices', (FICHES_EXERCICES||[]).length),
+      '<button class="dv-action" onclick="goNav(\'seances-cal\')">Calendrier des séances</button>');
+}
+
 function updateDash(){
   var champNom=document.getElementById('param-nom-club');
   if(champNom) champNom.value=NOM_CLUB;
+  renderDashVivant();
   var p=STATS.filter(function(s){return s.pres;}).length;
   document.getElementById('d-pres').textContent=p+'/'+JOUEURS.length;
   document.getElementById('d-matchs').textContent=MATCHS.length;
@@ -7825,6 +8203,210 @@ function moisLabelDe(key){
   var parts=key.split('-');
   return noms[parseInt(parts[1],10)-1]+' '+parts[0];
 }
+// ===== Calendrier des séances =====
+// Les données sont celles du planning mensuel : une séance saisie ici apparaît là-bas,
+// et l'inverse. On y ajoute seulement le lien vers la fiche d'exercices travaillée.
+var CS_ANNEE=new Date().getFullYear(), CS_MOIS=new Date().getMonth(), CS_JOUR_SEL=null;
+
+var CS_FAMILLES=[
+  {nom:'Technique',      coul:'#4ea8de', jusqua:6},
+  {nom:'Offensif',       coul:'#d97706', jusqua:15},
+  {nom:'Défensif',       coul:'#22a06b', jusqua:25},
+  {nom:'Organisation',   coul:'#b285e8', jusqua:30},
+  {nom:'Coups de pied arrêtés', coul:'#dc4444', jusqua:36},
+  {nom:'Gardien',        coul:'#9ca3af', jusqua:38},
+  {nom:'Physique & mental', coul:'#e0a530', jusqua:99}
+];
+function csFamille(theme){
+  var i=THEMES_PLANNING.indexOf(theme);
+  if(i<0) return {nom:'Autre', coul:'#7b848d'};
+  for(var k=0;k<CS_FAMILLES.length;k++){ if(i<=CS_FAMILLES[k].jusqua) return CS_FAMILLES[k]; }
+  return {nom:'Autre', coul:'#7b848d'};
+}
+function csDateFr(a,m,j){ return (j<10?'0':'')+j+'/'+((m+1)<10?'0':'')+(m+1)+'/'+a; }
+function csSeancesDuJour(a,m,j){
+  var cible=csDateFr(a,m,j);
+  return (PLANNING_MENSUEL||[]).map(function(p,i){ return {p:p,i:i}; })
+    .filter(function(o){
+      var d=parseFrDateSimple(o.p.date);
+      return d && d.getFullYear()===a && d.getMonth()===m && d.getDate()===j;
+    });
+}
+function csMatchDuJour(a,m,j){
+  var trouve=null;
+  (CALENDRIER||[]).forEach(function(c){
+    // parserDateCalendrierMatch rend {y,m,d}, pas un objet Date
+    var d=parserDateCalendrierMatch(c.date);
+    if(d && d.y===a && d.m===m && d.d===j) trouve=c;
+  });
+  return trouve;
+}
+function calSeancesMois(pas){
+  if(pas===0){ var n=new Date(); CS_ANNEE=n.getFullYear(); CS_MOIS=n.getMonth(); }
+  else { CS_MOIS+=pas; if(CS_MOIS<0){CS_MOIS=11;CS_ANNEE--;} if(CS_MOIS>11){CS_MOIS=0;CS_ANNEE++;} }
+  CS_JOUR_SEL=null;
+  renderCalSeances();
+}
+function csChoisirJour(j){
+  CS_JOUR_SEL=(CS_JOUR_SEL===j)?null:j;
+  renderCalSeances();
+}
+
+function renderCalSeances(){
+  document.getElementById('cs-mois').textContent=MOIS_FR_NOMS[CS_MOIS]+' '+CS_ANNEE;
+
+  var premier=new Date(CS_ANNEE,CS_MOIS,1).getDay();
+  var decalage=(premier===0)?6:premier-1;
+  var nbJours=new Date(CS_ANNEE,CS_MOIS+1,0).getDate();
+  var auj=new Date();
+
+  var html='';
+  ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(function(x){ html+='<div class="cs-jour-ent">'+x+'</div>'; });
+  for(var v=0;v<decalage;v++) html+='<div class="cs-case vide"></div>';
+  for(var j=1;j<=nbJours;j++){
+    var seances=csSeancesDuJour(CS_ANNEE,CS_MOIS,j);
+    var match=csMatchDuJour(CS_ANNEE,CS_MOIS,j);
+    var estAuj=(CS_ANNEE===auj.getFullYear() && CS_MOIS===auj.getMonth() && j===auj.getDate());
+    var classes='cs-case'+(estAuj?' aujourdhui':'')+(CS_JOUR_SEL===j?' selection':'');
+    html+='<div class="'+classes+'" onclick="csChoisirJour('+j+')">'
+      +'<div class="cs-num">'+j+'</div>'
+      +(match?'<div class="cs-match" title="'+esc2(match.adversaire)+'">'+(match.lieu==='E'?'✈ ':'🏠 ')+esc2(match.adversaire)+'</div>':'')
+      +seances.map(function(o){
+        var f=csFamille(o.p.theme);
+        return '<div class="cs-chip" style="background:'+f.coul+'" title="'+esc2(o.p.theme)+'">'+esc2(o.p.theme)+'</div>';
+      }).join('')
+      +(seances.some(function(o){ return o.p.ficheId; })?'<div class="cs-fiche">📋 fiche liée</div>':'')
+      +'</div>';
+  }
+  document.getElementById('cs-grille').innerHTML=html;
+
+  // la légende ne montre que les familles réellement travaillées ce mois-ci
+  var utilisees={};
+  for(var d=1;d<=nbJours;d++){
+    csSeancesDuJour(CS_ANNEE,CS_MOIS,d).forEach(function(o){ utilisees[csFamille(o.p.theme).nom]=csFamille(o.p.theme).coul; });
+  }
+  var noms=Object.keys(utilisees);
+  document.getElementById('cs-legende').innerHTML=noms.length
+    ? noms.map(function(n){ return '<span class="cs-leg"><i style="background:'+utilisees[n]+'"></i>'+esc2(n)+'</span>'; }).join('')
+    : '<span class="cs-leg" style="font-style:italic">Touche un jour pour lui rattacher une séance.</span>';
+
+  csRenderEditeur();
+  csRenderRecap(nbJours);
+}
+
+function csRenderEditeur(){
+  var ct=document.getElementById('cs-editeur');
+  if(CS_JOUR_SEL===null){
+    ct.innerHTML='<div style="font-size:11.5px;color:var(--gris2);font-style:italic">Touche un jour du calendrier pour voir ou saisir ce qui y a été travaillé.</div>';
+    return;
+  }
+  var j=CS_JOUR_SEL, dateFr=csDateFr(CS_ANNEE,CS_MOIS,j);
+  var seances=csSeancesDuJour(CS_ANNEE,CS_MOIS,j);
+  var match=csMatchDuJour(CS_ANNEE,CS_MOIS,j);
+
+  var optionsThemes='';
+  var borneBasse=0;
+  CS_FAMILLES.forEach(function(f){
+    var lot=THEMES_PLANNING.slice(borneBasse, Math.min(f.jusqua+1, THEMES_PLANNING.length));
+    borneBasse=f.jusqua+1;
+    if(!lot.length) return;
+    optionsThemes+='<optgroup label="'+esc2(f.nom)+'">'
+      +lot.map(function(t){ return '<option value="'+esc2(t)+'">'+esc2(t)+'</option>'; }).join('')+'</optgroup>';
+  });
+
+  var optionsFiches='<option value="">— Aucune fiche rattachée —</option>'
+    +(FICHES_EXERCICES||[]).map(function(f){ return '<option value="'+esc2(f.id)+'">'+esc2(f.titre)+'</option>'; }).join('');
+
+  ct.innerHTML='<div style="display:flex;align-items:baseline;gap:9px;margin-bottom:10px;flex-wrap:wrap">'
+      +'<span style="font-family:\'Roboto Condensed\',sans-serif;font-size:15px;font-weight:800;color:#fff">'+dateFr+'</span>'
+      +(match?'<span style="font-size:11px;color:var(--blue);font-weight:700">'+(match.lieu==='E'?'✈ Déplacement à ':'🏠 Réception de ')+esc2(match.adversaire)+'</span>':'')
+    +'</div>'
+    +(seances.length?('<div style="margin-bottom:12px">'+seances.map(function(o){
+        var f=csFamille(o.p.theme);
+        var fiche=(FICHES_EXERCICES||[]).find(function(x){ return x.id===o.p.ficheId; });
+        return '<div style="background:var(--carte);border:1px solid var(--line);border-left:3px solid '+f.coul+';border-radius:6px;padding:9px 11px;margin-bottom:7px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+            +'<span style="font-size:12.5px;font-weight:700;color:'+f.coul+'">'+esc2(o.p.theme)+'</span>'
+            +'<span style="cursor:pointer;font-size:13px" title="Retirer" onclick="event.stopPropagation();csSupprimer('+o.i+')">🗑</span></div>'
+          +((o.p.sousThemes&&o.p.sousThemes.length)?'<div style="font-size:10.5px;color:var(--gris2);margin-top:4px;line-height:1.5">'+esc2(o.p.sousThemes.join(' · '))+'</div>':'')
+          +(fiche?'<div style="font-size:10.5px;color:var(--or);margin-top:5px;cursor:pointer;font-weight:700" onclick="event.stopPropagation();csOuvrirFiche(\''+esc2(fiche.id)+'\')">📋 '+esc2(fiche.titre)+' — ouvrir</div>':'')
+          +'</div>';
+      }).join('')+'</div>'):'')
+    +'<div class="fg2" style="gap:10px">'
+      +'<div class="fg" style="margin:0"><label class="fl">Thème travaillé</label><select class="fi" id="cs-theme">'+optionsThemes+'</select></div>'
+      +'<div class="fg" style="margin:0"><label class="fl">Fiche d\'exercices</label><select class="fi" id="cs-fiche">'+optionsFiches+'</select></div>'
+    +'</div>'
+    +'<div class="fg" style="margin:10px 0 0"><label class="fl">Ce qu\'on y a mis (un point par ligne)</label>'
+      +'<textarea class="fi" id="cs-sous" rows="2" style="margin-top:5px;resize:vertical" placeholder="Conservation à une touche&#10;Repli après perte"></textarea></div>'
+    +'<button class="btn" style="margin-top:11px" onclick="csAjouter()">+ Rattacher à ce jour</button>';
+}
+
+function csAjouter(){
+  if(CS_JOUR_SEL===null) return;
+  var theme=document.getElementById('cs-theme').value;
+  if(!theme){ notif('⚠ Choisis un thème'); return; }
+  var ficheId=document.getElementById('cs-fiche').value||null;
+  var sous=document.getElementById('cs-sous').value.split('\n').map(function(x){return x.trim();}).filter(Boolean);
+  PLANNING_MENSUEL.push({date:csDateFr(CS_ANNEE,CS_MOIS,CS_JOUR_SEL), theme:theme, sousThemes:sous, ficheId:ficheId});
+  renderCalSeances();
+  if(typeof renderPlanning==='function' && document.getElementById('planning-mois-select')) renderPlanning();
+  sauvegarder();
+  notif('✓ Séance rattachée au '+csDateFr(CS_ANNEE,CS_MOIS,CS_JOUR_SEL));
+}
+function csSupprimer(i){
+  if(!confirm('Retirer cette séance du calendrier ?')) return;
+  PLANNING_MENSUEL.splice(i,1);
+  renderCalSeances();
+  if(typeof renderPlanning==='function' && document.getElementById('planning-mois-select')) renderPlanning();
+  sauvegarder();
+}
+function csOuvrirFiche(id){
+  var idx=(FICHES_EXERCICES||[]).findIndex(function(f){ return f.id===id; });
+  if(idx<0){ notif('⚠ Cette fiche n\'est plus dans la bibliothèque'); return; }
+  goNav('constructeur');
+  if(typeof fexChargerFiche==='function') fexChargerFiche(id);
+}
+
+function csRenderRecap(nbJours){
+  var compte={}, total=0;
+  for(var d=1;d<=nbJours;d++){
+    csSeancesDuJour(CS_ANNEE,CS_MOIS,d).forEach(function(o){
+      compte[o.p.theme]=(compte[o.p.theme]||0)+1; total++;
+    });
+  }
+  document.getElementById('cs-nb').textContent=total+' séance'+(total>1?'s':'');
+  var lignes=Object.keys(compte).sort(function(a,b){ return compte[b]-compte[a]; });
+  var max=lignes.length?compte[lignes[0]]:1;
+  var html=lignes.length?lignes.map(function(t){
+    var f=csFamille(t);
+    return '<div class="cs-recap-l"><span class="cs-recap-n" style="color:'+f.coul+';font-weight:700">'+esc2(t)+'</span>'
+      +'<span class="cs-recap-b" style="background:rgba(255,255,255,.07)"><span style="display:block;height:100%;border-radius:3px;background:'+f.coul+';width:'+Math.round(compte[t]/max*100)+'%"></span></span>'
+      +'<span class="cs-recap-c">'+compte[t]+'</span></div>';
+  }).join(''):'<div style="font-size:11.5px;color:var(--gris2);text-align:center;padding:14px">Rien de rattaché à ce mois pour l\'instant.</div>';
+
+  // Ce qu'on n'a pas travaillé depuis longtemps : c'est là que se logent les trous
+  var dernier={};
+  (PLANNING_MENSUEL||[]).forEach(function(p){
+    var d=parseFrDateSimple(p.date);
+    if(!d) return;
+    if(!dernier[p.theme] || d>dernier[p.theme]) dernier[p.theme]=d;
+  });
+  var auj=new Date();
+  var oublies=Object.keys(dernier).map(function(t){
+    return {t:t, jours:Math.floor((auj-dernier[t])/86400000)};
+  }).filter(function(o){ return o.jours>=28; }).sort(function(a,b){ return b.jours-a.jours; }).slice(0,5);
+  if(oublies.length){
+    html+='<div style="margin-top:14px;padding-top:11px;border-top:1px solid var(--line)">'
+      +'<div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gris2);margin-bottom:7px">Pas revu depuis un moment</div>'
+      +oublies.map(function(o){
+        return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:10.5px;padding:3px 0">'
+          +'<span style="color:'+csFamille(o.t).coul+'">'+esc2(o.t)+'</span>'
+          +'<span style="color:var(--gris2);white-space:nowrap">'+o.jours+' j</span></div>';
+      }).join('')+'</div>';
+  }
+  document.getElementById('cs-recap').innerHTML=html;
+}
+
 function renderPlanning(){
   var keys=[];
   PLANNING_MENSUEL.forEach(function(p){var k=moisKeyDe(p.date); if(k && keys.indexOf(k)===-1) keys.push(k);});
