@@ -252,6 +252,11 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .rc-lbl{font-size:8px;color:var(--gris2);text-transform:uppercase;letter-spacing:.02em;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc-val{font-size:12px;font-weight:700;color:var(--gris)}
 
+.adv-terrains{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 14px}
+.adv-t{background:#12161c;border:1px solid var(--line);border-radius:8px;padding:8px}
+.adv-t-lab{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.adv-t-svg{aspect-ratio:100/130;max-height:270px;margin:0 auto}
+@media(max-width:560px){ .adv-terrains{grid-template-columns:1fr} }
 .fex-tool{background:#15171b;border:1px solid var(--line);border-radius:7px;padding:9px 8px;font-size:10.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color .15s,background .15s}
 .fex-tool:hover{border-color:var(--or)}
 .fex-tool.on{border-color:var(--or);background:rgba(217,119,6,.1);color:var(--or)}
@@ -304,6 +309,11 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .bdt-cpt-btns{display:flex;gap:4px;justify-content:center}
 .bdt-cpt-btns button{width:34px;height:30px;border-radius:8px;border:none;background:#2a2f3a;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
 .bdt-cpt-btns button.plus{background:var(--or);color:#160c02}
+.bdt-joueur{position:relative}
+.bdt-joueur.ecarte{opacity:.38;border-style:dashed;background:#101318}
+.bdt-joueur.ecarte .n{text-decoration:line-through}
+.bdt-ecart-x{position:absolute;top:3px;right:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#9aa0a8;border-radius:50%;background:rgba(0,0,0,.45)}
+.bdt-ecart-x:active{background:var(--red);color:#fff}
 .bdt-joueur.terrain{border-color:var(--green);border-left-width:4px}
 .bdt-joueur.banc{opacity:.55}
 .bdt-bandeau{padding:7px 14px;font-size:11.5px;color:#ffd9a8;background:rgba(217,119,6,.16);border-bottom:1px solid rgba(217,119,6,.35);flex-shrink:0;display:flex;align-items:center;gap:8px;justify-content:space-between}
@@ -344,7 +354,23 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 #scr-constructeur.fex-presentation .fex-only-presentation{display:block!important}
 #scr-constructeur.fex-presentation #fex-board{height:78vh!important}
 #scr-constructeur.fex-presentation #fex-tabs{margin-bottom:12px}
-#scr-constructeur.fex-presentation .cg2 textarea{font-size:13px!important;min-height:80px}
+#scr-constructeur.fex-presentation .fex-col-procede textarea{font-size:13px!important;min-height:80px}
+/* ===== Constructeur : le terrain, ce qu'on y pose, le procédé ===== */
+.fex-3col{display:grid;grid-template-columns:minmax(360px,1.3fr) 226px minmax(240px,.95fr);gap:12px;align-items:start}
+.fex-col{min-width:0}
+.fex-col-outils,.fex-col-procede{background:var(--carte);border:1.5px solid var(--line);border-radius:9px;padding:12px;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.fex-eyebrow{font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.11em;color:var(--or);text-transform:uppercase;margin:0 0 8px;display:flex;align-items:center;gap:6px}
+.fex-eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--or),transparent);opacity:.5}
+.fex-eyebrow.deux{margin-top:16px}
+.fex-col-procede textarea.fi{font-size:11.5px;line-height:1.45;resize:vertical}
+@media(max-width:1150px){
+  .fex-3col{grid-template-columns:1fr 226px}
+  .fex-col-terrain{grid-column:1/-1}
+}
+@media(max-width:760px){ .fex-3col{grid-template-columns:1fr} }
+#scr-constructeur.fex-presentation .fex-3col{grid-template-columns:1fr}
+#scr-constructeur.fex-presentation .fex-col-procede{background:none;border:none;box-shadow:none;padding:0}
+
 .el-zone:hover .zone-rotate{display:block}
 .zone-resize{position:absolute;top:50%;right:-11px;width:18px;height:18px;background:#38bdf8;border-radius:4px;cursor:ew-resize;display:none;border:2px solid #fff;z-index:7;box-shadow:0 2px 5px rgba(0,0,0,.5);transform:translateY(-50%)}
 .el-zone:hover .zone-resize{display:block}
@@ -1387,14 +1413,23 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <div class="fg"><label class="fl">🎬 Lien vidéo de match</label><input class="fi" id="adv-video" placeholder="https://youtube.com/... ou https://veo.co/..."></div>
       <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--or);margin:16px 0 10px;padding-top:14px;border-top:1px solid var(--line)">Dispositif tactique</div>
       <div class="fg2">
-        <div class="fg"><label class="fl">En possession</label><input class="fi" id="adv-dispo-poss" placeholder="4-2-3-1"></div>
-        <div class="fg"><label class="fl">À la perte</label><input class="fi" id="adv-dispo-def" placeholder="4-4-2 bloc médian"></div>
+        <div class="fg"><label class="fl">En possession</label>
+          <select class="fi" id="adv-dispo-poss" onchange="renderAdvTerrains()"></select></div>
+        <div class="fg"><label class="fl">À la perte</label>
+          <select class="fi" id="adv-dispo-def" onchange="renderAdvTerrains()"></select></div>
+      </div>
+      <!-- On voit la forme de l'adversaire au lieu de la lire : même terrain que le plateau tactique -->
+      <div class="adv-terrains">
+        <div class="adv-t"><div class="adv-t-lab" style="color:var(--or)">⚽ Avec le ballon</div><div class="adv-t-svg" id="adv-svg-poss"></div></div>
+        <div class="adv-t"><div class="adv-t-lab" style="color:var(--blue)">🛡 À la perte</div><div class="adv-t-svg" id="adv-svg-def"></div></div>
       </div>
       <label class="fl">Joueurs à surveiller</label>
       <textarea class="fi" id="adv-surveiller" rows="2" style="margin:6px 0 12px;resize:vertical" placeholder="Ex: n°9 rapide dans le dos, n°10 meneur de jeu"></textarea>
       <label class="fl">📌 Infos diverses</label>
       <textarea class="fi" id="adv-infos" rows="2" style="margin:6px 0 12px;resize:vertical" placeholder="Forme du moment, blessés connus, particularités du club..."></textarea>
       <button class="btn" onclick="ajouterFicheAdversaireManuelle()">+ AJOUTER LA FICHE</button>
+      <button class="btn" style="margin-top:10px;background:rgba(255,255,255,.06);color:var(--gris)" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">👁 FICHE D'OBSERVATION JOUEUR (IMPRIMER / PDF)</button>
+      <div style="font-size:10.5px;color:var(--gris2);margin-top:6px">Poste, système, rôle, zones du terrain à entourer, comportement avec et sans le ballon, coups de pied arrêtés, et la conclusion. Une fiche par joueur observé.</div>
     </div>
   </div>
 </div>
@@ -2135,6 +2170,8 @@ Repli défensif après perte"></textarea>
   </div>
 
   <button class="btn" onclick="genererFeuilleMatchPDF()">🖨️ GÉNÉRER LA FEUILLE (IMPRIMER / PDF)</button>
+  <button class="btn" style="margin-top:10px;background:rgba(255,255,255,.06);color:var(--gris)" onclick="genererCarteMentaleMatch()">🧠 CARTE MENTALE D'AVANT-MATCH</button>
+  <div style="font-size:10.5px;color:var(--gris2);margin-top:6px">Le logo du club au centre, huit branches autour : adversaire, groupe, plan de jeu, coups de pied arrêtés, objectifs, discours, logistique, après-match. À remplir à l'écran puis imprimer, ou à imprimer vierge pour l'annoter à la main.</div>
 </div>
 
 <!-- PLATEAU TACTIQUE 4-2-2-2 -->
@@ -2263,15 +2300,16 @@ Repli défensif après perte"></textarea>
     <button class="gen-btn2" style="width:auto;padding:4px 10px;font-size:10.5px" onclick="fexDupliquerVersOnglet()">Copier</button>
   </div>
 
-  <div class="blk fex-hide-presentation" style="margin-bottom:10px"><div style="padding:12px">
-    <div class="fg2">
-      <div class="fg"><label class="fl">Titre du procédé</label><input class="fi" id="fex-titre" placeholder="Rondo 5v2"></div>
-      <div class="fg"><label class="fl">Durée (min)</label><input class="fi" id="fex-duree" type="number" value="10"></div>
-    </div>
-    <div class="fg2">
-      <div class="fg"><label class="fl">Terrain de ce procédé</label>
-        <div style="display:flex;gap:6px;margin-top:4px">
-        <select class="fi" id="fex-terrain-sel" onchange="fexChangerTerrain()" style="flex:1">
+  <!-- Trois colonnes : le terrain, ce qu'on y pose, le procédé.
+       Le bloc qui suit fermait l'écran trop tôt : les trois cases de consignes
+       et les boutons d'enregistrement flottaient alors par-dessus les 40 écrans. -->
+  <div class="fex-3col">
+
+    <!-- ① LE TERRAIN -->
+    <div class="fex-col fex-col-terrain">
+      <div class="fex-eyebrow fex-hide-presentation">① Le terrain</div>
+      <div class="fex-hide-presentation" style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+        <select class="fi" id="fex-terrain-sel" onchange="fexChangerTerrain()" style="flex:1;min-width:160px;font-size:12px;padding:7px 9px">
           <optgroup label="Plateau tactique (2D)">
             <option value="pt-h">Terrain complet — horizontal</option>
             <option value="pt-v">Terrain complet — vertical</option>
@@ -2284,42 +2322,25 @@ Repli défensif après perte"></textarea>
             <option value="5">📷 Ma photo (importée)</option>
           </optgroup>
         </select>
-        <label class="gen-btn2" style="width:auto;padding:6px 10px;white-space:nowrap;cursor:pointer;display:flex;align-items:center">📷 Importer
+        <label class="gen-btn2" style="width:auto;padding:6px 10px;white-space:nowrap;cursor:pointer;display:flex;align-items:center;margin:0">📷 Importer
           <input type="file" accept="image/*" style="display:none" onchange="fexImporterPhotoTerrain(this)">
         </label>
-        <button class="gen-btn2" style="width:auto;padding:6px 10px;white-space:nowrap" onclick="fexOuvrirExtractionVideo()">🎥 Extraire d'une vidéo</button>
-        </div>
+        <button class="gen-btn2" style="width:auto;padding:6px 10px;white-space:nowrap;margin:0" onclick="fexOuvrirExtractionVideo()">🎥 Vidéo</button>
       </div>
-      <div class="fg"><label class="fl">Thème (relié au générateur de séance)</label>
-        <select class="fi" id="fex-theme-sel" style="margin-top:4px"></select>
-      </div>
-    </div>
-    <label class="fl">Démarrer d'un modèle</label>
-    <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
-      <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px" onclick="fexChargerModele('rondo')">🔄 Rondo</button>
-      <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px" onclick="fexChargerModele('possession')">📦 Boîte de possession</button>
-      <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px" onclick="fexChargerModele('finition')">🎯 Finition</button>
-    </div>
-    <label class="fl" style="margin-top:10px;display:block">Placer une formation</label>
-    <div style="display:flex;gap:6px;margin-top:4px">
-      <select class="fi" id="fex-formation-sel" style="flex:1"></select>
-      <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px;white-space:nowrap" onclick="fexPlacerFormation()">Placer</button>
-    </div>
-  </div></div>
 
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <div class="fex-hide-presentation" style="width:280px;flex-shrink:0;display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start" id="fex-toolbox"></div>
-    <div style="flex:1;min-width:280px">
-      <div class="fex-hide-presentation" style="display:flex;gap:6px;margin-bottom:6px">
-        <button class="gen-btn2" style="width:auto;padding:5px 10px;font-size:10.5px" onclick="fexUndo()">↩️ Annuler (Ctrl+Z)</button>
-        <button class="gen-btn2" style="width:auto;padding:5px 10px;font-size:10.5px" onclick="fexExporterImage()">🖨️ Imprimer ce procédé seul</button>
-        <button class="gen-btn2" style="width:auto;padding:5px 10px;font-size:10.5px" onclick="fexTogglePresentation(true)">🖥️ Mode présentation</button>
-      </div>
       <div id="fex-board" style="position:relative;background-size:cover;background-position:center;border:2px solid rgba(255,255,255,.6);border-radius:6px;height:420px;overflow:hidden;cursor:crosshair"></div>
-      <div class="blk fex-hide-presentation" style="margin-top:10px"><div class="bh"><span class="bt go">🎬 Animation</span><span class="bc" id="fex-anim-nb">0 mouvement</span></div>
+
+      <div class="fex-hide-presentation" style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="gen-btn2" style="width:auto;padding:5px 10px;font-size:10.5px;margin:0" onclick="fexUndo()">↩️ Annuler</button>
+        <button class="gen-btn2" style="width:auto;padding:5px 10px;font-size:10.5px;margin:0" onclick="fexExporterImage()">🖨️ Ce procédé seul</button>
+        <button class="gen-btn2" style="width:auto;padding:5px 10px;font-size:10.5px;margin:0" onclick="fexTogglePresentation(true)">🖥️ Présentation</button>
+      </div>
+
+      <!-- L'animation se joue sur le terrain : sa place est juste en dessous -->
+      <div class="blk fex-hide-presentation" style="margin-top:10px;margin-bottom:0"><div class="bh"><span class="bt go">🎬 Animation</span><span class="bc" id="fex-anim-nb">0 mouvement</span></div>
         <div style="padding:12px">
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <button class="gen-btn2" style="width:auto;padding:6px 14px;font-size:11.5px" onclick="fexJouerAnimation(this)">▶️ Lire l'animation</button>
+            <button class="gen-btn2" style="width:auto;padding:6px 14px;font-size:11.5px;margin:0" onclick="fexJouerAnimation(this)">▶️ Lire l'animation</button>
             <select class="fi" id="fex-anim-vitesse" style="width:auto;padding:4px 8px;font-size:10.5px">
               <option value="1500">Lent</option>
               <option value="950" selected>Normal</option>
@@ -2334,22 +2355,52 @@ Repli défensif après perte"></textarea>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ② CE QU'ON POSE SUR LE TERRAIN -->
+    <div class="fex-col fex-col-outils fex-hide-presentation">
+      <div class="fex-eyebrow">② Ce qu'on pose</div>
+      <div id="fex-toolbox" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start"></div>
+
+      <div class="fex-eyebrow deux">Démarrer d'un modèle</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px;margin:0" onclick="fexChargerModele('rondo')">🔄 Rondo</button>
+        <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px;margin:0" onclick="fexChargerModele('possession')">📦 Possession</button>
+        <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px;margin:0" onclick="fexChargerModele('finition')">🎯 Finition</button>
+      </div>
+
+      <div class="fex-eyebrow deux">Placer une formation</div>
+      <div style="display:flex;gap:6px">
+        <select class="fi" id="fex-formation-sel" style="flex:1;min-width:0;font-size:12px;padding:7px 9px"></select>
+        <button class="gen-btn2" style="width:auto;padding:6px 10px;font-size:10.5px;white-space:nowrap;margin:0" onclick="fexPlacerFormation()">Placer</button>
       </div>
     </div>
+
+    <!-- ③ LE PROCÉDÉ -->
+    <div class="fex-col fex-col-procede">
+      <div class="fex-eyebrow fex-hide-presentation">③ Le procédé</div>
+
+      <div class="fex-hide-presentation">
+        <div class="fg" style="margin-bottom:10px"><label class="fl">Procédé</label><input class="fi" id="fex-titre" placeholder="Rondo 5v2" style="font-size:13px;padding:8px 10px"></div>
+        <div class="fg2" style="gap:8px;margin-bottom:10px">
+          <div class="fg" style="margin:0"><label class="fl">Durée (min)</label><input class="fi" id="fex-duree" type="number" value="10" style="font-size:13px;padding:8px 10px"></div>
+          <div class="fg" style="margin:0"><label class="fl">Thème</label><select class="fi" id="fex-theme-sel" style="font-size:12px;padding:8px 6px"></select></div>
+        </div>
+      </div>
+
+      <div class="fg" style="margin-bottom:9px"><label class="fl" style="color:var(--blue)">📋 Mise en place</label><textarea class="fi" id="fex-setup" rows="3" placeholder="Dimensions, nombre de joueurs, matériel..."></textarea></div>
+      <div class="fg" style="margin-bottom:9px"><label class="fl" style="color:var(--or)">▶️ Consignes</label><textarea class="fi" id="fex-consignes" rows="3" placeholder="Ce que je demande pendant l'exercice..."></textarea></div>
+      <div class="fg" style="margin-bottom:9px"><label class="fl" style="color:var(--gold)">⚠️ Point clé</label><textarea class="fi" id="fex-important" rows="3" placeholder="Le détail sur lequel je corrige."></textarea></div>
+
+      <div class="fex-hide-presentation" style="border-top:1px solid var(--line);padding-top:10px;margin-top:2px">
+        <button class="btn" onclick="fexSauvegarder()">💾 Enregistrer dans la bibliothèque</button>
+        <button class="btn" style="margin-top:8px;background:rgba(255,255,255,.06);color:var(--gris)" onclick="genererPdfExercices()">🖨️ Générer la fiche (PDF)</button>
+        <button class="gen-btn2" style="margin-top:8px" onclick="fexViderProcede()">🗑 Vider ce procédé</button>
+      </div>
+    </div>
+
   </div>
 
-  <div class="cg2" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
-    <div><label class="fl" style="color:var(--blue)">📋 Mise en place</label><textarea class="fi" id="fex-setup" rows="3" style="margin-top:4px;font-size:11px"></textarea></div>
-    <div><label class="fl" style="color:var(--or)">▶️ Consignes</label><textarea class="fi" id="fex-consignes" rows="3" style="margin-top:4px;font-size:11px"></textarea></div>
-    <div><label class="fl" style="color:var(--gold)">⚠️ Point clé</label><textarea class="fi" id="fex-important" rows="3" style="margin-top:4px;font-size:11px"></textarea></div>
-  </div>
-
-  <div class="fex-hide-presentation">
-  <button class="gen-btn2" style="margin-top:10px" onclick="fexViderProcede()">🗑 Vider ce procédé</button>
-  <button class="btn" style="margin-top:14px" onclick="fexSauvegarder()">💾 ENREGISTRER DANS LA BIBLIOTHÈQUE</button>
-  <button class="btn" style="margin-top:10px" onclick="genererPdfExercices()">🖨️ GÉNÉRER LA FICHE (IMPRIMER / PDF)</button>
-  <div style="font-size:10.5px;color:var(--gris2);margin-top:6px">Une fois enregistrée en PDF depuis la fenêtre d'impression, ajoutez le fichier dans 📸 Bibliothèque Séances via "Ajouter un PDF".</div>
-  </div>
   <button class="btn fex-only-presentation" style="display:none;position:fixed;top:14px;right:14px;width:auto;padding:10px 18px;z-index:999;background:#c0392b;box-shadow:0 4px 14px rgba(0,0,0,.6)" onclick="fexTogglePresentation(false)">✕ QUITTER LA PRÉSENTATION</button>
 </div>
 
@@ -8053,6 +8104,21 @@ function bilanContreAdversaire(nom){
   ms.forEach(function(m){ if(m.res==='V')v++; else if(m.res==='N')n++; else if(m.res==='D')d++; });
   return {matchs:ms.length,v:v,n:n,d:d,liste:ms};
 }
+// Les deux dispositifs de l'adversaire, dessinés comme sur le plateau tactique
+function renderAdvTerrains(){
+  var cles=Object.keys(FORMATIONS);
+  ['adv-dispo-poss','adv-dispo-def'].forEach(function(id,k){
+    var sel=document.getElementById(id);
+    if(!sel || sel.options.length) return;
+    sel.innerHTML=cles.map(function(f){
+      return '<option value="'+f+'"'+(f===(k?'4-4-2':'4-2-3-1')?' selected':'')+'>'+f+'</option>';
+    }).join('');
+  });
+  var poss=document.getElementById('adv-svg-poss'), def=document.getElementById('adv-svg-def');
+  if(poss) poss.innerHTML=docTerrainSvg({sombre:true,zones:true,formation:(document.getElementById('adv-dispo-poss')||{}).value,couleur:'#d97706'});
+  if(def) def.innerHTML=docTerrainSvg({sombre:true,zones:true,formation:(document.getElementById('adv-dispo-def')||{}).value,couleur:'#4ea8de'});
+}
+
 function renderAdversaires(){
   var sel=document.getElementById('adv-sel');
   var noms=Array.from(new Set(
@@ -8063,6 +8129,7 @@ function renderAdversaires(){
   )).sort();
   var current=sel.value;
   sel.innerHTML='<option value="">— Choisir un adversaire —</option>'+noms.map(function(n){return '<option value="'+n.replace(/"/g,'&quot;')+'"'+(n===current?' selected':'')+'>'+n+'</option>';}).join('');
+  renderAdvTerrains();
   var nom=sel.value;
   var ct=document.getElementById('adv-content');
   if(!nom){ ct.innerHTML='<div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Choisis un adversaire dans la liste, ou ajoute une fiche pour un nouvel adversaire ci-dessous.</div>'; return; }
@@ -9619,6 +9686,422 @@ function fexNouvelleFiche(){
   fexMajBadgeEdition();
   fexRenderListeFiches();
 }
+
+// ===== Documents imprimables : la carte mentale d'avant-match et la fiche d'observation =====
+// Rien de scolaire : le logo du club au centre, des branches colorées autour,
+// remplissables à l'écran puis imprimées, ou imprimées vierges pour être annotées à la main.
+function docEsc(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
+function docLogoClub(){
+  var img=document.querySelector('.side-logo img');
+  return (img && img.getAttribute('src')) || '';
+}
+function docProchainMatch(){
+  // Le prochain match du calendrier, en repartant de ce qui a déjà été joué
+  var joues={};
+  (MATCHS||[]).forEach(function(m){ joues[(m.adversaire||'').toLowerCase()+'|'+(m.lieu||'')]=true; });
+  var suivant=(CALENDRIER||[]).find(function(c){
+    return c.adversaire && !joues[(c.adversaire||'').toLowerCase()+'|'+(c.lieu||'')];
+  });
+  return suivant||null;
+}
+function docOuvrir(html, quoi){
+  var w=window.open('','_blank');
+  if(!w){ notif('⚠ La fenêtre a été bloquée par le navigateur — autorise les pop-ups puis réessaie'); return; }
+  w.document.write(html); w.document.close();
+  notif('✓ '+quoi+' ouvert — remplis-le puis imprime, ou imprime-le vierge');
+}
+
+// Le terrain du plateau tactique, en version claire pour le papier
+function docTerrainSvg(opts){
+  opts=opts||{};
+  var vert=opts.sombre?'#1f6b45':'#e9f4ec', trait=opts.sombre?'rgba(255,255,255,.55)':'#9fb8a8';
+  var s='<svg viewBox="0 0 100 130" style="width:100%;height:100%;display:block">'
+    +'<rect x="0" y="0" width="100" height="130" rx="2" fill="'+vert+'"/>'
+    +'<g fill="none" stroke="'+trait+'" stroke-width="0.5">'
+    +'<rect x="2" y="2" width="96" height="126"/>'
+    +'<line x1="2" y1="65" x2="98" y2="65"/>'
+    +'<circle cx="50" cy="65" r="11"/>'
+    +'<rect x="26" y="2" width="48" height="16"/><rect x="38" y="2" width="24" height="7"/>'
+    +'<rect x="26" y="112" width="48" height="16"/><rect x="38" y="121" width="24" height="7"/>'
+    +'</g>';
+  if(opts.zones){
+    // Les couloirs et les tiers : les repères dont on se sert pour parler d'une zone
+    s+='<g stroke="'+trait+'" stroke-width="0.35" stroke-dasharray="1.6,1.6" opacity="0.85">'
+      +'<line x1="34" y1="2" x2="34" y2="128"/><line x1="66" y1="2" x2="66" y2="128"/>'
+      +'<line x1="2" y1="45" x2="98" y2="45"/><line x1="2" y1="86" x2="98" y2="86"/></g>';
+  }
+  if(opts.formation && FORMATIONS[opts.formation]){
+    s+=FORMATIONS[opts.formation].map(function(pl){
+      var cx=pl.x, cy=pl.y*1.3;
+      return '<g><circle cx="'+cx+'" cy="'+cy+'" r="4.1" fill="'+(opts.couleur||'#d97706')+'" stroke="#11161c" stroke-width="0.5"/>'
+        +'<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dominant-baseline="central" font-size="2.9" font-weight="700" fill="#fff" font-family="Roboto Condensed,sans-serif">'+docEsc(pl.pos)+'</text></g>';
+    }).join('');
+  }
+  return s+'</svg>';
+}
+
+// Styles partagés par les deux documents : sombre à l'écran, encre économe à l'impression
+function docStylesCommuns(){
+  return '<style>'
+    +'@import url("https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Condensed:wght@400;600;700;800&display=swap");'
+    +'*{box-sizing:border-box;margin:0;padding:0;font-family:"Roboto Condensed",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'body{background:#0d1014;color:#11161c;padding:18px;display:flex;flex-direction:column;align-items:center;gap:14px}'
+    +'.barre{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}'
+    +'.barre button{font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;'
+      +'padding:10px 18px;border-radius:7px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.07);color:#e8eaed;cursor:pointer}'
+    +'.barre button.on{background:#d97706;border-color:#d97706;color:#1a0f02}'
+    +'.feuille{background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.55);border-radius:4px;position:relative;overflow:hidden}'
+    +'[contenteditable]{outline:none}'
+    +'[contenteditable]:focus{background:rgba(217,119,6,.12);border-radius:3px}'
+    +'[contenteditable]:empty:before{content:attr(data-vide);color:#b9c0c7;font-style:italic;font-weight:400}'
+    +'@media print{body{background:#fff;padding:0;display:block}.barre{display:none!important}'
+      +'.feuille{box-shadow:none;border-radius:0;margin:0}'
+      +'[contenteditable]:empty:before{content:""}}'
+    +'</style>';
+}
+function docBarre(){
+  return '<div class="barre">'
+    +'<button class="on" onclick="window.print()">🖨 Imprimer / PDF</button>'
+    +'<button onclick="document.querySelectorAll(\'[contenteditable]\').forEach(function(e){e.textContent=\'\';})">🧹 Vider (version brouillon)</button>'
+    +'</div>';
+}
+
+// ===== La carte mentale d'avant-match =====
+var DOC_BRANCHES=[
+  {cle:'adv',  ic:'🔍', titre:"L'adversaire",        coul:'#c0392b', cell:'a1', lignes:[
+     {lab:'Son système',        vide:'4-2-3-1, bloc médian…'},
+     {lab:'Ce qui fait mal',    vide:'sa force, là où il nous blesse'},
+     {lab:'Sa faille',          vide:'où on va appuyer'},
+     {lab:'Le joueur à tenir',  vide:'n° et nom'}]},
+  {cle:'grp',  ic:'👥', titre:'Le groupe',            coul:'#2563eb', cell:'a2', lignes:[
+     {lab:'Compo de départ',    vide:'système + 11 de départ'},
+     {lab:'Sur le banc',        vide:'qui entre, et pour qui'},
+     {lab:'Absents',            vide:'blessés, suspendus, indispos'},
+     {lab:'État de forme',      vide:'la semaine qu\'on vient de faire'}]},
+  {cle:'plan', ic:'🧠', titre:'Notre plan',           coul:'#d97706', cell:'a3', lignes:[
+     {lab:'Avec le ballon',     vide:'comment on sort, où on attaque'},
+     {lab:'Sans le ballon',     vide:'hauteur du bloc, déclencheurs'},
+     {lab:'À la perte',         vide:'contre-pressing ou repli'},
+     {lab:'À la récupération',  vide:'vite devant, ou on conserve'}]},
+  {cle:'cpa',  ic:'⚡', titre:'Coups de pied arrêtés', coul:'#7c3aed', cell:'b1', lignes:[
+     {lab:'Corners offensifs',  vide:'schéma, tireur'},
+     {lab:'Corners défensifs',  vide:'zone / individuel'},
+     {lab:'Coups francs',       vide:'tireurs, mur'},
+     {lab:'Penalty',            vide:'1er et 2e tireur'}]},
+  {cle:'obj',  ic:'🎯', titre:'Les objectifs',        coul:'#0f8a5f', cell:'b3', lignes:[
+     {lab:'Le résultat visé',   vide:'ce qu\'on va chercher'},
+     {lab:'Axe de travail n°1', vide:'ce qu\'on répète depuis mardi'},
+     {lab:'Axe de travail n°2', vide:'le second point'},
+     {lab:'Le pari du match',   vide:'le choix fort que j\'assume'}]},
+  {cle:'disc', ic:'💬', titre:'Mon discours',         coul:'#c2185b', cell:'c1', lignes:[
+     {lab:'Avant le coup d\'envoi', vide:'la phrase qu\'ils doivent retenir'},
+     {lab:'À la mi-temps',      vide:'si ça se passe mal / si ça roule'},
+     {lab:'Le ton',             vide:'calme, exigeant, léger…'},
+     {lab:'Qui je prends à part', vide:'le joueur à qui je parle seul'}]},
+  {cle:'verif',ic:'✅', titre:'À vérifier',           coul:'#0e7490', cell:'c2', lignes:[
+     {lab:'Logistique',         vide:'départ, maillots, ballons, eau'},
+     {lab:'Licences / feuille', vide:'ce qui doit être prêt'},
+     {lab:'Arbitrage',          vide:'officiel, délégué, protocole'},
+     {lab:'Staff',              vide:'qui fait quoi sur le banc'}]},
+  {cle:'apres',ic:'📌', titre:'Après le match',       coul:'#5d7a16', cell:'c3', lignes:[
+     {lab:'Ce que je veux voir', vide:'ce que je regarde en priorité'},
+     {lab:'À noter à chaud',    vide:'ce que je relèverai au coup de sifflet'},
+     {lab:'Débrief prévu le',   vide:'quand, et avec qui'},
+     {lab:'La suite',           vide:'ce que ça change pour la semaine'}]}
+];
+
+function docPrefillCarte(){
+  var v={};
+  var m=docProchainMatch();
+  v.adversaire=m?m.adversaire:'';
+  v.date=m?m.date:'';
+  v.lieu=m?(m.lieu==='D'?'À domicile':(m.lieu==='E'?'À l\'extérieur':'')):'';
+  v.comp=m?(m.comp||''):'';
+  // Ce qu'on sait déjà de cet adversaire
+  var fiche=null;
+  if(m && typeof ADVERSAIRES!=='undefined'){
+    var a=(ADVERSAIRES||[]).find(function(x){ return (x.nom||'').toLowerCase()===(m.adversaire||'').toLowerCase(); });
+    if(a && a.fiches && a.fiches.length) fiche=a.fiches[0];
+  }
+  v.advSysteme=fiche?(fiche.dispoPoss||''):'';
+  v.advSurveiller=fiche?(fiche.surveiller||''):'';
+  // Qui manque à l'appel
+  var absents=[];
+  (BLESSURES||[]).forEach(function(b){
+    if(b.dateRetour) return;
+    var j=JOUEURS[b.joueurIdx];
+    if(j) absents.push(j.nom+(b.zone?(' ('+b.zone+')'):''));
+  });
+  v.absents=absents.slice(0,4).join(', ');
+  // La dernière compo enregistrée
+  var c=(COMPOSITIONS||[])[COMPOSITIONS.length-1];
+  v.compo=c?((c.formation||'')+(c.nom?(' — '+c.nom):'')):'';
+  return v;
+}
+
+function genererCarteMentaleMatch(){
+  var v=docPrefillCarte();
+  var logo=docLogoClub();
+  var pre={adv:[v.advSysteme,'','',v.advSurveiller], grp:[v.compo,'',v.absents,''], plan:[], cpa:[], obj:[], disc:[], verif:[], apres:[]};
+
+  var carte=DOC_BRANCHES.map(function(b){
+    var p=pre[b.cle]||[];
+    return '<div class="br '+b.cell+'" id="br-'+b.cle+'" style="--c:'+b.coul+'">'
+      +'<div class="br-h"><span class="br-ic">'+b.ic+'</span><span class="br-t">'+docEsc(b.titre)+'</span></div>'
+      +b.lignes.map(function(l,i){
+        return '<div class="ln"><span class="lb">'+docEsc(l.lab)+'</span>'
+          +'<span class="v" contenteditable data-vide="'+docEsc(l.vide)+'">'+docEsc(p[i]||'')+'</span></div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Carte mentale — '+docEsc(v.adversaire||'match')+'</title>'
+    +docStylesCommuns()
+    +'<style>'
+    +'@page{size:A4 landscape;margin:6mm}'
+    +'.feuille{width:1058px;height:742px;padding:14px 16px;display:flex;flex-direction:column}'
+    +'.bandeau{display:flex;align-items:center;gap:12px;border-bottom:3px solid #d97706;padding-bottom:8px;margin-bottom:10px;flex:0 0 auto}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:21px;letter-spacing:.5px;line-height:1}'
+    +'.bandeau .sous{font-size:11px;color:#6b7480;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}'
+    +'.bandeau .mini{width:38px;height:38px;object-fit:contain}'
+    +'.bandeau .droite{margin-left:auto;text-align:right;font-size:11px;color:#6b7480}'
+    +'.bandeau .droite b{display:block;font-size:14px;color:#11161c}'
+    +'.carte{position:relative;flex:1;display:grid;grid-template-columns:1fr 1.02fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:9px;'
+      +'grid-template-areas:"a1 a2 a3" "b1 hub b3" "c1 c2 c3"}'
+    +'#fils{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}'
+    +'.a1{grid-area:a1}.a2{grid-area:a2}.a3{grid-area:a3}.b1{grid-area:b1}.b3{grid-area:b3}.c1{grid-area:c1}.c2{grid-area:c2}.c3{grid-area:c3}'
+    +'.br{position:relative;z-index:1;background:#fff;border:1.5px solid #e2e6ea;border-top:4px solid var(--c);border-radius:9px;padding:7px 9px 5px;'
+      +'box-shadow:0 2px 7px rgba(17,22,28,.07);display:flex;flex-direction:column}'
+    +'.br-h{display:flex;align-items:center;gap:6px;margin-bottom:5px}'
+    +'.br-ic{font-size:13px;line-height:1}'
+    +'.br-t{font-family:Anton,sans-serif;font-size:12.5px;letter-spacing:.5px;color:var(--c);text-transform:uppercase}'
+    +'.ln{display:flex;flex-direction:column;flex:1;justify-content:flex-end;padding-bottom:2px;margin-bottom:3px;border-bottom:1.3px dotted #c3cbd3}'
+    +'.lb{font-size:7.6px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad;margin-bottom:1px}'
+    +'.v{font-size:11px;font-weight:600;color:#11161c;min-height:13px;line-height:1.25}'
+    +'.hub{grid-area:hub;position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;'
+      +'background:radial-gradient(circle at 50% 38%,#1d242e,#0f1319);border-radius:50%/42%;border:4px solid #d97706;padding:10px 14px;'
+      +'box-shadow:0 10px 30px rgba(17,22,28,.3)}'
+    +'.hub img{width:66px;height:66px;object-fit:contain;margin-bottom:4px}'
+    +'.hub .vs{font-family:Anton,sans-serif;font-size:13px;color:#d97706;letter-spacing:2.5px}'
+    +'.hub .adv{font-family:Anton,sans-serif;font-size:21px;color:#fff;line-height:1.05;margin:1px 0 4px;max-width:230px}'
+    +'.hub .meta{font-size:9.5px;color:#aab2bb;line-height:1.5}'
+    +'.hub .meta b{color:#fff}'
+    +'.pied{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;font-size:8.6px;color:#98a2ad;padding-top:6px;margin-top:8px;border-top:1px solid #e2e6ea}'
+    +'</style></head><body>'
+    +docBarre()
+    +'<div class="feuille">'
+    +'<div class="bandeau">'
+      +(logo?'<img class="mini" src="'+logo+'" alt="">':'')
+      +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">Carte mentale — préparation de match</div></div>'
+      +'<div class="droite"><b contenteditable data-vide="Adversaire">'+docEsc(v.adversaire)+'</b>'
+        +'<span contenteditable data-vide="Date, heure, lieu">'+docEsc([v.date,v.lieu,v.comp].filter(Boolean).join(' · '))+'</span></div>'
+    +'</div>'
+    +'<div class="carte"><svg id="fils"></svg>'+carte
+      +'<div class="hub">'+(logo?'<img src="'+logo+'" alt="">':'')
+        +'<div class="vs">VS</div>'
+        +'<div class="adv" contenteditable data-vide="Adversaire">'+docEsc(v.adversaire||'')+'</div>'
+        +'<div class="meta"><b contenteditable data-vide="Date">'+docEsc(v.date||'')+'</b>'
+          +'<div contenteditable data-vide="Domicile / extérieur">'+docEsc(v.lieu||'')+'</div></div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — à remplir à l\'écran puis imprimer, ou imprimer vierge et annoter à la main</span>'
+      +'<span>Coach : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span></span></div>'
+    +'</div>'
+    +'<script>'
+    +'function tracerFils(){'
+      +'var c=document.querySelector(".carte"), s=document.getElementById("fils"), h=document.querySelector(".hub");'
+      +'if(!c||!s||!h) return;'
+      +'var rc=c.getBoundingClientRect(), rh=h.getBoundingClientRect();'
+      +'s.setAttribute("viewBox","0 0 "+rc.width+" "+rc.height);'
+      +'var hx=rh.left-rc.left+rh.width/2, hy=rh.top-rc.top+rh.height/2, d="";'
+      +'document.querySelectorAll(".br").forEach(function(b){'
+        +'var r=b.getBoundingClientRect();'
+        +'var bx=r.left-rc.left+r.width/2, by=r.top-rc.top+r.height/2;'
+        +'var dx=bx-hx, dy=by-hy, L=Math.sqrt(dx*dx+dy*dy)||1;'
+        +'var x1=hx+dx/L*(rh.width/2.15), y1=hy+dy/L*(rh.height/2.15);'
+        +'var x2=bx-dx/L*(r.width/2.4), y2=by-dy/L*(r.height/2.4);'
+        +'var mx=(x1+x2)/2-dy/L*16, my=(y1+y2)/2+dx/L*16;'
+        +'var col=getComputedStyle(b).getPropertyValue("--c").trim()||"#d97706";'
+        +'d+=\'<path d="M \'+x1+\' \'+y1+\' Q \'+mx+\' \'+my+\' \'+x2+\' \'+y2+\'" fill="none" stroke="\'+col+\'" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/>\';'
+        +'d+=\'<circle cx="\'+x2+\'" cy="\'+y2+\'" r="3.2" fill="\'+col+\'"/>\';'
+      +'});'
+      +'s.innerHTML=d;'
+    +'}'
+    +'window.addEventListener("load",tracerFils);'
+    +'window.addEventListener("resize",tracerFils);'
+    +'window.addEventListener("beforeprint",tracerFils);'
+    +'setTimeout(tracerFils,120);'
+    +'<\/script></body></html>';
+  docOuvrir(html,'Carte mentale d\'avant-match');
+}
+
+// ===== La fiche d'observation joueur =====
+// La version précédente notait cinq lignes et s'arrêtait là. Un coach qui va voir
+// un match a besoin du contexte tactique : dans quel système, à quel poste,
+// dans quelle zone il vit, ce qu'il fait avec et sans le ballon.
+var DOC_OBS_CRITERES=[
+  {bloc:'Avec le ballon', coul:'#d97706', items:[
+    'Premier contrôle / orientation',
+    'Qualité de passe courte',
+    'Passe longue / changement d\'aile',
+    'Conduite et élimination',
+    'Frappe',
+    'Prise de risque juste']},
+  {bloc:'Sans le ballon', coul:'#2563eb', items:[
+    'Prise d\'information (regards)',
+    'Appels et timing',
+    'Occupation de l\'espace',
+    'Replacement après effort',
+    'Pressing / contre-pressing',
+    'Couverture et cadrage']},
+  {bloc:'Duels et physique', coul:'#c0392b', items:[
+    'Duel au sol',
+    'Duel aérien',
+    'Vitesse sur 20 m',
+    'Répétition des efforts',
+    'Volume sur 90 minutes']},
+  {bloc:'Tête et attitude', coul:'#7c3aed', items:[
+    'Lecture du jeu / anticipation',
+    'Réaction après une erreur',
+    'Communication',
+    'Comportement avec l\'arbitre',
+    'Leadership']}
+];
+var DOC_OBS_ZONES=[
+  ['Z1','Z2','Z3'],['Z4','Z5','Z6'],['Z7','Z8','Z9'],['Z10','Z11','Z12']
+];
+
+function genererFicheObservation(nomAdversaire){
+  var logo=docLogoClub();
+  function note(n){
+    // Cinq pastilles à entourer : on coche au stylo dans les tribunes
+    var s='';
+    for(var i=1;i<=5;i++) s+='<span class="pt">'+i+'</span>';
+    return '<span class="notes">'+s+'</span>';
+  }
+  var criteres=DOC_OBS_CRITERES.map(function(b){
+    return '<div class="cbloc" style="--c:'+b.coul+'">'
+      +'<div class="cbloc-t">'+docEsc(b.bloc)+'</div>'
+      +b.items.map(function(it){
+        return '<div class="crit"><span class="crit-l">'+docEsc(it)+'</span>'+note()+'</div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+
+  function champ(lab, vide, large){
+    return '<div class="ch'+(large?' large':'')+'"><span class="ch-l">'+docEsc(lab)+'</span>'
+      +'<span class="ch-v" contenteditable data-vide="'+docEsc(vide)+'"></span></div>';
+  }
+  function bloc(titre, coul, corps){
+    return '<div class="bl" style="--c:'+coul+'"><div class="bl-t">'+docEsc(titre)+'</div>'+corps+'</div>';
+  }
+
+  // Le terrain : on entoure la zone où le joueur vit vraiment
+  var grille='';
+  DOC_OBS_ZONES.forEach(function(rangee,r){
+    rangee.forEach(function(z,c){
+      grille+='<div class="zcell" style="left:'+(c*33.33)+'%;top:'+(r*25)+'%">'+z+'</div>';
+    });
+  });
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Fiche d\'observation — '+docEsc(NOM_CLUB)+'</title>'
+    +docStylesCommuns()
+    +'<style>'
+    +'@page{size:A4 portrait;margin:6mm}'
+    +'.feuille{width:764px;min-height:1060px;padding:16px 18px 12px;display:flex;flex-direction:column;gap:9px}'
+    +'.bandeau{display:flex;align-items:center;gap:11px;border-bottom:3px solid #d97706;padding-bottom:7px}'
+    +'.bandeau img{width:36px;height:36px;object-fit:contain}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:19px;line-height:1}'
+    +'.bandeau .sous{font-size:10px;color:#6b7480;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}'
+    +'.bandeau .droite{margin-left:auto;text-align:right;font-size:9.5px;color:#6b7480;line-height:1.7}'
+    +'.bandeau .droite span[contenteditable]{display:inline-block;min-width:96px;border-bottom:1.2px dotted #b4bcc4;color:#11161c;font-weight:600;text-align:left;padding:0 3px}'
+    +'.rang{display:grid;gap:9px}'
+    +'.r2{grid-template-columns:1fr 1fr}.r3{grid-template-columns:1fr 1fr 1fr}'
+    +'.bl{border:1.5px solid #e2e6ea;border-left:4px solid var(--c);border-radius:8px;padding:7px 10px 8px;background:#fff}'
+    +'.bl-t{font-family:Anton,sans-serif;font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--c);margin-bottom:5px}'
+    +'.ch{display:flex;flex-direction:column;margin-bottom:5px}'
+    +'.ch-l{font-size:7.4px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad}'
+    +'.ch-v{font-size:11px;font-weight:600;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding-bottom:1px}'
+    +'.ch.large .ch-v{min-height:30px}'
+    +'.duo{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    +'.terrain-bloc{display:flex;gap:10px}'
+    +'.terrain{position:relative;width:132px;flex:0 0 132px;aspect-ratio:100/130}'
+    +'.zcell{position:absolute;width:33.33%;height:25%;display:flex;align-items:flex-start;justify-content:flex-start;'
+      +'font-size:7.5px;font-weight:700;color:#5c6b61;padding:2px 0 0 3px}'
+    +'.terrain-aide{flex:1;font-size:9px;color:#6b7480;line-height:1.55}'
+    +'.terrain-aide b{color:#11161c;display:block;font-size:9.5px;margin-bottom:2px}'
+    +'.cgrille{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    +'.cbloc{border:1.5px solid #e2e6ea;border-top:4px solid var(--c);border-radius:8px;padding:6px 9px 7px;background:#fff}'
+    +'.cbloc-t{font-family:Anton,sans-serif;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--c);margin-bottom:4px}'
+    +'.crit{display:flex;align-items:center;gap:6px;padding:2.2px 0;border-bottom:1px dotted #e6eaee}'
+    +'.crit:last-child{border-bottom:none}'
+    +'.crit-l{flex:1;font-size:9.3px;color:#3c4650;line-height:1.25}'
+    +'.notes{display:flex;gap:3px;flex:0 0 auto}'
+    +'.pt{width:14px;height:14px;border:1.2px solid #b4bcc4;border-radius:50%;font-size:8px;font-weight:700;'
+      +'color:#8a949e;display:flex;align-items:center;justify-content:center}'
+    +'.verdict{display:flex;gap:7px;margin-top:4px;flex-wrap:wrap}'
+    +'.vb{flex:1;min-width:104px;border:1.5px solid #d6dbe0;border-radius:7px;padding:6px 8px;text-align:center;font-size:9.5px;font-weight:700;color:#5c6670}'
+    +'.vb i{display:block;font-size:15px;font-style:normal;margin-bottom:1px}'
+    +'.pied{display:flex;justify-content:space-between;font-size:8.4px;color:#98a2ad;border-top:1px solid #e2e6ea;padding-top:6px;margin-top:auto}'
+    +'</style></head><body>'
+    +docBarre()
+    +'<div class="feuille">'
+    +'<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+      +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">Fiche d\'observation — joueur</div></div>'
+      +'<div class="droite">Observateur : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span><br>'
+        +'Date : <span contenteditable data-vide="jj/mm/aaaa"></span></div>'
+    +'</div>'
+
+    +'<div class="rang r3">'
+      +bloc('Le joueur','#11161c',
+        champ('Nom','nom du joueur')+champ('N° de maillot','n°')+champ('Âge estimé','ex : 22-24')+champ('Pied fort','droit / gauche / les deux'))
+      +bloc('Son club','#0e7490',
+        champ('Club actuel','nom du club')+champ('Niveau / division','R2, R1, N3…')
+        +champ('Match observé', docEsc(nomAdversaire||'')||'qui contre qui')+champ('Compétition / minute','championnat, entré à la 60e…'))
+      +bloc('Son poste','#2563eb',
+        champ('Poste tenu','ex : milieu relayeur')+champ('Autres postes vus','polyvalence')
+        +champ('Pris dans quel système','4-3-3, 3-5-2…')+champ('Son rôle dedans','sentinelle, relayeur, pivot…'))
+    +'</div>'
+
+    +'<div class="rang r2">'
+      +bloc('Où il vit sur le terrain','#0f8a5f',
+        '<div class="terrain-bloc"><div class="terrain">'+docTerrainSvg({zones:true})+grille+'</div>'
+        +'<div class="terrain-aide"><b>Entoure ses 2 ou 3 zones.</b>'
+        +'Le terrain est découpé en couloirs (gauche / axe / droite) et en quatre hauteurs, de son but (en haut) au but adverse (en bas). '
+        +'Note aussi s\'il décroche, s\'il attaque la profondeur, ou s\'il reste entre les lignes.'
+        +'<div style="margin-top:5px"><span class="ch-l">Rayon d\'action</span>'
+        +'<div class="ch-v" contenteditable data-vide="décrochages, courses, largeur ou intérieur"></div></div></div></div>')
+      +bloc('Ce qu\'il apporte à son équipe','#7c3aed',
+        champ('Avec le ballon','ce qu\'il fait quand son équipe a la balle',true)
+        +champ('Sans le ballon','son comportement dans le bloc',true)
+        +champ('Sur coups de pied arrêtés','tireur, cible, premier poteau, resté devant'))
+    +'</div>'
+
+    +'<div class="cgrille">'+criteres+'</div>'
+
+    +'<div class="rang r2">'
+      +bloc('Ce qui m\'a marqué en bien','#0f8a5f','<div class="ch large"><span class="ch-v" contenteditable data-vide="deux ou trois actions précises, avec la minute"></span></div>')
+      +bloc('Ses limites','#c0392b','<div class="ch large"><span class="ch-v" contenteditable data-vide="ce qui coince, et si c\'est corrigeable"></span></div>')
+    +'</div>'
+
+    +bloc('Conclusion','#d97706',
+      '<div class="duo">'+champ('Niveau où je le situe','R2 tout de suite / R1 / au-dessus')
+      +champ('Ce qu\'il nous apporterait','le poste où il nous manque')+'</div>'
+      +'<div class="verdict">'
+      +'<div class="vb"><i>🔥</i>À recruter</div>'
+      +'<div class="vb"><i>👀</i>À revoir</div>'
+      +'<div class="vb"><i>📋</i>À garder en fiche</div>'
+      +'<div class="vb"><i>✖️</i>Sans suite</div>'
+      +'</div>'
+      +'<div class="ch" style="margin-top:6px"><span class="ch-l">Prochaine étape</span>'
+      +'<span class="ch-v" contenteditable data-vide="qui le rappelle, et quand"></span></div>')
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — une fiche par joueur observé. Entoure les notes au stylo, ou remplis à l\'écran avant d\'imprimer.</span>'
+      +'<span>1 = insuffisant · 5 = très bon</span></div>'
+    +'</div></body></html>';
+  docOuvrir(html,'Fiche d\'observation joueur');
+}
+
 function genererPdfExercices(unSeul){
   fexCapturerProcede();
   var titreFiche=document.getElementById('fex-titre-fiche').value.trim()||'Fiche exercices';
@@ -9664,11 +10147,17 @@ function genererPdfExercices(unSeul){
     return '<div style="page-break-inside:avoid;margin-bottom:18px;border:1px solid #ddd;border-radius:8px;padding:12px">'
       +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><div style="font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:16px;color:var(--or)">'+(unSeul?'':(i+1)+'. ')+esc(p.titre||'Procédé '+(i+1))+'</div><div style="font-size:11px;color:#666">'+(p.duree||10)+' min</div></div>'
       +'<div style="position:relative;background:'+(FEX_TERRAINS_2D[p.terrain]?'#eaf5ec url(\''+fexTerrainSvg(p.terrain,true)+'\') center/100% 100% no-repeat':'repeating-linear-gradient(0deg,#e8f4ea 0 14px,#f2f9f3 14px 28px)')+';border:1.5px solid #333;border-radius:4px;height:'+(unSeul?'420px':'220px')+';overflow:hidden">'+elems+arrows+'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;font-size:10px">'
-      +'<div><b style="color:#38bdf8">Mise en place</b><div>'+esc(p.setup||'—')+'</div></div>'
-      +'<div><b style="color:#F97316">Consignes</b><div>'+esc(p.consignes||'—')+'</div></div>'
-      +'<div><b style="color:#ca9a00">Point clé</b><div>'+esc(p.important||'—')+'</div></div>'
-      +'</div></div>';
+      // On n'imprime une case que si le coach l'a remplie : trois cadres vides
+      // en pied de chaque page ne disent rien à personne.
+      +(function(){
+        var cases=[['Mise en place','#38bdf8',p.setup],['Consignes','#F97316',p.consignes],['Point clé','#ca9a00',p.important]]
+          .filter(function(c){ return (c[2]||'').trim(); });
+        if(!cases.length) return '';
+        return '<div style="display:grid;grid-template-columns:repeat('+cases.length+',1fr);gap:8px;margin-top:8px;font-size:10px">'
+          +cases.map(function(c){ return '<div><b style="color:'+c[1]+'">'+c[0]+'</b><div>'+esc(c[2].trim())+'</div></div>'; }).join('')
+          +'</div>';
+      })()
+      +'</div>';
   }).join('');
 
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(titreFiche)+'</title>'
@@ -9801,7 +10290,7 @@ function collecterFeuilleMatch(){
 // pour garder une seule porte d'entrée vers les statistiques.
 var BDT={ouvert:false, nous:0, eux:0, adversaire:'', lieu:'D', date:'', joueurs:[], evenements:[],
          chronoBase:0, chronoDebut:null, chronoActif:false, chronoTimer:null, miTemps:null,
-         groupe:'a', modeCompo:true, surTerrain:{}, entree:{}, minutes:{}, titulaires:{}, notes:{},
+         groupe:'a', modeCompo:true, surTerrain:{}, entree:{}, minutes:{}, titulaires:{}, ecartes:{}, notes:{},
          equipe:{sitNous:0, frappesAdv:0, sitAdv:0}};
 
 function bdtOuvrir(){
@@ -9896,7 +10385,7 @@ function bdtSauver(){
       nous:BDT.nous, eux:BDT.eux, evenements:BDT.evenements,
       chronoBase:BDT.chronoBase, chronoDebut:BDT.chronoDebut, chronoActif:BDT.chronoActif,
       miTemps:BDT.miTemps, groupe:BDT.groupe, modeCompo:BDT.modeCompo,
-      joueurs:BDT.joueurs, surTerrain:BDT.surTerrain, entree:BDT.entree,
+      joueurs:BDT.joueurs, ecartes:BDT.ecartes, surTerrain:BDT.surTerrain, entree:BDT.entree,
       minutes:BDT.minutes, titulaires:BDT.titulaires, notes:BDT.notes, equipe:BDT.equipe
     }));
   }catch(e){}
@@ -9917,7 +10406,7 @@ function bdtRestaurer(d){
   BDT.nous=d.nous||0; BDT.eux=d.eux||0; BDT.evenements=d.evenements||[];
   BDT.chronoBase=d.chronoBase||0; BDT.chronoDebut=d.chronoDebut||null; BDT.chronoActif=!!d.chronoActif;
   BDT.miTemps=d.miTemps||null; BDT.groupe=d.groupe||'a'; BDT.modeCompo=!!d.modeCompo;
-  BDT.joueurs=d.joueurs||[]; BDT.surTerrain=d.surTerrain||{}; BDT.entree=d.entree||{};
+  BDT.joueurs=d.joueurs||[]; BDT.ecartes=d.ecartes||{}; BDT.surTerrain=d.surTerrain||{}; BDT.entree=d.entree||{};
   BDT.minutes=d.minutes||{}; BDT.titulaires=d.titulaires||{}; BDT.notes=d.notes||{};
   BDT.equipe=d.equipe||{sitNous:0,frappesAdv:0,sitAdv:0};
   BDT.ouvert=true;
@@ -9983,7 +10472,7 @@ function bdtChangerGroupe(){
   var i=dispo.indexOf(BDT.groupe);
   BDT.groupe=dispo[(i+1)%dispo.length];
   // on repart d'une composition vierge : le groupe a changé
-  BDT.surTerrain={}; BDT.entree={}; BDT.titulaires={}; BDT.minutes={};
+  BDT.surTerrain={}; BDT.entree={}; BDT.titulaires={}; BDT.minutes={}; BDT.ecartes={};
   BDT.modeCompo=true;
   bdtAppliquerGroupe();
 }
@@ -10130,6 +10619,7 @@ function bdtBasculerCompo(){
 }
 function bdtToutLeMondeSurLeBanc(){
   BDT.joueurs.forEach(function(idx){ BDT.surTerrain[idx]=false; });
+  BDT.ecartes={};
   BDT.entree={}; BDT.titulaires={}; BDT.minutes={};
   bdtRender();
 }
@@ -10181,6 +10671,23 @@ function bdtAnnulerDernier(){
 function bdtCompteur(idx,type){
   return BDT.evenements.filter(function(e){ return e.idx===idx && e.type===type; }).length;
 }
+// Qui apparaît dans la rubrique ?
+// En compo, tout le groupe convoqué, écartés compris (il faut pouvoir les réintégrer).
+// Une fois le match lancé, ceux que le coach a écartés ne doivent plus encombrer l'écran.
+function bdtJoueursAffiches(){
+  if(BDT.modeCompo) return BDT.joueurs;
+  return BDT.joueurs.filter(function(idx){ return !BDT.ecartes[idx]; });
+}
+function bdtNbEcartes(){
+  return BDT.joueurs.filter(function(idx){ return BDT.ecartes[idx]; }).length;
+}
+function bdtEcarter(idx, ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  if(BDT.ecartes[idx]){ delete BDT.ecartes[idx]; }
+  else { BDT.ecartes[idx]=true; BDT.surTerrain[idx]=false; delete BDT.titulaires[idx]; }
+  bdtRender();
+}
+
 function bdtRender(){
   bdtSauver();
   document.getElementById('bdt-score-nous').textContent=BDT.nous;
@@ -10189,11 +10696,14 @@ function bdtRender(){
   document.getElementById('bdt-frappes-adv').textContent=BDT.equipe.frappesAdv||0;
   document.getElementById('bdt-sit-adv').textContent=BDT.equipe.sitAdv||0;
   var bandeau=document.getElementById('bdt-bandeau');
-  var nbGroupe=BDT.joueurs.length, nbTerrain=bdtNbSurTerrain();
+  var affiches=bdtJoueursAffiches();
+  var nbEcartes=bdtNbEcartes();
+  var nbGroupe=BDT.joueurs.length-nbEcartes, nbTerrain=bdtNbSurTerrain();
   bandeau.style.display='flex';
   if(BDT.modeCompo){
-    bandeau.innerHTML='<span>👥 <b>'+bdtLibelleGroupe()+'</b> · '+nbGroupe+' convoqué'+(nbGroupe>1?'s':'')
-      +' — touche tes titulaires (<b>'+nbTerrain+'</b> sur le terrain)</span>'
+    bandeau.innerHTML='<span>👥 <b>'+bdtLibelleGroupe()+'</b> · '+nbGroupe+' retenu'+(nbGroupe>1?'s':'')
+      +(nbEcartes?(' <span style="color:#6b7280">('+nbEcartes+' écarté'+(nbEcartes>1?'s':'')+')</span>'):'')
+      +' — touche tes titulaires (<b>'+nbTerrain+'</b> sur le terrain), ✕ pour écarter du match</span>'
       +'<span style="display:flex;gap:6px"><button onclick="bdtChangerGroupe()">Changer de groupe</button>'
       +'<button onclick="bdtToutLeMondeSurLeBanc()">Effacer</button>'
       +'<button onclick="bdtBasculerCompo()">Terminé</button></span>';
@@ -10201,7 +10711,7 @@ function bdtRender(){
     bandeau.innerHTML='<span>⚽ <b>'+nbTerrain+' sur le terrain</b> · '+Math.max(0,nbGroupe-nbTerrain)+' sur le banc ('+bdtLibelleGroupe()+')</span>'
       +'<button onclick="bdtBasculerCompo()">👥 Compo</button>';
   }
-  document.getElementById('bdt-grille').innerHTML=BDT.joueurs.map(function(idx){
+  document.getElementById('bdt-grille').innerHTML=affiches.map(function(idx){
     var j=JOUEURS[idx]; if(!j) return '';
     var badges=[];
     [['but','⚽'],['arret','🧤'],['pd','🅰️'],['frappeCad','🎯'],['frappeHors','↗️'],
@@ -10213,9 +10723,11 @@ function bdtRender(){
     var tps=bdtTempsDeJeu(idx);
     if(surT && tps) badges.unshift('⏱'+tps+"'");
     else if(!surT && tps) badges.unshift('⏱'+tps+"' (sorti)");
-    return '<div class="bdt-joueur '+(surT?'terrain':'banc')+'" onclick="bdtChoisirJoueur('+idx+')">'
+    var ecarte=!!BDT.ecartes[idx];
+    return '<div class="bdt-joueur '+(ecarte?'ecarte':(surT?'terrain':'banc'))+'" onclick="'+(ecarte?'bdtEcarter('+idx+',event)':'bdtChoisirJoueur('+idx+')')+'">'
+      +(BDT.modeCompo?'<span class="bdt-ecart-x" onclick="bdtEcarter('+idx+',event)" title="'+(ecarte?'Réintégrer au groupe':'Écarter de ce match')+'">'+(ecarte?'↩':'✕')+'</span>':'')
       +'<div class="n">'+echapForme(j.nom)+'</div>'
-      +(badges.length?'<div class="b">'+badges.join(' ')+'</div>':'')
+      +(ecarte?'<div class="b" style="color:#6b7280">pas du match</div>':(badges.length?'<div class="b">'+badges.join(' ')+'</div>':''))
       +'</div>';
   }).join('');
   var jr=document.getElementById('bdt-journal');
@@ -10226,8 +10738,8 @@ function bdtRender(){
 
 // ===== Bilan à chaud : les 4 critères, 6 étoiles chacun =====
 function bdtOuvrirNotes(){
-  var ayantJoue=BDT.joueurs.filter(function(idx){ return bdtTempsDeJeu(idx)>0 || bdtSurTerrain(idx) || BDT.titulaires[idx]; });
-  if(!ayantJoue.length) ayantJoue=BDT.joueurs.slice();
+  var ayantJoue=bdtJoueursAffiches().filter(function(idx){ return bdtTempsDeJeu(idx)>0 || bdtSurTerrain(idx) || BDT.titulaires[idx]; });
+  if(!ayantJoue.length) ayantJoue=bdtJoueursAffiches().slice();
   var ct=document.getElementById('bdt-notes-corps');
   ct.innerHTML=ayantJoue.map(function(idx){
     var n=BDT.notes[idx]||{};
@@ -10271,7 +10783,7 @@ function bdtTerminer(){
     +faits+' fait(s) de match · '+bdtNbSurTerrain()+' joueur(s) encore sur le terrain')) return;
   bdtChronoStop();
   // On ferme les temps de jeu encore ouverts à la minute du coup de sifflet final
-  BDT.joueurs.forEach(function(idx){ if(bdtSurTerrain(idx)) bdtFaireSortir(idx,true); });
+  bdtJoueursAffiches().forEach(function(idx){ if(bdtSurTerrain(idx)) bdtFaireSortir(idx,true); });
 
   function set(id,val){ var el=document.getElementById(id); if(el) el.value=val; }
   set('m-adv',BDT.adversaire);
@@ -10283,7 +10795,7 @@ function bdtTerminer(){
 
   var totalCadrees=0, totalFrappes=0;
   if(typeof NOTES_MATCH!=='undefined' && NOTES_MATCH){
-    BDT.joueurs.forEach(function(idx){
+    bdtJoueursAffiches().forEach(function(idx){
       if(!NOTES_MATCH[idx]) return;
       NOTES_MATCH[idx].buts=bdtCompteur(idx,'but');
       NOTES_MATCH[idx].pd=bdtCompteur(idx,'pd');
