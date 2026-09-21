@@ -252,6 +252,69 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .rc-lbl{font-size:8px;color:var(--gris2);text-transform:uppercase;letter-spacing:.02em;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc-val{font-size:12px;font-weight:700;color:var(--gris)}
 
+
+/* ===== Docs à imprimer : on voit le document avant de le générer ===== */
+.doc-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:14px}
+.doc-carte{background:var(--carte);border:1.5px solid var(--line);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 18px rgba(0,0,0,.45);transition:border-color .15s,transform .15s}
+.doc-carte:hover{border-color:var(--or);transform:translateY(-2px)}
+.doc-carte.phare{border-color:var(--or);border-width:2px}
+.doc-apercu{height:146px;background:#eef1f4;position:relative;overflow:hidden;border-bottom:1.5px solid var(--line);padding:7px}
+.doc-etiq{position:absolute;top:7px;right:7px;z-index:3;background:var(--or);color:#1a0f02;font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.doc-corps{padding:11px 12px 12px;display:flex;flex-direction:column;flex:1;gap:6px}
+.doc-titre{font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.015em;color:#fff;line-height:1.15}
+.doc-desc{font-size:11px;color:var(--gris2);line-height:1.5;flex:1}
+.doc-carte .btn{margin-top:2px;padding:10px 14px;font-size:11px}
+.doc-champ{display:flex;gap:6px;align-items:center;margin-top:2px}
+.doc-champ select{flex:1;min-width:0;font-size:12px;padding:7px 9px}
+/* les miniatures — tout est en flex : un span inline ignore height:100% */
+.mini{width:100%;height:100%;display:flex;flex-direction:column;border-radius:4px;overflow:hidden;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.18)}
+.mini .band{flex:0 0 9px;background:#11161c;border-bottom:2px solid var(--or)}
+.mini .band.or{background:var(--or);border-bottom:none}
+.mini .corps{flex:1;min-height:0;padding:4px;display:flex}
+.mcm{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px}
+.mcm i{border:1px solid #e0e6eb;border-top:2.5px solid var(--c);border-radius:2px;background:#fbfcfd;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 3px}
+.mcm i:before,.mcm i:after{content:'';display:block;height:1.5px;background:#e4e9ee;border-radius:1px}
+.mcm i:after{width:62%}
+.mcm .noy{grid-area:2/2;border-radius:50%/40%;background:#11161c;border:2px solid var(--or)}
+.mobs{flex:1;min-height:0;display:flex;flex-direction:column;gap:3px}
+.mobs .r{display:flex;gap:3px;flex:1;min-height:0}
+.mobs .k{flex:1;min-width:0;background:#fbfcfd;border:1px solid #e0e6eb;border-left:2.5px solid var(--c);border-radius:2px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 3px}
+.mobs .k u{display:block;height:1.5px;background:#e4e9ee;border-radius:1px;text-decoration:none}
+.mobs .k u.court{width:55%}
+.mter{flex:0 0 30px;background:#dcece0;border:1px solid #b6cdbf;border-radius:2px;position:relative}
+.mter:before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#b6cdbf}
+.mter:after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border:1px solid #b6cdbf;border-radius:50%}
+.mfm{flex:1;min-height:0;display:flex;gap:4px}
+.mfm .ter{flex:0 0 46%;background:#dcece0;border:1px solid #b6cdbf;border-radius:2px;position:relative}
+.mfm .ter:before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#b6cdbf}
+.mfm .ter b{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--or);display:block;transform:translate(-50%,-50%)}
+.mfm .li{flex:1;min-width:0;display:flex;flex-direction:column;gap:2.5px;padding-top:1px}
+.mfm .li u{display:block;height:3px;background:#e2e7ec;border-radius:2px;text-decoration:none}
+.mfm .li u:nth-child(odd){background:#eef1f4}
+.mex{flex:1;min-height:0;display:flex}
+.mex .ter{flex:1;background:#2f8354;border-radius:2px;position:relative;overflow:hidden}
+.mex .ter s{position:absolute;background:rgba(255,255,255,.75);display:block;text-decoration:none}
+.mex .ter b{position:absolute;width:7px;height:7px;border-radius:50%;background:#f97316;border:1px solid #fff;display:block;transform:translate(-50%,-50%)}
+.mex .ter em{position:absolute;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid #fbbf24;display:block;transform:translate(-50%,-50%)}
+.mbj{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px}
+.mbj .hautj{display:flex;gap:5px;align-items:center;flex:0 0 auto}
+.mbj .ph{width:24px;height:24px;border-radius:50%;background:#11161c;border:2px solid var(--or);flex:0 0 24px}
+.mbj .co{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.mbj .co u{display:block;height:3px;background:#e2e7ec;border-radius:2px;text-decoration:none}
+.mbj .bars{flex:1;min-height:0;display:flex;align-items:flex-end;gap:3px}
+.mbj .bars i{flex:1;background:var(--or);border-radius:1.5px;opacity:.85}
+.mbm{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px}
+.mbm .sc{font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800;color:#11161c;text-align:center;line-height:1;flex:0 0 auto}
+.mbm .gr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;flex:1;min-height:0}
+.mbm .gr i{background:#fbfcfd;border:1px solid #e0e6eb;border-top:2px solid var(--c);border-radius:2px}
+/* la bannière posée en haut des écrans concernés */
+.doc-bandeau{display:flex;align-items:center;gap:13px;background:linear-gradient(105deg,rgba(217,119,6,.20),rgba(217,119,6,.05));
+  border:1.5px solid var(--or);border-radius:10px;padding:12px 14px;margin-bottom:14px;cursor:pointer}
+.doc-bandeau:hover{background:linear-gradient(105deg,rgba(217,119,6,.32),rgba(217,119,6,.10))}
+.doc-bandeau .gros{font-size:28px;line-height:1;flex:0 0 auto}
+.doc-bandeau .t{font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;color:#fff;line-height:1.15}
+.doc-bandeau .d{font-size:11px;color:var(--gris2);line-height:1.45;margin-top:2px}
+.doc-bandeau .fl{color:var(--or);font-size:20px;margin-left:auto;flex:0 0 auto}
 .adv-terrains{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 14px}
 .adv-t{background:#12161c;border:1px solid var(--line);border-radius:8px;padding:8px}
 .adv-t-lab{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
@@ -1400,6 +1463,12 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 <!-- ADVERSAIRES -->
 <div class="scr" id="scr-adversaires">
   <div class="ph"><div><div class="ph-title">🔍 Adversaires</div><div class="ph-sub">Fiche permanente par équipe — se remplit match après match</div></div></div>
+  <div class="doc-bandeau" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">
+    <span class="gros">👁</span>
+    <div><div class="t">Fiche d'observation joueur</div>
+      <div class="d">Poste, système et rôle dedans, les 12 zones du terrain à entourer, avec et sans le ballon, coups de pied arrêtés, 22 critères notés. Une fiche par joueur que tu vas voir.</div></div>
+    <span class="fl">›</span>
+  </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Sélectionner un adversaire</span></div>
     <div style="padding:14px"><select class="fi" id="adv-sel" onchange="renderAdversaires()"></select></div>
   </div>
@@ -1428,8 +1497,6 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <label class="fl">📌 Infos diverses</label>
       <textarea class="fi" id="adv-infos" rows="2" style="margin:6px 0 12px;resize:vertical" placeholder="Forme du moment, blessés connus, particularités du club..."></textarea>
       <button class="btn" onclick="ajouterFicheAdversaireManuelle()">+ AJOUTER LA FICHE</button>
-      <button class="btn" style="margin-top:10px;background:rgba(255,255,255,.06);color:var(--gris)" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">👁 FICHE D'OBSERVATION JOUEUR (IMPRIMER / PDF)</button>
-      <div style="font-size:10.5px;color:var(--gris2);margin-top:6px">Poste, système, rôle, zones du terrain à entourer, comportement avec et sans le ballon, coups de pied arrêtés, et la conclusion. Une fiche par joueur observé.</div>
     </div>
   </div>
 </div>
@@ -2118,6 +2185,12 @@ Repli défensif après perte"></textarea>
 <!-- FEUILLE DE MATCH -->
 <div class="scr" id="scr-feuille-match">
   <div class="ph"><div><div class="ph-title">🖨️ Feuille de Match</div><div class="ph-sub">Compo, CPA et consignes — exportable en PDF via impression</div></div></div>
+  <div class="doc-bandeau" onclick="genererCarteMentaleMatch()">
+    <span class="gros">🧠</span>
+    <div><div class="t">Carte mentale d'avant-match</div>
+      <div class="d">Le logo au centre, huit branches autour : adversaire, groupe, plan, coups de pied arrêtés, objectifs, discours, logistique, après-match. Déjà pré-remplie avec le prochain match.</div></div>
+    <span class="fl">›</span>
+  </div>
 
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Composition à utiliser</span></div>
     <div style="padding:14px">
@@ -2170,8 +2243,6 @@ Repli défensif après perte"></textarea>
   </div>
 
   <button class="btn" onclick="genererFeuilleMatchPDF()">🖨️ GÉNÉRER LA FEUILLE (IMPRIMER / PDF)</button>
-  <button class="btn" style="margin-top:10px;background:rgba(255,255,255,.06);color:var(--gris)" onclick="genererCarteMentaleMatch()">🧠 CARTE MENTALE D'AVANT-MATCH</button>
-  <div style="font-size:10.5px;color:var(--gris2);margin-top:6px">Le logo du club au centre, huit branches autour : adversaire, groupe, plan de jeu, coups de pied arrêtés, objectifs, discours, logistique, après-match. À remplir à l'écran puis imprimer, ou à imprimer vierge pour l'annoter à la main.</div>
 </div>
 
 <!-- PLATEAU TACTIQUE 4-2-2-2 -->
@@ -2402,6 +2473,128 @@ Repli défensif après perte"></textarea>
   </div>
 
   <button class="btn fex-only-presentation" style="display:none;position:fixed;top:14px;right:14px;width:auto;padding:10px 18px;z-index:999;background:#c0392b;box-shadow:0 4px 14px rgba(0,0,0,.6)" onclick="fexTogglePresentation(false)">✕ QUITTER LA PRÉSENTATION</button>
+</div>
+
+<!-- DOCS À IMPRIMER -->
+<div class="scr" id="scr-imprimer">
+  <div class="ph"><div><div class="ph-title">🖨️ Docs à imprimer</div><div class="ph-sub">Tout ce qui sort de l'appli sur papier — un aperçu, un clic, c'est prêt</div></div></div>
+
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">À remplir avant le match</span></div>
+    <div style="padding:14px">
+      <div class="doc-grille">
+
+        <div class="doc-carte phare">
+          <div class="doc-apercu"><span class="doc-etiq">Nouveau</span>
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mcm">
+                <i style="--c:#c0392b"></i><i style="--c:#2563eb"></i><i style="--c:#d97706"></i>
+                <i style="--c:#7c3aed"></i><span class="noy"></span><i style="--c:#0f8a5f"></i>
+                <i style="--c:#c2185b"></i><i style="--c:#0e7490"></i><i style="--c:#5d7a16"></i>
+              </div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">🧠 Carte mentale d'avant-match</div>
+            <div class="doc-desc">Le logo au centre, huit branches autour : adversaire, groupe, plan de jeu, coups de pied arrêtés, objectifs, discours, logistique, après-match. Le prochain match, ta dernière compo et tes blessés sont déjà dedans.</div>
+            <button class="btn" onclick="genererCarteMentaleMatch()">Ouvrir la carte mentale</button>
+          </div>
+        </div>
+
+        <div class="doc-carte phare">
+          <div class="doc-apercu"><span class="doc-etiq">Nouveau</span>
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mobs">
+                <div class="r"><span class="k" style="--c:#11161c"><u></u><u class="court"></u></span><span class="k" style="--c:#0e7490"><u></u><u class="court"></u></span><span class="k" style="--c:#2563eb"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="mter"></span><span class="k" style="--c:#0f8a5f"><u></u><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#d97706"><u></u><u></u><u></u><u class="court"></u></span><span class="k" style="--c:#2563eb"><u></u><u></u><u></u><u class="court"></u></span></div>
+              </div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">👁 Fiche d'observation joueur</div>
+            <div class="doc-desc">Poste, système, rôle dedans, les 12 zones du terrain à entourer, comportement avec et sans le ballon, coups de pied arrêtés, 22 critères notés de 1 à 5, et la conclusion.</div>
+            <div class="doc-champ"><select class="fi" id="doc-obs-adv"></select></div>
+            <button class="btn" onclick="genererFicheObservation(document.getElementById('doc-obs-adv')?document.getElementById('doc-obs-adv').value:'')">Ouvrir la fiche d'observation</button>
+          </div>
+        </div>
+
+        <div class="doc-carte">
+          <div class="doc-apercu">
+            <div class="mini"><div class="band or"></div><div class="corps">
+              <div class="mfm"><span class="ter">
+                  <b style="left:47%;top:84%"></b><b style="left:22%;top:66%"></b><b style="left:40%;top:70%"></b><b style="left:60%;top:70%"></b><b style="left:78%;top:66%"></b>
+                  <b style="left:30%;top:44%"></b><b style="left:50%;top:40%"></b><b style="left:70%;top:44%"></b>
+                  <b style="left:25%;top:16%"></b><b style="left:50%;top:10%"></b><b style="left:75%;top:16%"></b>
+                </span>
+                <span class="li"><u></u><u></u><u></u><u></u><u></u><u></u><u></u><u></u><u></u><u></u><u></u><u></u></span></div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">🖨️ Feuille de match</div>
+            <div class="doc-desc">La compo sur le terrain, les consignes collectives et individuelles, les coups de pied arrêtés du jour. Se prépare depuis l'écran Feuille de match.</div>
+            <button class="btn" style="background:rgba(255,255,255,.07);color:var(--gris)" onclick="goNav('feuille-match')">Préparer la feuille</button>
+          </div>
+        </div>
+
+        <div class="doc-carte">
+          <div class="doc-apercu">
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mex"><span class="ter">
+                <s style="left:5%;right:5%;top:50%;height:1px"></s>
+                <s style="left:5%;top:14%;right:5%;height:1px;opacity:.35"></s>
+                <s style="left:5%;top:86%;right:5%;height:1px;opacity:.35"></s>
+                <b style="left:22%;top:30%"></b><b style="left:40%;top:64%"></b><b style="left:68%;top:36%"></b><b style="left:78%;top:72%"></b>
+                <s style="left:24%;top:34%;width:34%;height:1.5px;transform:rotate(26deg);transform-origin:0 50%"></s>
+                <em style="left:60%;top:50%;transform:translate(-50%,-50%) rotate(116deg)"></em>
+              </span></div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">🎨 Fiche d'exercices</div>
+            <div class="doc-desc">Les procédés de la séance dessinés sur le terrain, avec mise en place, consignes et point clé sous chaque schéma.</div>
+            <button class="btn" style="background:rgba(255,255,255,.07);color:var(--gris)" onclick="goNav('constructeur')">Ouvrir le constructeur</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="blk"><div class="bh"><span class="bt">À sortir après coup</span></div>
+    <div style="padding:14px">
+      <div class="doc-grille">
+
+        <div class="doc-carte">
+          <div class="doc-apercu">
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mbj">
+                <span class="hautj"><span class="ph"></span>
+                  <span class="co"><u style="width:70%"></u><u style="width:45%"></u></span></span>
+                <span class="bars"><i style="height:40%"></i><i style="height:72%"></i><i style="height:55%"></i><i style="height:88%"></i><i style="height:62%"></i><i style="height:34%"></i></span>
+              </div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">📄 Bilan du joueur</div>
+            <div class="doc-desc">Sa saison sur une page : stats, présence, notes, objectifs, et le mot du coach. À donner en main propre lors d'un entretien.</div>
+            <div class="doc-champ"><select class="fi" id="doc-bilan-joueur"></select></div>
+            <button class="btn" onclick="docBilanJoueur()">Générer le bilan</button>
+          </div>
+        </div>
+
+        <div class="doc-carte">
+          <div class="doc-apercu">
+            <div class="mini"><div class="band or"></div><div class="corps">
+              <div class="mbm"><span class="sc">2 – 1</span>
+                <span class="gr"><i style="--c:#0f8a5f"></i><i style="--c:#d97706"></i><i style="--c:#2563eb"></i>
+                  <i style="--c:#c0392b"></i><i style="--c:#7c3aed"></i><i style="--c:#0e7490"></i></span></div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">📋 Fiche bilan du match</div>
+            <div class="doc-desc">Le match relevé au bord de touche mis au propre : score, déroulé, stats de l'équipe, notes et bilan à chaud de chaque joueur.</div>
+            <div class="doc-champ"><select class="fi" id="doc-bilan-match"></select></div>
+            <button class="btn" onclick="docFicheMatch()">Générer la fiche</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- CALENDRIER ANNUEL -->
@@ -3212,6 +3405,7 @@ function toggleGroup(hdr){
 var POLES=[
   {id:'accueil',label:'Accueil & Vie de club',icon:'🏠',color:'#F97316',screens:[
     {s:'dash',ic:'📊',l:'Dashboard'},
+    {s:'imprimer',ic:'🖨️',l:'Docs à imprimer'},
     {s:'hub',ic:'🎯',l:'Vue d\'ensemble'},
     {s:'calendrier-annuel',ic:'🗓️',l:'Calendrier Annuel'},
     {s:'message',ic:'💬',l:"Fil d'actualités"},
@@ -3353,6 +3547,7 @@ function goNav(elOrS){
   document.getElementById('main').scrollTop=0;
   majBreadcrumb(s);
   if(s==='dash') updateDash();
+  if(s==='imprimer') renderDocsImprimer();
   if(s==='effectif') renderFicheCoach();
   if(s==='recap') renderRecap();
   if(s==='points') renderPointsEntrainement();
@@ -9837,6 +10032,46 @@ function docPrefillCarte(){
   var c=(COMPOSITIONS||[])[COMPOSITIONS.length-1];
   v.compo=c?((c.formation||'')+(c.nom?(' — '+c.nom):'')):'';
   return v;
+}
+
+// ===== L'écran « Docs à imprimer » =====
+function renderDocsImprimer(){
+  // Les adversaires connus, pour ouvrir la fiche d'observation déjà située
+  var selAdv=document.getElementById('doc-obs-adv');
+  if(selAdv){
+    var noms=Array.from(new Set((ADVERSAIRES||[]).map(function(a){return a.nom;})
+      .concat((CALENDRIER||[]).map(function(c){return c.adversaire;}))
+      .filter(Boolean))).sort();
+    var prochain=docProchainMatch();
+    selAdv.innerHTML='<option value="">Match observé — à écrire à la main</option>'
+      +noms.map(function(n){
+        return '<option value="'+n.replace(/"/g,'&quot;')+'"'+((prochain&&prochain.adversaire===n)?' selected':'')+'>'+esc2(n)+'</option>';
+      }).join('');
+  }
+  var selJ=document.getElementById('doc-bilan-joueur');
+  if(selJ){
+    selJ.innerHTML=JOUEURS.length
+      ? JOUEURS.map(function(j,i){ return '<option value="'+i+'">'+esc2(j.num+'. '+j.nom)+'</option>'; }).join('')
+      : '<option value="">Aucun joueur dans l\'effectif</option>';
+  }
+  var selM=document.getElementById('doc-bilan-match');
+  if(selM){
+    selM.innerHTML=MATCHS.length
+      ? MATCHS.map(function(m,i){
+          return '<option value="'+i+'">'+esc2((m.date||'')+' — '+(m.adversaire||'?')+' '+(m.butsPour!=null?(m.butsPour+'-'+m.butsContre):''))+'</option>';
+        }).reverse().join('')
+      : '<option value="">Aucun match enregistré</option>';
+  }
+}
+function docBilanJoueur(){
+  var v=document.getElementById('doc-bilan-joueur').value;
+  if(v===''){ notif('⚠ Aucun joueur dans l\'effectif'); return; }
+  genererBilanJoueurPDF(parseInt(v), '');
+}
+function docFicheMatch(){
+  var v=document.getElementById('doc-bilan-match').value;
+  if(v===''){ notif('⚠ Aucun match enregistré'); return; }
+  genererFicheMatchPDF(parseInt(v));
 }
 
 function genererCarteMentaleMatch(){
