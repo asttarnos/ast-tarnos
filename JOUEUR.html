@@ -587,6 +587,18 @@ async function renderProjetJeu(){
     html+='<div class="blk"><div class="blk-body"><div class="empty-txt">Ton nom n\'apparaît pas sur cette situation. Elle concerne un autre groupe, ou le coach ne t\'a pas encore placé.</div></div></div>';
   }
 
+  // Ce que le coach a écrit à côté du terrain : mise en place, consignes, points clés
+  var blocs=sit.blocs||{};
+  var BLOCS_LIBELLES=[['setup','📋 Mise en place'],['consignes','🗣 Les consignes'],['cles','🔑 Les points clés']];
+  var blocsRemplis=BLOCS_LIBELLES.filter(function(b){ return (blocs[b[0]]||'').trim(); });
+  if(blocsRemplis.length){
+    html+=blocsRemplis.map(function(b){
+      return '<div class="blk"><div class="blk-h"><span class="t">'+b[1]+'</span></div><div class="blk-body">'
+        +'<div style="font-size:13.5px;color:var(--ink);line-height:1.6;white-space:pre-wrap">'+esc(blocs[b[0]].trim())+'</div>'
+        +'</div></div>';
+    }).join('');
+  }
+
   var autres=(sit.joueurs||[]).filter(function(j){ return (j.note||'').trim() && j.cle!==cleMoi; });
   if(autres.length){
     html+='<div class="blk"><div class="blk-h"><span class="t">📋 Les consignes de tes coéquipiers</span></div><div class="blk-body">'
