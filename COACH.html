@@ -2924,21 +2924,34 @@ function renderNotifList(){
       +'<div class="jr" style="background:'+bg+';grid-template-columns:'+GRID+'">'
       +'<div class="jnum">'+j.num+'</div>'
       +'<div class="jnom">'+j.nom+'</div>'
-      +'<select class="sel" onchange="setMatchStatut('+i+',this.value)" title="Statut" style="font-size:9px">'
-      +'<option value="TA">Titu A</option><option value="RA">Rempl A</option>'
-      +'<option value="TB">Titu B</option><option value="RB">Rempl B</option>'
-      +'<option value="BN">Banc (non joué)</option>'
-      +'<option value="ABS">Absent</option></select>'
-      +'<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch('+i+',\'buts\',this.value)">'
-      +'<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch('+i+',\'pd\',this.value)">'
-      +'<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch('+i+',\'tps\',this.value)">'
-      +'<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch('+i+',\'cj\',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>'
-      +'<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch('+i+',\'cr\',this.value)"><option value="0">🟥</option><option value="1">1</option></select>'
+      +(function(){
+        // Ce que le bord de touche a relevé doit être visible ici, pas seulement en mémoire
+        var nm=(typeof NOTES_MATCH!=='undefined' && NOTES_MATCH[i])?NOTES_MATCH[i]:{};
+        function sel(v,attendu){ return String(v)===String(attendu)?' selected':''; }
+        function val(v){ return (v!==undefined && v!==null && v!==0 && v!=='')?(' value="'+v+'"'):''; }
+        return '<select class="sel" onchange="setMatchStatut('+i+',this.value)" title="Statut" style="font-size:9px">'
+        +'<option value="TA"'+sel(nm.statut,'TA')+'>Titu A</option><option value="RA"'+sel(nm.statut,'RA')+'>Rempl A</option>'
+        +'<option value="TB"'+sel(nm.statut,'TB')+'>Titu B</option><option value="RB"'+sel(nm.statut,'RB')+'>Rempl B</option>'
+        +'<option value="BN"'+sel(nm.statut,'BN')+'>Banc (non joué)</option>'
+        +'<option value="ABS"'+sel(nm.statut,'ABS')+'>Absent</option></select>'
+        +'<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts"'+val(nm.buts)+' onchange="setStatMatch('+i+',\'buts\',this.value)">'
+        +'<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)"'+val(nm.pd)+' onchange="setStatMatch('+i+',\'pd\',this.value)">'
+        +'<input class="ninput" type="number" min="0" max="120" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)"'+val(nm.tps)+' onchange="setStatMatch('+i+',\'tps\',this.value)">'
+        +'<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch('+i+',\'cj\',this.value)"><option value="0">🟨</option><option value="1"'+sel(nm.cj,1)+'>1</option><option value="2"'+sel(nm.cj,2)+'>2</option></select>'
+        +'<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch('+i+',\'cr\',this.value)"><option value="0">🟥</option><option value="1"'+sel(nm.cr,1)+'>1</option></select>';
+      })()
       +'</div>'
-      +ligneCriteres(i,{consignes:3,offensif:3,defensif:3,esprit:3},'nouveau')
+      +ligneCriteres(i,((typeof NOTES_MATCH!=='undefined' && NOTES_MATCH[i] && NOTES_MATCH[i].noteDetail)||{consignes:3,offensif:3,defensif:3,esprit:3}),'nouveau')
       +'</div>';
   }).join('');
-  NOTES_MATCH=JOUEURS.map(function(){return {buts:0,pd:0,tps:0,cj:0,cr:0,note:3,noteDetail:{consignes:3,offensif:3,defensif:3,esprit:3},statut:'TA'};});
+  // Autrefois on remettait tout à zéro ici, après avoir dessiné des champs vides.
+  // Maintenant que les champs affichent ce qui est en mémoire (notamment ce que le
+  // bord de touche a relevé), effacer reviendrait à perdre la saisie en silence.
+  // On se contente d'ajuster la taille du tableau si l'effectif a changé.
+  while(NOTES_MATCH.length<JOUEURS.length){
+    NOTES_MATCH.push({buts:0,pd:0,tps:0,cj:0,cr:0,note:3,noteDetail:{consignes:3,offensif:3,defensif:3,esprit:3},statut:'TA'});
+  }
+  if(NOTES_MATCH.length>JOUEURS.length) NOTES_MATCH.length=JOUEURS.length;
 }
 
 function renderFicheSel(){
@@ -9663,17 +9676,30 @@ function collecterFeuilleMatch(){
 // Rien n'est écrit dans la saison ici — tout est reversé dans l'écran Matchs à la fin,
 // pour garder une seule porte d'entrée vers les statistiques.
 var BDT={ouvert:false, nous:0, eux:0, adversaire:'', lieu:'D', date:'', joueurs:[], evenements:[],
-         chronoT:0, chronoActif:false, chronoTimer:null, miTemps:null,
+         chronoBase:0, chronoDebut:null, chronoActif:false, chronoTimer:null, miTemps:null,
          groupe:'a', modeCompo:true, surTerrain:{}, entree:{}, minutes:{}, titulaires:{}, notes:{},
          equipe:{sitNous:0, frappesAdv:0, sitAdv:0}};
 
 function bdtOuvrir(){
+  // Un match interrompu attend peut-être d'être repris
+  var sauve=bdtLireSauvegarde();
+  if(sauve){
+    var minutes=Math.floor(((sauve.chronoBase||0)+(sauve.chronoActif&&sauve.chronoDebut?(Date.now()-sauve.chronoDebut)/1000:0))/60);
+    var faits=(sauve.evenements||[]).filter(function(e){ return e.type!=='mitemps'; }).length;
+    if(confirm('Un match est en cours :\n\n'+(sauve.adversaire||'Adversaire')+' · '+sauve.nous+'–'+sauve.eux
+      +'\n'+minutes+"' · "+faits+' fait(s) de match'
+      +'\n\nReprendre ce match ?\n(Annuler = en démarrer un nouveau)')){
+      bdtRestaurer(sauve);
+      return;
+    }
+    bdtEffacerSauvegarde();
+  }
   var conv=CONVOS||{};
   var prochain=(typeof getProchainMatchCalendrier==='function')?getProchainMatchCalendrier():null;
   BDT.adversaire=conv.adv||(prochain?prochain.adversaire:'')||'';
   BDT.lieu=conv.lieu||(prochain?prochain.lieu:'D')||'D';
   BDT.date=conv.date||(prochain?prochain.date:'')||new Date().toLocaleDateString('fr-FR');
-  BDT.nous=0; BDT.eux=0; BDT.evenements=[]; BDT.chronoT=0; BDT.miTemps=null;
+  BDT.nous=0; BDT.eux=0; BDT.evenements=[]; BDT.chronoBase=0; BDT.chronoDebut=null; BDT.miTemps=null;
   BDT.modeCompo=true; BDT.surTerrain={}; BDT.entree={}; BDT.minutes={}; BDT.titulaires={}; BDT.notes={};
   BDT.equipe={sitNous:0, frappesAdv:0, sitAdv:0};
   bdtChronoStop();
@@ -9689,6 +9715,8 @@ function bdtOuvrir(){
   BDT.ouvert=true;
   document.getElementById('bdt').classList.add('on');
   bdtRender();
+  bdtSauver();
+  bdtGarderEcranAllume();
 }
 // Quels joueurs sont affichés : l'équipe A, l'équipe B, ou tout l'effectif faute de convocation
 // ===== Retrouver un joueur à partir d'un nom saisi à la main =====
@@ -9731,6 +9759,84 @@ function apparierNoms(noms){
   return resultat;
 }
 
+// ===== Le match en cours survit au verrouillage du téléphone =====
+// Chaque geste est écrit dans le navigateur. Si l'écran se verrouille, si l'onglet
+// se ferme, si la batterie lâche : on rouvre et on reprend là où on en était.
+var BDT_CLE_LIVE='ast_bdt_live';
+function bdtSauver(){
+  if(!BDT.ouvert) return;
+  try{
+    localStorage.setItem(BDT_CLE_LIVE, JSON.stringify({
+      quand:Date.now(),
+      adversaire:BDT.adversaire, lieu:BDT.lieu, date:BDT.date,
+      nous:BDT.nous, eux:BDT.eux, evenements:BDT.evenements,
+      chronoBase:BDT.chronoBase, chronoDebut:BDT.chronoDebut, chronoActif:BDT.chronoActif,
+      miTemps:BDT.miTemps, groupe:BDT.groupe, modeCompo:BDT.modeCompo,
+      joueurs:BDT.joueurs, surTerrain:BDT.surTerrain, entree:BDT.entree,
+      minutes:BDT.minutes, titulaires:BDT.titulaires, notes:BDT.notes, equipe:BDT.equipe
+    }));
+  }catch(e){}
+}
+function bdtLireSauvegarde(){
+  try{
+    var brut=localStorage.getItem(BDT_CLE_LIVE);
+    if(!brut) return null;
+    var d=JSON.parse(brut);
+    // au-delà de 12 h, ce n'est plus le match du jour
+    if(!d || !d.quand || (Date.now()-d.quand)>12*3600*1000) return null;
+    return d;
+  }catch(e){ return null; }
+}
+function bdtEffacerSauvegarde(){ try{ localStorage.removeItem(BDT_CLE_LIVE); }catch(e){} }
+function bdtRestaurer(d){
+  BDT.adversaire=d.adversaire||''; BDT.lieu=d.lieu||'D'; BDT.date=d.date||'';
+  BDT.nous=d.nous||0; BDT.eux=d.eux||0; BDT.evenements=d.evenements||[];
+  BDT.chronoBase=d.chronoBase||0; BDT.chronoDebut=d.chronoDebut||null; BDT.chronoActif=!!d.chronoActif;
+  BDT.miTemps=d.miTemps||null; BDT.groupe=d.groupe||'a'; BDT.modeCompo=!!d.modeCompo;
+  BDT.joueurs=d.joueurs||[]; BDT.surTerrain=d.surTerrain||{}; BDT.entree=d.entree||{};
+  BDT.minutes=d.minutes||{}; BDT.titulaires=d.titulaires||{}; BDT.notes=d.notes||{};
+  BDT.equipe=d.equipe||{sitNous:0,frappesAdv:0,sitAdv:0};
+  BDT.ouvert=true;
+  document.getElementById('bdt-adv').textContent=(BDT.lieu==='D'?'Domicile':'Extérieur')+' · '+(BDT.adversaire||'Adversaire')+(BDT.date?' · '+BDT.date:'');
+  document.getElementById('bdt-nous').textContent=(NOM_CLUB||'AST').split(' ')[0];
+  document.getElementById('bdt-eux').textContent=(BDT.adversaire||'Adversaire').slice(0,16);
+  document.getElementById('bdt').classList.add('on');
+  // le chrono repart de l'heure réelle : le temps passé écran éteint est compté
+  if(BDT.chronoActif){
+    BDT.chronoActif=false;
+    bdtChrono();
+    BDT.chronoBase=d.chronoBase||0;
+    BDT.chronoDebut=d.chronoDebut||Date.now();
+  }
+  bdtChronoAfficher();
+  bdtRender();
+  bdtGarderEcranAllume();
+}
+
+// ===== Garder l'écran allumé pendant le match =====
+var BDT_VEILLE=null;
+async function bdtGarderEcranAllume(){
+  try{
+    if(!('wakeLock' in navigator)) return;
+    BDT_VEILLE=await navigator.wakeLock.request('screen');
+    BDT_VEILLE.addEventListener('release', function(){ BDT_VEILLE=null; });
+  }catch(e){ BDT_VEILLE=null; }
+}
+function bdtLibererEcran(){
+  try{ if(BDT_VEILLE){ BDT_VEILLE.release(); BDT_VEILLE=null; } }catch(e){}
+}
+document.addEventListener('visibilitychange', function(){
+  if(!BDT.ouvert) return;
+  if(document.visibilityState==='visible'){
+    bdtGarderEcranAllume();
+    bdtChronoAfficher();
+    bdtRender();
+  }else{
+    bdtSauver();
+  }
+});
+window.addEventListener('pagehide', function(){ if(BDT.ouvert) bdtSauver(); });
+
 function bdtNomsDuGroupe(){
   var conv=CONVOS||{};
   if(BDT.groupe==='a') return conv.a||[];
@@ -9767,6 +9873,8 @@ function bdtFermer(){
   if(BDT.evenements.length && !confirm('Quitter le mode bord de touche ? Ce qui a été saisi sera perdu si tu n\'as pas terminé le match.')) return;
   bdtChronoStop();
   BDT.ouvert=false;
+  bdtEffacerSauvegarde();
+  bdtLibererEcran();
   document.getElementById('bdt').classList.remove('on');
 }
 function bdtScore(qui,d){
@@ -9781,31 +9889,48 @@ function bdtFmtChrono(s){
   var m=Math.floor(s/60), r=s%60;
   return (m<10?'0':'')+m+':'+(r<10?'0':'')+r;
 }
+// Le temps écoulé se déduit de l'horloge, jamais d'un compteur qui tourne :
+// ainsi il reste juste même si le téléphone s'est verrouillé pendant vingt minutes.
+function bdtChronoSecondes(){
+  var t=BDT.chronoBase||0;
+  if(BDT.chronoActif && BDT.chronoDebut) t+=Math.floor((Date.now()-BDT.chronoDebut)/1000);
+  return t;
+}
+function bdtChronoAfficher(){
+  var el=document.getElementById('bdt-chrono');
+  if(el) el.textContent=bdtFmtChrono(bdtChronoSecondes());
+}
 function bdtChrono(){
   if(BDT.chronoActif){ bdtChronoStop(); return; }
   BDT.modeCompo=false; // coup d'envoi : on ne désigne plus les titulaires
   BDT.chronoActif=true;
+  BDT.chronoDebut=Date.now();
   document.getElementById('bdt-chrono-btn').textContent='⏸ Pause';
   BDT.chronoTimer=setInterval(function(){
-    BDT.chronoT++;
-    var el=document.getElementById('bdt-chrono');
-    if(el) el.textContent=bdtFmtChrono(BDT.chronoT);
+    bdtChronoAfficher();
     // les temps de jeu affichés sur les tuiles suivent le chrono
-    if(BDT.chronoT%15===0) bdtRender();
+    if(bdtChronoSecondes()%15===0) bdtRender();
   },1000);
+  bdtSauver();
 }
 function bdtChronoStop(){
+  if(BDT.chronoActif && BDT.chronoDebut){
+    BDT.chronoBase=(BDT.chronoBase||0)+Math.floor((Date.now()-BDT.chronoDebut)/1000);
+  }
   BDT.chronoActif=false;
+  BDT.chronoDebut=null;
   if(BDT.chronoTimer) clearInterval(BDT.chronoTimer);
   BDT.chronoTimer=null;
   var b=document.getElementById('bdt-chrono-btn');
   if(b) b.textContent='▶ Démarrer';
+  bdtChronoAfficher();
+  bdtSauver();
 }
-function bdtChronoReset(){ bdtChronoStop(); BDT.chronoT=0; var el=document.getElementById('bdt-chrono'); if(el) el.textContent='00:00'; }
+function bdtChronoReset(){ bdtChronoStop(); BDT.chronoBase=0; BDT.chronoDebut=null; bdtChronoAfficher(); bdtSauver(); }
 function bdtMiTemps(){
   bdtChronoStop();
   BDT.miTemps={nous:BDT.nous, eux:BDT.eux};
-  BDT.evenements.push({type:'mitemps', minute:Math.floor(BDT.chronoT/60), texte:'⏸ Mi-temps — '+BDT.nous+'–'+BDT.eux});
+  BDT.evenements.push({type:'mitemps', minute:bdtMinuteCourante(), texte:'⏸ Mi-temps — '+BDT.nous+'–'+BDT.eux});
   bdtRender();
 }
 
@@ -9848,7 +9973,7 @@ function bdtEstGardien(idx){
 
 // ===== Qui est sur le terrain =====
 // Le temps de jeu se calcule tout seul : on additionne les intervalles passés sur le terrain.
-function bdtMinuteCourante(){ return Math.floor(BDT.chronoT/60); }
+function bdtMinuteCourante(){ return Math.floor(bdtChronoSecondes()/60); }
 function bdtSurTerrain(idx){ return !!BDT.surTerrain[idx]; }
 function bdtNbSurTerrain(){ return Object.keys(BDT.surTerrain).filter(function(k){ return BDT.surTerrain[k]; }).length; }
 
@@ -9915,9 +10040,9 @@ function bdtAction(type){
   // sinon tout serait horodaté à 0' et la minute ne servirait à rien.
   if(type==='entre'){ bdtFaireEntrer(idx); bdtFermerActions(); bdtRender(); return; }
   if(type==='sort'){ bdtFaireSortir(idx); bdtFermerActions(); bdtRender(); return; }
-  if(!BDT.chronoActif && BDT.chronoT===0) bdtChrono();
+  if(!BDT.chronoActif && bdtChronoSecondes()===0) bdtChrono();
   var nom=JOUEURS[idx]?JOUEURS[idx].nom:'Joueur';
-  var minute=Math.floor(BDT.chronoT/60);
+  var minute=bdtMinuteCourante();
   BDT.evenements.push({type:type, idx:idx, minute:minute, texte:minute+"' — "+(BDT_LIB[type]||type)+' · '+nom});
   if(type==='but') BDT.nous++;
   bdtFermerActions();
@@ -9933,6 +10058,7 @@ function bdtCompteur(idx,type){
   return BDT.evenements.filter(function(e){ return e.idx===idx && e.type===type; }).length;
 }
 function bdtRender(){
+  bdtSauver();
   document.getElementById('bdt-score-nous').textContent=BDT.nous;
   document.getElementById('bdt-score-eux').textContent=BDT.eux;
   document.getElementById('bdt-sit-nous').textContent=BDT.equipe.sitNous||0;
@@ -10071,8 +10197,11 @@ function bdtTerminer(){
   };
 
   BDT.ouvert=false;
+  bdtEffacerSauvegarde();
+  bdtLibererEcran();
   document.getElementById('bdt').classList.remove('on');
   goNav('matchs');
+  if(typeof renderNotifList==='function') renderNotifList();
   notif('✓ Match reporté — temps de jeu et notes inclus, vérifie et valide');
 }
 var BDT_DERNIER_MATCH=null;
