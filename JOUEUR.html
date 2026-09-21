@@ -195,6 +195,7 @@ input[type=range]{accent-color:var(--or)}
     <div id="scr-convocations" class="screen hidden"></div>
     <div id="scr-jourmatch" class="screen hidden"></div>
     <div id="scr-prepa" class="screen hidden"></div>
+    <div id="scr-projetjeu" class="screen hidden"></div>
     <div id="scr-statslive" class="screen hidden"></div>
     <div id="scr-seances" class="screen hidden"></div>
     <div id="scr-videos" class="screen hidden"></div>
@@ -451,6 +452,142 @@ async function renderNotifsCoach(){
   ct.insertAdjacentHTML('beforeend',html);
 }
 
+// ===== Projet de jeu : la situation publiée par le coach =====
+// Lecture seule. Chacun voit le placement de toute l'équipe, et surtout sa propre consigne.
+async function chargerPlateauPublie(){
+  try{
+    var res=await fetch(FIRESTORE_BASE+'/plateau_joueurs/actuel');
+    if(!res.ok) return null;
+    var j=await res.json();
+    var f=j.fields||{};
+    if(!f.data) return null;
+    return {situation:JSON.parse(f.data.stringValue),
+            titre:(f.titre||{}).stringValue||'',
+            updated:(f.updated||{}).stringValue||''};
+  }catch(e){ return null; }
+}
+
+function terrainProjetJeuSvg(situation, cleMoi){
+  var C='#ffffff', VERT='#1f6b3e', W=100, H=130;
+  var s='<rect width="'+W+'" height="'+H+'" fill="'+VERT+'"/>';
+  s+='<rect x="0" y="0" width="100" height="130" fill="none" stroke="'+C+'" stroke-width="0.6"/>';
+  s+='<line x1="0" y1="65" x2="100" y2="65" stroke="'+C+'" stroke-width="0.4"/>';
+  s+='<circle cx="50" cy="65" r="9.15" fill="none" stroke="'+C+'" stroke-width="0.4"/>';
+  s+='<circle cx="50" cy="65" r="0.7" fill="'+C+'"/>';
+  s+='<rect x="21" y="0" width="58" height="18" fill="none" stroke="'+C+'" stroke-width="0.4"/>';
+  s+='<rect x="36" y="0" width="28" height="6" fill="none" stroke="'+C+'" stroke-width="0.4"/>';
+  s+='<rect x="21" y="112" width="58" height="18" fill="none" stroke="'+C+'" stroke-width="0.4"/>';
+  s+='<rect x="36" y="124" width="28" height="6" fill="none" stroke="'+C+'" stroke-width="0.4"/>';
+  [20,40,60,80].forEach(function(x){ s+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="130" stroke="'+C+'" stroke-width="0.25" stroke-dasharray="1.2,1.2" opacity="0.5"/>'; });
+  [32.5,97.5].forEach(function(y){ s+='<line x1="0" y1="'+y+'" x2="100" y2="'+y+'" stroke="'+C+'" stroke-width="0.25" stroke-dasharray="1.2,1.2" opacity="0.5"/>'; });
+
+  (situation.adversaire||[]).forEach(function(o){
+    s+='<circle cx="'+o.x+'" cy="'+(130-o.y)+'" r="2.3" fill="#3a3a3a" stroke="#ffffff" stroke-width="0.3" opacity="0.85"/>';
+    s+='<text x="'+o.x+'" y="'+(130-o.y)+'" text-anchor="middle" dominant-baseline="central" font-size="1.9" font-weight="bold" fill="#ffffff" opacity="0.85">'+esc(o.label||'')+'</text>';
+  });
+
+  var couleurs=situation.couleurs||{};
+  (situation.joueurs||[]).forEach(function(j){
+    var moi=(cleMoi && j.cle===cleMoi);
+    var coul=couleurs[j.groupe]||'#d97706';
+    var y=130-j.y;
+    s+='<circle cx="'+j.x+'" cy="'+y+'" r="'+(moi?3.4:2.7)+'" fill="'+coul+'" stroke="'+(moi?'#ffffff':'rgba(255,255,255,.75)')+'" stroke-width="'+(moi?0.8:0.35)+'"/>';
+    s+='<text x="'+j.x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="2.3" font-weight="bold" fill="#ffffff">'+esc(j.label||'')+'</text>';
+    if(j.nom) s+='<text x="'+j.x+'" y="'+(y+4.8)+'" text-anchor="middle" font-size="2.1" font-weight="bold" fill="#ffffff" stroke="#0d0d0d" stroke-width="0.55" paint-order="stroke">'+esc(j.nom)+'</text>';
+  });
+
+  // Ballon
+  if(situation.ballon){
+    s+='<circle cx="'+situation.ballon[0]+'" cy="'+(130-situation.ballon[1])+'" r="2" fill="#ffffff" stroke="#111111" stroke-width="0.4"/>';
+  }
+
+  // Bulles de consigne
+  (situation.joueurs||[]).forEach(function(j){
+    var txt=(j.note||'').trim();
+    if(!txt) return;
+    var moi=(cleMoi && j.cle===cleMoi);
+    var lignes=couperBulle(txt,17,3);
+    var large=0; lignes.forEach(function(l){ if(l.length>large) large=l.length; });
+    var w=Math.max(15,Math.min(36,large*1.45+4)), h=lignes.length*3.3+3.2;
+    var x=j.x, y=130-j.y;
+    var bx=x-w/2, by=y-9.5-h, enBas=true;
+    if(by<1.5){ by=y+8.5; enBas=false; }
+    if(bx<1) bx=1;
+    if(bx+w>99) bx=99-w;
+    var fond=moi?'#ffe9cc':'#ffffff', trait=moi?'#d97706':'#111111';
+    var qx=Math.max(bx+3,Math.min(bx+w-3,x));
+    var yBase=enBas?(by+h):by, yPointe=enBas?(y-4):(y+4);
+    s+='<rect x="'+bx+'" y="'+by+'" width="'+w+'" height="'+h+'" rx="1.6" fill="'+fond+'" stroke="'+trait+'" stroke-width="'+(moi?0.7:0.45)+'"/>';
+    s+='<path d="M '+(qx-1.6)+' '+yBase+' L '+qx+' '+yPointe+' L '+(qx+1.6)+' '+yBase+' Z" fill="'+fond+'" stroke="'+trait+'" stroke-width="'+(moi?0.7:0.45)+'"/>';
+    s+='<line x1="'+(qx-1.5)+'" y1="'+yBase+'" x2="'+(qx+1.5)+'" y2="'+yBase+'" stroke="'+fond+'" stroke-width="0.9"/>';
+    lignes.forEach(function(l,i){
+      s+='<text x="'+(bx+w/2)+'" y="'+(by+3+i*3.3)+'" text-anchor="middle" font-size="2.45" font-weight="700" fill="#111111">'+esc(l)+'</text>';
+    });
+  });
+
+  return '<svg viewBox="0 0 100 130" style="width:100%;height:auto;display:block;border-radius:10px">'+s+'</svg>';
+}
+
+function couperBulle(txt,parLigne,maxLignes){
+  var mots=String(txt).trim().split(/\s+/), lignes=[], cur='';
+  mots.forEach(function(m){
+    if(((cur+' '+m).trim()).length<=parLigne){ cur=(cur+' '+m).trim(); }
+    else { if(cur) lignes.push(cur); cur=m; }
+  });
+  if(cur) lignes.push(cur);
+  if(lignes.length>maxLignes){ lignes.length=maxLignes; lignes[maxLignes-1]=lignes[maxLignes-1].slice(0,parLigne-1)+'…'; }
+  return lignes;
+}
+
+async function renderProjetJeu(){
+  var ct=document.getElementById('scr-projetjeu');
+  if(!ct) return;
+  ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Chargement…</div></div></div>';
+  var publie=await chargerPlateauPublie();
+  if(!publie || !publie.situation || !(publie.situation.joueurs||[]).length){
+    ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">🧠 Projet de jeu</span></div>'
+      +'<div class="blk-body"><div class="empty-txt">Le coach n\'a pas encore publié de situation. Elle apparaîtra ici dès qu\'il l\'enverra.</div></div></div>';
+    return;
+  }
+  var sit=publie.situation;
+  // Quel plot est le mien ? on compare le nom saisi par le coach dans la COMPO
+  var cleMoi=null, maNote='';
+  (sit.joueurs||[]).forEach(function(j){
+    if(!cleMoi && j.nom && fexNomsCorrespondent(j.nom, MON_NOM)){ cleMoi=j.cle; maNote=j.note||''; }
+  });
+
+  var html='<div class="blk"><div class="blk-h"><span class="t">🧠 '+esc(publie.titre||'Projet de jeu')+'</span></div>'
+    +'<div class="blk-body">'
+    +'<div style="font-size:12px;color:var(--mute);margin-bottom:10px">'+esc(sit.systeme||'')
+    +(sit.espaceLabel?(' · '+esc(sit.espaceLabel)):'')
+    +(publie.updated?('<br>Publié le '+esc(publie.updated)):'')+'</div>'
+    +terrainProjetJeuSvg(sit, cleMoi)
+    +'</div></div>';
+
+  if(cleMoi){
+    html+='<div class="blk" style="border-color:var(--or)"><div class="blk-h"><span class="t">🎯 Ta consigne</span></div><div class="blk-body">'
+      +(maNote
+        ? '<div style="font-size:15px;color:#fff;line-height:1.6;font-weight:600">'+esc(maNote)+'</div>'
+        : '<div class="empty-txt">Pas de consigne particulière pour toi sur cette situation — tiens ton poste.</div>')
+      +'<div style="font-size:11.5px;color:var(--mute);margin-top:10px">Tu es le plot entouré de blanc sur le terrain.</div>'
+      +'</div></div>';
+  }else{
+    html+='<div class="blk"><div class="blk-body"><div class="empty-txt">Ton nom n\'apparaît pas sur cette situation. Elle concerne un autre groupe, ou le coach ne t\'a pas encore placé.</div></div></div>';
+  }
+
+  var autres=(sit.joueurs||[]).filter(function(j){ return (j.note||'').trim() && j.cle!==cleMoi; });
+  if(autres.length){
+    html+='<div class="blk"><div class="blk-h"><span class="t">📋 Les consignes de tes coéquipiers</span></div><div class="blk-body">'
+      +autres.map(function(j){
+        return '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)">'
+          +'<div style="font-size:12px;color:var(--or);font-weight:700">'+esc(j.nom||j.label)+'</div>'
+          +'<div style="font-size:13.5px;color:var(--ink);margin-top:2px">'+esc(j.note)+'</div></div>';
+      }).join('')
+      +'</div></div>';
+  }
+  ct.innerHTML=html;
+}
+
 function renderNotifPushBanniere(){
   var ct=document.getElementById('notif-push-banniere');
   if(!ct) return;
@@ -659,7 +796,7 @@ var RENDER_MAP={
   infosclub:[renderInfosClub],
   statslive:[renderEcranStatsLive],
   jourmatch:[renderJourDeMatch],
-  prepa:[renderPrepaAdversaire],
+  prepa:[renderPrepaAdversaire], projetjeu:[renderProjetJeu],
   calannuel:[renderCalendrierAnnuelJoueur],
   sante:[renderSante],
   coach:[renderCoach]
@@ -793,6 +930,7 @@ function renderHub(){
       {ic:'📱',t:'Jour de match',s:'jourmatch'},
       {ic:'📋',t:'Convocations',s:'convocations'},
       {ic:'🎯',t:'Prépa adversaire',s:'prepa'},
+        {ic:'🧠',t:'Projet de jeu',s:'projetjeu'},
       {ic:'🔢',t:'Stats live',s:'statslive'},
       {ic:'📊',t:'Saison & classements',s:'saison'},
       {ic:'🎥',t:'Vidéos',s:'videos'}
