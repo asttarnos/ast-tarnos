@@ -44,6 +44,28 @@ input[type=range]{accent-color:var(--or)}
 
 /* ===== Le décompte du prochain match, sur l'accueil du joueur ===== */
 
+
+/* Les clips vidéo du coach */
+.cj-c{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:11px;
+  overflow:hidden;margin-bottom:11px}
+.cj-c.pourmoi{border-color:var(--or);box-shadow:0 0 0 1px rgba(217,119,6,.28)}
+.cj-vign{position:relative;aspect-ratio:16/9;background:#0a0b0d}
+.cj-vign img{width:100%;height:100%;object-fit:cover;display:block}
+.cj-vign .rien{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;opacity:.38}
+.cj-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;color:#fff;
+  text-shadow:0 2px 12px rgba(0,0,0,.75);opacity:.9}
+.cj-tc{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.85);color:#fff;font-size:12px;
+  font-weight:800;padding:3px 8px;border-radius:5px}
+.cj-pourmoi{position:absolute;top:7px;left:7px;background:var(--or);color:#1a0f02;font-size:9.5px;
+  font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.cj-corps{padding:11px 13px}
+.cj-t{font-size:15px;font-weight:700;color:var(--ink);line-height:1.3}
+.cj-com{font-size:13px;color:var(--mute);line-height:1.5;margin-top:5px}
+.cj-pr{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.05em;border:1px solid var(--pc);
+  color:var(--pc);border-radius:4px;padding:2px 7px;margin:8px 5px 0 0}
+.cj-ouvrir{display:block;text-align:center;text-decoration:none;margin-top:10px;padding:11px;border-radius:8px;
+  background:var(--or);color:#1a0f02;font-size:12.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.cj-manuel{font-size:11px;color:var(--gold);line-height:1.45;margin-top:7px}
 /* Le projet de jeu vu par le joueur */
 .pjj-nn{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:6px}
 .pjj-nn-c{background:linear-gradient(150deg,rgba(217,119,6,.2),rgba(217,119,6,.04));
@@ -232,6 +254,7 @@ input[type=range]{accent-color:var(--or)}
   <div class="wrap">
     <div id="scr-hub" class="screen"></div>
     <div id="scr-accueil" class="screen hidden"></div>
+    <div id="scr-clips" class="screen hidden"></div>
     <div id="scr-mesmatchs" class="screen hidden"></div>
     <div id="scr-sante" class="screen hidden"></div>
     <div id="scr-infosclub" class="screen hidden"></div>
@@ -880,6 +903,7 @@ var RENDER_MAP={
   convocations:[renderConvocations],
   seances:[renderSeances],
   videos:[renderVideosJoueur],
+  clips:[renderMesClips],
   saison:[renderSaison,renderVoteObjColl],
   tempsjeu:[renderTempsJeu],
   formephysique:[renderFormePhysique],
@@ -996,6 +1020,94 @@ function marquerTuileVue(key){
   var sig=tuileSignature(key);
   if(sig!==null) localStorage.setItem('ast_vu_'+key,sig);
 }
+// ===== Les clips du coach =====
+// Un lien plus une seconde : la vidéo démarre au bon endroit, avec le principe
+// qu'elle illustre et ce que le coach veut faire voir.
+function cjSource(url){
+  var u=(url||'').toLowerCase();
+  if(/youtube\.com|youtu\.be/.test(u)) return 'youtube';
+  if(/vimeo\.com/.test(u)) return 'vimeo';
+  if(/veo\.co/.test(u)) return 'veo';
+  return 'autre';
+}
+function cjIdYoutube(url){
+  var m=(url||'').match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+  return m?m[1]:null;
+}
+function cjHorodatage(sec){
+  sec=Math.max(0, Math.round(sec||0));
+  var h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return (h?(h+':'+(m<10?'0':'')+m):m)+':'+(s<10?'0':'')+s;
+}
+function cjPlage(c){
+  if(c.secondeFin==null || c.secondeFin<=c.seconde) return cjHorodatage(c.seconde);
+  return cjHorodatage(c.seconde)+' → '+cjHorodatage(c.secondeFin);
+}
+function cjDuree(c){
+  if(c.secondeFin==null || c.secondeFin<=c.seconde) return null;
+  var d=Math.round(c.secondeFin-c.seconde);
+  return d<60 ? (d+' secondes') : (Math.floor(d/60)+' min '+(d%60?((d%60)+' s'):''));
+}
+function cjLien(c){
+  var sec=Math.max(0, Math.round(c.seconde||0));
+  var src=cjSource(c.url);
+  if(src==='youtube'){ var id=cjIdYoutube(c.url); if(id) return 'https://www.youtube.com/watch?v='+id+'&t='+sec+'s'; }
+  if(src==='vimeo') return (c.url||'').split('#')[0]+'#t='+sec+'s';
+  return c.url;
+}
+function cjSaitSauter(url){ var s=cjSource(url); return s==='youtube'||s==='vimeo'; }
+function cjPourMoi(c){
+  if(!(c.joueurs||[]).length) return false;                 // tout le groupe
+  return c.joueurs.some(function(n){ return String(n)===String(MON_NUM); });
+}
+function cjMeConcerne(c){
+  return !(c.joueurs||[]).length || cjPourMoi(c);
+}
+
+function renderMesClips(){
+  var ct=document.getElementById('scr-clips');
+  if(!ct) return;
+  var tous=(SAISON&&SAISON.CLIPS)||[];
+  var liste=tous.filter(cjMeConcerne);
+  // Ceux qui me sont nommément adressés d'abord
+  liste.sort(function(a,b){ return (cjPourMoi(b)?1:0)-(cjPourMoi(a)?1:0); });
+
+  if(!liste.length){
+    ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">🎬 Mes clips</span></div>'
+      +'<div class="blk-body"><div class="empty-txt">Le coach n\'a pas encore envoyé de clip. Dès qu\'il repère un moment de match à te montrer, il arrivera ici.</div></div></div>';
+    return;
+  }
+
+  var pourMoi=liste.filter(cjPourMoi).length;
+  var html='<div class="blk"><div class="blk-h"><span class="t">🎬 Mes clips</span>'
+    +'<span style="font-size:11px;color:var(--mute)">'+liste.length+' clip'+(liste.length>1?'s':'')
+    +(pourMoi?(' · '+pourMoi+' pour toi'):'')+'</span></div><div class="blk-body">';
+
+  html+=liste.map(function(c){
+    var id=cjIdYoutube(c.url);
+    var moi=cjPourMoi(c);
+    return '<div class="cj-c'+(moi?' pourmoi':'')+'">'
+      +'<div class="cj-vign">'
+        +(id?'<img src="https://img.youtube.com/vi/'+id+'/mqdefault.jpg" alt="">':'<div class="rien">🎬</div>')
+        +'<div class="cj-play">▶</div>'
+        +(moi?'<div class="cj-pourmoi">Pour toi</div>':'')
+        +'<div class="cj-tc">'+cjPlage(c)+'</div>'
+      +'</div>'
+      +'<div class="cj-corps">'
+        +'<div class="cj-t">'+esc(c.titre||'')+'</div>'
+        +(c.commentaire?'<div class="cj-com">'+esc(c.commentaire)+'</div>':'')
+        +(c.principesDetail||[]).map(function(pr){
+            return '<span class="cj-pr" style="--pc:'+esc(pr.coul||'#d97706')+'">'+esc(pr.code)+' · '+esc(pr.titre||'')+'</span>';
+          }).join('')
+        +(cjDuree(c)?'<div class="cj-com" style="color:var(--or);font-weight:700;margin-top:7px">⏱ Regarde '+cjDuree(c)+', puis tu peux arrêter.</div>':'')
+        +(cjSaitSauter(c.url)?'':'<div class="cj-manuel">⚠ Cette vidéo ne démarre pas toute seule au bon moment — va à '+cjHorodatage(c.seconde)+'.</div>')
+        +'<a class="cj-ouvrir" href="'+esc(cjLien(c))+'" target="_blank" rel="noopener">▶ Voir à '+cjHorodatage(c.seconde)+'</a>'
+      +'</div></div>';
+  }).join('');
+  html+='</div></div>';
+  ct.innerHTML=html;
+}
+
 // ===== Le projet de jeu du club, côté joueur =====
 // Mêmes principes que ceux écrits par le coach : un joueur doit pouvoir les relire
 // entre deux séances, pas seulement les entendre en causerie.
@@ -1189,6 +1301,7 @@ function renderHub(){
     {titre:'Club',tc:'var(--or)',tuiles:[
       {ic:'🏠',t:'Accueil & actualités',s:'accueil'},
       {ic:'⭐',t:'Mes matchs & notes',s:'mesmatchs'},
+      {ic:'🎬',t:'Mes clips vidéo',s:'clips'},
       {ic:'📆',t:'Calendrier annuel',s:'calannuel'},
       {ic:'🩹',t:'Déclarer une blessure',s:'sante'},
       {ic:'📄',t:'Docs & contacts',s:'infosclub'},
@@ -1228,8 +1341,8 @@ function renderHub(){
   }).join('');
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v17</b> · 22/09/2026<br>'
-    +'<span style="opacity:.8">Décompte · Projet de jeu du club</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v22</b> · 22/09/2026<br>'
+    +'<span style="opacity:.8">Mes clips · Projet de jeu</span></div>';
   ct.innerHTML=htmlHub;
   jvBrancher();
 }

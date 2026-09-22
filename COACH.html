@@ -380,6 +380,34 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .nm-j.dedans .coche{color:var(--green)}
 .nm-aide{padding:0 12px 11px;font-size:11px;color:var(--gris2);line-height:1.55;font-style:italic}
 .nm-vide{padding:22px 14px;text-align:center;font-size:12.5px;color:var(--gris2);font-style:italic;line-height:1.6}
+
+/* ===== Clips vidéo ===== */
+.cl-liste{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:10px;padding:12px}
+.cl-c{background:#12161c;border:1px solid var(--line);border-radius:9px;overflow:hidden;display:flex;flex-direction:column}
+.cl-c:hover{border-color:var(--or)}
+.cl-vign{position:relative;aspect-ratio:16/9;background:#0a0b0d;overflow:hidden}
+.cl-vign img{width:100%;height:100%;object-fit:cover;display:block}
+.cl-vign .rien{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:30px;opacity:.4}
+.cl-tc{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.82);color:#fff;font-size:11px;font-weight:800;
+  letter-spacing:.03em;padding:3px 7px;border-radius:4px}
+.cl-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;
+  color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7);opacity:.85}
+.cl-corps{padding:10px 11px;display:flex;flex-direction:column;gap:6px;flex:1}
+.cl-t{font-size:13px;font-weight:700;color:#fff;line-height:1.3}
+.cl-com{font-size:11.5px;color:var(--gris2);line-height:1.45}
+.cl-bandes{display:flex;gap:5px;flex-wrap:wrap}
+.cl-pr{font-size:9px;font-weight:800;letter-spacing:.04em;border:1px solid var(--pc);color:var(--pc);
+  border-radius:4px;padding:2px 6px}
+.cl-jr{font-size:9.5px;font-weight:700;background:rgba(255,255,255,.07);border:1px solid var(--line);
+  border-radius:12px;padding:2px 8px;color:var(--gris2)}
+.cl-actions{display:flex;gap:6px;margin-top:auto;padding-top:4px}
+.cl-actions a,.cl-actions button{flex:1;text-align:center;text-decoration:none;font-family:'Roboto Condensed',sans-serif;
+  font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:7px 8px;border-radius:6px;
+  border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--gris2);cursor:pointer}
+.cl-actions a{background:var(--or);border-color:var(--or);color:#1a0f02}
+.cl-actions button:hover{border-color:var(--red);color:var(--red)}
+.cl-manuel{font-size:10px;color:var(--gold);line-height:1.4}
+.cl-filtres{display:flex;gap:7px;flex-wrap:wrap;padding:11px 12px 0}
 /* ===== Mode d'emploi ===== */
 .ae-recherche{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .ae-recherche input{flex:1;min-width:210px}
@@ -828,8 +856,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v20</b> · 22/09/2026<br>
-      <span style="opacity:.7">Composer le match · Mode d'emploi</span>
+      AST COACH <b style="color:var(--or)">v22</b> · 22/09/2026<br>
+      <span style="opacity:.7">Clips vidéo · Projet de jeu</span>
     </div>
   </div>
 </div>
@@ -1468,6 +1496,39 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk"><div class="bh"><span class="bt">⚔️ Adversaires</span><span class="bc" id="vid-nb-adv">0 vidéo</span></div><div id="vid-list-adv"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Aucune vidéo</div></div></div>
   <div class="blk"><div class="bh"><span class="bt">🏋️ Entraînement</span><span class="bc" id="vid-nb-entr">0 vidéo</span></div><div id="vid-list-entr"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Aucune vidéo</div></div></div>
   <div class="blk"><div class="bh"><span class="bt">📁 Divers</span><span class="bc" id="vid-nb-divers">0 vidéo</span></div><div id="vid-list-divers"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Aucune vidéo</div></div></div>
+  <div class="blk plein"><div class="bh"><span class="bt go">✂️ Créer un clip</span><span class="bc">un instant précis, relié à un principe</span></div>
+    <div style="padding:14px">
+      <div style="font-size:11.5px;color:var(--gris2);line-height:1.55;margin-bottom:12px">Une vidéo entière, personne ne la regarde. Repère l'instant, dis pourquoi il compte, et envoie-le aux joueurs concernés. Rien n'est hébergé : on ne garde que le lien et la seconde de départ.</div>
+      <div class="fg2" style="gap:10px">
+        <div class="fg" style="margin:0"><label class="fl">La vidéo</label>
+          <select class="fi" id="cl-video" onchange="clipChoisirVideo()"></select></div>
+        <div class="fg" style="margin:0"><label class="fl">Ou colle un lien</label>
+          <input class="fi" id="cl-url" placeholder="https://youtu.be/... ou app.veo.co/matches/..."></div>
+      </div>
+      <div class="fg3" style="gap:10px;margin-top:10px">
+        <div class="fg" style="margin:0"><label class="fl">Début (mm:ss)</label>
+          <input class="fi" id="cl-tc" placeholder="12:34"></div>
+        <div class="fg" style="margin:0"><label class="fl">Fin <span style="color:var(--gris2);font-weight:400;text-transform:none;letter-spacing:0">— facultatif</span></label>
+          <input class="fi" id="cl-tc-fin" placeholder="13:05"></div>
+        <div class="fg" style="margin:0"><label class="fl">Titre du clip</label>
+          <input class="fi" id="cl-titre" placeholder="Sortie de balle réussie sur Agenais"></div>
+      </div>
+      <div style="font-size:10.5px;color:var(--gris2);line-height:1.5;margin-top:6px">La vidéo n'est pas découpée — elle ne nous appartient pas. La fin sert à dire au joueur combien de temps regarder : « 31 secondes, puis tu peux arrêter ».</div>
+      <div class="fg" style="margin:10px 0 0"><label class="fl">Ce que je veux qu'ils voient</label>
+        <textarea class="fi" id="cl-com" rows="2" placeholder="Regarde l'orientation du corps avant le contrôle."></textarea></div>
+      <div style="margin-top:12px"><label class="fl">Quel principe ça illustre ?</label>
+        <div id="cl-principes" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"></div></div>
+      <div style="margin-top:12px"><label class="fl">Pour qui ? <span style="color:var(--gris2);font-weight:400;text-transform:none;letter-spacing:0">— personne de coché = tout le groupe</span></label>
+        <div class="nm-choix" id="cl-joueurs" style="padding:9px 0 0"></div></div>
+      <button class="btn" style="margin-top:12px" onclick="clipCreer()">✂️ Créer le clip</button>
+    </div>
+  </div>
+
+  <div class="blk plein"><div class="bh"><span class="bt">🎬 Mes clips</span><span class="bc" id="cl-nb">0</span></div>
+    <div class="cl-filtres" id="cl-filtres"></div>
+    <div class="cl-liste" id="cl-liste"></div>
+  </div>
+
   <div class="blk"><div class="bh"><span class="bt go">📍 Moments marqués par les joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerMomentsVideoCoach()">🔄 Charger</span></div>
     <div id="moments-video-coach-list" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour voir les instants marqués par les joueurs sur les vidéos.</div></div>
   </div>
@@ -3193,7 +3254,7 @@ function goNav(elOrS){
   if(s==='calendrier-annuel') renderCalendrierAnnuel();
   if(s==='plateau'){ chargerPlateauTactique(); etatPlateauPublie(); renderPlateauPrincipes(); }
   if(s==='obj-coll') renderObjColl();
-  if(s==='videos') renderVideos();
+  if(s==='videos'){ renderVideos(); renderClips(); }
   if(s==='biblio') renderBiblio();
   if(s==='compos') renderCompoList();
   if(s==='calendrier') renderCalendrier();
@@ -6951,6 +7012,7 @@ function appliquerDonnees(p,silencieux){
   if(p.SCHEMAS_CPA)SCHEMAS_CPA=p.SCHEMAS_CPA;
   if(p.SONDAGES)SONDAGES=p.SONDAGES;
   if(p.PROJET_JEU)PROJET_JEU=p.PROJET_JEU;
+  if(p.CLIPS)CLIPS=p.CLIPS;
   renderFicheSel();renderPresList();renderNotifList();renderRecap();renderPointsEntrainement();
   renderMatchs();renderVideos();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();
   renderConvosFields();
@@ -6994,7 +7056,17 @@ function recalculerStats(){
 // SYNCHRO SAISON (Firebase Firestore) — sauvegarde cloud en plus du navigateur
 // Note : PHOTOS et SEANCES_PHOTOS restent uniquement en local (trop volumineux pour Firestore, limite ~1 Mo par document)
 function donneesSaisonSansPhotos(){
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,NOM_CLUB};
+  // Les clips partent avec le détail de leurs principes : côté joueur on n'a pas
+  // de quoi résoudre un code comme OFF-1 tout seul.
+  var CLIPS_PUBLIES=(CLIPS||[]).map(function(c){
+    var copie=Object.assign({}, c);
+    copie.principesDetail=(c.principes||[]).map(function(code){
+      var pr=pjParCode(code);
+      return pr?{code:pr.code, titre:pr.titre, coul:pr.phase.coul}:{code:code, titre:'', coul:'#7b848d'};
+    });
+    return copie;
+  });
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7634,6 +7706,76 @@ function renderGenerateur(){
 }
 
 // PLANNING MENSUEL
+// ===== Les clips vidéo =====
+// Une vidéo entière, personne ne la regarde. Un clip, c'est un lien, une seconde
+// de départ, le principe du projet de jeu qu'il illustre, et les joueurs concernés.
+// Rien n'est hébergé : on ne stocke qu'une URL et un nombre de secondes.
+var CLIPS=[];
+
+function clipSource(url){
+  var u=(url||'').toLowerCase();
+  if(/youtube\.com|youtu\.be/.test(u)) return 'youtube';
+  if(/veo\.co/.test(u)) return 'veo';
+  if(/vimeo\.com/.test(u)) return 'vimeo';
+  return 'autre';
+}
+function clipIdYoutube(url){
+  var m=(url||'').match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+  return m?m[1]:null;
+}
+// Combien de secondes derrière « 12:34 » ou « 1:05:20 »
+function clipSecondes(txt){
+  var t=(txt||'').trim();
+  if(!t) return 0;
+  if(/^\d+$/.test(t)) return parseInt(t,10)*60; // un nombre seul = des minutes
+  var p=t.split(':').map(function(x){ return parseInt(x,10)||0; });
+  if(p.length===2) return p[0]*60+p[1];
+  if(p.length===3) return p[0]*3600+p[1]*60+p[2];
+  return 0;
+}
+function clipHorodatage(sec){
+  sec=Math.max(0, Math.round(sec||0));
+  var h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return (h?(h+':'+(m<10?'0':'')+m):m)+':'+(s<10?'0':'')+s;
+}
+// Le lien qui démarre au bon moment. YouTube et Vimeo savent le faire ;
+// pour Veo et les autres, on ouvre la vidéo et on affiche le repère en clair.
+function clipLien(c){
+  var sec=Math.max(0, Math.round(c.seconde||0));
+  var src=clipSource(c.url);
+  if(src==='youtube'){
+    var id=clipIdYoutube(c.url);
+    if(id) return 'https://www.youtube.com/watch?v='+id+'&t='+sec+'s';
+  }
+  if(src==='vimeo') return c.url.split('#')[0]+'#t='+sec+'s';
+  return c.url;
+}
+function clipSaitSauter(url){
+  var s=clipSource(url);
+  return s==='youtube' || s==='vimeo';
+}
+function clipVignette(c){
+  var id=clipIdYoutube(c.url);
+  if(id) return 'https://img.youtube.com/vi/'+id+'/mqdefault.jpg';
+  return null;
+}
+// « 12:34 → 13:05 » quand la fin est connue, sinon juste le départ
+function clipPlage(c){
+  if(c.secondeFin==null || c.secondeFin<=c.seconde) return clipHorodatage(c.seconde);
+  return clipHorodatage(c.seconde)+' → '+clipHorodatage(c.secondeFin);
+}
+function clipDuree(c){
+  if(c.secondeFin==null || c.secondeFin<=c.seconde) return null;
+  var d=Math.round(c.secondeFin-c.seconde);
+  return d<60 ? (d+' s') : (Math.floor(d/60)+' min '+(d%60?((d%60)+' s'):''));
+}
+function clipJoueursNoms(c){
+  return (c.joueurs||[]).map(function(num){
+    var j=JOUEURS.filter(function(x){ return String(x.num)===String(num); })[0];
+    return j?j.nom:('n°'+num);
+  });
+}
+
 // ===== Le projet de jeu =====
 // Le plateau tactique montre OÙ on se place. Ici on écrit CE QU'ON VEUT FAIRE :
 // des principes, dans les mots du coach, rangés par phase de jeu. Chaque principe
@@ -7738,6 +7880,144 @@ function plateauBasculerPrincipe(code){
 }
 function renderPlateauPrincipes(){
   pjPuces('plateau-principes', PLATEAU_PRINCIPES, 'plateauBasculerPrincipe');
+}
+
+// ===== Clips : création et affichage côté coach =====
+var CLIP_PRINCIPES=[], CLIP_JOUEURS=[], CLIP_FILTRE=null;
+
+function clipBasculerPrincipe(code){
+  var i=CLIP_PRINCIPES.indexOf(code);
+  if(i<0) CLIP_PRINCIPES.push(code); else CLIP_PRINCIPES.splice(i,1);
+  pjPuces('cl-principes', CLIP_PRINCIPES, 'clipBasculerPrincipe');
+}
+function clipBasculerJoueur(num){
+  var i=CLIP_JOUEURS.indexOf(num);
+  if(i<0) CLIP_JOUEURS.push(num); else CLIP_JOUEURS.splice(i,1);
+  clipRenderJoueurs();
+}
+function clipRenderJoueurs(){
+  var ct=document.getElementById('cl-joueurs');
+  if(!ct) return;
+  ct.innerHTML=JOUEURS.map(function(j){
+    var dedans=CLIP_JOUEURS.indexOf(j.num)!==-1;
+    return '<div class="nm-j'+(dedans?' dedans':'')+'" onclick="clipBasculerJoueur('+j.num+')">'
+      +'<span class="num">'+j.num+'</span><span class="nom">'+echapForme(j.nom)+'</span>'
+      +'<span class="coche">'+(dedans?'✓':'+')+'</span></div>';
+  }).join('');
+}
+function clipChoisirVideo(){
+  var sel=document.getElementById('cl-video');
+  var champ=document.getElementById('cl-url');
+  if(sel && champ && sel.value) champ.value=sel.value;
+}
+
+function clipCreer(){
+  var url=(document.getElementById('cl-url').value||'').trim()
+    || (document.getElementById('cl-video')||{}).value || '';
+  url=url.trim();
+  if(!url){ notif('⚠ Choisis une vidéo ou colle un lien'); return; }
+  var tc=(document.getElementById('cl-tc').value||'').trim();
+  var sec=clipSecondes(tc);
+  var tcFin=(document.getElementById('cl-tc-fin')?document.getElementById('cl-tc-fin').value:'').trim();
+  var secFin=tcFin?clipSecondes(tcFin):null;
+  if(secFin!=null && secFin<=sec){ notif('⚠ La fin doit venir après le début'); return; }
+  var titre=(document.getElementById('cl-titre').value||'').trim();
+  if(!titre){ notif('⚠ Donne un titre au clip'); return; }
+  CLIPS.unshift({
+    id:'clip_'+Date.now(),
+    url:url,
+    seconde:sec,
+    secondeFin:secFin,
+    titre:titre,
+    commentaire:(document.getElementById('cl-com').value||'').trim(),
+    principes:CLIP_PRINCIPES.slice(),
+    joueurs:CLIP_JOUEURS.slice(),
+    cree:new Date().toLocaleDateString('fr-FR'),
+    auteur:NOM_COACH||'Coach'
+  });
+  ['cl-tc','cl-tc-fin','cl-titre','cl-com','cl-url'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  CLIP_PRINCIPES=[]; CLIP_JOUEURS=[];
+  renderClips();
+  sauvegarder();
+  notif('✓ Clip créé — il partira aux joueurs à la prochaine publication');
+}
+function clipSupprimer(id){
+  var c=CLIPS.filter(function(x){ return x.id===id; })[0];
+  if(!confirm('Supprimer le clip « '+((c&&c.titre)||'')+' » ?')) return;
+  CLIPS=CLIPS.filter(function(x){ return x.id!==id; });
+  renderClips();
+  sauvegarder();
+}
+function clipFiltrer(code){
+  CLIP_FILTRE=(CLIP_FILTRE===code)?null:code;
+  renderClips();
+}
+
+function renderClips(){
+  // Le sélecteur des vidéos déjà en bibliothèque
+  var sel=document.getElementById('cl-video');
+  if(sel){
+    sel.innerHTML='<option value="">— Choisir dans la bibliothèque —</option>'
+      +(VIDEOS||[]).map(function(v){
+        return '<option value="'+esc2(v.url)+'">'+esc2((v.categorie?('['+v.categorie+'] '):'')+(v.titre||v.url))+'</option>';
+      }).join('');
+  }
+  pjPuces('cl-principes', CLIP_PRINCIPES, 'clipBasculerPrincipe');
+  clipRenderJoueurs();
+
+  // Les filtres : par principe réellement utilisé
+  var utilises={};
+  (CLIPS||[]).forEach(function(c){ (c.principes||[]).forEach(function(code){ utilises[code]=(utilises[code]||0)+1; }); });
+  var codes=Object.keys(utilises);
+  var ctF=document.getElementById('cl-filtres');
+  if(ctF){
+    ctF.innerHTML=codes.length?codes.map(function(code){
+      var pr=pjParCode(code);
+      var coul=pr?pr.phase.coul:'#7b848d';
+      return '<span class="pj-puce'+(CLIP_FILTRE===code?' on':'')+'" style="--pc:'+coul+'" onclick="clipFiltrer(\''+code+'\')">'
+        +'<b>'+code+'</b>'+utilises[code]+'</span>';
+    }).join(''):'';
+  }
+
+  var liste=(CLIPS||[]).filter(function(c){ return !CLIP_FILTRE || (c.principes||[]).indexOf(CLIP_FILTRE)!==-1; });
+  var nb=document.getElementById('cl-nb');
+  if(nb) nb.textContent=liste.length+' clip'+(liste.length>1?'s':'');
+
+  var ct=document.getElementById('cl-liste');
+  if(!ct) return;
+  if(!liste.length){
+    ct.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:22px;color:var(--gris2);font-size:12px;font-style:italic">'
+      +(CLIPS.length?'Aucun clip pour ce principe.':'Aucun clip pour l\'instant. Repère un instant dans une vidéo, et il apparaîtra ici.')+'</div>';
+    return;
+  }
+  ct.innerHTML=liste.map(function(c){
+    var vign=clipVignette(c);
+    var noms=clipJoueursNoms(c);
+    return '<div class="cl-c">'
+      +'<div class="cl-vign">'
+        +(vign?'<img src="'+vign+'" alt="">':'<div class="rien">🎬</div>')
+        +'<div class="cl-play">▶</div>'
+        +'<div class="cl-tc">'+clipPlage(c)+'</div>'
+      +'</div>'
+      +'<div class="cl-corps">'
+        +'<div class="cl-t">'+echapForme(c.titre||'')+'</div>'
+        +(c.commentaire?'<div class="cl-com">'+echapForme(c.commentaire)+'</div>':'')
+        +((c.principes||[]).length?'<div class="cl-bandes">'+c.principes.map(function(code){
+            var pr=pjParCode(code);
+            return '<span class="cl-pr" style="--pc:'+(pr?pr.phase.coul:'#7b848d')+'">'+code+'</span>';
+          }).join('')+'</div>':'')
+        +'<div class="cl-bandes">'+(noms.length
+            ? noms.slice(0,4).map(function(n){ return '<span class="cl-jr">'+echapForme(n)+'</span>'; }).join('')
+              +(noms.length>4?'<span class="cl-jr">+'+(noms.length-4)+'</span>':'')
+            : '<span class="cl-jr">Tout le groupe</span>')+'</div>'
+        +(clipDuree(c)?'<div class="cl-com" style="color:var(--or);font-weight:700">⏱ '+clipDuree(c)+' à regarder</div>':'')
+        +(clipSaitSauter(c.url)?'':'<div class="cl-manuel">⚠ Ce lecteur ne sait pas démarrer à une seconde précise — va à '+clipHorodatage(c.seconde)+' à la main.</div>')
+        +'<div class="cl-actions">'
+          +'<a href="'+esc2(clipLien(c))+'" target="_blank" rel="noopener">▶ Ouvrir à '+clipHorodatage(c.seconde)+'</a>'
+          +'<button onclick="clipSupprimer(\''+c.id+'\')">🗑</button>'
+        +'</div>'
+      +'</div></div>';
+  }).join('');
 }
 
 // ===== Mode d'emploi =====
@@ -7917,6 +8197,18 @@ var AIDE=[
   'Coche les <b>principes</b> que la situation sert, puis <code>📲 Publier</code> pour l\'envoyer aux joueurs.'
  ],
  astuce:'Chaque zone du ballon garde jusqu\'à 3 placements différents, avec ses propres bulles.'},
+
+{f:'tact', t:'Envoyer un clip vidéo à un joueur', ou:'Écran Vidéos', ecran:'videos',
+ etapes:[
+  'Bloc <b>✂️ Créer un clip</b> : choisis une vidéo de ta bibliothèque, ou colle un lien.',
+  'Entre le <b>début</b> au format <code>12:34</code> (ou <code>1:05:20</code> pour un match long). Un nombre seul est compris comme des minutes.',
+  'La <b>fin</b> est facultative. Elle ne découpe pas la vidéo — elle sert à dire au joueur combien de temps regarder : « 31 secondes, puis tu peux arrêter ».',
+  'Donne un titre, et écris ce que tu veux qu\'ils voient.',
+  'Coche le <b>principe</b> du projet de jeu que ça illustre, et les <b>joueurs</b> concernés. Personne de coché = tout le groupe.',
+  '<code>✂️ Créer le clip</code>, puis enregistre : il part dans leur appli, onglet <b>🎬 Mes clips</b>.'
+ ],
+ piege:'<b>Aucun code à taper.</b> Les codes OFF-1, DEF-2 se fabriquent tout seuls à partir des principes écrits dans l\'écran Projet de jeu. Ici tu ne fais que cliquer une pastille. Si tu n\'en vois aucune, c\'est qu\'il n\'y a pas encore de principes.',
+ astuce:'<b>Rien n\'est hébergé.</b> On ne garde que le lien et les secondes de départ et de fin — aucun octet de vidéo ne passe par ton cloud. Sur YouTube et Vimeo, la vidéo démarre toute seule au bon moment ; sur Veo, l\'appli affiche le repère à atteindre.'},
 
 {f:'tact', t:'Préparer un adversaire', ou:'Écran Adversaires', ecran:'adversaires',
  etapes:[
