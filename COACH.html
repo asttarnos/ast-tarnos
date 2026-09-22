@@ -341,6 +341,57 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   .dv-live .t{font-size:22px}
 }
 @media(prefers-reduced-motion:reduce){ .dv-live{transition:none} .dv-live:hover{transform:none} }
+
+
+/* Une pastille de principe : on la coche pour relier une situation, un exercice, une séance. */
+.pj-puce{display:inline-flex;align-items:center;gap:6px;background:#12161c;border:1px solid var(--line);
+  border-radius:20px;padding:5px 11px;cursor:pointer;font-size:11px;font-weight:600;color:var(--gris2);
+  transition:border-color .12s,background .12s,color .12s;user-select:none}
+.pj-puce:hover{border-color:var(--pc);color:#fff}
+.pj-puce.on{background:color-mix(in srgb,var(--pc) 22%,transparent);border-color:var(--pc);color:#fff}
+.pj-puce b{font-size:9.5px;font-weight:800;letter-spacing:.05em;color:var(--pc)}
+.pj-puce-vide{font-size:11px;color:var(--gris2);font-style:italic;line-height:1.5}
+/* ===== Projet de jeu : les phases côte à côte, les principes dedans ===== */
+.pj-nn{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.pj-nn-c{background:linear-gradient(150deg,rgba(217,119,6,.16),rgba(217,119,6,.03));border:1.5px solid rgba(217,119,6,.45);
+  border-radius:10px;padding:11px 13px}
+.pj-nn-c .n{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--or);margin-bottom:6px}
+.pj-nn-c input{width:100%;background:transparent;border:none;border-bottom:1px dotted rgba(255,255,255,.28);
+  color:#fff;font-family:'Roboto Condensed',sans-serif;font-size:13.5px;font-weight:600;padding:4px 0;outline:none}
+.pj-nn-c input:focus{border-bottom-color:var(--or)}
+.pj-nn-c input::placeholder{color:var(--gris2);font-weight:400;font-style:italic}
+
+.pj-phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px;align-items:start}
+.pj-phases>*{min-width:0}
+.pj-phase{background:var(--carte);border:1.5px solid var(--line);border-top:4px solid var(--pc);border-radius:11px;
+  padding:12px 13px;box-shadow:0 4px 18px rgba(0,0,0,.42)}
+.pj-phase-t{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.pj-phase-t .ic{font-size:16px;line-height:1}
+.pj-phase-t .nom{font-family:'Roboto Condensed',sans-serif;font-size:13.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.02em;color:var(--pc);line-height:1.15;flex:1;min-width:0}
+.pj-phase-t .nb{font-size:10px;font-weight:800;color:var(--gris2);background:rgba(255,255,255,.07);
+  border-radius:10px;padding:2px 8px;flex:0 0 auto}
+.pj-phase-s{font-size:10.5px;color:var(--gris2);font-style:italic;margin-bottom:10px}
+.pj-p{background:#12161c;border:1px solid var(--line);border-left:3px solid var(--pc);border-radius:7px;
+  padding:9px 10px;margin-bottom:7px}
+.pj-p-h{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.pj-code{font-size:9.5px;font-weight:800;letter-spacing:.06em;color:var(--pc);background:rgba(255,255,255,.06);
+  border:1px solid var(--pc);border-radius:4px;padding:2px 6px;flex:0 0 auto}
+.pj-p-h .act{margin-left:auto;display:flex;gap:6px;flex:0 0 auto}
+.pj-p-h .act span{cursor:pointer;font-size:12px;color:var(--gris2);line-height:1}
+.pj-p-h .act span:hover{color:var(--or)}
+.pj-p textarea,.pj-p input{width:100%;background:#0a0b0d;border:1px solid rgba(255,255,255,.14);border-radius:5px;
+  color:var(--gris);font-family:'Roboto Condensed',sans-serif;padding:6px 8px;outline:none;resize:vertical}
+.pj-p .titre{font-size:13px;font-weight:700;margin-bottom:5px}
+.pj-p .critere{font-size:11.5px;line-height:1.4}
+.pj-p .lab{font-size:8.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gris2);display:block;margin-bottom:3px}
+.pj-p input:focus,.pj-p textarea:focus{border-color:var(--pc)}
+.pj-ajout{width:100%;padding:8px;border:1px dashed rgba(255,255,255,.26);border-radius:7px;background:none;
+  color:var(--gris2);font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+.pj-ajout:hover{border-color:var(--pc);color:var(--pc)}
+.pj-vide{font-size:11px;color:var(--gris2);font-style:italic;line-height:1.55;margin-bottom:8px}
+@media(max-width:760px){ .pj-phases{grid-template-columns:1fr} }
 /* ===== Calendrier des séances ===== */
 .cs-tete{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;flex-wrap:wrap}
 .cs-mois{font-family:'Roboto Condensed',sans-serif;font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#fff;min-width:170px;text-align:center}
@@ -716,8 +767,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v16</b> · 22/09/2026<br>
-      <span style="opacity:.7">Écrans en colonnes · 96 Ko déblayés</span>
+      AST COACH <b style="color:var(--or)">v17</b> · 22/09/2026<br>
+      <span style="opacity:.7">Projet de jeu · Principes reliés</span>
     </div>
   </div>
 </div>
@@ -1614,6 +1665,11 @@ Repli défensif après perte"></textarea>
         <button class="gen-btn2" style="width:auto;padding:8px 16px;white-space:nowrap" onclick="publierPlateauJoueurs()">📲 Publier</button>
         <button class="gen-btn2" style="width:auto;padding:8px 16px;white-space:nowrap" onclick="retirerPlateauJoueurs()">🚫 Retirer</button>
       </div>
+      <!-- Une situation sans principe n'est qu'un dessin : on dit lequel elle sert. -->
+      <div style="margin-top:11px;padding-top:10px;border-top:1px solid var(--line)">
+        <label class="fl">Quels principes cette situation sert-elle ?</label>
+        <div id="plateau-principes" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"></div>
+      </div>
     </div>
   </div>
   <div class="blk" style="padding:0;overflow:hidden;height:calc(100vh - 260px);min-height:500px">
@@ -1824,6 +1880,31 @@ Repli défensif après perte"></textarea>
   <button class="btn fex-only-presentation" style="display:none;position:fixed;top:14px;right:14px;width:auto;padding:10px 18px;z-index:999;background:#c0392b;box-shadow:0 4px 14px rgba(0,0,0,.6)" onclick="fexTogglePresentation(false)">✕ QUITTER LA PRÉSENTATION</button>
 </div>
 
+<!-- PROJET DE JEU -->
+<div class="scr" id="scr-projet-jeu">
+  <div class="ph"><div><div class="ph-title">📐 Projet de jeu</div><div class="ph-sub">Ce qu'on veut faire, dans tes mots — le plateau tactique montre où se placer, ici on dit pourquoi</div></div></div>
+
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🔒 Nos trois non-négociables</span><span class="bc" style="font-weight:400">ce qu'on ne lâche jamais</span></div>
+    <div style="padding:14px">
+      <div style="font-size:11.5px;color:var(--gris2);line-height:1.55;margin-bottom:11px">Les trois choses que tu répètes à chaque causerie. Elles s'impriment sur la carte mentale d'avant-match et se retrouveront dans l'appli des joueurs.</div>
+      <div class="pj-nn" id="pj-nn"></div>
+    </div>
+  </div>
+
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Les principes, phase par phase</span><span class="bc" id="pj-nb">0</span></div>
+    <div style="padding:14px">
+      <div class="pj-phases" id="pj-phases"></div>
+    </div>
+  </div>
+
+  <div class="blk"><div class="bh"><span class="bt">Le sortir du téléphone</span></div>
+    <div style="padding:14px">
+      <button class="btn" onclick="genererProjetJeuPDF()">🖨️ Imprimer le projet de jeu</button>
+      <div style="font-size:10.5px;color:var(--gris2);margin-top:8px;line-height:1.55">Une page avec le logo du club, tes non-négociables en tête et les principes par phase. À afficher au vestiaire ou à donner au staff.</div>
+    </div>
+  </div>
+</div>
+
 <!-- CALENDRIER DES SÉANCES -->
 <div class="scr" id="scr-seances-cal">
   <div class="ph"><div><div class="ph-title">🗓️ Calendrier des séances</div><div class="ph-sub">Ce qui a été travaillé, jour par jour — et la fiche d'exercices qui va avec</div></div></div>
@@ -1885,6 +1966,23 @@ Repli défensif après perte"></textarea>
             <div class="doc-desc">Poste, système, rôle dedans, les 12 zones du terrain à entourer, comportement avec et sans le ballon, coups de pied arrêtés, 22 critères notés de 1 à 5, et la conclusion.</div>
             <div class="doc-champ"><select class="fi" id="doc-obs-adv"></select></div>
             <button class="btn" onclick="genererFicheObservation(document.getElementById('doc-obs-adv')?document.getElementById('doc-obs-adv').value:'')">Ouvrir la fiche d'observation</button>
+          </div>
+        </div>
+
+        <div class="doc-carte">
+          <div class="doc-apercu">
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mobs">
+                <div class="r" style="flex:0 0 22px"><span class="k" style="--c:#d97706"><u></u></span><span class="k" style="--c:#d97706"><u></u></span><span class="k" style="--c:#d97706"><u></u></span></div>
+                <div class="r"><span class="k" style="--c:#d97706"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#22a06b"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#b285e8"><u></u><u class="court"></u></span></div>
+              </div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">📐 Projet de jeu</div>
+            <div class="doc-desc">Tes trois non-négociables en tête, puis tes principes rangés par phase avec leur critère de réussite. À afficher au vestiaire ou à donner au staff.</div>
+            <button class="btn" onclick="genererProjetJeuPDF()">Ouvrir le projet de jeu</button>
           </div>
         </div>
 
@@ -2804,7 +2902,8 @@ var POLES=[
     {s:'compos',ic:'🎯',l:'Compositions'},
     {s:'cpa',ic:'🚩',l:'Corners & Coups francs'},
     {s:'feuille-match',ic:'🖨️',l:'Feuille de Match'},
-    {s:'plateau',ic:'🧠',l:'Plateau Tactique'}
+    {s:'plateau',ic:'🧠',l:'Plateau Tactique'},
+    {s:'projet-jeu',ic:'📐',l:'Projet de jeu'}
   ]},
   {id:'effectif',label:'Effectif',icon:'👥',color:'#a855f7',screens:[
     {s:'effectif',ic:'👥',l:'Effectif'},
@@ -2926,6 +3025,7 @@ function goNav(elOrS){
   majBreadcrumb(s);
   if(s==='dash') updateDash();
   if(s==='imprimer') renderDocsImprimer();
+  if(s==='projet-jeu') renderProjetJeuCoach();
   if(s==='seances-cal') renderCalSeances();
   if(s==='effectif') renderFicheCoach();
   if(s==='recap') renderRecap();
@@ -2935,7 +3035,7 @@ function goNav(elOrS){
   if(s==='feuille-match') renderFeuilleMatch();
   if(s==='constructeur') renderConstructeur();
   if(s==='calendrier-annuel') renderCalendrierAnnuel();
-  if(s==='plateau'){ chargerPlateauTactique(); etatPlateauPublie(); }
+  if(s==='plateau'){ chargerPlateauTactique(); etatPlateauPublie(); renderPlateauPrincipes(); }
   if(s==='obj-coll') renderObjColl();
   if(s==='videos') renderVideos();
   if(s==='biblio') renderBiblio();
@@ -6691,6 +6791,7 @@ function appliquerDonnees(p,silencieux){
   if(p.ADVERSAIRES)ADVERSAIRES=p.ADVERSAIRES;
   if(p.SCHEMAS_CPA)SCHEMAS_CPA=p.SCHEMAS_CPA;
   if(p.SONDAGES)SONDAGES=p.SONDAGES;
+  if(p.PROJET_JEU)PROJET_JEU=p.PROJET_JEU;
   renderFicheSel();renderPresList();renderNotifList();renderRecap();renderPointsEntrainement();
   renderMatchs();renderVideos();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();
   renderConvosFields();
@@ -6734,7 +6835,7 @@ function recalculerStats(){
 // SYNCHRO SAISON (Firebase Firestore) — sauvegarde cloud en plus du navigateur
 // Note : PHOTOS et SEANCES_PHOTOS restent uniquement en local (trop volumineux pour Firestore, limite ~1 Mo par document)
 function donneesSaisonSansPhotos(){
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7374,6 +7475,41 @@ function renderGenerateur(){
 }
 
 // PLANNING MENSUEL
+// ===== Le projet de jeu =====
+// Le plateau tactique montre OÙ on se place. Ici on écrit CE QU'ON VEUT FAIRE :
+// des principes, dans les mots du coach, rangés par phase de jeu. Chaque principe
+// porte un code court (OFF-1, DEF-3...) qui servira à étiqueter exercices et séances.
+var PJ_PHASES=[
+  {cle:'off', code:'OFF', nom:'Organisation offensive', sous:'Quand on a le ballon',        ic:'⚽', coul:'#d97706'},
+  {cle:'trp', code:'TRP', nom:'Transition à la perte',  sous:'Les 6 secondes après la perte',ic:'🔻', coul:'#dc4444'},
+  {cle:'def', code:'DEF', nom:'Organisation défensive', sous:"Quand l'adversaire a le ballon",ic:'🛡', coul:'#22a06b'},
+  {cle:'trr', code:'TRR', nom:'Transition à la récupération', sous:'Les 6 secondes après la récupération', ic:'🔺', coul:'#4ea8de'},
+  {cle:'cpa', code:'CPA', nom:'Coups de pied arrêtés',  sous:'Corners, coups francs, touches', ic:'🚩', coul:'#b285e8'}
+];
+var PROJET_JEU={ nonNegociables:['','',''], principes:{} };
+function pjPhase(cle){ return PJ_PHASES.filter(function(f){return f.cle===cle;})[0]; }
+function pjListe(cle){
+  if(!PROJET_JEU.principes[cle]) PROJET_JEU.principes[cle]=[];
+  return PROJET_JEU.principes[cle];
+}
+// Le code se recalcule à partir du rang : supprimer le 2e renumérote proprement la suite.
+function pjCode(cle, i){ return pjPhase(cle).code+'-'+(i+1); }
+function pjTous(){
+  var out=[];
+  PJ_PHASES.forEach(function(f){
+    pjListe(f.cle).forEach(function(pr,i){
+      out.push({cle:f.cle, phase:f, i:i, code:pjCode(f.cle,i), titre:pr.titre||'', critere:pr.critere||'', sous:pr.sous||[]});
+    });
+  });
+  return out;
+}
+function pjParCode(code){
+  var t=pjTous();
+  for(var i=0;i<t.length;i++){ if(t[i].code===code) return t[i]; }
+  return null;
+}
+function pjNbPrincipes(){ return pjTous().length; }
+
 var PLANNING_MENSUEL=[];
 var THEMES_PLANNING=[
   'Contrôle / conduite de balle','Passes courtes','Passes longues','Centres','Finition / frappes','Jeu de tête','Dribble / 1v1 offensif',
@@ -7414,6 +7550,175 @@ function moisLabelDe(key){
   var parts=key.split('-');
   return noms[parseInt(parts[1],10)-1]+' '+parts[0];
 }
+// ===== Les principes se relient au reste =====
+// Une pastille par principe : on coche celles que la situation, l'exercice ou la séance sert.
+function pjPuces(ctId, selection, onToggle){
+  var ct=document.getElementById(ctId);
+  if(!ct) return;
+  var tous=pjTous().filter(function(x){ return (x.titre||'').trim(); });
+  if(!tous.length){
+    ct.innerHTML='<span class="pj-puce-vide">Aucun principe écrit pour l\'instant. '
+      +'<span style="color:var(--or);cursor:pointer;text-decoration:underline" onclick="goNav(\'projet-jeu\')">Écris ton projet de jeu</span> '
+      +'et ils apparaîtront ici.</span>';
+    return;
+  }
+  ct.innerHTML=tous.map(function(x){
+    var coche=(selection||[]).indexOf(x.code)!==-1;
+    return '<span class="pj-puce'+(coche?' on':'')+'" style="--pc:'+x.phase.coul+'" data-code="'+x.code+'" '
+      +'title="'+esc2(x.titre)+'" onclick="'+onToggle+'(\''+x.code+'\')">'
+      +'<b>'+x.code+'</b>'+esc2(x.titre.length>32?(x.titre.slice(0,31)+'…'):x.titre)+'</span>';
+  }).join('');
+}
+
+// -- Le plateau tactique --
+var PLATEAU_PRINCIPES=[];
+function plateauBasculerPrincipe(code){
+  var i=PLATEAU_PRINCIPES.indexOf(code);
+  if(i<0) PLATEAU_PRINCIPES.push(code); else PLATEAU_PRINCIPES.splice(i,1);
+  renderPlateauPrincipes();
+}
+function renderPlateauPrincipes(){
+  pjPuces('plateau-principes', PLATEAU_PRINCIPES, 'plateauBasculerPrincipe');
+}
+
+// ===== Projet de jeu : rendu et saisie =====
+function renderProjetJeuCoach(){
+  // Les trois non-négociables
+  if(!Array.isArray(PROJET_JEU.nonNegociables)) PROJET_JEU.nonNegociables=['','',''];
+  while(PROJET_JEU.nonNegociables.length<3) PROJET_JEU.nonNegociables.push('');
+  var exemples=['Ex : on sort toujours par le côté fort','Ex : jamais de passe dans l\'axe sous pression','Ex : on presse ensemble ou pas du tout'];
+  document.getElementById('pj-nn').innerHTML=PROJET_JEU.nonNegociables.slice(0,3).map(function(v,i){
+    return '<div class="pj-nn-c"><div class="n">Non-négociable '+(i+1)+'</div>'
+      +'<input value="'+esc2(v||'')+'" placeholder="'+esc2(exemples[i])+'" oninput="pjSetNN('+i+',this.value)">'
+      +'</div>';
+  }).join('');
+
+  // Les phases et leurs principes
+  document.getElementById('pj-nb').textContent=pjNbPrincipes()+' principe'+(pjNbPrincipes()>1?'s':'');
+  document.getElementById('pj-phases').innerHTML=PJ_PHASES.map(function(f){
+    var liste=pjListe(f.cle);
+    return '<div class="pj-phase" style="--pc:'+f.coul+'">'
+      +'<div class="pj-phase-t"><span class="ic">'+f.ic+'</span><span class="nom">'+esc2(f.nom)+'</span>'
+        +'<span class="nb">'+liste.length+'</span></div>'
+      +'<div class="pj-phase-s">'+esc2(f.sous)+'</div>'
+      +(liste.length?'':'<div class="pj-vide">Rien d\'écrit pour cette phase. Deux ou trois principes suffisent — ceux que tu répètes vraiment.</div>')
+      +liste.map(function(pr,i){
+        return '<div class="pj-p">'
+          +'<div class="pj-p-h"><span class="pj-code">'+pjCode(f.cle,i)+'</span>'
+            +'<span class="act">'
+            +(i>0?'<span title="Monter" onclick="pjDeplacer(\''+f.cle+'\','+i+',-1)">▲</span>':'')
+            +(i<liste.length-1?'<span title="Descendre" onclick="pjDeplacer(\''+f.cle+'\','+i+',1)">▼</span>':'')
+            +'<span title="Supprimer" onclick="pjSupprimer(\''+f.cle+'\','+i+')">🗑</span></span></div>'
+          +'<input class="titre" value="'+esc2(pr.titre||'')+'" placeholder="Le principe, dans tes mots" oninput="pjSet(\''+f.cle+'\','+i+',\'titre\',this.value)">'
+          +'<span class="lab">Ce que je dois voir quand ça marche</span>'
+          +'<textarea class="critere" rows="2" placeholder="Le critère de réussite, observable sur le terrain" oninput="pjSet(\''+f.cle+'\','+i+',\'critere\',this.value)">'+esc2(pr.critere||'')+'</textarea>'
+          +'</div>';
+      }).join('')
+      +'<button class="pj-ajout" onclick="pjAjouter(\''+f.cle+'\')">+ Ajouter un principe</button>'
+      +'</div>';
+  }).join('');
+}
+
+var PJ_MINUTEUR=null;
+function pjEnregistrerBientot(){
+  // On n'écrit pas à chaque frappe : on attend une pause dans la saisie
+  clearTimeout(PJ_MINUTEUR);
+  PJ_MINUTEUR=setTimeout(function(){ if(typeof sauvegarder==='function') sauvegarder(); }, 1500);
+}
+function pjSetNN(i, v){ PROJET_JEU.nonNegociables[i]=v; pjEnregistrerBientot(); }
+function pjSet(cle, i, champ, v){
+  var l=pjListe(cle);
+  if(!l[i]) return;
+  l[i][champ]=v;
+  pjEnregistrerBientot();
+}
+function pjAjouter(cle){
+  pjListe(cle).push({titre:'', critere:'', sous:[]});
+  renderProjetJeuCoach();
+  // on place le curseur dans le principe qu'on vient de créer
+  var champs=document.querySelectorAll('.pj-phase');
+  for(var k=0;k<PJ_PHASES.length;k++){
+    if(PJ_PHASES[k].cle===cle && champs[k]){
+      var tous=champs[k].querySelectorAll('input.titre');
+      if(tous.length) tous[tous.length-1].focus();
+    }
+  }
+}
+function pjSupprimer(cle, i){
+  var l=pjListe(cle);
+  var nom=(l[i]&&l[i].titre)?('« '+l[i].titre+' »'):'ce principe';
+  if(!confirm('Supprimer '+nom+' ?\n\nLes principes suivants de cette phase seront renumérotés.')) return;
+  l.splice(i,1);
+  renderProjetJeuCoach();
+  sauvegarder();
+}
+function pjDeplacer(cle, i, sens){
+  var l=pjListe(cle), j=i+sens;
+  if(j<0 || j>=l.length) return;
+  var tmp=l[i]; l[i]=l[j]; l[j]=tmp;
+  renderProjetJeuCoach();
+  sauvegarder();
+}
+
+// ===== L'imprimer =====
+function genererProjetJeuPDF(){
+  var logo=docLogoClub();
+  var nn=(PROJET_JEU.nonNegociables||[]).filter(function(x){ return (x||'').trim(); });
+  var phases=PJ_PHASES.map(function(f){
+    var liste=pjListe(f.cle).filter(function(pr){ return (pr.titre||'').trim(); });
+    if(!liste.length) return '';
+    return '<div class="ph2" style="--pc:'+f.coul+'">'
+      +'<div class="ph2-t"><span>'+f.ic+'</span>'+docEsc(f.nom)+'<i>'+docEsc(f.sous)+'</i></div>'
+      +liste.map(function(pr,i){
+        return '<div class="pr"><span class="code">'+pjCode(f.cle,i)+'</span>'
+          +'<div><div class="tt">'+docEsc(pr.titre)+'</div>'
+          +((pr.critere||'').trim()?'<div class="cr">→ '+docEsc(pr.critere)+'</div>':'')
+          +'</div></div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Projet de jeu — '+docEsc(NOM_CLUB)+'</title>'
+    +docStylesCommuns()
+    +'<style>'
+    +'@page{size:A4 portrait;margin:8mm}'
+    +'.feuille{width:764px;min-height:1050px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}'
+    +'.bandeau{display:flex;align-items:center;gap:12px;border-bottom:3px solid #d97706;padding-bottom:9px}'
+    +'.bandeau img{width:44px;height:44px;object-fit:contain}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:21px;line-height:1}'
+    +'.bandeau .sous{font-size:10px;color:#6b7480;text-transform:uppercase;letter-spacing:.15em;margin-top:2px}'
+    +'.nn{display:grid;grid-template-columns:repeat('+Math.max(1,nn.length)+',1fr);gap:9px}'
+    +'.nn-c{border:2px solid #d97706;border-radius:9px;padding:9px 11px;background:#fff8ef}'
+    +'.nn-c b{display:block;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#b45309;margin-bottom:4px}'
+    +'.nn-c span{font-size:12.5px;font-weight:700;line-height:1.3}'
+    +'.ph2{border:1.5px solid #e2e6ea;border-left:5px solid var(--pc);border-radius:9px;padding:9px 12px 10px;page-break-inside:avoid}'
+    +'.ph2-t{font-family:Anton,sans-serif;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--pc);'
+      +'margin-bottom:7px;display:flex;align-items:baseline;gap:7px}'
+    +'.ph2-t i{font-family:"Roboto Condensed",sans-serif;font-size:9.5px;color:#98a2ad;font-weight:400;letter-spacing:0;text-transform:none}'
+    +'.pr{display:flex;gap:9px;align-items:flex-start;padding:5px 0;border-bottom:1px dotted #e0e5ea}'
+    +'.pr:last-child{border-bottom:none}'
+    +'.code{flex:0 0 auto;font-size:8.5px;font-weight:800;letter-spacing:.05em;color:var(--pc);'
+      +'border:1px solid var(--pc);border-radius:4px;padding:2px 5px;margin-top:1px}'
+    +'.tt{font-size:12.5px;font-weight:700;line-height:1.3}'
+    +'.cr{font-size:10.5px;color:#6b7480;line-height:1.4;margin-top:2px;font-style:italic}'
+    +'.pied{margin-top:auto;display:flex;justify-content:space-between;font-size:8.5px;color:#98a2ad;'
+      +'border-top:1px solid #e2e6ea;padding-top:7px}'
+    +'.vide{font-size:12px;color:#98a2ad;font-style:italic;text-align:center;padding:30px}'
+    +'</style></head><body>'
+    +docBarre()
+    +'<div class="feuille">'
+    +'<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+      +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">Notre projet de jeu · Saison 2025/26</div></div></div>'
+    +(nn.length?('<div class="nn">'+nn.map(function(t,i){
+        return '<div class="nn-c"><b>Non-négociable '+(i+1)+'</b><span>'+docEsc(t)+'</span></div>';
+      }).join('')+'</div>'):'')
+    +(phases||'<div class="vide">Aucun principe écrit pour l\'instant.</div>')
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — les principes qu\'on répète, phase par phase</span>'
+      +'<span>Coach : '+docEsc(NOM_COACH||'')+'</span></div>'
+    +'</div></body></html>';
+  docOuvrir(html,'Projet de jeu');
+}
+
 // ===== Calendrier des séances =====
 // Les données sont celles du planning mensuel : une séance saisie ici apparaît là-bas,
 // et l'inverse. On y ajoute seulement le lien vers la fiche d'exercices travaillée.
@@ -8284,6 +8589,12 @@ async function publierPlateauJoueurs(){
   catch(e){ notif('⚠ Impossible de lire le plateau : '+e.message); return; }
   var titre=(document.getElementById('plateau-titre').value||'').trim()
     || (situation.systeme+' — '+situation.espaceLabel);
+  // Ce que la situation sert, et les trois non-négociables : les joueurs les liront avec.
+  situation.principes=PLATEAU_PRINCIPES.map(function(code){
+    var pr=pjParCode(code);
+    return pr?{code:pr.code, titre:pr.titre, critere:pr.critere, phase:pr.phase.nom, coul:pr.phase.coul}:null;
+  }).filter(Boolean);
+  situation.nonNegociables=(PROJET_JEU.nonNegociables||[]).filter(function(x){ return (x||'').trim(); });
   try{
     var res=await fetch(FIRESTORE_BASE+'/plateau_joueurs/actuel',{
       method:'PATCH', headers:{'Content-Type':'application/json'},
@@ -9915,7 +10226,15 @@ function docFicheMatch(){
 function genererCarteMentaleMatch(){
   var v=docPrefillCarte();
   var logo=docLogoClub();
-  var pre={adv:[v.advSysteme,'','',v.advSurveiller], grp:[v.compo,'',v.absents,''], plan:[], cpa:[], obj:[], disc:[], verif:[], apres:[]};
+  // La branche « Notre plan » part des principes déjà écrits, pas d'une page blanche.
+  function pjTexte(cle){
+    return pjListe(cle).filter(function(pr){ return (pr.titre||'').trim(); })
+      .map(function(pr,i){ return pjCode(cle,i)+' · '+pr.titre; }).join(' / ');
+  }
+  var nn=(PROJET_JEU.nonNegociables||[]).filter(function(x){ return (x||'').trim(); });
+  var pre={adv:[v.advSysteme,'','',v.advSurveiller], grp:[v.compo,'',v.absents,''],
+    plan:[pjTexte('off'), pjTexte('def'), pjTexte('trp'), pjTexte('trr')],
+    cpa:[pjTexte('cpa'),'','',''], obj:[], disc:[nn.join(' · '),'','',''], verif:[], apres:[]};
 
   var carte=DOC_BRANCHES.map(function(b){
     var p=pre[b.cle]||[];

@@ -43,6 +43,22 @@ input[type=range]{accent-color:var(--or)}
 /* --- Blocs contenu --- */
 
 /* ===== Le décompte du prochain match, sur l'accueil du joueur ===== */
+
+/* Le projet de jeu vu par le joueur */
+.pjj-nn{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:6px}
+.pjj-nn-c{background:linear-gradient(150deg,rgba(217,119,6,.2),rgba(217,119,6,.04));
+  border:1.5px solid rgba(217,119,6,.5);border-radius:10px;padding:11px 13px}
+.pjj-nn-c .n{font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--or);margin-bottom:4px}
+.pjj-nn-c .t{font-size:14.5px;font-weight:700;color:#fff;line-height:1.35}
+.pjj-phase{margin-bottom:14px}
+.pjj-phase-t{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.pjj-phase-t .nom{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--pc)}
+.pjj-p{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-left:3px solid var(--pc);
+  border-radius:8px;padding:10px 12px;margin-bottom:7px}
+.pjj-p .code{font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--pc);border:1px solid var(--pc);
+  border-radius:4px;padding:2px 6px;display:inline-block;margin-bottom:5px}
+.pjj-p .tt{font-size:14px;font-weight:700;color:var(--ink);line-height:1.35}
+.pjj-p .cr{font-size:12px;color:var(--mute);line-height:1.45;margin-top:4px;font-style:italic}
 .jv{background:linear-gradient(145deg,rgba(217,119,6,.20),rgba(217,119,6,.04) 62%,transparent);
   border:1px solid rgba(217,119,6,.36);border-radius:14px;padding:16px 16px 14px;margin-bottom:14px;
   box-shadow:0 8px 26px rgba(0,0,0,.45)}
@@ -592,8 +608,9 @@ async function renderProjetJeu(){
   ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Chargement…</div></div></div>';
   var publie=await chargerPlateauPublie();
   if(!publie || !publie.situation || !(publie.situation.joueurs||[]).length){
-    ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">🧠 Projet de jeu</span></div>'
-      +'<div class="blk-body"><div class="empty-txt">Le coach n\'a pas encore publié de situation. Elle apparaîtra ici dès qu\'il l\'enverra.</div></div></div>';
+    ct.innerHTML=pjjHtml()
+      +'<div class="blk"><div class="blk-h"><span class="t">🧠 Situation tactique</span></div>'
+      +'<div class="blk-body"><div class="empty-txt">Le coach n\'a pas encore publié de situation sur le terrain. Elle apparaîtra ici dès qu\'il l\'enverra.</div></div></div>';
     return;
   }
   var sit=publie.situation;
@@ -603,7 +620,8 @@ async function renderProjetJeu(){
     if(!cleMoi && j.nom && memeJoueur(j.nom, MON_NOM)){ cleMoi=j.cle; maNote=j.note||''; }
   });
 
-  var html='<div class="blk"><div class="blk-h"><span class="t">🧠 '+esc(publie.titre||'Projet de jeu')+'</span></div>'
+  var html=pjjHtml()
+    +'<div class="blk"><div class="blk-h"><span class="t">🧠 '+esc(publie.titre||'Projet de jeu')+'</span></div>'
     +'<div class="blk-body">'
     +'<div style="font-size:12px;color:var(--mute);margin-bottom:10px">'+esc(sit.systeme||'')
     +(sit.espaceLabel?(' · '+esc(sit.espaceLabel)):'')
@@ -632,6 +650,19 @@ async function renderProjetJeu(){
         +'<div style="font-size:13.5px;color:var(--ink);line-height:1.6;white-space:pre-wrap">'+esc(blocs[b[0]].trim())+'</div>'
         +'</div></div>';
     }).join('');
+  }
+
+  // Les principes que cette situation sert, s'il y en a
+  if((sit.principes||[]).length){
+    html+='<div class="blk"><div class="blk-h"><span class="t">📐 Ce qu\'on travaille ici</span></div><div class="blk-body">'
+      +sit.principes.map(function(pr){
+        return '<div class="pjj-p" style="--pc:'+esc(pr.coul||'#d97706')+';margin-bottom:8px">'
+          +'<span class="code">'+esc(pr.code)+'</span>'
+          +'<div class="tt">'+esc(pr.titre||'')+'</div>'
+          +((pr.critere||'').trim()?'<div class="cr">Ce qu\'on doit voir : '+esc(pr.critere)+'</div>':'')
+          +'</div>';
+      }).join('')
+      +'</div></div>';
   }
 
   var autres=(sit.joueurs||[]).filter(function(j){ return (j.note||'').trim() && j.cle!==cleMoi; });
@@ -965,6 +996,53 @@ function marquerTuileVue(key){
   var sig=tuileSignature(key);
   if(sig!==null) localStorage.setItem('ast_vu_'+key,sig);
 }
+// ===== Le projet de jeu du club, côté joueur =====
+// Mêmes principes que ceux écrits par le coach : un joueur doit pouvoir les relire
+// entre deux séances, pas seulement les entendre en causerie.
+var PJJ_PHASES=[
+  {cle:'off', code:'OFF', nom:'Quand on a le ballon',            ic:'⚽', coul:'#d97706'},
+  {cle:'trp', code:'TRP', nom:'Les secondes après la perte',     ic:'🔻', coul:'#dc4444'},
+  {cle:'def', code:'DEF', nom:"Quand l'adversaire a le ballon",  ic:'🛡', coul:'#22a06b'},
+  {cle:'trr', code:'TRR', nom:'Les secondes après la récupération', ic:'🔺', coul:'#4ea8de'},
+  {cle:'cpa', code:'CPA', nom:'Coups de pied arrêtés',           ic:'🚩', coul:'#b285e8'}
+];
+function pjjHtml(){
+  var PJ=(SAISON&&SAISON.PROJET_JEU)||null;
+  if(!PJ) return '';
+  var nn=(PJ.nonNegociables||[]).filter(function(x){ return (x||'').trim(); });
+  var principes=PJ.principes||{};
+  var total=0;
+  PJJ_PHASES.forEach(function(f){ total+=((principes[f.cle]||[]).filter(function(pr){return (pr.titre||'').trim();})).length; });
+  if(!nn.length && !total) return '';
+
+  var html='<div class="blk"><div class="blk-h"><span class="t">📐 Notre projet de jeu</span></div><div class="blk-body">';
+  if(nn.length){
+    html+='<div class="pjj-nn">'+nn.map(function(t,i){
+      return '<div class="pjj-nn-c"><div class="n">On ne lâche jamais ça</div><div class="t">'+esc(t)+'</div></div>';
+    }).join('')+'</div>';
+  }
+  if(total){
+    html+='<div style="font-size:11.5px;color:var(--mute);margin:12px 0 10px;line-height:1.5">'
+      +'Ce que le coach demande, phase par phase. Le code (OFF-1, DEF-2…) revient sur les séances et sur le terrain.</div>';
+    PJJ_PHASES.forEach(function(f){
+      var liste=(principes[f.cle]||[]).filter(function(pr){ return (pr.titre||'').trim(); });
+      if(!liste.length) return;
+      html+='<div class="pjj-phase" style="--pc:'+f.coul+'">'
+        +'<div class="pjj-phase-t"><span>'+f.ic+'</span><span class="nom">'+esc(f.nom)+'</span></div>'
+        +liste.map(function(pr,i){
+          return '<div class="pjj-p" style="--pc:'+f.coul+'">'
+            +'<span class="code">'+f.code+'-'+(i+1)+'</span>'
+            +'<div class="tt">'+esc(pr.titre)+'</div>'
+            +((pr.critere||'').trim()?'<div class="cr">Ce qu\'on doit voir : '+esc(pr.critere)+'</div>':'')
+            +'</div>';
+        }).join('')
+        +'</div>';
+    });
+  }
+  html+='</div></div>';
+  return html;
+}
+
 // ===== Le décompte du prochain match, côté joueur =====
 // Mêmes données que le coach (SAISON.CALENDRIER), mais on répond à la question
 // que se pose un joueur : c'est quand, c'est où, est-ce que j'en suis, et ai-je répondu.
@@ -1150,8 +1228,8 @@ function renderHub(){
   }).join('');
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v15</b> · 22/09/2026<br>'
-    +'<span style="opacity:.8">Décompte du prochain match · Projet de jeu</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v17</b> · 22/09/2026<br>'
+    +'<span style="opacity:.8">Décompte · Projet de jeu du club</span></div>';
   ct.innerHTML=htmlHub;
   jvBrancher();
 }
