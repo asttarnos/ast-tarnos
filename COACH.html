@@ -352,6 +352,34 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .pj-puce b{font-size:9.5px;font-weight:800;letter-spacing:.05em;color:var(--pc)}
 .pj-puce-vide{font-size:11px;color:var(--gris2);font-style:italic;line-height:1.5}
 
+
+/* ===== Composer le match : on pose les joueurs concernés, puis on détaille ===== */
+.nm-etape{display:flex;align-items:center;gap:8px;padding:10px 12px 8px;background:rgba(0,0,0,.28);
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.nm-etape .num{width:20px;height:20px;border-radius:50%;background:var(--or);color:#1a0f02;font-size:11px;
+  font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.nm-etape .lab{font-family:'Roboto Condensed',sans-serif;font-size:12.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.04em;color:#fff}
+.nm-etape .cpt{font-size:11px;color:var(--gris2);font-weight:600}
+.nm-etape .raccourcis{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.nm-etape .raccourcis button{font-family:'Roboto Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;padding:5px 10px;border-radius:5px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--gris2);cursor:pointer}
+.nm-etape .raccourcis button:hover{border-color:var(--or);color:var(--or)}
+.nm-choix{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:6px;padding:11px 12px}
+.nm-j{display:flex;align-items:center;gap:8px;background:#12161c;border:1px solid var(--line);border-radius:7px;
+  padding:8px 10px;cursor:pointer;user-select:none;transition:border-color .12s,background .12s}
+.nm-j:hover{border-color:var(--or)}
+.nm-j .num{font-size:11px;font-weight:800;color:var(--gris2);width:20px;text-align:center;flex:0 0 auto}
+.nm-j .nom{flex:1;min-width:0;font-size:12.5px;font-weight:600;color:var(--gris);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.nm-j .coche{font-size:13px;color:#3a3f4a;flex:0 0 auto}
+.nm-j.dedans{background:rgba(34,160,107,.14);border-color:var(--green)}
+.nm-j.dedans .nom{color:#fff}
+.nm-j.dedans .num{color:var(--green)}
+.nm-j.dedans .coche{color:var(--green)}
+.nm-aide{padding:0 12px 11px;font-size:11px;color:var(--gris2);line-height:1.55;font-style:italic}
+.nm-vide{padding:22px 14px;text-align:center;font-size:12.5px;color:var(--gris2);font-style:italic;line-height:1.6}
 /* ===== Mode d'emploi ===== */
 .ae-recherche{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .ae-recherche input{flex:1;min-width:210px}
@@ -800,8 +828,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v18</b> · 22/09/2026<br>
-      <span style="opacity:.7">Mode d'emploi · Projet de jeu</span>
+      AST COACH <b style="color:var(--or)">v19</b> · 22/09/2026<br>
+      <span style="opacity:.7">Composer le match · Mode d'emploi</span>
     </div>
   </div>
 </div>
@@ -925,11 +953,20 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   </div>
   <div class="blk plein" style="margin-bottom:14px">
     <div class="bh"><span class="bt go">Notes & stats joueurs</span><span class="bc">Statut · ★ Note (4 critères) · Buts · PD · Temps · Cartons</span></div>
-    <div style="padding:5px 12px;background:rgba(8,8,8,.6);display:grid;grid-template-columns:28px minmax(140px,300px) 85px 55px 55px 55px 40px 40px 110px;gap:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--gris2);text-transform:uppercase;border-bottom:1px solid var(--line)">
-      <div>#</div><div>Joueur</div><div>Statut</div><div style="color:var(--gold)">Buts</div><div style="color:var(--purple)">PD</div><div style="color:var(--blue)">Tps</div><div style="color:var(--gold)">🟨</div><div style="color:var(--red)">🟥</div><div style="color:var(--gold)">Note/10</div>
+    
     </div>
-    <div id="notif-filtre-info" style="padding:6px 12px;font-size:10.5px;color:var(--gris2);background:rgba(0,0,0,.3)"></div>
-    <div id="notif-list"><!-- rempli par renderNotifList() au chargement --></div>
+    <div class="nm-etape">
+      <span class="num">1</span><span class="lab">Qui a joué ce match ?</span>
+      <span class="cpt" id="nm-cpt">—</span>
+      <span class="raccourcis" id="nm-raccourcis"></span>
+    </div>
+    <div class="nm-choix" id="nm-choix"></div>
+    <div class="nm-aide" id="nm-aide"></div>
+    <div class="nm-etape"><span class="num">2</span><span class="lab">Le détail</span>
+      <span class="cpt">statut, buts, passes, temps de jeu, cartons et note</span></div>
+    <div id="notif-entetes" style="display:none;padding:5px 12px;background:rgba(8,8,8,.6);grid-template-columns:28px minmax(140px,300px) 85px 55px 55px 55px 40px 40px 110px;gap:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--gris2);text-transform:uppercase;border-bottom:1px solid var(--line)">
+      <div>#</div><div>Joueur</div><div>Statut</div><div style="color:var(--gold)">Buts</div><div style="color:var(--purple)">PD</div><div style="color:var(--blue)">Tps</div><div style="color:var(--gold)">🟨</div><div style="color:var(--red)">🟥</div><div style="color:var(--gold)">Note/10</div>
+    <div id="notif-list"><!-- rempli par renderNotifList() --></div>
     <div style="padding:12px 12px 4px;font-size:10px;color:var(--gris2)">La validation se fait via le bouton "AJOUTER LE MATCH ET VALIDER NOTES" en haut de l'écran.</div>
   </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📝 Debriefs express des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDebriefsMatchs()">🔄 Charger</span></div>
@@ -2668,27 +2705,96 @@ function convocationPourMatchActuel(){
   CONVOCATIONS_HISTORIQUE.forEach(function(c){ if(fexNomsCorrespondent(c.adv,adv)) trouve=c; }); // garde la plus récente en cas de doublon (aller/retour)
   return trouve;
 }
+// Les joueurs retenus pour le match qu'on est en train de saisir.
+// Avant, la liste se déduisait de la convocation : sans convocation reconnue,
+// elle restait vide et il n'y avait aucun moyen de saisir quoi que ce soit.
+var MATCH_JOUEURS=[];
+var MATCH_JOUEURS_INIT=false;
+
+function nmDedans(i){ return MATCH_JOUEURS.indexOf(i)!==-1; }
+function nmBasculer(i){
+  var k=MATCH_JOUEURS.indexOf(i);
+  if(k<0) MATCH_JOUEURS.push(i); else MATCH_JOUEURS.splice(k,1);
+  MATCH_JOUEURS.sort(function(a,b){ return a-b; });
+  renderNotifList();
+}
+function nmIndicesConvoques(){
+  var convoc=convocationPourMatchActuel();
+  if(!convoc) return null;
+  var noms=[].concat(convoc.a||[], convoc.b||[]);
+  return (typeof apparierNoms==='function') ? apparierNoms(noms) : null;
+}
+function nmPrendreConvoques(){
+  var idx=nmIndicesConvoques();
+  if(!idx || !idx.length){ notif('⚠ Aucune convocation reconnue pour ce match'); return; }
+  MATCH_JOUEURS=idx.slice();
+  renderNotifList();
+  notif('✓ '+idx.length+' convoqué(s) placé(s) sur le match');
+}
+function nmToutLEffectif(){
+  MATCH_JOUEURS=JOUEURS.map(function(j,i){ return i; });
+  renderNotifList();
+}
+function nmToutEnlever(){
+  MATCH_JOUEURS=[];
+  renderNotifList();
+}
+
 function renderNotifList(){
   var GRID='28px minmax(140px,300px) 85px 55px 55px 55px 40px 40px';
-  var convoc=convocationPourMatchActuel();
-  var nomsConvoques=convoc?[].concat(convoc.a||[],convoc.b||[]).map(fexNormaliserNom):null;
-  var indicateur=document.getElementById('notif-filtre-info');
-  if(indicateur){
-    indicateur.innerHTML=convoc
-      ?'✓ Filtré sur les convoqués vs '+(convoc.adv||document.getElementById('m-adv').value)+' ('+nomsConvoques.length+' joueur(s))'
-      :'<span style="color:var(--red)">⚠ Aucune convocation trouvée — fais d\'abord les Convocations pour ce match, sinon aucun joueur ne s\'affichera ici.</span>';
+
+  // Au tout premier affichage, on propose les convoqués s'ils existent — sans jamais bloquer.
+  if(!MATCH_JOUEURS_INIT){
+    MATCH_JOUEURS_INIT=true;
+    var auto=nmIndicesConvoques();
+    if(auto && auto.length) MATCH_JOUEURS=auto.slice();
   }
-  var afficherTous=false;
-  document.getElementById('notif-list').innerHTML = JOUEURS.map(function(j,i){return {j:j,i:i};}).filter(function(o){
-    return afficherTous || (nomsConvoques && nomsConvoques.indexOf(fexNormaliserNom(o.j.nom))!==-1);
-  }).map(function(o,pos){
-    var j=o.j, i=o.i;
+  MATCH_JOUEURS=MATCH_JOUEURS.filter(function(i){ return JOUEURS[i]; });
+
+  // --- Étape 1 : qui a joué ---
+  var choix=document.getElementById('nm-choix');
+  if(choix){
+    choix.innerHTML=JOUEURS.length?JOUEURS.map(function(j,i){
+      return '<div class="nm-j'+(nmDedans(i)?' dedans':'')+'" onclick="nmBasculer('+i+')">'
+        +'<span class="num">'+j.num+'</span>'
+        +'<span class="nom">'+echapForme(j.nom)+'</span>'
+        +'<span class="coche">'+(nmDedans(i)?'✓':'+')+'</span></div>';
+    }).join(''):'<div class="nm-vide" style="grid-column:1/-1">Aucun joueur dans l\'effectif.</div>';
+  }
+  var cpt=document.getElementById('nm-cpt');
+  if(cpt) cpt.textContent=MATCH_JOUEURS.length+' joueur'+(MATCH_JOUEURS.length>1?'s':'')+' sur ce match';
+
+  var conv=nmIndicesConvoques();
+  var rac=document.getElementById('nm-raccourcis');
+  if(rac){
+    rac.innerHTML=(conv&&conv.length?'<button onclick="nmPrendreConvoques()">Les '+conv.length+' convoqués</button>':'')
+      +'<button onclick="nmToutLEffectif()">Tout l\'effectif</button>'
+      +(MATCH_JOUEURS.length?'<button onclick="nmToutEnlever()">Vider</button>':'');
+  }
+  var aide=document.getElementById('nm-aide');
+  if(aide){
+    aide.innerHTML=MATCH_JOUEURS.length
+      ? 'Touche un joueur pour l\'ajouter ou le retirer du match. Le détail se remplit juste en dessous.'
+      : (conv&&conv.length
+          ? 'Touche les joueurs qui ont joué, ou reprends la convocation d\'un clic.'
+          : 'Touche les joueurs qui ont joué ce match. Pas besoin de convocation.');
+  }
+
+  // --- Étape 2 : le détail ---
+  var entetes=document.getElementById('notif-entetes');
+  if(entetes) entetes.style.display=MATCH_JOUEURS.length?'grid':'none';
+
+  if(!MATCH_JOUEURS.length){
+    document.getElementById('notif-list').innerHTML='<div class="nm-vide">Commence par poser les joueurs concernés, ci-dessus.</div>';
+  } else {
+  document.getElementById('notif-list').innerHTML = MATCH_JOUEURS.map(function(i,pos){
+    var j=JOUEURS[i];
     var bg=pos%2===0?'rgba(15,15,15,.5)':'rgba(20,20,20,.5)';
     return '<div class="jr-notation" data-num="'+j.num+'" style="margin-bottom:5px;border-radius:6px;overflow:hidden;position:relative">'
-      +'<span onclick="this.closest(\'.jr-notation\').remove()" title="Retirer ce joueur de la liste" style="position:absolute;right:2px;top:2px;z-index:2;cursor:pointer;color:var(--red);font-size:13px;padding:3px 5px">✕</span>'
+      +'<span onclick="nmBasculer('+i+')" title="Retirer ce joueur du match" style="position:absolute;right:2px;top:2px;z-index:2;cursor:pointer;font-size:12px;color:var(--gris2);padding:2px 5px">✕</span>'
       +'<div class="jr" style="background:'+bg+';grid-template-columns:'+GRID+'">'
       +'<div class="jnum">'+j.num+'</div>'
-      +'<div class="jnom">'+j.nom+'</div>'
+      +'<div class="jnom">'+echapForme(j.nom)+'</div>'
       +(function(){
         // Ce que le bord de touche a relevé doit être visible ici, pas seulement en mémoire
         var nm=(typeof NOTES_MATCH!=='undefined' && NOTES_MATCH[i])?NOTES_MATCH[i]:{};
@@ -2709,6 +2815,7 @@ function renderNotifList(){
       +ligneCriteres(i,((typeof NOTES_MATCH!=='undefined' && NOTES_MATCH[i] && NOTES_MATCH[i].noteDetail)||{consignes:3,offensif:3,defensif:3,esprit:3}),'nouveau')
       +'</div>';
   }).join('');
+  }
   // Autrefois on remettait tout à zéro ici, après avoir dessiné des champs vides.
   // Maintenant que les champs affichent ce qui est en mémoire (notamment ce que le
   // bord de touche a relevé), effacer reviendrait à perdre la saisie en silence.
@@ -3369,6 +3476,9 @@ function addMatch(){
   document.getElementById('m-avance-blk').style.display='none';
   renderMatchCalSelect();renderConvoCalSelect();
   validerNotes();
+  // Le match suivant repart d'une liste vierge, reproposée depuis la convocation
+  MATCH_JOUEURS=[]; MATCH_JOUEURS_INIT=false;
+  renderNotifList();
 }
 function remplirHommeDuMatchSelect(){
   var sel=document.getElementById('m-homme-du-match');
@@ -7651,10 +7761,12 @@ var AIDE=[
   'Bloc <b>Nouveau résultat</b> : choisis le match dans <code>Match du calendrier</code> — la date et l\'adversaire se remplissent seuls. Sinon passe en saisie manuelle.',
   'Entre le <b>score AST</b> et le <b>score adverse</b>, le lieu et la compétition.',
   'Si tu veux : ouvre <code>Stats avancées</code> pour les mi-temps, tirs, corners et fautes, et désigne l\'<b>homme du match</b>.',
-  'Descends au bloc <b>Notes &amp; stats joueurs</b> : pour chaque joueur, son statut (Titu A, Rempl A, Titu B, Rempl B, Banc, Absent), ses buts, passes décisives, temps de jeu, cartons, et sa note sur 4 critères.',
+  'Descends au bloc <b>Notes &amp; stats joueurs</b>. <b>Étape 1 — Qui a joué ce match ?</b> : touche les joueurs concernés, ils passent au vert. Les raccourcis <code>Les convoqués</code> et <code>Tout l\'effectif</code> vont plus vite.',
+  '<b>Étape 2 — Le détail</b> : une ligne par joueur retenu. Statut (Titu A, Rempl A, Titu B, Rempl B, Banc, Absent), buts, passes décisives, temps de jeu, cartons, et la note sur 4 critères.',
   'Remonte et clique <code>✓ AJOUTER LE MATCH ET VALIDER NOTES</code>.'
  ],
- piege:'<b>Un seul bouton pour les deux.</b> Il n\'existe pas de bouton « valider les notes » séparé : le bouton du haut enregistre le match <i>et</i> reporte toutes les notes dans les stats de saison. Si tu le cliques avant d\'avoir rempli les notes en bas, le match part sans elles.'},
+ piege:'<b>Un seul bouton pour les deux.</b> Il n\'existe pas de bouton « valider les notes » séparé : le bouton du haut enregistre le match <i>et</i> reporte toutes les notes dans les stats de saison. Si tu le cliques avant d\'avoir rempli le détail, le match part sans les notes.',
+ astuce:'<b>Plus besoin de convocation.</b> Si tu en as fait une pour ce match, les convoqués sont proposés d\'office — mais tu peux composer la liste à la main, match par match, même pour un match d\'il y a trois semaines.'},
 
 {f:'match', t:'Saisir le match en direct, au bord du terrain', ou:'Bouton en bas du menu', ecran:'matchs',
  etapes:[
@@ -11563,6 +11675,11 @@ function bdtTerminer(){
     });
   }
   if(totalFrappes){ set('m-tirs-cadres',totalCadrees); set('m-tirs-total',totalFrappes); }
+
+  // Les joueurs du live sont ceux du match : ils se posent tout seuls dans la liste
+  // de notation, sinon le report arriverait dans une liste vide.
+  MATCH_JOUEURS=bdtJoueursAffiches().slice().sort(function(a,b){ return a-b; });
+  MATCH_JOUEURS_INIT=true;
 
   // Compteurs d'équipe et déroulé du match : conservés pour la fiche bilan
   BDT_DERNIER_MATCH={
