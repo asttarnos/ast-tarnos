@@ -41,6 +41,41 @@ input[type=range]{accent-color:var(--or)}
 #app-header .joueur-nom{font-size:14.5px;color:var(--ink);font-weight:600}
 #app-header .changer{font-size:12px;color:var(--mute);cursor:pointer;margin-top:2px}
 /* --- Blocs contenu --- */
+
+/* ===== Le décompte du prochain match, sur l'accueil du joueur ===== */
+.jv{background:linear-gradient(145deg,rgba(217,119,6,.20),rgba(217,119,6,.04) 62%,transparent);
+  border:1px solid rgba(217,119,6,.36);border-radius:14px;padding:16px 16px 14px;margin-bottom:14px;
+  box-shadow:0 8px 26px rgba(0,0,0,.45)}
+.jv-haut{display:flex;align-items:flex-start;gap:14px}
+.jv-gauche{flex:1;min-width:0}
+.jv-etiq{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--or);border:1px solid rgba(217,119,6,.5);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+.jv-jx{font-family:'Roboto Condensed',Inter,sans-serif;font-weight:900;line-height:.86;letter-spacing:-.03em;
+  font-size:clamp(46px,15vw,72px);color:var(--or);text-shadow:0 4px 22px rgba(217,119,6,.45)}
+.jv-jx.jourj{color:#fff;font-size:clamp(34px,11vw,54px);text-shadow:0 0 30px rgba(217,119,6,.85)}
+.jv-adv{font-family:'Roboto Condensed',Inter,sans-serif;font-weight:800;text-transform:uppercase;
+  font-size:clamp(17px,5.4vw,26px);color:#fff;line-height:1.07;margin-top:6px}
+.jv-meta{font-size:11.5px;color:var(--mute);margin-top:6px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;line-height:1.5}
+.jv-meteo{flex:0 0 auto;text-align:center;min-width:76px;background:rgba(255,255,255,.05);
+  border:1px solid var(--hair);border-radius:11px;padding:10px 10px}
+.jv-meteo .ic{font-size:24px;line-height:1}
+.jv-meteo .t{font-family:'Roboto Condensed',Inter,sans-serif;font-size:19px;font-weight:800;color:#fff;margin-top:2px}
+.jv-meteo .d{font-size:9.5px;color:var(--mute);margin-top:2px;line-height:1.4}
+.jv-moi{margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}
+.jv-statut{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.jv-pastille{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.jv-sous{font-size:11.5px;color:var(--mute);margin-top:4px;line-height:1.5}
+.jv-boutons{display:flex;gap:8px;margin-top:11px}
+.jv-btn{flex:1;text-align:center;padding:11px 8px;border-radius:9px;font-size:12.5px;font-weight:800;
+  letter-spacing:.03em;cursor:pointer;border:1px solid var(--hair);background:rgba(255,255,255,.05);color:var(--ink)}
+.jv-btn.oui:active,.jv-btn.oui.on{background:var(--green);border-color:var(--green);color:#04150d}
+.jv-btn.non:active,.jv-btn.non.on{background:var(--red);border-color:var(--red);color:#1b0505}
+.jv-cta{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;padding:15px 16px;border-radius:11px;
+  background:linear-gradient(100deg,#f0a41f,#d97706 55%,#b45309);cursor:pointer;
+  box-shadow:0 8px 24px rgba(217,119,6,.45),0 0 0 1px rgba(255,255,255,.16) inset}
+.jv-cta .ic{font-size:26px;line-height:1}
+.jv-cta .t{font-family:'Roboto Condensed',Inter,sans-serif;font-size:17px;font-weight:900;text-transform:uppercase;color:#1a0f02;line-height:1.1}
+.jv-cta .d{font-size:11px;color:rgba(26,15,2,.8);font-weight:700;margin-top:2px}
 .blk{background:var(--surface);border:1px solid var(--hair);border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.45)}
 .blk-h{padding:11px 14px;border-bottom:1px solid var(--hair);display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04)}
 .blk-h .t{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:#fff}
@@ -930,11 +965,148 @@ function marquerTuileVue(key){
   var sig=tuileSignature(key);
   if(sig!==null) localStorage.setItem('ast_vu_'+key,sig);
 }
+// ===== Le décompte du prochain match, côté joueur =====
+// Mêmes données que le coach (SAISON.CALENDRIER), mais on répond à la question
+// que se pose un joueur : c'est quand, c'est où, est-ce que j'en suis, et ai-je répondu.
+var JV_METEO=null, JV_METEO_CLE=null, JV_DISPO=null, JV_DISPO_CLE=null;
+var JV_ICONES={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+
+function jvMinuit(dt){ return new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()); }
+function jvEcart(dt){ return Math.round((jvMinuit(dt)-jvMinuit(new Date()))/86400000); }
+function jvProchainMatch(){
+  if(!SAISON) return null;
+  var futur=(SAISON.CALENDRIER||[]).map(function(c){
+    var d=parserDateCalendrierMatch(c.date);
+    return d?{c:c, d:new Date(d.y,d.m,d.d)}:null;
+  }).filter(function(o){ return o && jvEcart(o.d)>=0; }).sort(function(a,b){ return a.d-b.d; });
+  return futur.length?futur[0]:null;
+}
+function jvSuisJeConvoque(adversaire){
+  var conv=(SAISON&&SAISON.CONVOS)||{};
+  // La convocation en cours ne vaut que si elle porte bien sur ce match
+  if(conv.adv && !memeJoueur(conv.adv, adversaire) && fexNormaliserNom(conv.adv)!==fexNormaliserNom(adversaire)) return null;
+  function dedans(liste){ return (liste||[]).some(function(n){ return memeJoueur(n, MON_NOM); }); }
+  if(dedans(conv.a)) return 'a';
+  if(dedans(conv.b)) return 'b';
+  if(dedans(conv.bl)) return 'bl';
+  if(dedans(conv.su)) return 'su';
+  if((conv.a||[]).length || (conv.b||[]).length) return 'non';
+  return null;
+}
+async function jvChargerMeteo(dateMatch){
+  var cle=dateMatch.toISOString().slice(0,10);
+  if(JV_METEO_CLE===cle) return JV_METEO;
+  JV_METEO_CLE=cle;
+  try{
+    var r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=43.54&longitude=-1.46'
+      +'&daily=weather_code,temperature_2m_max,precipitation_probability_max,wind_speed_10m_max'
+      +'&timezone=Europe%2FParis&start_date='+cle+'&end_date='+cle);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var d=await r.json();
+    if(!d.daily || !d.daily.time || !d.daily.time.length) throw new Error('vide');
+    JV_METEO={code:d.daily.weather_code[0], temp:Math.round(d.daily.temperature_2m_max[0]),
+      pluie:d.daily.precipitation_probability_max[0], vent:Math.round(d.daily.wind_speed_10m_max[0])};
+  }catch(e){ JV_METEO=null; }
+  return JV_METEO;
+}
+async function jvChargerMaDispo(cle){
+  if(JV_DISPO_CLE===cle) return JV_DISPO;
+  JV_DISPO_CLE=cle;
+  try{
+    var reponses=await chargerMesDisponibilites();
+    JV_DISPO=reponses[cle]||'';
+  }catch(e){ JV_DISPO=null; }
+  return JV_DISPO;
+}
+
+function jvHtml(){
+  if(!SAISON) return '';
+  var prochain=jvProchainMatch();
+  if(!prochain) return '';
+  var c=prochain.c, jours=jvEcart(prochain.d);
+  var lieu=c.lieu==='E'?'✈ À l\'extérieur':(c.lieu==='D'?'🏠 À domicile':'');
+  var etiq, jx;
+  if(jours===0){ etiq='C\'est aujourd\'hui'; jx='JOUR DE MATCH'; }
+  else if(jours===1){ etiq='C\'est demain'; jx='J-1'; }
+  else { etiq='Prochain match'; jx='J-'+jours; }
+
+  var cat=jvSuisJeConvoque(c.adversaire||'');
+  var statut, couleur, sous='';
+  if(cat==='a'||cat==='b'){
+    statut='Tu es dans le groupe'; couleur='var(--green)';
+    sous=(cat==='a'?'Équipe A':'Équipe B');
+  }else if(cat==='bl'){ statut='Tu es sur la liste des blessés'; couleur='var(--red)'; sous='Prends soin de toi, on se revoit vite.'; }
+  else if(cat==='su'){ statut='Tu es suspendu pour ce match'; couleur='var(--red)'; sous='Tu seras de nouveau disponible ensuite.'; }
+  else if(cat==='non'){ statut='Tu n\'es pas dans le groupe cette fois'; couleur='var(--mute)'; sous='Le coach peut encore changer la liste.'; }
+  else { statut='Groupe pas encore annoncé'; couleur='var(--gold)'; sous='Le coach publiera la convocation dans la semaine.'; }
+
+  var cleDispo=(((SAISON&&SAISON.CONVOS)||{}).date||'')+'|'+(((SAISON&&SAISON.CONVOS)||{}).adv||'');
+
+  return '<div class="jv" id="jv-carte">'
+    +'<div class="jv-haut"><div class="jv-gauche">'
+      +'<span class="jv-etiq">'+esc(etiq)+'</span>'
+      +'<div class="jv-jx'+(jours===0?' jourj':'')+'">'+esc(jx)+'</div>'
+      +'<div class="jv-adv">'+esc(c.adversaire||'Adversaire à venir')+'</div>'
+      +'<div class="jv-meta">'+esc([c.date,lieu,c.comp].filter(Boolean).join(' · '))+'</div>'
+    +'</div>'
+    +'<div class="jv-meteo" id="jv-meteo" style="display:none"></div></div>'
+    +'<div class="jv-moi">'
+      +'<div class="jv-statut"><span class="jv-pastille" style="background:'+couleur+'"></span>'+esc(statut)+'</div>'
+      +(sous?'<div class="jv-sous">'+esc(sous)+'</div>':'')
+      +'<div id="jv-dispo" data-cle="'+esc(cleDispo)+'" data-label="'+esc('Match vs '+(c.adversaire||''))+'"></div>'
+    +'</div>'
+    +(jours===0?'<div class="jv-cta" onclick="goNav(\'jourmatch\')"><span class="ic">📱</span>'
+      +'<div><div class="t">Jour de match</div><div class="d">Compo, horaires, consignes du coach</div></div></div>':'')
+  +'</div>';
+}
+
+function jvAfficherMeteo(m){
+  var el=document.getElementById('jv-meteo');
+  if(!el) return;
+  if(!m){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML='<div class="ic">'+(JV_ICONES[m.code]||'🌡️')+'</div><div class="t">'+m.temp+'°</div>'
+    +'<div class="d">'+(m.pluie!=null?(m.pluie+' % pluie<br>'):'')+m.vent+' km/h</div>';
+}
+function jvAfficherDispo(rep){
+  var el=document.getElementById('jv-dispo');
+  if(!el) return;
+  var cle=el.getAttribute('data-cle')||'', label=el.getAttribute('data-label')||'';
+  if(!cle || cle==='|'){ el.innerHTML=''; return; }
+  if(rep==='dispo'){ el.innerHTML='<div class="jv-sous" style="color:var(--green);font-weight:700;margin-top:8px">✓ Tu t\'es déclaré disponible</div>'; return; }
+  if(rep==='indispo'){ el.innerHTML='<div class="jv-sous" style="color:var(--red);font-weight:700;margin-top:8px">✕ Tu t\'es déclaré indisponible</div>'; return; }
+  el.innerHTML='<div class="jv-sous" style="margin-top:9px">Le coach attend ta réponse :</div>'
+    +'<div class="jv-boutons">'
+    +'<span class="jv-btn oui" onclick="jvRepondre(\'dispo\')">Je serai là</span>'
+    +'<span class="jv-btn non" onclick="jvRepondre(\'indispo\')">Indisponible</span>'
+    +'</div>';
+}
+async function jvRepondre(reponse){
+  var el=document.getElementById('jv-dispo');
+  if(!el) return;
+  var cle=el.getAttribute('data-cle')||'', label=el.getAttribute('data-label')||'';
+  await envoyerDisponibilite(cle,label,reponse);
+  JV_DISPO=reponse; JV_DISPO_CLE=cle;
+  jvAfficherDispo(reponse);
+}
+
+function jvBrancher(){
+  if(!SAISON) return;
+  var prochain=jvProchainMatch();
+  if(!prochain) return;
+  var jours=jvEcart(prochain.d);
+  if(jours<=7) jvChargerMeteo(prochain.d).then(jvAfficherMeteo);
+  var cle=(((SAISON&&SAISON.CONVOS)||{}).date||'')+'|'+(((SAISON&&SAISON.CONVOS)||{}).adv||'');
+  if(cle && cle!=='|') jvChargerMaDispo(cle).then(jvAfficherDispo);
+}
+
 function renderHub(){
   var ct=document.getElementById('scr-hub');
   var hero='<div class="hub-hero"><div class="hub-crest"><img src="'+PHOTO_LOGO+'" alt="AST Tarnos"></div>'
     +'<div class="hub-crest-title">AS<span class="accent">T</span> TARNOS</div>'
-    +'<div class="hub-crest-sub">ESPACE JOUEUR · 2025/26</div></div>';
+    +'<div class="hub-crest-sub">ESPACE JOUEUR · 2025/26</div></div>'
+    + jvHtml();
   var poles=[
     {titre:'Club',tc:'var(--or)',tuiles:[
       {ic:'🏠',t:'Accueil & actualités',s:'accueil'},
@@ -966,7 +1138,7 @@ function renderHub(){
       {ic:'🔒',t:'Espace coach',s:'coach',lock:true}
     ]}
   ];
-  ct.innerHTML=hero+poles.map(function(p){
+  var htmlHub=hero+poles.map(function(p){
     return '<div class="hub-pole-titre" style="color:'+p.tc+'">'+esc(p.titre)+'</div>'
       +'<div class="hub-grid">'+p.tuiles.map(function(t){
         var photo=PHOTOS_TUILES[t.s];
@@ -976,6 +1148,12 @@ function renderHub(){
         return '<div class="hub-tuile'+(t.lock?' locked':'')+'" style="--tc:'+p.tc+(photo?';background-image:url('+photo+')':'')+'" onclick="goNav(\''+t.s+'\')">'+badgeHTML+'<div class="hub-tuile-inner"><div class="ic">'+t.ic+'</div><div class="t">'+esc(t.t)+'</div></div></div>';
       }).join('')+'</div>';
   }).join('');
+  htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
+    +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
+    +'AST JOUEUR <b style="color:var(--or)">v15</b> · 22/09/2026<br>'
+    +'<span style="opacity:.8">Décompte du prochain match · Projet de jeu</span></div>';
+  ct.innerHTML=htmlHub;
+  jvBrancher();
 }
 function goNav(s){
   document.querySelectorAll('.screen').forEach(function(el){ el.classList.add('hidden'); });
@@ -1023,7 +1201,7 @@ function parseDateFr(str){
 
 function renderAccueil(){
   var ct=document.getElementById('scr-accueil');
-  var html='<div id="notif-push-banniere"></div>';
+  var html='<div id="notif-push-banniere"></div>'+jvHtml();
 
   // Dernière actualité du coach
   var actus=SAISON.ACTUALITES||[];
@@ -1038,6 +1216,7 @@ function renderAccueil(){
   html+='</div></div>';
 
   ct.innerHTML=html;
+  jvBrancher();
 }
 
 async function chargerMesDisponibilites(){

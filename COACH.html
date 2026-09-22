@@ -256,6 +256,30 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 
 
 
+
+/* ===== Les écrans se lisent en colonnes, plus en colonne unique =====
+   Un bloc court qui prend 1400 px de large oblige à faire défiler pour rien.
+   .scr-grille range les blocs côte à côte ; .plein garde la pleine largeur
+   pour ce qui en a vraiment besoin (tableaux, terrains, longues listes). */
+.scr-grille.on{display:grid;grid-template-columns:repeat(auto-fit,minmax(328px,1fr));gap:12px;align-items:start}
+.scr-grille{grid-template-columns:repeat(auto-fit,minmax(328px,1fr));gap:12px;align-items:start}
+.scr-grille>*{min-width:0}
+.scr-grille>.blk{margin-bottom:0!important}
+.scr-grille>.ph,.scr-grille>.plein,.scr-grille>.doc-bandeau,.scr-grille>.btn,
+.scr-grille>.kg{grid-column:1/-1}
+.scr-grille>.fg2,.scr-grille>.fg3{display:contents}
+.scr-grille>.plein{margin-bottom:0!important}
+
+
+/* Une liste de 26 journées sur une colonne, c'est 2 000 px de défilement.
+   En colonnes, c'est un écran. */
+.liste-colonnes{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:7px}
+.liste-colonnes>*{margin-bottom:0!important}
+@media(max-width:700px){ .liste-colonnes{grid-template-columns:1fr} }
+/* Un tableau large coincé dans une colonne : il défile dans sa carte, il ne se coupe pas. */
+.scr-grille .blk{overflow-x:auto}
+.scr-grille .blk.plein{overflow-x:visible}
+@media(max-width:860px){ .scr-grille.on,.scr-grille{grid-template-columns:1fr} }
 /* ===== Le tableau de bord vivant : l'appli sait quel jour on est ===== */
 #dash-vivant{padding:18px 16px 40px;max-width:1180px;margin:0 auto}
 .dv-hero{display:flex;align-items:center;gap:26px;flex-wrap:wrap;
@@ -692,8 +716,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v15</b> · 21/09/2026<br>
-      <span style="opacity:.7">Accueil vivant · Calendrier des séances</span>
+      AST COACH <b style="color:var(--or)">v16</b> · 22/09/2026<br>
+      <span style="opacity:.7">Écrans en colonnes · 96 Ko déblayés</span>
     </div>
   </div>
 </div>
@@ -757,39 +781,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       </div>
     </div>
   </div>
-  <div id="dash-anciens-blocs" style="display:none">
-  <div class="hero-band" style="position:relative;z-index:1">
-    <div class="hero-eyebrow" id="hero-club-affiche">AST Tarnos · Séniors R2</div>
-    <div class="hero-title">Prêt pour la suite, coach.</div>
-    <div class="hero-sub" id="hero-next">Aucun prochain match publié pour l'instant</div>
-  </div>
-  <div class="ph"><div><div class="ph-title">Dashboard</div><div class="ph-sub">Vue d'ensemble de la saison</div></div></div>
-  <div class="kg">
-    <div class="kc"><div class="kl">👥 Effectif</div><div class="kv">44</div><div class="ks2">joueurs</div></div>
-    <div class="kc g"><div class="kl">✅ Présents</div><div class="kv" id="d-pres">-</div><div class="ks2">cette séance</div></div>
-    <div class="kc go"><div class="kl">⚽ Matchs</div><div class="kv" id="d-matchs">0</div><div class="ks2">cette saison</div></div>
-    <div class="kc b"><div class="kl">🏆 Bilan</div><div class="kv" id="d-bilan">-</div><div class="ks2">V-N-D</div></div>
-  </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🔔 Points à regarder</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="renderAlertesCoach()">🔄 Actualiser</span></div>
-    <div id="d-alertes" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Actualiser" pour générer les alertes de la semaine.</div></div>
-  </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Forme récente</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="goNav('bilan')">Voir le bilan complet →</span></div>
-    <div id="d-forme" style="padding:12px;text-align:center"></div>
-  </div>
-  <div id="d-postit-zone"></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">📅 <span id="d-mois-titre"></span></span>
-    <span style="display:flex;align-items:center;gap:10px">
-      <span class="bc" style="cursor:pointer;font-size:16px" onclick="dashChangerMois(-1)">‹</span>
-      <span class="bc" style="cursor:pointer;font-size:16px" onclick="dashChangerMois(1)">›</span>
-      <span class="bc" style="cursor:pointer;color:var(--or)" onclick="goNav('calendrier-annuel')">Calendrier complet →</span>
-    </span></div>
-    <div id="d-mois-grille" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:12px"></div>
-  </div>
-  <div class="fg2">
-    <div class="blk"><div class="bh" style="cursor:pointer" onclick="toggleDashBlock('top5')"><span class="bt go">Top 5 points</span><span id="top5-toggle-ic" style="color:var(--gris2);font-size:11px">▾</span></div><div id="top5"></div></div>
-    <div class="blk"><div class="bh" style="cursor:pointer" onclick="toggleDashBlock('alertes')"><span class="bt r">Alertes présence</span><span id="alertes-toggle-ic" style="color:var(--gris2);font-size:11px">▾</span></div><div id="alertes"></div></div>
-  </div>
-  </div>
+  <!-- L'ancien dashboard a été remplacé par l'accueil vivant. -->
 </div>
 
 <!-- PRESENCES -->
@@ -802,277 +794,13 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div style="padding:5px 12px;background:rgba(8,8,8,.6);display:grid;grid-template-columns:28px minmax(140px,260px) 130px 110px 100px;gap:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--gris2);text-transform:uppercase;border-bottom:1px solid var(--line)">
       <div>#</div><div>Joueur</div><div>Statut</div><div>Points</div><div>Amende</div>
     </div>
-    <div id="pres-list"><div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">1</div>
-<div class="jnom">Louis BACQUE</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(0,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(0,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">2</div>
-<div class="jnom">Sam PAPAIX BELLO</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(1,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(1,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">3</div>
-<div class="jnom">Tiago ALMEIDA</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(2,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(2,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">4</div>
-<div class="jnom">Romain DUCOM</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(3,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(3,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">5</div>
-<div class="jnom">Mathis HIDALGO</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(4,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(4,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">6</div>
-<div class="jnom">Lucas LE GAC</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(5,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(5,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">7</div>
-<div class="jnom">Jo DURAND</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(6,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(6,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">8</div>
-<div class="jnom">Simon BEZIAT</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(7,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(7,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">9</div>
-<div class="jnom">Ben ROUSSEAU</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(8,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(8,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">10</div>
-<div class="jnom">Max GIL URETA</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(9,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(9,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">11</div>
-<div class="jnom">Andoni BALLESTA</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(10,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(10,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">12</div>
-<div class="jnom">Quentin MIREMONT</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(11,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(11,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">13</div>
-<div class="jnom">Romain CASSANO</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(12,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(12,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">14</div>
-<div class="jnom">Yohan PENOUILH</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(13,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(13,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">15</div>
-<div class="jnom">Alya SOUMAH</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(14,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(14,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">16</div>
-<div class="jnom">Benjamin RICHOMME</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(15,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(15,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">17</div>
-<div class="jnom">Nathan LARRERE</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(16,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(16,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">18</div>
-<div class="jnom">Pp MERLOU</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(17,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(17,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">19</div>
-<div class="jnom">Mathieu PASCUAL</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(18,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(18,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">20</div>
-<div class="jnom">Baptiste MALICHECQ</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(19,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(19,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">21</div>
-<div class="jnom">Maxence MOLINA</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(20,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(20,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">22</div>
-<div class="jnom">Majdi AYARI</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(21,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(21,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">23</div>
-<div class="jnom">Paolo DOS SANTOS</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(22,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(22,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">24</div>
-<div class="jnom">Quentin HENRY</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(23,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(23,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">25</div>
-<div class="jnom">Tiago DAVAN</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(24,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(24,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">26</div>
-<div class="jnom">Romeo FORTE</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(25,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(25,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">27</div>
-<div class="jnom">Guillaume LAJUS</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(26,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(26,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">28</div>
-<div class="jnom">Seb DUVIGNEAU</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(27,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(27,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">29</div>
-<div class="jnom">Steven PORCEL</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(28,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(28,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">30</div>
-<div class="jnom">Antho DURAND</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(29,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(29,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">31</div>
-<div class="jnom">Valentin GOMES</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(30,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(30,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">32</div>
-<div class="jnom">Yassine TAAROUST</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(31,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(31,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">33</div>
-<div class="jnom">Jordan GALVAN</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(32,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(32,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">34</div>
-<div class="jnom">Jerome ANCHUBIDART</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(33,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(33,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">35</div>
-<div class="jnom">Hugo LEBLANC</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(34,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(34,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">36</div>
-<div class="jnom">Paul LAGOUARDETTE</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(35,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(35,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">37</div>
-<div class="jnom">Ylan POVEDA</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(36,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(36,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">38</div>
-<div class="jnom">Sacha SAUT</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(37,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(37,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">39</div>
-<div class="jnom">Fares EL HERMI</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(38,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(38,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">40</div>
-<div class="jnom">Noa PICON</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(39,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(39,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">41</div>
-<div class="jnom">Enzo DERIVE</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(40,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(40,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">42</div>
-<div class="jnom">Lucas CAETANO</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(41,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(41,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">43</div>
-<div class="jnom">Bryan LAURAIN</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(42,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(42,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 60px 110px">
-<div class="jnum">44</div>
-<div class="jnom">Ahmed DOSSO</div>
-<label class="tgl"><input type="checkbox" checked onchange="setSeancePres(43,this.checked)"><span class="tslider"></span></label>
-<select class="sel" onchange="setSeancePts(43,this.value)" style="color:var(--gold)"><option value="0">0 pts</option><option value="5">5 pts</option><option value="10">10 pts</option><option value="15">15 pts</option></select>
-</div>
-</div>
+    <div id="pres-list"><!-- rempli par renderPresList() au chargement --></div>
     <div style="padding:12px"><button class="btn" onclick="validerSeance()">✓ VALIDER LA SÉANCE</button></div>
   </div>
 </div>
 
 <!-- MATCHS -->
-<div class="scr" id="scr-matchs">
+<div class="scr-grille scr" id="scr-matchs">
   <div class="ph"><div><div class="ph-title">Matchs</div><div class="ph-sub">Résultats & notation joueurs</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">⭐ Votes des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerVotesJoueurs()">🔄 Charger les votes</span></div>
     <div id="votes-joueurs-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger les votes" pour récupérer les auto-évaluations envoyées par les joueurs pour le prochain match convoqué.</div></div>
@@ -1111,497 +839,13 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <button class="btn" onclick="addMatch()">✓ AJOUTER LE MATCH ET VALIDER NOTES</button>
     </div>
   </div>
-  <div class="blk" style="margin-bottom:14px">
+  <div class="blk plein" style="margin-bottom:14px">
     <div class="bh"><span class="bt go">Notes & stats joueurs</span><span class="bc">Statut · ★ Note (4 critères) · Buts · PD · Temps · Cartons</span></div>
     <div style="padding:5px 12px;background:rgba(8,8,8,.6);display:grid;grid-template-columns:28px minmax(140px,300px) 85px 55px 55px 55px 40px 40px 110px;gap:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--gris2);text-transform:uppercase;border-bottom:1px solid var(--line)">
       <div>#</div><div>Joueur</div><div>Statut</div><div style="color:var(--gold)">Buts</div><div style="color:var(--purple)">PD</div><div style="color:var(--blue)">Tps</div><div style="color:var(--gold)">🟨</div><div style="color:var(--red)">🟥</div><div style="color:var(--gold)">Note/10</div>
     </div>
     <div id="notif-filtre-info" style="padding:6px 12px;font-size:10.5px;color:var(--gris2);background:rgba(0,0,0,.3)"></div>
-    <div id="notif-list"><div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">1</div>
-<div class="jnom">Louis BACQUE</div>
-<select class="sel" onchange="setMatchStatut(0,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(0,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(0,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(0,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(0,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(0,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="0" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">2</div>
-<div class="jnom">Sam PAPAIX BELLO</div>
-<select class="sel" onchange="setMatchStatut(1,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(1,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(1,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(1,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(1,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(1,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="1" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">3</div>
-<div class="jnom">Tiago ALMEIDA</div>
-<select class="sel" onchange="setMatchStatut(2,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(2,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(2,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(2,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(2,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(2,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="2" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">4</div>
-<div class="jnom">Romain DUCOM</div>
-<select class="sel" onchange="setMatchStatut(3,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(3,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(3,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(3,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(3,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(3,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="3" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">5</div>
-<div class="jnom">Mathis HIDALGO</div>
-<select class="sel" onchange="setMatchStatut(4,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(4,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(4,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(4,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(4,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(4,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="4" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">6</div>
-<div class="jnom">Lucas LE GAC</div>
-<select class="sel" onchange="setMatchStatut(5,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(5,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(5,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(5,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(5,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(5,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="5" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">7</div>
-<div class="jnom">Jo DURAND</div>
-<select class="sel" onchange="setMatchStatut(6,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(6,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(6,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(6,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(6,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(6,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="6" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">8</div>
-<div class="jnom">Simon BEZIAT</div>
-<select class="sel" onchange="setMatchStatut(7,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(7,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(7,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(7,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(7,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(7,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="7" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">9</div>
-<div class="jnom">Ben ROUSSEAU</div>
-<select class="sel" onchange="setMatchStatut(8,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(8,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(8,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(8,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(8,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(8,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="8" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">10</div>
-<div class="jnom">Max GIL URETA</div>
-<select class="sel" onchange="setMatchStatut(9,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(9,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(9,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(9,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(9,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(9,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="9" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">11</div>
-<div class="jnom">Andoni BALLESTA</div>
-<select class="sel" onchange="setMatchStatut(10,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(10,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(10,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(10,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(10,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(10,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="10" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">12</div>
-<div class="jnom">Quentin MIREMONT</div>
-<select class="sel" onchange="setMatchStatut(11,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(11,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(11,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(11,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(11,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(11,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="11" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">13</div>
-<div class="jnom">Romain CASSANO</div>
-<select class="sel" onchange="setMatchStatut(12,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(12,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(12,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(12,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(12,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(12,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="12" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">14</div>
-<div class="jnom">Yohan PENOUILH</div>
-<select class="sel" onchange="setMatchStatut(13,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(13,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(13,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(13,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(13,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(13,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="13" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">15</div>
-<div class="jnom">Alya SOUMAH</div>
-<select class="sel" onchange="setMatchStatut(14,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(14,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(14,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(14,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(14,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(14,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="14" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">16</div>
-<div class="jnom">Benjamin RICHOMME</div>
-<select class="sel" onchange="setMatchStatut(15,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(15,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(15,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(15,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(15,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(15,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="15" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">17</div>
-<div class="jnom">Nathan LARRERE</div>
-<select class="sel" onchange="setMatchStatut(16,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(16,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(16,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(16,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(16,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(16,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="16" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">18</div>
-<div class="jnom">Pp MERLOU</div>
-<select class="sel" onchange="setMatchStatut(17,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(17,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(17,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(17,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(17,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(17,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="17" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">19</div>
-<div class="jnom">Mathieu PASCUAL</div>
-<select class="sel" onchange="setMatchStatut(18,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(18,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(18,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(18,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(18,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(18,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="18" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">20</div>
-<div class="jnom">Baptiste MALICHECQ</div>
-<select class="sel" onchange="setMatchStatut(19,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(19,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(19,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(19,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(19,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(19,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="19" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">21</div>
-<div class="jnom">Maxence MOLINA</div>
-<select class="sel" onchange="setMatchStatut(20,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(20,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(20,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(20,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(20,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(20,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="20" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">22</div>
-<div class="jnom">Majdi AYARI</div>
-<select class="sel" onchange="setMatchStatut(21,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(21,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(21,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(21,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(21,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(21,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="21" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">23</div>
-<div class="jnom">Paolo DOS SANTOS</div>
-<select class="sel" onchange="setMatchStatut(22,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(22,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(22,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(22,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(22,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(22,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="22" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">24</div>
-<div class="jnom">Quentin HENRY</div>
-<select class="sel" onchange="setMatchStatut(23,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(23,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(23,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(23,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(23,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(23,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="23" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">25</div>
-<div class="jnom">Tiago DAVAN</div>
-<select class="sel" onchange="setMatchStatut(24,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(24,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(24,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(24,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(24,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(24,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="24" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">26</div>
-<div class="jnom">Romeo FORTE</div>
-<select class="sel" onchange="setMatchStatut(25,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(25,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(25,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(25,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(25,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(25,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="25" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">27</div>
-<div class="jnom">Guillaume LAJUS</div>
-<select class="sel" onchange="setMatchStatut(26,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(26,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(26,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(26,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(26,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(26,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="26" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">28</div>
-<div class="jnom">Seb DUVIGNEAU</div>
-<select class="sel" onchange="setMatchStatut(27,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(27,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(27,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(27,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(27,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(27,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="27" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">29</div>
-<div class="jnom">Steven PORCEL</div>
-<select class="sel" onchange="setMatchStatut(28,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(28,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(28,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(28,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(28,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(28,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="28" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">30</div>
-<div class="jnom">Antho DURAND</div>
-<select class="sel" onchange="setMatchStatut(29,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(29,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(29,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(29,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(29,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(29,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="29" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">31</div>
-<div class="jnom">Valentin GOMES</div>
-<select class="sel" onchange="setMatchStatut(30,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(30,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(30,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(30,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(30,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(30,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="30" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">32</div>
-<div class="jnom">Yassine TAAROUST</div>
-<select class="sel" onchange="setMatchStatut(31,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(31,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(31,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(31,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(31,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(31,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="31" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">33</div>
-<div class="jnom">Jordan GALVAN</div>
-<select class="sel" onchange="setMatchStatut(32,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(32,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(32,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(32,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(32,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(32,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="32" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">34</div>
-<div class="jnom">Jerome ANCHUBIDART</div>
-<select class="sel" onchange="setMatchStatut(33,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(33,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(33,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(33,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(33,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(33,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="33" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">35</div>
-<div class="jnom">Hugo LEBLANC</div>
-<select class="sel" onchange="setMatchStatut(34,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(34,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(34,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(34,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(34,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(34,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="34" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">36</div>
-<div class="jnom">Paul LAGOUARDETTE</div>
-<select class="sel" onchange="setMatchStatut(35,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(35,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(35,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(35,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(35,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(35,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="35" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">37</div>
-<div class="jnom">Ylan POVEDA</div>
-<select class="sel" onchange="setMatchStatut(36,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(36,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(36,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(36,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(36,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(36,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="36" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">38</div>
-<div class="jnom">Sacha SAUT</div>
-<select class="sel" onchange="setMatchStatut(37,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(37,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(37,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(37,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(37,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(37,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="37" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">39</div>
-<div class="jnom">Fares EL HERMI</div>
-<select class="sel" onchange="setMatchStatut(38,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(38,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(38,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(38,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(38,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(38,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="38" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">40</div>
-<div class="jnom">Noa PICON</div>
-<select class="sel" onchange="setMatchStatut(39,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(39,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(39,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(39,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(39,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(39,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="39" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">41</div>
-<div class="jnom">Enzo DERIVE</div>
-<select class="sel" onchange="setMatchStatut(40,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(40,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(40,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(40,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(40,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(40,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="40" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">42</div>
-<div class="jnom">Lucas CAETANO</div>
-<select class="sel" onchange="setMatchStatut(41,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(41,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(41,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(41,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(41,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(41,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="41" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:var(--carte2);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">43</div>
-<div class="jnom">Bryan LAURAIN</div>
-<select class="sel" onchange="setMatchStatut(42,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(42,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(42,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(42,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(42,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(42,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="42" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-<div class="jr" style="background:rgba(20,20,20,.5);grid-template-columns:28px 1fr 85px 55px 55px 55px 40px 40px 110px">
-<div class="jnum">44</div>
-<div class="jnom">Ahmed DOSSO</div>
-<select class="sel" onchange="setMatchStatut(43,this.value)" title="Statut" style="font-size:9px"><option value="TA">Titu A</option><option value="RA">Rempl A</option><option value="TB">Titu B</option><option value="RB">Rempl B</option><option value="ABS">Absent</option></select>
-<input class="ninput" type="number" min="0" max="20" placeholder="Buts" title="Buts" onchange="setStatMatch(43,'buts',this.value)">
-<input class="ninput" type="number" min="0" max="10" placeholder="PD" title="Passes D" style="color:var(--purple)" onchange="setStatMatch(43,'pd',this.value)">
-<input class="ninput" type="number" min="0" max="90" placeholder="Tps" title="Temps de jeu" style="color:var(--blue)" onchange="setStatMatch(43,'tps',this.value)">
-<select class="sel" style="color:var(--gold)" title="Carton jaune" onchange="setStatMatch(43,'cj',this.value)"><option value="0">🟨</option><option value="1">1</option><option value="2">2</option></select>
-<select class="sel" style="color:var(--red)" title="Carton rouge" onchange="setStatMatch(43,'cr',this.value)"><option value="0">🟥</option><option value="1">1</option></select>
-<button class="gen-btn2 btn-noter-nouveau" type="button" style="padding:4px 6px;font-size:9.5px" data-idx="43" data-consignes="3" data-offensif="3" data-defensif="3" data-esprit="3" onclick="ouvrirNotationEtoilesNouveau(this)">⭐ Noter</button>
-</div>
-</div>
+    <div id="notif-list"><!-- rempli par renderNotifList() au chargement --></div>
     <div style="padding:12px 12px 4px;font-size:10px;color:var(--gris2)">La validation se fait via le bouton "AJOUTER LE MATCH ET VALIDER NOTES" en haut de l'écran.</div>
   </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📝 Debriefs express des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDebriefsMatchs()">🔄 Charger</span></div>
@@ -1613,11 +857,11 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">📊 Bilan par catégorie</span><span class="bc" style="font-size:9.5px;color:var(--gris2)">R2 uniquement — calculé automatiquement</span></div>
     <div id="bilan-categorise" style="padding:10px"></div>
   </div>
-  <div class="blk"><div class="bh"><span class="bt">Historique</span><span class="bc" id="bilan-txt">-</span></div><div id="matchs-list" style="padding:12px"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Aucun match</div></div></div>
+  <div class="blk plein"><div class="bh"><span class="bt">Historique</span><span class="bc" id="bilan-txt">-</span></div><div id="matchs-list" style="padding:12px"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">Aucun match</div></div></div>
 </div>
 
 <!-- ADVERSAIRES -->
-<div class="scr" id="scr-adversaires">
+<div class="scr-grille scr" id="scr-adversaires">
   <div class="ph"><div><div class="ph-title">🔍 Adversaires</div><div class="ph-sub">Fiche permanente par équipe — se remplit match après match</div></div></div>
   <div class="doc-bandeau" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">
     <span class="gros">👁</span>
@@ -1628,7 +872,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Sélectionner un adversaire</span></div>
     <div style="padding:14px"><select class="fi" id="adv-sel" onchange="renderAdversaires()"></select></div>
   </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Historique des fiches</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">Historique des fiches</span></div>
     <div id="adv-content" style="padding:14px"></div>
   </div>
   <div class="blk"><div class="bh"><span class="bt">+ Ajouter une fiche</span><span class="bc">nouvel adversaire ou complément</span></div>
@@ -1658,7 +902,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- BILAN DE SAISON -->
-<div class="scr" id="scr-bilan">
+<div class="scr-grille scr" id="scr-bilan">
   <div class="ph"><div><div class="ph-title">🏆 Bilan de Saison</div><div class="ph-sub">Analyse collective — au-delà des stats individuelles</div></div></div>
 
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Forme récente</span></div>
@@ -1679,7 +923,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div id="bilan-cartons" style="padding:14px"></div>
   </div>
 
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Stats collectives cumulées</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt">Stats collectives cumulées</span></div>
     <div id="bilan-collectif" style="padding:14px"></div>
   </div>
 
@@ -1690,7 +934,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 
 <!-- TABLEAU DES VOTES -->
 <!-- QUI UTILISE L'APPLI -->
-<div class="scr" id="scr-activite">
+<div class="scr-grille scr" id="scr-activite">
   <div class="ph"><div><div class="ph-title">📶 Qui utilise l'appli</div><div class="ph-sub">Dernière activité connue de chaque joueur — se met à jour dès qu'il choisit son nom quelque part</div></div>
     <span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerActivite()">🔄 Actualiser</span>
   </div>
@@ -1703,7 +947,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- CLASSEMENT -->
-<div class="scr" id="scr-classement">
+<div class="scr-grille scr" id="scr-classement">
   <div class="ph"><div><div class="ph-title">📊 Classement</div><div class="ph-sub">R2 Poule F — Nouvelle-Aquitaine</div></div></div>
   <div class="blk" style="margin-bottom:14px" id="prochain-match-blk"></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh" style="cursor:pointer" onclick="var b=document.getElementById('import-classement-blk');b.style.display=b.style.display==='none'?'block':'none'"><span class="bt go">📋 Importer le classement (copier-coller)</span><span class="bc" style="color:var(--gris2);font-size:10px">SportCorico, FFF, LiguesDeFoot…</span></div>
@@ -1719,7 +963,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   </div>
 
   <div class="fg2" style="margin-bottom:14px">
-    <div class="blk" style="margin:0"><div class="bh"><span class="bt">Classement actuel</span><span class="bc" style="font-size:9px;color:var(--gris2)">calculé automatiquement</span></div>
+    <div class="blk plein" style="margin:0"><div class="bh"><span class="bt">Classement actuel</span><span class="bc" style="font-size:9px;color:var(--gris2)">calculé automatiquement</span></div>
       <div id="classement-list" style="padding:8px"></div>
     </div>
     <div class="blk" style="margin:0"><div class="bh"><span class="bt">Évolution des places</span><span class="bc" id="classement-hist-nb">0 instantané</span></div>
@@ -1736,7 +980,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div class="blk" style="margin:0"><div class="bh"><span class="bt">✈ Classement Extérieur</span></div><div id="classement-ext-full" style="padding:8px"></div></div>
   </div>
 
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">📅 Mon tableau — journée par journée</span><span class="bc" style="font-size:9px;color:var(--gris2)">généré automatiquement</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt">📅 Mon tableau — journée par journée</span><span class="bc" style="font-size:9px;color:var(--gris2)">généré automatiquement</span></div>
     <div id="classement-domext-summary" style="padding:10px 14px;display:flex;gap:10px"></div>
     <div id="classement-domext-list" style="padding:0 8px 8px"></div>
   </div>
@@ -1775,7 +1019,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- FORME JOUEURS -->
-<div class="scr" id="scr-forme-coach">
+<div class="scr-grille scr" id="scr-forme-coach">
   <div class="ph"><div><div class="ph-title">🌡️ Forme joueurs</div><div class="ph-sub">Bien-être : la dernière réponse, et surtout l'évolution</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Formulaires</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerFormeJoueurs()">🔄 Charger</span></div>
     <div id="forme-coach-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour récupérer les réponses envoyées par les joueurs. Tout critère ≤5 est signalé en rouge.</div></div>
@@ -1789,7 +1033,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- SUIVI MÉDICAL -->
-<div class="scr" id="scr-medical">
+<div class="scr-grille scr" id="scr-medical">
   <div class="ph"><div><div class="ph-title">🏥 Suivi médical</div><div class="ph-sub">Blessures en cours et historique</div></div>
   </div>
   <div style="padding:0 14px 14px"><button class="btn" onclick="ouvrirNouvelleBlessure()">🩹 SIGNALER UNE NOUVELLE BLESSURE</button></div>
@@ -1808,7 +1052,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- ENTRETIEN JOUEUR -->
-<div class="scr" id="scr-entretien">
+<div class="scr-grille scr" id="scr-entretien">
   <div class="ph"><div><div class="ph-title">🗣️ Entretien joueur</div><div class="ph-sub">Point ponctuel — saison, objectifs, ressenti</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Joueur concerné</span></div>
     <div style="padding:14px"><select class="fi" id="entretien-sel" onchange="renderEntretien()"></select></div>
@@ -1817,7 +1061,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Récapitulatif automatique</span></div>
     <div id="entretien-recap" style="padding:14px"></div>
   </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🖨️ Fiche bilan à remettre au joueur</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">🖨️ Fiche bilan à remettre au joueur</span></div>
     <div style="padding:14px">
       <div style="font-size:11px;color:var(--gris2);margin-bottom:8px">Une page A4 avec son profil, ses stats, sa courbe de notes et ses objectifs. Le mot ci-dessous y figure ; laisse vide pour l'écrire à la main devant lui.</div>
       <textarea class="fi" id="bilan-mot-coach" rows="3" placeholder="Ce que tu veux lui dire en une phrase ou deux..." style="resize:vertical"></textarea>
@@ -1846,7 +1090,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- SUIVI OBJECTIFS JOUEURS -->
-<div class="scr" id="scr-suivi-objectifs">
+<div class="scr-grille scr" id="scr-suivi-objectifs">
   <div class="ph"><div><div class="ph-title">📋 Suivi Objectifs Joueurs</div><div class="ph-sub">Qui a soumis ses objectifs individuels, qui n'a pas encore répondu</div></div>
     <span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerSuiviObjectifs()">🔄 Actualiser</span>
   </div>
@@ -1859,7 +1103,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- CALENDRIER -->
-<div class="scr" id="scr-calendrier">
+<div class="scr-grille scr" id="scr-calendrier">
   <div class="ph"><div><div class="ph-title">Calendrier</div><div class="ph-sub">Tous les matchs de la saison</div></div></div>
   <div class="blk" style="margin-bottom:14px">
     <div class="bh"><span class="bt">Ajouter un match au calendrier</span></div>
@@ -1870,16 +1114,16 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <button class="btn" onclick="addCalendrierMatch()">+ AJOUTER AU CALENDRIER</button>
     </div>
   </div>
-  <div class="blk"><div class="bh"><span class="bt">Programme de la saison</span><span class="bc" id="cal-nb">0 match</span></div>
+  <div class="blk plein"><div class="bh"><span class="bt">Programme de la saison</span><span class="bc" id="cal-nb">0 match</span></div>
     <div style="padding:10px 14px 0"><button class="btn2" style="width:auto;padding:8px 12px" onclick="rechargerCalendrierOfficiel()">🔄 Recharger le calendrier officiel R2 2026-2027</button></div>
     <div id="cal-list"></div>
   </div>
 </div>
 
 <!-- DOCS & CONTACTS CLUB -->
-<div class="scr" id="scr-infos-club">
+<div class="scr-grille scr" id="scr-infos-club">
   <div class="ph"><div><div class="ph-title">📄 Docs & contacts club</div><div class="ph-sub">Visible par les joueurs</div></div></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Règlement intérieur / infos pratiques</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt">Règlement intérieur / infos pratiques</span></div>
     <div style="padding:14px">
       <textarea class="fta" id="infos-reglement" style="min-height:200px" placeholder="Règles de vie du groupe, horaires, adresse du terrain, consignes de retard..."></textarea>
       <button class="btn2" style="margin-top:10px" onclick="sauvegarderReglement()">✓ SAUVEGARDER</button>
@@ -1901,7 +1145,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     </div>
     <div id="historique-saisons-list" style="padding:0 14px 14px"></div>
   </div>
-  <div class="blk"><div class="bh"><span class="bt go">🔑 Codes PIN joueurs</span></div>
+  <div class="blk plein"><div class="bh"><span class="bt go">🔑 Codes PIN joueurs</span></div>
     <div style="padding:14px">
       <div style="font-size:11px;color:var(--gris2);margin-bottom:10px">Chaque joueur crée son propre code à 4 chiffres à sa première connexion. Si un joueur l'a oublié, réinitialise-le ici — il en recréera un nouveau à sa prochaine connexion.</div>
       <select class="fi" id="pin-reset-select" style="margin-bottom:10px"><option value="">— Choisir un joueur —</option></select>
@@ -1912,7 +1156,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- NOTIFICATIONS PUSH -->
-<div class="scr" id="scr-notifs-push">
+<div class="scr-grille scr" id="scr-notifs-push">
   <div class="ph"><div><div class="ph-title">🔔 Notifications push</div><div class="ph-sub">Envoie une alerte directe aux joueurs qui ont activé les notifications</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Nouvelle notification</span></div>
     <div style="padding:14px">
@@ -1936,7 +1180,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- CORRECTION STATS SUSPECTES -->
-<div class="scr" id="scr-correction-buts">
+<div class="scr-grille scr" id="scr-correction-buts">
   <div class="ph"><div><div class="ph-title">🩹 Corriger des stats suspectes</div><div class="ph-sub">Repère les valeurs anormales (souvent confondues avec le temps de jeu)</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Seuil de détection</span></div>
     <div style="padding:14px;display:flex;align-items:center;gap:10px">
@@ -1951,7 +1195,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- MESSAGERIE JOUEURS -->
-<div class="scr" id="scr-chat">
+<div class="scr-grille scr" id="scr-chat">
   <div class="ph"><div><div class="ph-title">💬 Messagerie joueurs</div><div class="ph-sub">Discussion d'équipe — visible par tous</div></div></div>
   <div class="blk"><div class="bh"><span class="bt">Discussion</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="renderChatCoach()">🔄 Actualiser</span></div>
     <div id="chat-coach-liste" style="padding:12px;max-height:420px;overflow-y:auto"></div>
@@ -1963,9 +1207,9 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- CONVOCATIONS -->
-<div class="scr" id="scr-convos">
+<div class="scr-grille scr" id="scr-convos">
   <div class="ph"><div><div class="ph-title">Convocations</div><div class="ph-sub">Prochain match</div></div></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📋 Répartition des joueurs</span><span class="bc" id="repartition-nb">0 affecté(s)</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">📋 Répartition des joueurs</span><span class="bc" id="repartition-nb">0 affecté(s)</span></div>
     <div style="padding:10px 12px 0;font-size:10.5px;color:var(--gris2)">Range chaque joueur dans une seule case — visible ensuite par les joueurs dans leur appli.</div>
     <div id="repartition-list" style="padding:8px 12px 12px"></div>
   </div>
@@ -2018,56 +1262,13 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- EFFECTIF + CARTE FIFA -->
-<div class="scr" id="scr-effectif">
+<div class="scr-grille scr" id="scr-effectif">
   <div class="ph"><div><div class="ph-title">Effectif</div><div class="ph-sub">Carte FIFA & stats saison</div></div>
     <span class="bc" style="cursor:pointer;color:var(--or)" onclick="recalculerStats()">🔄 Recalculer les stats depuis l'historique</span>
   </div>
-  <div class="blk"><div class="bh"><span class="bt">Sélectionner un joueur</span></div>
+  <div class="blk plein"><div class="bh"><span class="bt">Sélectionner un joueur</span></div>
     <div style="padding:12px">
-      <select class="fi" id="fiche-sel" onchange="renderFicheCoach()" style="font-size:14px"><option value="0">1. Louis BACQUE</option>
-<option value="1">2. Sam PAPAIX BELLO</option>
-<option value="2">3. Tiago ALMEIDA</option>
-<option value="3">4. Romain DUCOM</option>
-<option value="4">5. Mathis HIDALGO</option>
-<option value="5">6. Lucas LE GAC</option>
-<option value="6">7. Jo DURAND</option>
-<option value="7">8. Simon BEZIAT</option>
-<option value="8">9. Ben ROUSSEAU</option>
-<option value="9">10. Max GIL URETA</option>
-<option value="10">11. Andoni BALLESTA</option>
-<option value="11">12. Quentin MIREMONT</option>
-<option value="12">13. Romain CASSANO</option>
-<option value="13">14. Yohan PENOUILH</option>
-<option value="14">15. Alya SOUMAH</option>
-<option value="15">16. Benjamin RICHOMME</option>
-<option value="16">17. Nathan LARRERE</option>
-<option value="17">18. Pp MERLOU</option>
-<option value="18">19. Mathieu PASCUAL</option>
-<option value="19">20. Baptiste MALICHECQ</option>
-<option value="20">21. Maxence MOLINA</option>
-<option value="21">22. Majdi AYARI</option>
-<option value="22">23. Paolo DOS SANTOS</option>
-<option value="23">24. Quentin HENRY</option>
-<option value="24">25. Tiago DAVAN</option>
-<option value="25">26. Romeo FORTE</option>
-<option value="26">27. Guillaume LAJUS</option>
-<option value="27">28. Seb DUVIGNEAU</option>
-<option value="28">29. Steven PORCEL</option>
-<option value="29">30. Antho DURAND</option>
-<option value="30">31. Valentin GOMES</option>
-<option value="31">32. Yassine TAAROUST</option>
-<option value="32">33. Jordan GALVAN</option>
-<option value="33">34. Jerome ANCHUBIDART</option>
-<option value="34">35. Hugo LEBLANC</option>
-<option value="35">36. Paul LAGOUARDETTE</option>
-<option value="36">37. Ylan POVEDA</option>
-<option value="37">38. Sacha SAUT</option>
-<option value="38">39. Fares EL HERMI</option>
-<option value="39">40. Noa PICON</option>
-<option value="40">41. Enzo DERIVE</option>
-<option value="41">42. Lucas CAETANO</option>
-<option value="42">43. Bryan LAURAIN</option>
-<option value="43">44. Ahmed DOSSO</option></select>
+      <select class="fi" id="fiche-sel" onchange="renderFicheCoach()" style="font-size:14px"><!-- rempli par renderFicheSel() --></select>
       <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
         <label style="font-size:11px;color:var(--gris2);display:flex;align-items:center;gap:6px;cursor:pointer">
           <input type="checkbox" id="gardien-check" onchange="toggleGardien()"> 🧤 Gardien de but
@@ -2104,7 +1305,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- POINTS ENTRAINEMENT -->
-<div class="scr" id="scr-points">
+<div class="scr-grille scr" id="scr-points">
   <div class="ph"><div><div class="ph-title">🏅 Points Entraînement</div><div class="ph-sub">Classement de la Ligue des Guerriers — présence & implication</div></div></div>
   <div id="points-podium" style="display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:16px"></div>
   <div class="blk"><div class="bh"><span class="bt go">Classement complet</span></div>
@@ -2119,7 +1320,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- OBJECTIFS COLLECTIFS -->
-<div class="scr" id="scr-obj-coll">
+<div class="scr-grille scr" id="scr-obj-coll">
   <div class="ph"><div><div class="ph-title">Objectifs Collectifs</div><div class="ph-sub" id="objcoll-club-affiche">Saison 2025/26 — AST Tarnos R2</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Classement des votes</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerVotesObjColl()">🔄 Charger les votes</span></div>
     <div id="vote-obj-coll-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour voir les 5 priorités choisies par chaque joueur, classées par nombre de votes.</div></div>
@@ -2134,7 +1335,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- VIDEOS -->
-<div class="scr bg-bureau" id="scr-videos">
+<div class="scr-grille scr bg-bureau" id="scr-videos">
   <div class="ph"><div><div class="ph-title">Vidéos</div><div class="ph-sub">Bibliothèque tactique</div></div></div>
   <div class="blk"><div class="bh"><span class="bt">Ajouter une vidéo</span></div>
     <div style="padding:14px">
@@ -2162,7 +1363,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- COMPOSITIONS & SCHEMA TACTIQUE -->
-<div class="scr" id="scr-compos">
+<div class="scr-grille scr" id="scr-compos">
   <div class="ph"><div><div class="ph-title">🎯 Compositions & Schémas tactiques</div><div class="ph-sub">Placez vos joueurs sur le terrain, sauvegardez, réutilisez</div></div></div>
   <div class="blk"><div class="bh"><span class="bt">Nouvelle composition</span></div>
     <div style="padding:14px">
@@ -2187,7 +1388,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <button class="btn" onclick="nouvelleComposition()">⚽ PLACER LA FORMATION SUR LE TERRAIN</button>
     </div>
   </div>
-  <div class="blk"><div class="bh"><span class="bt">Terrain</span><span class="bc">Cliquez un poste pour choisir le joueur</span></div>
+  <div class="blk plein"><div class="bh"><span class="bt">Terrain</span><span class="bc">Cliquez un poste pour choisir le joueur</span></div>
     <div style="padding:16px"><div class="pitch" id="compo-pitch"></div></div>
     <div id="compo-bench"></div>
     <div id="compo-picker"></div>
@@ -2199,7 +1400,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- GÉNÉRATEUR DE SÉANCE -->
-<div class="scr bg-bureau" id="scr-generateur">
+<div class="scr-grille scr bg-bureau" id="scr-generateur">
   <div class="ph"><div><div class="ph-title">🧩 Générateur de séance</div><div class="ph-sub">Structure automatique + recherche de vidéos ciblées par thème</div></div></div>
   <div id="gen-suggestion-planning"></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Paramètres</span></div>
@@ -2218,7 +1419,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- CHRONO & FRACTIONNÉ -->
-<div class="scr bg-bureau" id="scr-chrono">
+<div class="scr-grille scr bg-bureau" id="scr-chrono">
   <div class="ph"><div><div class="ph-title">⏱️ Chrono & Fractionné</div><div class="ph-sub">Outil de terrain — garde cet écran ouvert pendant l'exercice</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Paramètres</span></div>
     <div style="padding:14px">
@@ -2245,7 +1446,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </div>
 
 <!-- PLANNING MENSUEL -->
-<div class="scr" id="scr-planning">
+<div class="scr-grille scr" id="scr-planning">
   <div class="ph"><div><div class="ph-title">📅 Planning mensuel</div><div class="ph-sub">Thèmes travaillés à l'entraînement — vue croisée et manques éventuels</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Ajouter une séance au planning</span></div>
     <div style="padding:14px">
@@ -2315,7 +1516,7 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- CORNERS & COUPS FRANCS -->
-<div class="scr" id="scr-cpa">
+<div class="scr-grille scr" id="scr-cpa">
   <div class="ph"><div><div class="ph-title">🚩 Corners &amp; Coups francs</div><div class="ph-sub">Schémas types, réutilisables match après match</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Type de situation</span></div>
     <div style="padding:14px">
@@ -2327,7 +1528,7 @@ Repli défensif après perte"></textarea>
       </select>
     </div>
   </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Schéma</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">Schéma</span></div>
     <div style="padding:14px"><div class="cpa-zone" id="cpa-zone"></div></div>
     <div id="cpa-roles" style="padding:0 14px 14px"></div>
     <div style="padding:0 14px 14px"><div class="fg"><label class="fl">Nom du schéma</label><input class="fi" id="cpa-nom" placeholder="Variante 1er poteau"></div>
@@ -2421,7 +1622,7 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- BIBLIOTHEQUE GENERALE -->
-<div class="scr" id="scr-biblio-generale">
+<div class="scr-grille scr" id="scr-biblio-generale">
   <div class="ph"><div><div class="ph-title">🗄️ Bibliothèque générale</div><div class="ph-sub">Tout ce que tu veux garder au même endroit — PDF, vidéo, site, doc...</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Ajouter une ressource</span></div>
     <div style="padding:14px">
@@ -2450,7 +1651,7 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- A CREUSER -->
-<div class="scr" id="scr-a-creuser">
+<div class="scr-grille scr" id="scr-a-creuser">
   <div class="ph"><div><div class="ph-title">🔬 À creuser</div><div class="ph-sub">Tout ce qu'on a exploré ensemble mais pas encore validé concrètement</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Ajouter une piste</span></div>
     <div style="padding:14px">
@@ -2469,7 +1670,7 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- BIBLIOTHEQUE SEANCES (PHOTOS) -->
-<div class="scr bg-bureau" id="scr-biblio">
+<div class="scr-grille scr bg-bureau" id="scr-biblio">
   <div class="ph"><div><div class="ph-title">📸 Bibliothèque Séances</div><div class="ph-sub">Photos, PDF et liens vidéo/internet — votre base de ressources</div></div></div>
   <div class="blk"><div class="bh"><span class="bt">Ajouter une séance</span></div>
     <div style="padding:14px">
@@ -2815,7 +2016,10 @@ Repli défensif après perte"></textarea>
 <!-- HUB VISUEL -->
 <div class="scr" id="scr-hub">
   <style>
-    #scr-hub-liste{max-width:640px}
+    #scr-hub-liste{max-width:1280px}
+    .hubl-poles{display:grid;grid-template-columns:repeat(auto-fit,minmax(286px,1fr));gap:14px;align-items:start}
+    .hubl-poles>*{min-width:0}
+    @media(max-width:700px){ .hubl-poles{grid-template-columns:1fr} }
     .hubl-hero{display:flex;align-items:center;gap:14px;padding:6px 4px 20px}
     .hubl-hero img{width:52px;height:56px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(217,119,6,.3));flex-shrink:0}
     .hubl-hero .club{font-family:'Roboto Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gris)}
@@ -2834,7 +2038,7 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- MESSAGE -->
-<div class="scr" id="scr-message">
+<div class="scr-grille scr" id="scr-message">
   <div class="ph"><div><div class="ph-title">📰 Fil d'actualités</div><div class="ph-sub">Historique de tout ce que vous avez dit à l'équipe</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">+ Publier une actualité</span></div>
     <div style="padding:14px">
@@ -2849,7 +2053,7 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- SONDAGE -->
-<div class="scr" id="scr-sondage">
+<div class="scr-grille scr" id="scr-sondage">
   <div class="ph"><div><div class="ph-title">📊 Sondages</div><div class="ph-sub">Plusieurs sondages possibles en même temps</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">+ Créer un nouveau sondage</span></div>
     <div style="padding:14px">
@@ -3632,14 +2836,16 @@ function renderHubListe(){
   var ct=document.getElementById('scr-hub-liste');
   if(!ct) return;
   var html='<div class="hubl-hero"><img src="'+HUBL_LOGO+'" alt="AST Tarnos"><div><div class="club">'+(typeof NOM_CLUB!=='undefined'&&NOM_CLUB?NOM_CLUB:'AST TARNOS')+'</div><div class="sub">Coach R2 · 2025/26</div></div></div>';
+  html+='<div class="hubl-poles">';
   POLES.forEach(function(p){
-    html+='<div class="hubl-pole-titre" style="color:'+p.color+'">'+p.icon+' '+p.label+'</div>';
-    html+='<div class="hubl-grid" style="margin-bottom:16px">';
+    html+='<div><div class="hubl-pole-titre" style="color:'+p.color+'">'+p.icon+' '+p.label+'</div>';
+    html+='<div class="hubl-grid">';
     p.screens.forEach(function(sc){
       html+='<div class="hubl-item" style="--pc:'+p.color+'" onclick="goNav(\''+sc.s+'\')"><span class="ic">'+sc.ic+'</span><span class="lbl">'+sc.l+'</span><span class="chev">\u203A</span></div>';
     });
-    html+='</div>';
+    html+='</div></div>';
   });
+  html+='</div>';
   ct.innerHTML=html;
 }
 var POLE_ACTIF=null;
@@ -3929,7 +3135,9 @@ function renderCalendrier(){
   CALENDRIER.sort(function(a,b){return comparerDatesFr(a.date,b.date);});
   document.getElementById('cal-nb').textContent=CALENDRIER.length+(CALENDRIER.length>1?' matchs':' match');
   var joue=function(adv){return MATCHS.some(function(m){return m.adversaire===adv;});};
-  document.getElementById('cal-list').innerHTML=CALENDRIER.length?CALENDRIER.map(function(c,i){
+  var ctCal=document.getElementById('cal-list');
+  ctCal.className='liste-colonnes';
+  ctCal.innerHTML=CALENDRIER.length?CALENDRIER.map(function(c,i){
     var estJoue=joue(c.adversaire);
     return '<div class="mc" style="border-left-color:'+(estJoue?'var(--green)':'var(--or)')+'">'
       +'<div style="flex:1"><div style="font-weight:700;font-size:13px">vs '+c.adversaire+' ('+(c.lieu==='E'?'Ext.':'Dom.')+')</div>'
@@ -4758,6 +3966,7 @@ function toggleDashBlock(id){
   try{ localStorage.setItem('dash_collapsed_'+id, vaSeReplier?'1':'0'); }catch(e){}
 }
 function appliquerCollapseDash(){
+  if(!document.getElementById('dash-anciens-blocs')) return; // bloc retiré
   ['top5','alertes'].forEach(function(id){
     var etat; try{ etat=localStorage.getItem('dash_collapsed_'+id); }catch(e){ etat=null; }
     if(etat==='1'){
@@ -4768,6 +3977,7 @@ function appliquerCollapseDash(){
   });
 }
 function renderDashMois(){
+  if(!document.getElementById('dash-anciens-blocs')) return; // bloc retiré
   var grille=document.getElementById('d-mois-grille');
   if(!grille || typeof caEvenementsDuJour!=='function') return;
   if(CA_ANNEE===null){ var maintenant=new Date(); CA_ANNEE=maintenant.getFullYear(); CA_MOIS=maintenant.getMonth(); }
@@ -4802,6 +4012,7 @@ function dashChangerMois(delta){
   renderDashMois();
 }
 function renderDashPostit(){
+  if(!document.getElementById('dash-anciens-blocs')) return; // bloc retiré
   var zone=document.getElementById('d-postit-zone');
   if(!zone || typeof caEvenementsDuJour!=='function') return;
   var aujourdhui=new Date();
@@ -4988,8 +4199,9 @@ async function dvChargerCloud(adversaire){
     });
     var oui=0, non=0;
     Object.keys(dernier).forEach(function(n){
-      if(dernier[n].rep==='oui'||dernier[n].rep==='present') oui++;
-      else if(dernier[n].rep==='non'||dernier[n].rep==='absent') non++;
+      // L'appli joueurs enregistre 'dispo' / 'indispo' — pas 'oui' / 'non'
+      if(dernier[n].rep==='dispo') oui++;
+      else if(dernier[n].rep==='indispo') non++;
     });
     DV_CLOUD={repondu:Object.keys(dernier).length, oui:oui, non:non};
   }catch(e){ DV_CLOUD=null; }
@@ -5157,11 +4369,7 @@ function updateDash(){
   var champNom=document.getElementById('param-nom-club');
   if(champNom) champNom.value=NOM_CLUB;
   renderDashVivant();
-  var p=STATS.filter(function(s){return s.pres;}).length;
-  document.getElementById('d-pres').textContent=p+'/'+JOUEURS.length;
-  document.getElementById('d-matchs').textContent=MATCHS.length;
-  var V=0,N=0,D=0;MATCHS.forEach(function(m){if(m.res==='V')V++;else if(m.res==='N')N++;else D++;});
-  document.getElementById('d-bilan').textContent=V+'-'+N+'-'+D;
+  // Les compteurs de l'ancien dashboard ont disparu avec lui : l'accueil vivant les remplace.
   var formeCt=document.getElementById('d-forme');
   if(formeCt){
     var forme=calcFormeRecente(5);
@@ -5184,16 +4392,19 @@ function updateDash(){
       heroNext.textContent="Aucun prochain match publié pour l'instant";
     }
   }
+  // Le podium et les alertes vivaient dans l'ancien dashboard, désormais retiré.
+  var elTop5=document.getElementById('top5'), elAlertes=document.getElementById('alertes');
+  if(!elTop5 || !elAlertes) return;
   var sorted=STATS.map(function(s,i){return {nom:JOUEURS[i].nom,pts:s.pts||0};} ).sort(function(a,b){return b.pts-a.pts;}).slice(0,5);
   var medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
-  document.getElementById('top5').innerHTML=sorted.map(function(s,ri){
+  elTop5.innerHTML=sorted.map(function(s,ri){
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(249,115,22,.08)">'
       +'<div style="font-size:16px;width:24px">'+medals[ri]+'</div>'
       +'<div style="flex:1;font-weight:700;font-size:13px">'+s.nom+'</div>'
       +'<div style="font-family:Inter,sans-serif;font-size:16px;font-weight:700;color:var(--gold)">'+s.pts+' pts</div></div>';
   }).join('');
   var low=STATS.map(function(s,i){return {nom:JOUEURS[i].nom,pct:s.seances>0?Math.round(s.pres/s.seances*100):0};}).sort(function(a,b){return a.pct-b.pct;}).slice(0,4);
-  document.getElementById('alertes').innerHTML=low.map(function(s){
+  elAlertes.innerHTML=low.map(function(s){
     var col=s.pct<50?'var(--red)':s.pct<70?'var(--or)':'var(--green)';
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(249,115,22,.08)">'
       +'<span>⚠</span><div style="flex:1;font-weight:700;font-size:13px;color:'+col+'">'+s.nom+'</div>'
