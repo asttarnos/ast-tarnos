@@ -828,7 +828,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v19</b> · 22/09/2026<br>
+      AST COACH <b style="color:var(--or)">v20</b> · 22/09/2026<br>
       <span style="opacity:.7">Composer le match · Mode d'emploi</span>
     </div>
   </div>
@@ -953,8 +953,6 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   </div>
   <div class="blk plein" style="margin-bottom:14px">
     <div class="bh"><span class="bt go">Notes & stats joueurs</span><span class="bc">Statut · ★ Note (4 critères) · Buts · PD · Temps · Cartons</span></div>
-    
-    </div>
     <div class="nm-etape">
       <span class="num">1</span><span class="lab">Qui a joué ce match ?</span>
       <span class="cpt" id="nm-cpt">—</span>
@@ -966,6 +964,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       <span class="cpt">statut, buts, passes, temps de jeu, cartons et note</span></div>
     <div id="notif-entetes" style="display:none;padding:5px 12px;background:rgba(8,8,8,.6);grid-template-columns:28px minmax(140px,300px) 85px 55px 55px 55px 40px 40px 110px;gap:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--gris2);text-transform:uppercase;border-bottom:1px solid var(--line)">
       <div>#</div><div>Joueur</div><div>Statut</div><div style="color:var(--gold)">Buts</div><div style="color:var(--purple)">PD</div><div style="color:var(--blue)">Tps</div><div style="color:var(--gold)">🟨</div><div style="color:var(--red)">🟥</div><div style="color:var(--gold)">Note/10</div>
+    </div>
     <div id="notif-list"><!-- rempli par renderNotifList() --></div>
     <div style="padding:12px 12px 4px;font-size:10px;color:var(--gris2)">La validation se fait via le bouton "AJOUTER LE MATCH ET VALIDER NOTES" en haut de l'écran.</div>
   </div>
