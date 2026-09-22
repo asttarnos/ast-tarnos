@@ -351,6 +351,39 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .pj-puce.on{background:color-mix(in srgb,var(--pc) 22%,transparent);border-color:var(--pc);color:#fff}
 .pj-puce b{font-size:9.5px;font-weight:800;letter-spacing:.05em;color:var(--pc)}
 .pj-puce-vide{font-size:11px;color:var(--gris2);font-style:italic;line-height:1.5}
+
+/* ===== Mode d'emploi ===== */
+.ae-recherche{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.ae-recherche input{flex:1;min-width:210px}
+.ae-fam{display:inline-flex;align-items:center;gap:6px;background:#12161c;border:1px solid var(--line);
+  border-radius:18px;padding:6px 13px;cursor:pointer;font-size:11px;font-weight:700;color:var(--gris2);user-select:none}
+.ae-fam:hover{border-color:var(--or);color:#fff}
+.ae-fam.on{background:rgba(217,119,6,.18);border-color:var(--or);color:#fff}
+.ae-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;align-items:start}
+.ae-grille>*{min-width:0}
+.ae-c{background:var(--carte);border:1.5px solid var(--line);border-top:3px solid var(--fc);border-radius:11px;
+  padding:13px 15px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.ae-c h4{font-family:'Roboto Condensed',sans-serif;font-size:14.5px;font-weight:800;color:#fff;margin:0 0 3px;line-height:1.25}
+.ae-ou{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--fc);margin-bottom:9px}
+.ae-c ol{margin:0 0 2px;padding-left:19px}
+.ae-c ol li{font-size:12.5px;color:var(--gris);line-height:1.55;margin-bottom:5px}
+.ae-c ol li b{color:#fff}
+.ae-c ol li code{background:rgba(255,255,255,.08);border-radius:3px;padding:1px 5px;font-family:inherit;font-weight:700;color:var(--or);font-size:11.5px}
+.ae-piege{display:flex;gap:8px;background:rgba(220,68,68,.1);border:1px solid rgba(220,68,68,.4);
+  border-radius:7px;padding:8px 10px;margin-top:9px;font-size:11.5px;color:#f3b0b0;line-height:1.5}
+.ae-piege b{color:#fff}
+.ae-astuce{display:flex;gap:8px;background:rgba(34,160,107,.1);border:1px solid rgba(34,160,107,.38);
+  border-radius:7px;padding:8px 10px;margin-top:9px;font-size:11.5px;color:#a9e0c6;line-height:1.5}
+.ae-astuce b{color:#fff}
+.ae-aller{width:100%;margin-top:10px;padding:9px;border-radius:7px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--gris2);font-family:'Roboto Condensed',sans-serif;
+  font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.ae-aller:hover{border-color:var(--fc);color:var(--fc)}
+.ae-titre-fam{grid-column:1/-1;font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:800;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--fc);display:flex;align-items:center;gap:8px;margin:6px 0 0}
+.ae-titre-fam::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--fc),transparent);opacity:.45}
+.ae-rien{grid-column:1/-1;text-align:center;padding:26px;color:var(--gris2);font-size:12.5px;font-style:italic}
+@media(max-width:760px){ .ae-grille{grid-template-columns:1fr} }
 /* ===== Projet de jeu : les phases côte à côte, les principes dedans ===== */
 .pj-nn{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
 .pj-nn-c{background:linear-gradient(150deg,rgba(217,119,6,.16),rgba(217,119,6,.03));border:1.5px solid rgba(217,119,6,.45);
@@ -767,8 +800,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v17</b> · 22/09/2026<br>
-      <span style="opacity:.7">Projet de jeu · Principes reliés</span>
+      AST COACH <b style="color:var(--or)">v18</b> · 22/09/2026<br>
+      <span style="opacity:.7">Mode d'emploi · Projet de jeu</span>
     </div>
   </div>
 </div>
@@ -1880,6 +1913,21 @@ Repli défensif après perte"></textarea>
   <button class="btn fex-only-presentation" style="display:none;position:fixed;top:14px;right:14px;width:auto;padding:10px 18px;z-index:999;background:#c0392b;box-shadow:0 4px 14px rgba(0,0,0,.6)" onclick="fexTogglePresentation(false)">✕ QUITTER LA PRÉSENTATION</button>
 </div>
 
+<!-- MODE D'EMPLOI -->
+<div class="scr" id="scr-aide">
+  <div class="ph"><div><div class="ph-title">📖 Mode d'emploi</div><div class="ph-sub">Comment saisir quoi, et où — avec les pièges que j'ai repérés</div></div></div>
+
+  <div class="blk"><div class="bh"><span class="bt">Chercher</span><span class="bc" id="ae-nb">—</span></div>
+    <div style="padding:14px">
+      <div class="ae-recherche">
+        <input class="fi" id="ae-q" placeholder="🔍 Ex : vote, match, convocation, sauvegarde, exercice..." oninput="renderAide()">
+        <div id="ae-familles" style="display:flex;gap:7px;flex-wrap:wrap"></div>
+      </div>
+      <div class="ae-grille" id="ae-grille"></div>
+    </div>
+  </div>
+</div>
+
 <!-- PROJET DE JEU -->
 <div class="scr" id="scr-projet-jeu">
   <div class="ph"><div><div class="ph-title">📐 Projet de jeu</div><div class="ph-sub">Ce qu'on veut faire, dans tes mots — le plateau tactique montre où se placer, ici on dit pourquoi</div></div></div>
@@ -2879,6 +2927,7 @@ var POLES=[
   {id:'accueil',label:'Accueil & Vie de club',icon:'🏠',color:'#F97316',screens:[
     {s:'dash',ic:'📊',l:'Dashboard'},
     {s:'imprimer',ic:'🖨️',l:'Docs à imprimer'},
+    {s:'aide',ic:'📖',l:"Mode d'emploi"},
     {s:'hub',ic:'🎯',l:'Vue d\'ensemble'},
     {s:'calendrier-annuel',ic:'🗓️',l:'Calendrier Annuel'},
     {s:'message',ic:'💬',l:"Fil d'actualités"},
@@ -3026,6 +3075,7 @@ function goNav(elOrS){
   if(s==='dash') updateDash();
   if(s==='imprimer') renderDocsImprimer();
   if(s==='projet-jeu') renderProjetJeuCoach();
+  if(s==='aide') renderAide();
   if(s==='seances-cal') renderCalSeances();
   if(s==='effectif') renderFicheCoach();
   if(s==='recap') renderRecap();
@@ -7579,6 +7629,299 @@ function plateauBasculerPrincipe(code){
 }
 function renderPlateauPrincipes(){
   pjPuces('plateau-principes', PLATEAU_PRINCIPES, 'plateauBasculerPrincipe');
+}
+
+// ===== Mode d'emploi =====
+// Chaque fiche : ce qu'on veut faire, où ça se passe, les étapes, et le piège s'il y en a un.
+var AIDE_FAMILLES=[
+  {cle:'match',  nom:'Le match',        ic:'⚽', coul:'#4ea8de'},
+  {cle:'groupe', nom:'Le groupe',       ic:'📋', coul:'#b285e8'},
+  {cle:'joueur', nom:'Les joueurs',     ic:'👥', coul:'#22a06b'},
+  {cle:'entr',   nom:"L'entraînement",  ic:'🏋️', coul:'#e0a530'},
+  {cle:'tact',   nom:'La tactique',     ic:'📐', coul:'#d97706'},
+  {cle:'docs',   nom:'Les documents',   ic:'🖨️', coul:'#9ca3af'},
+  {cle:'appli',  nom:"L'appli joueurs", ic:'📱', coul:'#dc4444'},
+  {cle:'data',   nom:'Les sauvegardes', ic:'☁️', coul:'#7c8899'}
+];
+
+var AIDE=[
+// ---------------------------------------------------------------- LE MATCH
+{f:'match', t:'Saisir un match après coup', ou:'Écran Matchs', ecran:'matchs',
+ etapes:[
+  'Bloc <b>Nouveau résultat</b> : choisis le match dans <code>Match du calendrier</code> — la date et l\'adversaire se remplissent seuls. Sinon passe en saisie manuelle.',
+  'Entre le <b>score AST</b> et le <b>score adverse</b>, le lieu et la compétition.',
+  'Si tu veux : ouvre <code>Stats avancées</code> pour les mi-temps, tirs, corners et fautes, et désigne l\'<b>homme du match</b>.',
+  'Descends au bloc <b>Notes &amp; stats joueurs</b> : pour chaque joueur, son statut (Titu A, Rempl A, Titu B, Rempl B, Banc, Absent), ses buts, passes décisives, temps de jeu, cartons, et sa note sur 4 critères.',
+  'Remonte et clique <code>✓ AJOUTER LE MATCH ET VALIDER NOTES</code>.'
+ ],
+ piege:'<b>Un seul bouton pour les deux.</b> Il n\'existe pas de bouton « valider les notes » séparé : le bouton du haut enregistre le match <i>et</i> reporte toutes les notes dans les stats de saison. Si tu le cliques avant d\'avoir rempli les notes en bas, le match part sans elles.'},
+
+{f:'match', t:'Saisir le match en direct, au bord du terrain', ou:'Bouton en bas du menu', ecran:'matchs',
+ etapes:[
+  'Avant le match, fais ta <b>convocation</b> (écran Convocations) : c\'est elle qui remplit la liste du live.',
+  'Clique <code>📣 MODE BORD DE TOUCHE</code> en bas du menu de gauche.',
+  'Touche tes titulaires, puis <code>Terminé</code>. La croix <code>✕</code> écarte du match ceux qui ne jouent pas.',
+  'Pendant le match : touche un joueur pour lui attribuer un but, une passe, une frappe, un carton, une entrée ou une sortie. Les compteurs d\'équipe sont en haut.',
+  'À la fin : <code>⭐ Bilan à chaud</code> pour noter, puis <code>✓ Terminer</code>.'
+ ],
+ astuce:'<b>Tout se reporte tout seul.</b> Le match, les buts, les cartons et surtout les <i>temps de jeu</i> arrivent dans l\'écran Matchs sans rien ressaisir. Le chrono tourne sur l\'heure réelle : tu peux verrouiller ton téléphone, rien ne se perd.'},
+
+{f:'match', t:'Les trois choses qui s\'appellent « vote »', ou:'Écrans Matchs et Obj. Collectifs', ecran:'matchs',
+ etapes:[
+  '<b>⭐ Votes des joueurs</b> (écran Matchs) : les <i>auto-évaluations</i> que les joueurs s\'attribuent. Bouton <code>Charger les votes</code>.',
+  '<b>🏅 Homme du match</b> (écran Matchs) : les joueurs convoqués votent depuis leur appli. Bouton <code>Charger</code>. C\'est <i>consultatif</i>.',
+  '<b>🏆 Objectifs collectifs</b> (écran dédié) : le groupe vote les objectifs de la saison, 3 choix par joueur.'
+ ],
+ piege:'<b>Le vote des joueurs ne désigne pas l\'homme du match.</b> Le titre officiel, c\'est toi qui le mets, dans le champ <code>Homme du match</code> du bloc Nouveau résultat. Le vote te dit seulement ce que le groupe en pense.'},
+
+{f:'match', t:'Corriger une stat fausse', ou:'Écran Corriger des stats suspectes', ecran:'correction-buts',
+ etapes:[
+  'L\'écran liste les valeurs qui sortent de l\'ordinaire (buts, passes, temps de jeu).',
+  'Corrige directement la valeur dans la ligne du joueur.',
+  'Les totaux de saison se recalculent.'
+ ],
+ astuce:'À utiliser quand tu as validé un match trop vite et que les chiffres d\'un joueur sont aberrants.'},
+
+{f:'match', t:'Tenir le classement à jour', ou:'Écran Classement', ecran:'classement',
+ etapes:[
+  '<b>Tes matchs à toi</b> se comptent tout seuls dès que tu les enregistres.',
+  'Pour les matchs <b>entre les autres équipes</b> : bloc <code>➕ Résultat entre 2 autres équipes</code>.',
+  'Ou colle le classement complet depuis le site de la Ligue : bloc <code>📋 Importer le classement</code>, copier-coller brut, l\'appli le décode.'
+ ],
+ piege:'La récupération automatique depuis le site de la Ligue est impossible depuis un navigateur — c\'est une restriction de sécurité des sites, pas un défaut de l\'appli.'},
+
+// ---------------------------------------------------------------- LE GROUPE
+{f:'groupe', t:'Faire une convocation', ou:'Écran Convocations', ecran:'convos',
+ etapes:[
+  'Bloc <b>Infos du match</b> : choisis le match, l\'heure et le lieu de rendez-vous.',
+  'Pour chaque groupe (Équipe A, Équipe B, Blessés, Suspendus), clique <code>Choisir</code> et coche les joueurs.',
+  'Les convocations d\'entraînement Mardi et Jeudi fonctionnent pareil.',
+  'Enregistre : les joueurs la reçoivent dans leur appli et peuvent confirmer.'
+ ],
+ piege:'Chaque bloc offre <i>deux</i> façons de saisir : le bouton <code>Choisir</code> et une zone de texte libre. Elles écrivent au même endroit — utilise l\'une <b>ou</b> l\'autre, pas les deux à la suite.'},
+
+{f:'groupe', t:'Noter les présences à l\'entraînement', ou:'Écran Présences', ecran:'pres',
+ etapes:[
+  'Coche les présents dans la liste.',
+  'Les points d\'entraînement se calculent automatiquement (écran Points Entraînement).'
+ ]},
+
+{f:'groupe', t:'Préparer une composition', ou:'Écran Compositions', ecran:'compos',
+ etapes:[
+  'Choisis un système parmi les huit proposés.',
+  'Place tes joueurs sur le terrain, et les remplaçants sur le banc.',
+  'Donne un nom à la compo et enregistre-la — elle sera réutilisable sur la feuille de match.'
+ ]},
+
+{f:'groupe', t:'Monter la feuille de match', ou:'Écran Feuille de Match', ecran:'feuille-match',
+ etapes:[
+  '<b>Colonne ①</b> : la composition enregistrée, l\'adversaire, son système, la date et le lieu.',
+  '<b>Colonne ②</b> : tes schémas de coups de pied arrêtés et les tireurs de penalty.',
+  '<b>Colonne ③</b> : les consignes collectives, possession et défense.',
+  '<b>Colonne ④</b> : deux ou trois consignes par titulaire.',
+  'Puis <code>🖨️ Générer la feuille</code>, en bas de la colonne ①.'
+ ]},
+
+// ---------------------------------------------------------------- LES JOUEURS
+{f:'joueur', t:'Ajouter ou modifier un joueur', ou:'Écran Effectif', ecran:'effectif',
+ etapes:[
+  'Choisis le joueur dans le menu déroulant en haut, ou ajoute-en un.',
+  'Remplis sa fiche : poste, numéro, photo, coordonnées.',
+  'Ses stats se remplissent toutes seules au fil des matchs.'
+ ]},
+
+{f:'joueur', t:'Supprimer définitivement un joueur', ou:'Écran Effectif', ecran:'effectif',
+ etapes:[
+  'Sélectionne le joueur, puis <code>Supprimer</code> en bas de sa fiche.',
+  'Confirme : il disparaît de l\'effectif, des stats, des convocations, des compositions, des notes de match, des blessures, des entretiens et des coups de pied arrêtés.',
+  'Ce qu\'il a envoyé depuis son appli (votes, forme, disponibilités, messages) est effacé du cloud dans la foulée.'
+ ],
+ piege:'<b>C\'est irréversible.</b> Sors-le d\'abord de l\'effectif si tu veux juste le mettre de côté.'},
+
+{f:'joueur', t:'Suivre une blessure', ou:'Écran Suivi médical', ecran:'medical',
+ etapes:[
+  'Les déclarations envoyées par les joueurs arrivent dans <b>📨 Déclarations reçues</b>.',
+  'Crée la blessure : joueur, zone, date, nature.',
+  'Quand il revient, renseigne la <b>date de retour</b> — elle bascule dans l\'historique.'
+ ],
+ astuce:'Tant qu\'il n\'y a pas de date de retour, le joueur compte comme indisponible sur ton accueil et dans la carte mentale.'},
+
+{f:'joueur', t:'Mener un entretien', ou:'Écran Entretien joueur', ecran:'entretien',
+ etapes:[
+  'Choisis le joueur : son récapitulatif se remplit tout seul.',
+  'Note ce qui est positif, ce qu\'il y a à travailler, son ressenti, les actions décidées.',
+  '<code>Archiver</code> : l\'entretien reste dans son historique.',
+  'Tu peux lui remettre une <b>fiche bilan</b> imprimée, avec ton mot du coach.'
+ ]},
+
+{f:'joueur', t:'Suivre la forme du groupe', ou:'Écran Forme joueurs', ecran:'forme-coach',
+ etapes:[
+  'Les joueurs répondent au questionnaire depuis leur appli.',
+  'Clique <code>Charger</code> pour récupérer les réponses.',
+  'Le bloc <b>📉 Baisses à surveiller</b> signale ceux qui décrochent semaine après semaine.'
+ ]},
+
+// ---------------------------------------------------------------- L'ENTRAÎNEMENT
+{f:'entr', t:'Dessiner un exercice', ou:"Écran Constructeur d'exercices", ecran:'constructeur',
+ etapes:[
+  '<b>Colonne ①</b> : choisis le terrain, puis dessine.',
+  '<b>Colonne ②</b> : clique un outil (joueur, plot, but, zone, flèche) puis clique sur le terrain pour le poser.',
+  '<b>Colonne ③</b> : le titre, la durée, le thème, la mise en place, les consignes et le point clé.',
+  'Pour animer : dessine tes flèches, elles se numérotent seules et se jouent dans cet ordre avec <code>▶️ Lire l\'animation</code>.',
+  '<code>💾 Enregistrer dans la bibliothèque</code> pour la retrouver plus tard.'
+ ],
+ astuce:'Un procédé = un schéma. Une fiche peut en contenir jusqu\'à 5, avec les onglets « Procédé 1 à 5 » au-dessus du terrain.'},
+
+{f:'entr', t:'Rattacher une séance à une date', ou:'Écran Calendrier des séances', ecran:'seances-cal',
+ etapes:[
+  'Touche le jour concerné dans le calendrier.',
+  'Choisis le <b>thème travaillé</b>, et si tu veux la <b>fiche d\'exercices</b> de ta bibliothèque.',
+  'Note ce que tu y as mis, puis <code>+ Rattacher à ce jour</code>.'
+ ],
+ astuce:'À droite, <b>« Pas revu depuis un moment »</b> te signale les thèmes que tu n\'as pas retravaillés depuis plus de 4 semaines. C\'est là que se logent les trous d\'une saison.'},
+
+{f:'entr', t:'Générer une séance automatiquement', ou:'Écran Générateur de séance', ecran:'generateur',
+ etapes:[
+  'Choisis un thème, une durée et un effectif.',
+  'L\'appli compose échauffement + corps de séance + retour au calme.',
+  'Relance si la proposition ne te va pas.'
+ ],
+ piege:'Pour l\'instant le générateur pioche dans une banque de 40 exercices fournis avec l\'appli — <b>pas</b> dans tes propres fiches. C\'est le prochain chantier.'},
+
+// ---------------------------------------------------------------- LA TACTIQUE
+{f:'tact', t:'Écrire son projet de jeu', ou:'Écran Projet de jeu', ecran:'projet-jeu',
+ etapes:[
+  'En haut, tes <b>trois non-négociables</b> — ce que tu répètes à chaque causerie.',
+  'Puis, phase par phase, <code>+ Ajouter un principe</code> : l\'intitulé dans tes mots, et ce que tu dois voir quand ça marche.',
+  'Chaque principe reçoit un code (OFF-1, DEF-2…) qui servira à relier séances et situations.'
+ ],
+ astuce:'Deux ou trois principes par phase suffisent. Ceux que tu répètes vraiment.'},
+
+{f:'tact', t:'Placer son équipe sur le plateau tactique', ou:'Écran Plateau Tactique', ecran:'plateau',
+ etapes:[
+  'Choisis le système, puis la situation de jeu (avec ballon, sans ballon, corner, coup franc).',
+  'Clique sur le terrain : le ballon se déplace et l\'équipe se replace autour.',
+  'Pour une consigne individuelle : clique la petite bulle <b>💬</b> à côté d\'un joueur.',
+  'À droite du terrain : mise en place, consignes et points clés — mémorisés <i>par situation et par zone du ballon</i>.',
+  'Coche les <b>principes</b> que la situation sert, puis <code>📲 Publier</code> pour l\'envoyer aux joueurs.'
+ ],
+ astuce:'Chaque zone du ballon garde jusqu\'à 3 placements différents, avec ses propres bulles.'},
+
+{f:'tact', t:'Préparer un adversaire', ou:'Écran Adversaires', ecran:'adversaires',
+ etapes:[
+  'Choisis l\'adversaire, ou crée-le en écrivant son nom.',
+  'Renseigne ses deux dispositifs — avec le ballon, à la perte : ils se dessinent sur les terrains.',
+  'Note les joueurs à surveiller et les infos diverses, puis <code>+ Ajouter la fiche</code>.',
+  'La bannière orange en haut ouvre la <b>fiche d\'observation</b> à imprimer.'
+ ],
+ astuce:'Ces infos remontent toutes seules sur ton accueil quand le match approche, et dans la carte mentale d\'avant-match.'},
+
+// ---------------------------------------------------------------- LES DOCUMENTS
+{f:'docs', t:'Sortir un document sur papier', ou:'Écran Docs à imprimer', ecran:'imprimer',
+ etapes:[
+  'Chaque carte montre un aperçu du document.',
+  'Certains se génèrent d\'un clic : carte mentale, fiche d\'observation, projet de jeu.',
+  'Le bilan du joueur et la fiche bilan du match demandent de choisir d\'abord dans le menu déroulant.',
+  'La fenêtre qui s\'ouvre se remplit à l\'écran, puis <code>🖨 Imprimer / PDF</code>. Le bouton <code>🧹 Vider</code> en donne une version vierge à remplir à la main.'
+ ],
+ piege:'Si rien ne s\'ouvre, ton navigateur a bloqué la fenêtre. Autorise les pop-ups pour le site.'},
+
+// ---------------------------------------------------------------- L'APPLI JOUEURS
+{f:'appli', t:'Ce que les joueurs voient', ou:'Leur application', ecran:'notifs-push',
+ etapes:[
+  'À l\'ouverture : le <b>décompte du prochain match</b>, la météo, et s\'ils sont dans le groupe ou non.',
+  'Ils peuvent répondre <b>Je serai là / Indisponible</b> — tu le vois sur ton accueil.',
+  'Ils consultent le projet de jeu, la situation tactique publiée et leur consigne personnelle.',
+  'Ils déclarent une blessure, remplissent leur forme, votent l\'homme du match et les objectifs collectifs.'
+ ]},
+
+{f:'appli', t:'Donner leurs codes aux joueurs', ou:'Écran Docs & contacts club', ecran:'infos-club',
+ etapes:[
+  'Bloc <b>🔑 Codes PIN joueurs</b> : chaque joueur a son code.',
+  'Il ouvre l\'appli joueurs, choisit son nom et entre son code.'
+ ]},
+
+{f:'appli', t:'Envoyer un message au groupe', ou:"Écrans Fil d'actualités et Messagerie", ecran:'message',
+ etapes:[
+  '<b>Fil d\'actualités</b> : le mot du coach, affiché en tête de leur accueil.',
+  '<b>Messagerie joueurs</b> : la discussion de groupe, dans les deux sens.',
+  '<b>Notifications push</b> : pour qu\'ils soient prévenus sur leur téléphone.'
+ ]},
+
+// ---------------------------------------------------------------- LES SAUVEGARDES
+{f:'data', t:'Enregistrer et publier', ou:'Bouton en bas du menu', ecran:'dash',
+ etapes:[
+  '<code>💾 SAUVEGARDER &amp; PUBLIER</code>, en bas du menu de gauche.',
+  'Deux documents partent : <b>Saison</b> (ce que les joueurs lisent) et <b>Bibliothèque du staff</b> (tes exercices, interne).',
+  'Le bandeau au-dessus du bouton dit qui a enregistré en dernier, et quand.'
+ ],
+ piege:'Chaque document est plafonné à 1 Mo. Si tu dépasses, la sauvegarde est refusée et l\'appli te dit quoi alléger — généralement les photos de terrain des fiches d\'exercices.'},
+
+{f:'data', t:'Travailler à plusieurs coachs', ou:'Paramètres du club', ecran:'dash',
+ etapes:[
+  'Mets ton prénom dans <b>Paramètres du club → Qui es-tu ?</b> : tes sauvegardes seront signées.',
+  'Si un autre coach a enregistré depuis ton dernier chargement, l\'appli te prévient <i>avant</i> d\'écraser.',
+  'Tu choisis alors : récupérer sa version, ou garder la tienne.'
+ ],
+ astuce:'Prends le réflexe de cliquer <code>☁️ SYNCHRONISER CLOUD</code> en arrivant, surtout si vous êtes plusieurs.'},
+
+{f:'data', t:'Faire une copie de secours', ou:'Bouton en bas du menu', ecran:'dash',
+ etapes:[
+  '<code>📦 EXPORTER</code> télécharge un fichier avec toute ta saison.',
+  '<code>📤 RESTAURER</code> le recharge.'
+ ],
+ astuce:'Une copie avant chaque grosse manipulation, ça ne coûte rien.'}
+];
+
+var AIDE_FAM_ACTIVE=null;
+function aideFamille(cle){
+  AIDE_FAM_ACTIVE=(AIDE_FAM_ACTIVE===cle)?null:cle;
+  renderAide();
+}
+function aideAller(ecran){ goNav(ecran); }
+
+function renderAide(){
+  var q=(document.getElementById('ae-q')||{}).value||'';
+  var norm=function(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); };
+  var qn=norm(q.trim());
+
+  document.getElementById('ae-familles').innerHTML=AIDE_FAMILLES.map(function(f){
+    var n=AIDE.filter(function(a){ return a.f===f.cle; }).length;
+    return '<span class="ae-fam'+(AIDE_FAM_ACTIVE===f.cle?' on':'')+'" onclick="aideFamille(\''+f.cle+'\')">'
+      +f.ic+' '+esc2(f.nom)+' <b style="color:var(--gris2);font-weight:800">'+n+'</b></span>';
+  }).join('');
+
+  var liste=AIDE.filter(function(a){
+    if(AIDE_FAM_ACTIVE && a.f!==AIDE_FAM_ACTIVE) return false;
+    if(!qn) return true;
+    var foin=norm(a.t+' '+a.ou+' '+a.etapes.join(' ')+' '+(a.piege||'')+' '+(a.astuce||''));
+    return foin.indexOf(qn)!==-1;
+  });
+
+  document.getElementById('ae-nb').textContent=liste.length+' fiche'+(liste.length>1?'s':'');
+
+  if(!liste.length){
+    document.getElementById('ae-grille').innerHTML='<div class="ae-rien">Rien trouvé pour « '+esc2(q)+' ». Essaie un autre mot, ou enlève le filtre.</div>';
+    return;
+  }
+
+  var html='', famCourante=null;
+  AIDE_FAMILLES.forEach(function(f){
+    var lot=liste.filter(function(a){ return a.f===f.cle; });
+    if(!lot.length) return;
+    html+='<div class="ae-titre-fam" style="--fc:'+f.coul+'">'+f.ic+' '+esc2(f.nom)+'</div>';
+    html+=lot.map(function(a){
+      return '<div class="ae-c" style="--fc:'+f.coul+'">'
+        +'<h4>'+esc2(a.t)+'</h4>'
+        +'<div class="ae-ou">'+esc2(a.ou)+'</div>'
+        +'<ol>'+a.etapes.map(function(e){ return '<li>'+e+'</li>'; }).join('')+'</ol>'
+        +(a.piege?'<div class="ae-piege"><span>⚠️</span><span>'+a.piege+'</span></div>':'')
+        +(a.astuce?'<div class="ae-astuce"><span>💡</span><span>'+a.astuce+'</span></div>':'')
+        +(a.ecran?'<button class="ae-aller" onclick="aideAller(\''+a.ecran+'\')">Aller à l\'écran →</button>':'')
+        +'</div>';
+    }).join('');
+  });
+  document.getElementById('ae-grille').innerHTML=html;
 }
 
 // ===== Projet de jeu : rendu et saisie =====
