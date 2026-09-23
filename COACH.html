@@ -590,6 +590,19 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   border-radius:16px;padding:6px 12px;margin:0 6px 6px 0;font-size:11.5px;font-weight:700}
 .cat-p b{cursor:pointer;color:var(--gris2);font-weight:700}
 .cat-p b:hover{color:var(--red)}
+/* Les questions de réflexion */
+.refl-intro{font-size:11.5px;color:var(--gris2);font-style:italic;margin:2px 0 10px;line-height:1.5}
+.refl-l{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg3);margin-bottom:6px;cursor:pointer;transition:border-color .12s}
+.refl-l:hover{border-color:var(--or)}
+.refl-l.on{border-color:var(--or);background:rgba(217,119,6,.09)}
+.refl-case{flex:0 0 21px;height:21px;border:1.6px solid var(--line);border-radius:6px;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#1a0f02}
+.refl-l.on .refl-case{background:var(--or);border-color:var(--or)}
+.refl-txt{flex:1;min-width:0}
+.refl-q{font-weight:700;font-size:12.5px;line-height:1.35}
+.refl-phare{color:var(--or);font-size:11px}
+.refl-s{font-size:11px;color:var(--gris2);margin-top:2px;line-height:1.45}
 /* Les fiches remplies qu'on a gardées */
 .fa-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
 .fa-chip{font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 11px;border-radius:20px;
@@ -930,8 +943,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v29</b> · 23/09/2026<br>
-      <span style="opacity:.7">Réunions staff & club · sans connexion</span>
+      AST COACH <b style="color:var(--or)">v30</b> · 23/09/2026<br>
+      <span style="opacity:.7">Réunion technique : 59 questions de réflexion</span>
     </div>
   </div>
 </div>
@@ -2199,6 +2212,28 @@ Repli défensif après perte"></textarea>
       </div>
     </div>
 
+    <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt r">💭 Les questions de réflexion</span><span class="bc" id="refl-compteur">aucune</span></div>
+      <div style="padding:12px 14px 14px">
+        <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:11px">
+          Une réunion technique ne sert pas à faire l'inventaire des catégories, mais à se poser
+          les questions qu'on ne se pose jamais tout seul. Coche celles du jour — elles arrivent
+          sur la feuille avec la place pour écrire les réponses. <b>★ = celles qui font bouger.</b>
+        </div>
+        <div class="fg" style="margin-bottom:11px">
+          <label class="fl">Le thème de la prochaine réunion</label>
+          <input class="fi" id="refl-theme" style="margin-top:4px" placeholder="Ex : comment on échauffe · le projet de jeu club · la vidéo"
+            oninput="REFL_THEME=this.value" onchange="sauvegarder()">
+        </div>
+        <div class="fa-chips" id="refl-familles"></div>
+        <div id="refl-liste"></div>
+        <div id="refl-avis" style="font-size:11px;color:var(--gris2);margin-top:10px"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">
+          <button class="acc-b or" onclick="reflLesPhares()">★ Prendre les questions phares</button>
+          <button class="acc-b" onclick="reflVider()">Tout décocher</button>
+        </div>
+      </div>
+    </div>
+
     <div class="blk"><div class="bh"><span class="bt b">🧑‍🤝‍🧑 Mon staff</span></div>
       <div style="padding:12px 14px 14px">
         <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:10px">
@@ -3424,7 +3459,8 @@ function goNav(elOrS){
   majBreadcrumb(s);
   if(s==='dash') updateDash();
   if(s==='imprimer') renderDocsImprimer();
-  if(s==='reunions'){ renderDecisions(); renderStaffClub(); renderCategoriesClub(); }
+  if(s==='reunions'){ renderDecisions(); renderStaffClub(); renderCategoriesClub(); renderReflexions();
+    var rt=document.getElementById('refl-theme'); if(rt) rt.value=REFL_THEME||''; }
   if(s==='projet-jeu') renderProjetJeuCoach();
   if(s==='aide') renderAide();
   if(s==='seances-cal') renderCalSeances();
@@ -7347,6 +7383,8 @@ function appliquerDonnees(p,silencieux){
   if(p.STAFF_CLUB)STAFF_CLUB=p.STAFF_CLUB;
   if(p.CATEGORIES_CLUB)CATEGORIES_CLUB=p.CATEGORIES_CLUB;
   if(p.DECISIONS)DECISIONS=p.DECISIONS;
+  if(p.REFL_CHOIX)REFL_CHOIX=p.REFL_CHOIX;
+  if(p.REFL_THEME)REFL_THEME=p.REFL_THEME;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -7420,7 +7458,7 @@ function donneesSaisonSansPhotos(){
     });
     return copie;
   });
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7428,7 +7466,7 @@ function donneesSaisonSansPhotos(){
 // atteinte et la sauvegarde échouait en silence. On répartit donc en deux documents :
 //   · saison/main  = ce dont les joueurs ont besoin (leur appli ne lit que celui-ci)
 //   · saison/staff = le matériel du staff, lourd et interne (exercices, biblio, entretiens)
-var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS'];
+var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME'];
 var LIMITE_DOC_OCTETS=900*1024; // marge de sécurité sous la limite réelle de 1 Mo
 
 function poidsOctets(txt){
@@ -8892,14 +8930,25 @@ var AIDE=[
 
 {f:'docs', t:'Animer la réunion technique du club', ou:'Écran Réunions', ecran:'reunions',
  etapes:[
-  'Règle une fois <b>Les catégories du club</b> : celles de ton club, dans ton ordre. Chacune aura son encadré.',
-  'Clique la bannière <b>🏛 Réunion technique du club</b>. Deux pages : l\'état du club, puis ce qu\'on décide.',
-  'Page 1 : le climat noté, puis le tour de chaque catégorie — éducateur, effectif, où ça en est, ce qui coince.',
-  'Page 2 : les passerelles, le projet de jeu commun, la formation des éducateurs, l\'intendance, et ce qui remonte à la direction.',
-  'Le bloc <b>Les séniors en chiffres</b> se remplit tout seul depuis tes données : tu arrives avec tes chiffres déjà là.',
-  'Termine par les décisions, puis <code>📥 Archiver dans l\'appli</code>.'
+  'Écris <b>le thème du jour</b> — ce sur quoi on veut vraiment travailler : comment on échauffe, le projet de jeu, la vidéo…',
+  'Dans <b>💭 Les questions de réflexion</b>, parcours les 8 familles et coche celles que tu veux poser. <b>★ Prendre les questions phares</b> te met les plus fortes d\'un coup.',
+  'Clique la bannière <b>🏛 Réunion technique du club</b>. Trois pages : ce qu\'on se dit · ce qu\'on met dans nos séances · ce qu\'on décide.',
+  'Page 1 : tes questions, chacune avec un cadre pour écrire ce qui se dit autour de la table.',
+  'Page 2 : le tableau <b>Comment on travaille, et avec quoi</b> — la méthode et l\'exercice de référence de chacun sur huit thèmes — puis les trois grands principes du club et les étapes pour construire le projet de jeu.',
+  'Page 3 : le tour des catégories en une ligne chacune, la vidéo, la bibliothèque d\'exos, les passerelles, et les décisions.',
+  '<code>📥 Archiver dans l\'appli</code> : la feuille est rangée et les décisions remontent.'
  ],
- astuce:'Rien n\'est figé sur un club en particulier. Un autre coach ouvre l\'outil, met ses catégories et son staff, et la feuille est la sienne.'},
+ piege:'<b>Six questions, pas quinze.</b> L\'appli te prévient au-delà : une réunion d\'une heure n\'en traite pas plus, et une question bâclée ne sert à rien. Ce qui n\'a pas été traité devient le thème de la prochaine fois.',
+ astuce:'Le tableau <b>Comment on travaille, et avec quoi</b> est le plus précieux : rempli réunion après réunion, c\'est lui qui devient la bibliothèque d\'exercices du club — les méthodes de chacun, écrites noir sur blanc, au lieu de rester dans sa tête.'},
+
+{f:'docs', t:'Choisir les questions de réflexion', ou:'Écran Réunions', ecran:'reunions',
+ etapes:[
+  'Le bloc <b>💭 Les questions de réflexion</b> contient 59 questions rangées en 8 familles : le miroir · la séance · le projet de jeu club · la vidéo · la bibliothèque d\'exos · le joueur · le groupe · nous, les éducateurs.',
+  'Clique une famille pour l\'ouvrir, puis une question pour la cocher.',
+  'Les <b>★</b> sont celles qui font bouger une réunion — <i>« aimeriez-vous être un joueur dans votre séance ? »</i>, <i>« aimeriez-vous vous avoir comme coach ? »</i>.',
+  'Ton choix est gardé : tu prépares la réunion tranquillement, tu ouvres la feuille le jour venu.'
+ ],
+ astuce:'Ne pose pas les questions du miroir à la première réunion. Commence par le contenu — les méthodes, les exercices — et garde le miroir pour quand le groupe se fait assez confiance pour répondre honnêtement.'},
 
 {f:'docs', t:'Suivre ce qui a été décidé', ou:'Écran Réunions', ecran:'reunions',
  etapes:[
@@ -10094,87 +10143,177 @@ function genererReunionStaff(){
 // ======================= LA RÉUNION TECHNIQUE DU CLUB =======================
 function genererReunionClub(){
   var logo=docLogoClub();
-  var dm=reuDernierMatch();
-  var cats=(CATEGORIES_CLUB||[]).slice(0,12);
+  var cats=(CATEGORIES_CLUB||[]).slice(0,14);
+  var choisies=reflChoisies();
 
-  var tour=cats.map(function(c){
-    return '<div class="cat"><div class="cat-t">'+docEsc(c)+'</div><div class="cat-g">'
-      +'<span class="lab">Éducateur</span><span contenteditable data-vide="nom, diplôme"></span>'
-      +'<span class="lab">Effectif</span><span contenteditable data-vide="nombre, assiduité"></span>'
-      +'<span class="lab">Où ça<br>en est</span><span contenteditable data-vide="résultats, ambiance"></span>'
-      +'<span class="lab">Ce qui<br>coince</span><span contenteditable data-vide="ce dont elle a besoin"></span>'
-      +'</div></div>';
+  // Le tour des catégories tient maintenant en une ligne par catégorie : la réunion
+  // n'est plus là pour faire l'inventaire, mais pour travailler le contenu.
+  var bande=cats.map(function(c){
+    return '<div class="bande"><span class="bande-c">'+docEsc(c)+'</span>'
+      +'<span contenteditable data-vide="éducateur"></span>'
+      +'<span contenteditable data-vide="effectif"></span>'
+      +'<span contenteditable data-vide="ce qui coince en ce moment"></span></div>';
   }).join('');
+
+  // Les questions cochées dans l'appli : chacune avec la place pour écrire
+  var blocsQuestions='';
+  if(choisies.length){
+    var parFamille={};
+    choisies.forEach(function(x){
+      if(!parFamille[x.famille.cle]) parFamille[x.famille.cle]={f:x.famille, l:[]};
+      parFamille[x.famille.cle].l.push(x.q);
+    });
+    blocsQuestions=Object.keys(parFamille).map(function(k){
+      var g=parFamille[k];
+      return reuBloc(g.f.ic+' '+g.f.nom, g.f.coul,
+        '<div class="fam-intro">'+docEsc(g.f.intro)+'</div>'
+        +g.l.map(function(q){
+          return '<div class="quest">'
+            +'<div class="quest-q">'+docEsc(q.q)+'</div>'
+            +(q.s?'<div class="quest-s">'+docEsc(q.s)+'</div>':'')
+            +'<div class="quest-r" contenteditable data-vide="ce qui se dit autour de la table…"></div>'
+          +'</div>';
+        }).join(''));
+    }).join('');
+  }
 
   var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
     +'<title>Réunion technique — '+docEsc(NOM_CLUB)+'</title>'
     +docStylesCommuns()+reuStyles()
+    +'<style>'
+    // une catégorie = une ligne, et c'est tout
+    +'.bande{display:grid;grid-template-columns:78px 104px 58px 1fr;gap:7px;align-items:center;'
+      +'padding:4px 0;border-bottom:1px dotted #e6eaee}'
+    +'.bande:last-child{border-bottom:none}'
+    +'.bande-c{font-family:Anton,sans-serif;font-size:10.5px;color:#2563eb;letter-spacing:.4px}'
+    +'.bande span[contenteditable]{font-size:9.6px;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding:1px 3px}'
+    +'.bande-e{display:grid;grid-template-columns:78px 104px 58px 1fr;gap:7px;font-size:7.2px;font-weight:700;'
+      +'letter-spacing:.08em;text-transform:uppercase;color:#98a2ad;padding-bottom:3px}'
+    // une question de réflexion : l\'énoncé, la relance, et la place pour écrire
+    +'.fam-intro{font-size:8.8px;color:#6b7480;font-style:italic;margin-bottom:6px}'
+    +'.quest{margin-bottom:9px}'
+    +'.quest:last-child{margin-bottom:0}'
+    +'.quest-q{font-size:11.5px;font-weight:700;color:#11161c;line-height:1.3}'
+    +'.quest-s{font-size:9px;color:#98a2ad;font-style:italic;margin:1px 0 3px}'
+    +'.quest-r{min-height:42px;border:1px dashed #c3cbd3;border-radius:6px;padding:4px 7px;font-size:10.5px;line-height:1.55}'
+    // le tableau des méthodes : un thème, la méthode, l\'exercice de référence
+    +'.meth{display:grid;grid-template-columns:96px 1fr 1fr;gap:7px;align-items:start;'
+      +'padding:5px 0;border-bottom:1px dotted #e6eaee}'
+    +'.meth:last-child{border-bottom:none}'
+    +'.meth-t{font-size:9.6px;font-weight:700;color:#3c4650;padding-top:2px}'
+    +'.meth span[contenteditable]{font-size:10px;min-height:26px;border:1px dashed #c3cbd3;border-radius:5px;padding:3px 6px;line-height:1.45}'
+    +'.meth-e{display:grid;grid-template-columns:96px 1fr 1fr;gap:7px;font-size:7.2px;font-weight:700;'
+      +'letter-spacing:.08em;text-transform:uppercase;color:#98a2ad;padding-bottom:3px}'
+    // les étapes du projet de jeu club
+    +'.etp{display:grid;grid-template-columns:20px 1fr 92px 76px;gap:7px;align-items:center;'
+      +'padding:5px 0;border-bottom:1px dotted #e6eaee}'
+    +'.etp:last-child{border-bottom:none}'
+    +'.etp-n{width:19px;height:19px;border-radius:50%;background:#7c3aed;color:#fff;font-size:9px;font-weight:800;'
+      +'display:flex;align-items:center;justify-content:center}'
+    +'.etp span[contenteditable]{font-size:10px;min-height:15px;border-bottom:1.2px dotted #c3cbd3;padding:1px 3px}'
+    +'.etp-e{display:grid;grid-template-columns:20px 1fr 92px 76px;gap:7px;font-size:7.2px;font-weight:700;'
+      +'letter-spacing:.08em;text-transform:uppercase;color:#98a2ad;padding-bottom:3px}'
+    // les trois grands principes
+    +'.prin{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:3px}'
+    +'.prin-c{border:1.5px dashed #c9b6f0;border-radius:8px;padding:7px 9px;background:#faf7ff;text-align:center}'
+    +'.prin-n{font-family:Anton,sans-serif;font-size:15px;color:#7c3aed;line-height:1}'
+    +'.prin-c span[contenteditable]{display:block;font-size:10.5px;font-weight:600;min-height:30px;margin-top:4px;line-height:1.4}'
+    // à l'impression, rien ne se coupe en deux : ni une question, ni un bloc
+    +'@media print{.quest,.meth,.etp,.bande,.prin-c{break-inside:avoid;page-break-inside:avoid}'
+      +'.bl{break-inside:avoid-page}}'
+    +'@media screen and (max-width:860px){'
+      +'.bande,.bande-e,.meth,.meth-e,.etp,.etp-e{grid-template-columns:1fr;gap:4px}'
+      +'.bande-e,.meth-e,.etp-e{display:none}'
+      +'.prin{grid-template-columns:1fr}'
+      +'}'
+    +'</style>'
     +'</head><body>'
     +docBarre(true)
 
-    // ---------------- PAGE 1 : le tour du club
+    // ================= PAGE 1 : on réfléchit =================
     +'<div class="feuille">'
-    +reuBandeau(logo,'Réunion technique — les éducateurs du club',
+    +reuBandeau(logo,'Réunion technique — le contenu de notre travail',
       'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
-      +'Directeur sportif : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
+      +'Animée par : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
 
-    +'<div class="rang r3">'
-      +reuBloc('La séance du jour','#11161c',
-        reuChamp('Présents','combien d\'éducateurs')
-        +reuChamp('Absents / excusés','qui manque')
-        +reuChamp('Durée prévue','1h, 1h30…'))
-      +reuBloc('L\'ordre du jour','#0e7490',
-        reuChamp('Le sujet principal','ce pour quoi on se réunit',null,true)
-        +reuChamp('Ce qu\'on veut en sortir','la décision attendue',null,true))
-      +reuBloc('Le climat','#7c3aed',
-        '<div style="font-size:8.6px;color:#6b7480;margin-bottom:4px">Où en est le club, de ton point de vue</div>'
-        +reuCriteres(['Entente entre éducateurs','Cohérence des méthodes','Moyens à disposition']))
+    +reuBloc('Le thème du jour','#11161c',
+      '<div class="ch large"><span class="ch-l">Ce sur quoi on travaille aujourd\'hui</span>'
+      +'<span class="ch-v" contenteditable data-vide="ex : comment on échauffe, le projet de jeu, la vidéo…">'+docEsc(REFL_THEME||'')+'</span></div>'
+      +'<div class="duo">'+reuChamp('Présents','combien d\'éducateurs, quelles catégories')
+      +reuChamp('Ce qu\'on veut en sortir','la décision attendue en fin de séance')+'</div>')
+
+    +(blocsQuestions || reuBloc('Les questions du jour','#c0392b',
+       '<div style="font-size:10px;color:#6b7480;line-height:1.6;padding:6px 0">'
+       +'Aucune question choisie. Dans l\'appli, écran <b>Réunions</b> → <b>Les questions de réflexion</b> : '
+       +'coche celles que tu veux poser, et elles apparaîtront ici avec la place pour écrire les réponses.</div>'
+       +'<div class="quest"><div class="quest-q" contenteditable data-vide="Ta question…"></div>'
+       +'<div class="quest-r" contenteditable data-vide="ce qui se dit autour de la table…"></div></div>'))
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 1 : ce qu\'on se dit.</span>'
+      +'<span>★ = les questions qui font bouger</span></div>'
     +'</div>'
 
-    +reuBloc('Le tour des catégories','#2563eb', '<div class="cats">'+tour+'</div>')
-
-    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 1 sur 2 : l\'état du club.</span>'
-      +'<span>1 = faible · 5 = très bon</span></div>'
-    +'</div>'
-
-    // ---------------- PAGE 2 : ce qu'on décide ensemble
+    // ================= PAGE 2 : on travaille le contenu =================
     +'<div class="feuille p2">'
-    +reuBandeau(logo,'Réunion technique — page 2',
+    +reuBandeau(logo,'Réunion technique — nos méthodes et nos exercices',
       'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
-      +'Directeur sportif : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
+      +'Animée par : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
 
-    +'<div class="rang r2">'
-      +reuBloc('Les passerelles entre catégories','#0f8a5f',
-        reuChamp('Qui monte, et où','nom, catégorie d\'origine, catégorie d\'accueil',null,true)
-        +reuChamp('Qui s\'entraîne au-dessus','nom et rythme')
-        +reuChamp('Les règles qu\'on se donne','prévenir qui, combien de temps avant',null,true))
-      +reuBloc('Le projet de jeu du club','#7c3aed',
-        '<div style="font-size:8.8px;color:#6b7480;margin-bottom:4px">Est-ce qu\'on parle le même langage du plus jeune aux séniors ?</div>'
-        +reuCriteres(['Principes communs connus de tous','Vocabulaire partagé','Continuité d\'une catégorie à l\'autre'])
-        +reuChamp('Ce qu\'on décide d\'harmoniser','le point de départ commun',null,true))
+    +reuBloc('Comment on travaille, et avec quoi','#d97706',
+      '<div style="font-size:9px;color:#6b7480;margin-bottom:5px">Chacun donne sa méthode et son exercice de référence. C\'est ce tableau qui, rempli réunion après réunion, devient la bibliothèque du club.</div>'
+      +'<div class="meth-e"><span>Le thème</span><span>Notre méthode</span><span>L\'exercice de référence</span></div>'
+      +['L\'échauffement','La conservation','La sortie de balle','Le pressing',
+        'La finition','Le jeu aérien','Les coups de pied arrêtés','Les gardiens']
+        .map(function(t){
+          return '<div class="meth"><span class="meth-t">'+docEsc(t)+'</span>'
+            +'<span contenteditable data-vide="comment on s\'y prend"></span>'
+            +'<span contenteditable data-vide="le nom de l\'exercice, l\'espace, le nombre"></span></div>';
+        }).join(''))
+
+    +reuBloc('Nos trois grands principes de jeu','#7c3aed',
+      '<div style="font-size:9px;color:#6b7480;margin-bottom:4px">Trois, pas dix. Ceux qu\'on ne négocie pas, du plus jeune aux séniors.</div>'
+      +'<div class="prin">'
+      +'<div class="prin-c"><div class="prin-n">1</div><span contenteditable data-vide="le premier principe"></span></div>'
+      +'<div class="prin-c"><div class="prin-n">2</div><span contenteditable data-vide="le deuxième"></span></div>'
+      +'<div class="prin-c"><div class="prin-n">3</div><span contenteditable data-vide="le troisième"></span></div>'
+      +'</div>')
+
+    +reuBloc('Les étapes pour construire le projet de jeu du club','#7c3aed',
+      '<div class="etp-e"><span></span><span>L\'étape</span><span>Qui la porte</span><span>Pour quand</span></div>'
+      +[1,2,3,4,5].map(function(n){
+        return '<div class="etp"><span class="etp-n">'+n+'</span>'
+          +'<span contenteditable data-vide="ce qu\'on fait concrètement"></span>'
+          +'<span contenteditable data-vide="nom"></span>'
+          +'<span contenteditable data-vide="date"></span></div>';
+      }).join(''))
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 2 : ce qu\'on met dans nos séances.</span>'
+      +'<span>À garder : ce tableau se remplit réunion après réunion</span></div>'
     +'</div>'
 
+    // ================= PAGE 3 : le club et les décisions =================
+    +'<div class="feuille p2">'
+    +reuBandeau(logo,'Réunion technique — le club et ce qu\'on décide',
+      'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+      +'Prochaine réunion : <span contenteditable data-vide="jj/mm/aaaa"></span>')
+
+    +reuBloc('Le tour des catégories, en une ligne chacune','#2563eb',
+      '<div style="font-size:9px;color:#6b7480;margin-bottom:5px">Vite fait : la réunion n\'est pas là pour faire l\'inventaire. Ce qui mérite d\'être creusé devient un thème pour la prochaine fois.</div>'
+      +'<div class="bande-e"><span>Catégorie</span><span>Éducateur</span><span>Effectif</span><span>Ce qui coince</span></div>'
+      +bande)
+
     +'<div class="rang r2">'
-      +reuBloc('Les éducateurs','#d97706',
-        reuChamp('Formations en cours','qui, quel diplôme, quelle échéance',null,true)
-        +reuChamp('Besoins exprimés','ce que les éducateurs demandent',null,true)
-        +reuChamp('Recrutement d\'encadrement','les postes à pourvoir'))
-      +reuBloc('L\'intendance','#0e7490',
-        reuChamp('Créneaux et terrains','ce qui coince, ce qui se libère',null,true)
-        +reuChamp('Matériel','ce qui manque, ce qu\'on commande')
-        +reuChamp('Arbitrage et référents','qui couvre quoi'))
+      +reuBloc('La vidéo','#0e7490',
+        reuChamp('Ce qu\'on fait aujourd\'hui','qui filme, qui regarde',null,true)
+        +reuChamp('Ce qu\'on peut faire dès demain','avec les moyens qu\'on a',null,true))
+      +reuBloc('La bibliothèque d\'exercices','#0f8a5f',
+        reuChamp('Où elle vit','carnet, téléphone, appli, rien',null,true)
+        +reuChamp('Qui l\'alimente, à quel rythme','et comment on partage',null,true))
     +'</div>'
 
-    +reuBloc('Ce que les catégories font remonter','#c0392b',
-      reuChamp('À la direction du club','les sujets qui dépassent le sportif',null,true)
-      +reuChamp('Ce qui ne peut plus attendre','le point à régler en premier'))
-
-    +(dm?reuBloc('Les séniors, en chiffres','#11161c',
-      reuSu('Depuis l\'appli', [
-        (dm.date?'Dernier match : '+dm.date+' · ':'Dernier match : ')+(dm.adversaire||'')+(dm.score?' — '+dm.score:''),
-        'Effectif suivi : '+JOUEURS.length+' joueurs',
-        'Blessés en cours : '+reuBlesses().length
-      ], 'rien à signaler')):'')
+    +reuBloc('Les passerelles entre catégories','#0f8a5f',
+      '<div class="duo">'+reuChamp('Qui monte, et où','nom, catégorie d\'origine, catégorie d\'accueil')
+      +reuChamp('Les règles qu\'on se donne','prévenir qui, combien de temps avant')+'</div>')
 
     +reuRappel('club')
 
@@ -10182,12 +10321,192 @@ function genererReunionClub(){
       '<div style="font-size:9px;color:#6b7480;margin-bottom:5px">Ces lignes remontent dans l\'appli quand tu archives la feuille — et reviendront à la prochaine réunion.</div>'
       +reuLignesDecision(6))
 
-    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 2 sur 2 : ce qu\'on décide.</span>'
-      +'<span>Prochaine réunion : <span contenteditable data-vide="jj/mm/aaaa"></span></span></div>'
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 3 : ce qu\'on décide.</span>'
+      +'<span>Thème de la prochaine fois : <span contenteditable data-vide="à décider maintenant"></span></span></div>'
     +'</div>'
-    +docMemoire('reunion_club', {type:'reunion_club', titre:'Réunion technique club', sujet:'Club — '+new Date().toLocaleDateString('fr-FR')})
+    +docMemoire('reunion_club', {type:'reunion_club', titre:'Réunion technique club', sujet:(REFL_THEME||'Club')+' — '+new Date().toLocaleDateString('fr-FR')})
     +'</body></html>';
   docOuvrir(html,'Feuille de réunion technique');
+}
+
+// ===== La banque de questions de réflexion =====
+// Une réunion technique ne sert pas à faire le tour administratif des catégories :
+// elle sert à se poser les questions qu'on ne se pose jamais tout seul. Le coach
+// choisit le thème du jour et les questions, la feuille se construit autour.
+var REFLEXIONS=[
+
+{cle:'miroir', nom:'Le miroir', ic:'🪞', coul:'#c0392b',
+ intro:'Les questions qu\'on n\'ose pas se poser. Chacun répond pour lui, honnêtement.',
+ questions:[
+  {q:'Aimeriez-vous être un joueur dans votre séance ?', s:'Si oui, pourquoi ? Si non, pourquoi ?', phare:true},
+  {q:'Aimeriez-vous vous avoir comme coach ?', s:'Qu\'est-ce que vos joueurs diraient de vous ?', phare:true},
+  {q:'Quels sont les points forts de votre séance ?', s:'Ce sur quoi on ne vous prend jamais en défaut'},
+  {q:'Qu\'est-ce qui abîme vos séances ?', s:'Les temps morts, les files d\'attente, ce qui vous échappe'},
+  {q:'À quel moment vos joueurs décrochent-ils ?', s:'Et qu\'est-ce que vous en faites'},
+  {q:'De quoi êtes-vous le plus fier cette saison ?', s:'Et qu\'est-ce que vous referiez autrement ?'},
+  {q:'Qu\'est-ce que vous aimeriez apprendre ?', s:'Ce qui vous manque aujourd\'hui pour progresser'},
+  {q:'Qui vous regarde entraîner ?', s:'Quand avez-vous eu un retour extérieur pour la dernière fois ?'}
+ ]},
+
+{cle:'seance', nom:'La séance : contenu et méthode', ic:'⚽', coul:'#d97706',
+ intro:'Ce qu\'on met dedans, comment on l\'anime, et pourquoi.',
+ questions:[
+  {q:'Comment travaillez-vous ce thème ?', s:'La méthode, pas seulement l\'exercice', phare:true},
+  {q:'Quels sont vos exercices de référence sur l\'échauffement ?', s:'Ceux que vous refaites toute la saison', phare:true},
+  {q:'Combien de temps le ballon est-il vraiment aux pieds ?', s:'Sur 90 minutes de séance, combien de jeu réel'},
+  {q:'Situation d\'opposition ou exercice analytique ?', s:'Votre équilibre, et pourquoi'},
+  {q:'Comment faites-vous passer une consigne ?', s:'Vous arrêtez le jeu, vous montrez, vous questionnez ?'},
+  {q:'Combien de fois parlez-vous pendant une séance ?', s:'Et est-ce qu\'ils écoutent encore à la troisième'},
+  {q:'Comment gérez-vous les niveaux différents dans un même groupe ?', s:'Les règles, les zones, les équipes'},
+  {q:'Votre séance ressemble-t-elle au match du week-end ?', s:'Mêmes espaces, mêmes intensités, mêmes problèmes ?'},
+  {q:'Comment finissez-vous une séance ?', s:'Le dernier quart d\'heure, celui dont ils se souviennent'},
+  {q:'Qu\'est-ce que vous ne faites jamais ?', s:'Et pourquoi vous l\'avez écarté'}
+ ]},
+
+{cle:'projet', nom:'Le projet de jeu du club', ic:'🎯', coul:'#7c3aed',
+ intro:'Du plus jeune aux séniors : le même langage, ou chacun le sien ?',
+ questions:[
+  {q:'Comment propose-t-on un projet de jeu club ?', s:'Par le haut, par le bas, ou ensemble ?', phare:true},
+  {q:'Quelles vont être les étapes ?', s:'Qui écrit, qui valide, qui l\'applique, en combien de temps', phare:true},
+  {q:'Quels sont nos grands principes de jeu ?', s:'Trois maximum, ceux qu\'on ne négocie pas', phare:true},
+  {q:'Est-ce qu\'on emploie les mêmes mots d\'une catégorie à l\'autre ?', s:'« Bloc », « pressing », « côté fort » : même sens pour tous ?'},
+  {q:'Qu\'est-ce qu\'un joueur formé chez nous sait faire ?', s:'À 13 ans, à 15 ans, à 18 ans'},
+  {q:'Le projet s\'adapte-t-il aux joueurs, ou l\'inverse ?', s:'Et jusqu\'où'},
+  {q:'Comment sait-on qu\'un principe est acquis ?', s:'Ce qu\'on regarde le samedi pour en être sûr'},
+  {q:'Que fait-on d\'un éducateur qui ne veut pas l\'appliquer ?', s:'La question qui fâche, mais il faut y répondre'}
+ ]},
+
+{cle:'video', nom:'Le travail vidéo', ic:'🎬', coul:'#0e7490',
+ intro:'Ce qu\'on en fait aujourd\'hui, et ce qu\'on pourrait en faire demain.',
+ questions:[
+  {q:'Travaillons-nous assez avec la vidéo ?', s:'Qui filme, qui regarde, qui en tire quelque chose', phare:true},
+  {q:'Que pouvons-nous faire avec les moyens qu\'on a ?', s:'Un téléphone sur un trépied suffit-il ?', phare:true},
+  {q:'Montre-t-on la vidéo aux joueurs ?', s:'En groupe, en individuel, avant ou après ?'},
+  {q:'Montre-t-on les erreurs ou les réussites ?', s:'Et quel effet ça produit sur eux'},
+  {q:'Combien de temps dure une séquence utile ?', s:'Trente secondes, deux minutes, dix minutes ?'},
+  {q:'Qui aurait le temps de s\'en occuper ?', s:'Un parent, un joueur blessé, un service civique'},
+  {q:'Qu\'est-ce qui nous empêche de commencer demain ?', s:'Le vrai obstacle, pas le prétexte'}
+ ]},
+
+{cle:'biblio', nom:'La bibliothèque d\'exercices', ic:'📚', coul:'#0f8a5f',
+ intro:'Ce que chacun a dans sa tête, et qui ne sort jamais de sa tête.',
+ questions:[
+  {q:'Où vivent nos exercices aujourd\'hui ?', s:'Un carnet, un téléphone, la mémoire de chacun ?', phare:true},
+  {q:'Comment partage-t-on ce qui marche ?', s:'Et qu\'est-ce qui empêche de le faire', phare:true},
+  {q:'Quels sont les trois exercices que tout éducateur du club devrait connaître ?', s:'Le socle commun'},
+  {q:'Qui alimenterait une bibliothèque commune ?', s:'Et à quel rythme'},
+  {q:'Comment décrit-on un exercice pour qu\'un autre puisse le faire ?', s:'Le dessin, la consigne, les variantes, le point clé'},
+  {q:'Range-t-on par thème, par catégorie, ou par principe de jeu ?', s:'Ce qui nous ferait vraiment gagner du temps'},
+  {q:'Qu\'est-ce qu\'on refait chaque année sans se poser de question ?', s:'Et est-ce que c\'est toujours justifié'}
+ ]},
+
+{cle:'joueur', nom:'Le joueur et sa progression', ic:'📈', coul:'#2563eb',
+ intro:'Ce qu\'on mesure, ce qu\'on dit, ce qu\'on transmet.',
+ questions:[
+  {q:'Comment sait-on qu\'un joueur a progressé ?', s:'Autre chose que « il joue mieux »'},
+  {q:'Que dit-on à un joueur qui ne joue pas ?', s:'Et à quelle fréquence'},
+  {q:'Comment prépare-t-on un joueur à monter d\'une catégorie ?', s:'Ce qu\'on lui dit, ce qu\'on lui fait travailler'},
+  {q:'Qui suit un joueur d\'une année sur l\'autre ?', s:'Ce qu\'on transmet à l\'éducateur suivant'},
+  {q:'Comment parle-t-on aux parents ?', s:'Ce qu\'on dit, ce qu\'on ne dit pas, à quel moment'},
+  {q:'Qu\'est-ce qu\'on fait des joueurs moyens ?', s:'Ceux qui ne sont ni devant ni derrière'},
+  {q:'Un joueur peut-il nous dire qu\'il n\'est pas d\'accord ?', s:'Et qu\'est-ce qui se passe quand il le fait'}
+ ]},
+
+{cle:'groupe', nom:'Le groupe et l\'ambiance', ic:'🤝', coul:'#b45309',
+ intro:'Ce qui fait qu\'on a envie de venir à l\'entraînement.',
+ questions:[
+  {q:'Pourquoi nos joueurs viennent-ils à l\'entraînement ?', s:'Pour jouer, pour les copains, parce qu\'il faut ?'},
+  {q:'Qu\'est-ce qui fait qu\'un joueur arrête chez nous ?', s:'Les vraies raisons, pas celles qu\'on nous donne'},
+  {q:'Comment accueille-t-on un nouveau ?', s:'Les quinze premières minutes de sa première séance'},
+  {q:'Quelles règles sont communes à toutes les catégories ?', s:'Retards, téléphone, tenue, respect de l\'arbitre'},
+  {q:'Comment on se comporte sur le bord du terrain ?', s:'Nous, les éducateurs, le samedi'},
+  {q:'Le club ressemble-t-il à ce qu\'on raconte de lui ?', s:'Ce qu\'on affiche et ce qu\'on vit'}
+ ]},
+
+{cle:'nous', nom:'Nous, les éducateurs', ic:'🧑‍🏫', coul:'#5d7a16',
+ intro:'Comment on travaille ensemble, et comment on progresse.',
+ questions:[
+  {q:'Qui va voir les séances des autres ?', s:'Et qu\'est-ce que ça change quand on le fait'},
+  {q:'Quelle formation manque le plus au club ?', s:'Et qui pourrait l\'animer en interne'},
+  {q:'De quoi parle-t-on quand on se croise au club ?', s:'Des résultats, du contenu, ou d\'autre chose ?'},
+  {q:'Qu\'est-ce qu\'un éducateur peut attendre du club ?', s:'Et ce que le club attend de lui'},
+  {q:'Comment prépare-t-on celui qui reprendra notre catégorie ?', s:'Ce qu\'on laisse derrière nous'},
+  {q:'Qu\'est-ce qui nous ferait gagner une heure par semaine ?', s:'Chacun sa réponse — on en garde une'}
+ ]}
+];
+
+function reflFamille(cle){
+  for(var i=0;i<REFLEXIONS.length;i++) if(REFLEXIONS[i].cle===cle) return REFLEXIONS[i];
+  return null;
+}
+function reflToutes(){
+  var out=[];
+  REFLEXIONS.forEach(function(f){
+    f.questions.forEach(function(q,i){ out.push({famille:f, i:i, q:q}); });
+  });
+  return out;
+}
+function reflId(cle,i){ return cle+'#'+i; }
+
+// Ce que le coach a coché pour la prochaine réunion
+var REFL_CHOIX=[];
+var REFL_THEME='';
+var REFL_FAMILLE_OUVERTE='miroir';
+
+function reflBasculer(id){
+  var k=REFL_CHOIX.indexOf(id);
+  if(k===-1){
+    if(REFL_CHOIX.length>=10){ notif('⚠ Dix questions, c\'est déjà beaucoup pour une réunion'); return; }
+    REFL_CHOIX.push(id);
+  } else REFL_CHOIX.splice(k,1);
+  renderReflexions(); sauvegarder();
+}
+function reflOuvrir(cle){ REFL_FAMILLE_OUVERTE=cle; renderReflexions(); }
+function reflVider(){ REFL_CHOIX=[]; renderReflexions(); sauvegarder(); }
+function reflLesPhares(){
+  REFL_CHOIX=[];
+  REFLEXIONS.forEach(function(f){
+    f.questions.forEach(function(q,i){ if(q.phare && REFL_CHOIX.length<10) REFL_CHOIX.push(reflId(f.cle,i)); });
+  });
+  renderReflexions(); sauvegarder();
+}
+function reflChoisies(){
+  var out=[];
+  REFL_CHOIX.forEach(function(id){
+    var p=id.split('#'), f=reflFamille(p[0]);
+    if(f && f.questions[p[1]]) out.push({famille:f, q:f.questions[p[1]]});
+  });
+  return out;
+}
+function renderReflexions(){
+  var ct=document.getElementById('refl-liste'); if(!ct) return;
+  var cpt=document.getElementById('refl-compteur');
+  if(cpt) cpt.textContent=REFL_CHOIX.length? (REFL_CHOIX.length+' choisie'+(REFL_CHOIX.length>1?'s':'')) : 'aucune';
+  var avis=document.getElementById('refl-avis');
+  if(avis){
+    // Une vraie discussion demande du temps : six questions remplissent déjà une réunion
+    avis.innerHTML = !REFL_CHOIX.length ? ''
+      : (REFL_CHOIX.length<=6
+          ? '<span style="color:var(--green)">✓ '+REFL_CHOIX.length+' question'+(REFL_CHOIX.length>1?'s':'')+' — ça tient sur une page, et ça laisse le temps d\'en parler.</span>'
+          : '<span style="color:var(--gold)">⚠ '+REFL_CHOIX.length+' questions — la feuille débordera sur une page de plus, et une réunion d\'une heure n\'en traitera pas autant. Six, c\'est déjà bien.</span>');
+  }
+  var onglets=document.getElementById('refl-familles');
+  if(onglets){
+    onglets.innerHTML=REFLEXIONS.map(function(f){
+      var n=f.questions.filter(function(q,i){ return REFL_CHOIX.indexOf(reflId(f.cle,i))!==-1; }).length;
+      return '<button class="fa-chip'+(REFL_FAMILLE_OUVERTE===f.cle?' on':'')+'" onclick="reflOuvrir(\'' +f.cle+ '\')">'
+        +f.ic+' '+esc2(f.nom)+(n?' <b>'+n+'</b>':'')+'</button>';
+    }).join('');
+  }
+  var f=reflFamille(REFL_FAMILLE_OUVERTE)||REFLEXIONS[0];
+  ct.innerHTML='<div class="refl-intro">'+esc2(f.intro)+'</div>'
+    +f.questions.map(function(q,i){
+      var id=reflId(f.cle,i), on=REFL_CHOIX.indexOf(id)!==-1;
+      return '<div class="refl-l'+(on?' on':'')+'" onclick="reflBasculer(\'' +id+ '\')">'
+        +'<div class="refl-case">'+(on?'✓':'')+'</div>'
+        +'<div class="refl-txt"><div class="refl-q">'+esc2(q.q)+(q.phare?' <span class="refl-phare">★</span>':'')+'</div>'
+        +'<div class="refl-s">'+esc2(q.s||'')+'</div></div></div>';
+    }).join('');
 }
 
 // ===== Les décisions de réunion =====
@@ -13793,7 +14112,7 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(res){
       if(res && res.conflit){ ouvrirConflitCloud(res.conflit); return; }
@@ -13817,7 +14136,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
@@ -13973,7 +14292,7 @@ function renderAccesJoueurs(){
 }
 
 function notif(txt){var el=document.getElementById('notif');el.textContent=txt;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
-window.addEventListener('load',function(){appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();syncDepuisFirestore(true);});
+window.addEventListener('load',function(){appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
