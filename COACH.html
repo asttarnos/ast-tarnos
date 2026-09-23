@@ -1084,8 +1084,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v36</b> · 23/09/2026<br>
-      <span style="opacity:.7">Photos, PDF et documents dans la bibliothèque</span>
+      AST COACH <b style="color:var(--or)">v37</b> · 23/09/2026<br>
+      <span style="opacity:.7">Aperçu réel des PDF et des vidéos</span>
     </div>
   </div>
 </div>
@@ -2072,8 +2072,9 @@ Repli défensif après perte"></textarea>
         <div class="fg"><label class="fl">Fichier (PDF, photo, doc…)</label>
           <input class="fi" id="bg-file" type="file" accept=".pdf,application/pdf,image/*,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onchange="bgChoisirFichier(this)"></div>
         <div class="fg"><label class="fl">Ou un lien</label>
-          <input class="fi" id="bg-url" placeholder="https://…"></div>
+          <input class="fi" id="bg-url" placeholder="https://…" oninput="bgRendrePiece()"></div>
       </div>
+      <input type="file" id="bg-cover" accept="image/*" style="display:none" onchange="bgChoisirCouverture(this)">
       <div id="bg-piece" style="margin:8px 0 12px"></div>
       <div class="fg2">
         <div class="fg"><label class="fl">Titre</label><input class="fi" id="bg-titre" placeholder="Ex : Règlement des championnats régionaux 2026-27"></div>
@@ -2421,6 +2422,7 @@ Repli défensif après perte"></textarea>
   </div>
 
   <div id="mx-recup"></div>
+  <div id="mx-vignettes"></div>
 
   <div class="blk plein" id="exi-form" style="display:none;margin-bottom:14px">
     <div class="bh"><span class="bt go" id="exi-form-titre">Ajouter un exercice</span>
@@ -2432,8 +2434,9 @@ Repli défensif après perte"></textarea>
         <div class="fg"><label class="fl">Photo, PDF ou autre fichier</label>
           <input class="fi" id="exi-file" type="file" accept="image/*,.pdf,application/pdf,.doc,.docx,.ppt,.pptx" onchange="exiChoisirFichier(this)"></div>
         <div class="fg"><label class="fl">Ou un lien (vidéo, site, Drive…)</label>
-          <input class="fi" id="exi-lien" placeholder="https://…"></div>
+          <input class="fi" id="exi-lien" placeholder="https://…" oninput="exiRendrePiece()"></div>
       </div>
+      <input type="file" id="exi-cover" accept="image/*" style="display:none" onchange="exiChoisirCouverture(this)">
       <div id="exi-piece" style="margin:8px 0 14px"></div>
 
       <div class="exi-sec">Ce qui le rend retrouvable</div>
@@ -6350,7 +6353,9 @@ function fichPeuplerApercus(racine){
   });
 }
 function fichPoserApercu(el,data){
-  el.style.background='#0c1116 url('+JSON.stringify(data)+') center/cover no-repeat';
+  // cadré en haut : sur une page A4 comme sur une feuille photographiée,
+  // c'est le haut qui porte le titre et le schéma.
+  el.style.background='#0c1116 url('+JSON.stringify(data)+') center top / cover no-repeat';
   el.innerHTML='';
 }
 
@@ -6429,6 +6434,100 @@ async function fichOuvrir(id, nom){
     setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
   }catch(e){ notif('\u26a0 Impossible d\'ouvrir ce fichier'); }
 }
+// ===== Les aperçus =====
+// Une icône de PDF ne dit rien : on reconnaît un exercice à son schéma, pas à
+// son extension. On fabrique donc une vraie vignette — la première page du PDF
+// rendue en image, la miniature de la vidéo pour un lien YouTube, ou une photo
+// que le coach choisit lui-même. Fabriquée une fois à l'import, elle est ensuite
+// gardée en local et dans le cloud : après ça, plus besoin de réseau.
+var PDFJS_URL='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+var PDFJS_ETAT=null;
+
+// Le lecteur de PDF n'est chargé que le jour où on en a besoin, et seulement
+// pour fabriquer la vignette. S'il n'arrive pas — pas de réseau — on continue
+// sans : l'exercice est enregistré quand même, avec son icône.
+function pdfjsPret(){
+  if(PDFJS_ETAT) return PDFJS_ETAT;
+  PDFJS_ETAT=new Promise(function(ok,non){
+    if(window.pdfjsLib){
+      try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER; }catch(e){}
+      return ok(window.pdfjsLib);
+    }
+    var fini=false;
+    var s=document.createElement('script');
+    // crossOrigin : la réponse n'est plus opaque, donc le service worker peut la
+    // mettre en cache. Conséquence : après le premier PDF importé avec du réseau,
+    // le lecteur reste disponible hors ligne.
+    s.crossOrigin='anonymous';
+    s.src=PDFJS_URL; s.async=true;
+    s.onload=function(){
+      if(fini) return; fini=true;
+      if(!window.pdfjsLib){ PDFJS_ETAT=null; return non('lecteur absent'); }
+      try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER; }catch(e){}
+      ok(window.pdfjsLib);
+    };
+    s.onerror=function(){ if(fini) return; fini=true; PDFJS_ETAT=null; non('hors ligne'); };
+    document.head.appendChild(s);
+    setTimeout(function(){ if(fini) return; fini=true; PDFJS_ETAT=null; non('trop long'); }, 15000);
+  });
+  return PDFJS_ETAT;
+}
+function fichOctets(donnee){
+  var b64=(donnee||'').split(',')[1]||'';
+  var chars=atob(b64), arr=new Uint8Array(chars.length);
+  for(var i=0;i<chars.length;i++) arr[i]=chars.charCodeAt(i);
+  return arr;
+}
+// La première page, rendue comme à l'écran — fond blanc, pas de transparence
+async function fichVignettePdf(donnee){
+  var lib=await pdfjsPret();
+  var doc=await lib.getDocument({data:fichOctets(donnee)}).promise;
+  var page=await doc.getPage(1);
+  var v1=page.getViewport({scale:1});
+  var ech=Math.min(2.4, 460/Math.max(1,v1.width));
+  var vue=page.getViewport({scale:ech});
+  var c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(vue.width));
+  c.height=Math.max(1,Math.round(vue.height));
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,c.height);
+  await page.render({canvasContext:ctx, viewport:vue}).promise;
+  try{ doc.destroy(); }catch(e){}
+  return c.toDataURL('image/jpeg',0.68);
+}
+// YouTube publie une miniature pour chaque vidéo : autant s'en servir
+function vignetteDepuisLien(url){
+  if(!url) return '';
+  var m=String(url).match(/(?:youtube\.com\/(?:watch\?[^#]*\bv=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{8,})/);
+  return m ? 'https://i.ytimg.com/vi/'+m[1]+'/mqdefault.jpg' : '';
+}
+// Après lecture d'un fichier : si c'est un PDF sans aperçu, on tente la page 1
+function fichCompleterVignette(lu){
+  if(!lu || lu.apercu || !lu.estPdf) return Promise.resolve(lu);
+  return fichVignettePdf(lu.data).then(function(v){ lu.apercu=v||''; return lu; })
+    .catch(function(){ lu.apercuEchec=true; return lu; });
+}
+// Une image choisie à la main comme couverture, réduite au format vignette
+function fichLireCouverture(fichier){
+  return fichLireEntree(fichier).then(function(lu){
+    if(!lu.estImage) throw 'pas une image';
+    return lu.apercu || lu.data;
+  });
+}
+// Déposer un aperçu seul, sous un identifiant donné
+async function fichDeposerApercu(id, apercu){
+  if(!id || !apercu) return false;
+  FICH_APERCU[id]=apercu;
+  await fichPoserLocal('ap_'+id, apercu);
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id,{method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{data:{stringValue:apercu}}})});
+    return r.ok;
+  }catch(e){ return false; }
+}
+
 function fichPoids(o){ return o&&o.poids ? (o.poids>=1048576 ? (o.poids/1048576).toFixed(1)+' Mo' : Math.round(o.poids/1024)+' Ko') : ''; }
 
 // ===== La documentation du club =====
@@ -6440,6 +6539,7 @@ var DOC_CATEGORIES=['Entraînement','Tactique & projet de jeu','Préparation phy
   'Gardiens','Mental & management','Médical & prévention','Arbitrage & règlement',
   'Formation & diplômes','Administratif & club','Inspiration'];
 var BG_FICHIER=null;   // le fichier choisi, pas encore déposé
+var BG_COUVERTURE=null; // une image d'aperçu choisie à la main
 var BG_EDITION='';     // l'id en cours de modification
 var BG_CAT='';         // le filtre catégorie
 
@@ -6453,34 +6553,74 @@ function bgChoisirFichier(input){
   if(!f) return;
   var ct=document.getElementById('bg-piece');
   if(ct) ct.innerHTML='<div class="exi-sous">Lecture du fichier…</div>';
-  fichLireEntree(f).then(function(lu){ BG_FICHIER=lu; bgRendrePiece(); })
-    .catch(function(){ BG_FICHIER=null; notif('⚠ Ce fichier n\'a pas pu être lu'); bgRendrePiece(); });
+  fichLireEntree(f).then(function(lu){
+    BG_FICHIER=lu; BG_COUVERTURE=null;
+    if(lu.estPdf && ct) ct.innerHTML='<div class="exi-sous">Fabrication de l\'aperçu — première page du PDF…</div>';
+    bgRendrePiece();
+    return fichCompleterVignette(lu).then(function(){ bgRendrePiece(); });
+  }).catch(function(){ BG_FICHIER=null; notif('⚠ Ce fichier n\'a pas pu être lu'); bgRendrePiece(); });
+}
+function bgChoisirCouverture(input){
+  var f=input.files && input.files[0];
+  if(!f) return;
+  fichLireCouverture(f).then(function(v){
+    BG_COUVERTURE=v;
+    if(BG_FICHIER) BG_FICHIER.apercu=v;
+    bgRendrePiece();
+    notif('✓ Aperçu choisi');
+  }).catch(function(){ notif('⚠ Choisis une image (photo, capture d\'écran)'); });
+}
+function bgApercuId(e){ return (e&&(e.fichierId||e.apercuId))||''; }
+function bgBoutonCouverture(txt){
+  return '<button class="acc-b" style="margin-top:7px" '
+    +'onclick="document.getElementById(\'bg-cover\').click()">'+txt+'</button>';
 }
 function bgRendrePiece(){
   var ct=document.getElementById('bg-piece'); if(!ct) return;
   var e=BG_EDITION?bgParId(BG_EDITION):null;
   if(BG_FICHIER){
+    var vu=BG_COUVERTURE||BG_FICHIER.apercu;
+    var mot = BG_FICHIER.estPdf
+      ? (vu ? 'aperçu : première page du PDF'
+            : (BG_FICHIER.apercuEchec
+               ? '<span style="color:var(--or)">aperçu impossible à fabriquer (hors ligne)</span>'
+               : 'aperçu en cours…'))
+      : (BG_FICHIER.estImage ? 'image compressée automatiquement' : 'fichier joint');
     ct.innerHTML='<div class="exi-piece-c">'
-      +(BG_FICHIER.estImage?'<img src="'+BG_FICHIER.apercu+'" alt="">':'<span class="exi-ic">'+(BG_FICHIER.estPdf?'📄':'📎')+'</span>')
-      +'<div><b>'+esc2(BG_FICHIER.nom)+'</b><div class="exi-sous">'+Math.round(BG_FICHIER.poids/1024)+' Ko'
+      +(vu?'<img src="'+vu+'" alt="">':'<span class="exi-ic">'+(BG_FICHIER.estPdf?'📄':'📎')+'</span>')
+      +'<div><b>'+esc2(BG_FICHIER.nom)+'</b><div class="exi-sous">'+Math.max(1,Math.round(BG_FICHIER.poids/1024))+' Ko · '+mot
       +(BG_FICHIER.poids>FICH_LIMITE
         ? ' · <span style="color:var(--or)">trop lourd pour le cloud : il restera sur cet appareil</span>'
-        : ' · part dans le cloud à l\'enregistrement')+'</div></div></div>';
+        : '')+'</div>'
+      +bgBoutonCouverture(vu?'Choisir une autre image d\'aperçu':'Choisir une image d\'aperçu')
+      +'</div></div>';
     return;
   }
   if(e && e.fichierId){
-    ct.innerHTML='<div class="exi-piece-c"><span class="exi-ic" data-apercu="'+e.fichierId+'">'
-      +(ICONES_TYPE_BIBLIO[e.type]||'📎')+'</span>'
+    ct.innerHTML='<div class="exi-piece-c">'
+      +(BG_COUVERTURE?'<img src="'+BG_COUVERTURE+'" alt="">'
+        :'<span class="exi-ic" data-apercu="'+bgApercuId(e)+'">'+(ICONES_TYPE_BIBLIO[e.type]||'📎')+'</span>')
       +'<div><b>'+esc2(e.nomFichier||'Fichier joint')+'</b>'
-      +'<div class="exi-sous">Déjà enregistré'+(e.local?' — sur cet appareil seulement':'')+'</div></div></div>';
-    fichPeuplerApercus(ct);
+      +'<div class="exi-sous">Déjà enregistré'+(e.local?' — sur cet appareil seulement':'')+'</div>'
+      +bgBoutonCouverture('Changer l\'image d\'aperçu')+'</div></div>';
+    if(!BG_COUVERTURE) fichPeuplerApercus(ct);
     return;
   }
-  ct.innerHTML='<div class="exi-sous">Aucun fichier pour l\'instant — un lien seul suffit aussi.</div>';
+  var lien=(document.getElementById('bg-url')||{}).value||'';
+  var vlien=vignetteDepuisLien(lien);
+  if(BG_COUVERTURE||vlien){
+    ct.innerHTML='<div class="exi-piece-c"><img src="'+(BG_COUVERTURE||vlien)+'" alt="">'
+      +'<div><b>'+(BG_COUVERTURE?'Image d\'aperçu':'Miniature de la vidéo')+'</b>'
+      +'<div class="exi-sous">Pas de fichier joint — un lien seul suffit.</div>'
+      +bgBoutonCouverture('Choisir une autre image')+'</div></div>';
+    return;
+  }
+  ct.innerHTML='<div class="exi-sous">Aucun fichier pour l\'instant — un lien seul suffit aussi.</div>'
+    +bgBoutonCouverture('Choisir une image d\'aperçu');
 }
 function bgModifier(id){
   var e=bgParId(id); if(!e) return;
-  BG_EDITION=id; BG_FICHIER=null;
+  BG_EDITION=id; BG_FICHIER=null; BG_COUVERTURE=null;
   function v(c,val){ var el=document.getElementById('bg-'+c); if(el) el.value=(val==null?'':val); }
   v('titre',e.titre); v('type',e.type||'pdf'); v('url',e.url||'');
   v('categorie',e.categorie||''); v('description',e.description||'');
@@ -6491,11 +6631,12 @@ function bgModifier(id){
   document.getElementById('bg-titre').scrollIntoView({behavior:'smooth',block:'center'});
 }
 function bgAnnuler(){
-  BG_EDITION=''; BG_FICHIER=null;
+  BG_EDITION=''; BG_FICHIER=null; BG_COUVERTURE=null;
   ['titre','url','categorie','description'].forEach(function(c){
     var e=document.getElementById('bg-'+c); if(e) e.value='';
   });
   var f=document.getElementById('bg-file'); if(f) f.value='';
+  var fc=document.getElementById('bg-cover'); if(fc) fc.value='';
   var b=document.getElementById('bg-bouton'); if(b) b.textContent='+ AJOUTER À LA DOCUMENTATION';
   var a=document.getElementById('bg-annuler'); if(a) a.style.display='none';
   bgRendrePiece();
@@ -6516,14 +6657,25 @@ function ajouterRessourceBiblio(){
   if(!e.auteur) e.auteur=NOM_COACH||'';
   if(!e.dateAjout) e.dateAjout=new Date().toLocaleDateString('fr-FR');
 
+  e.vignetteUrl = e.fichierId ? '' : vignetteDepuisLien(url);
+
   var suite = BG_FICHIER
     ? fichDeposer(BG_FICHIER,{titre:titre}).then(function(dep){
         if(e.fichierId && e.fichierId!==dep.id){ fichOterLocal(e.fichierId); fichSupprimerCloud(e.fichierId); }
         e.fichierId=dep.id; e.nomFichier=dep.nom; e.poids=dep.poids; e.local=!dep.enLigne;
         if(dep.estPdf) e.type='pdf'; else if(dep.estImage && e.type!=='pdf') e.type='photo';
+        e.vignette=!!BG_FICHIER.apercu; e.vignetteUrl='';
         return dep;
       })
     : Promise.resolve(null);
+
+  suite=suite.then(function(dep){
+    if(!BG_COUVERTURE) return dep;
+    if(!bgApercuId(e)) e.apercuId=fichId();
+    return fichDeposerApercu(bgApercuId(e), BG_COUVERTURE).then(function(){
+      e.vignette=true; e.vignetteUrl=''; return dep;
+    });
+  });
 
   suite.then(function(dep){
     if(!BG_EDITION) BIBLIOTHEQUE_GENERALE.unshift(e);
@@ -6587,9 +6739,12 @@ function renderBibliothequeGenerale(){
   if(nb) nb.textContent=BIBLIOTHEQUE_GENERALE.length+(BG_CAT||recherche?(' · '+liste.length+' affiché'+(liste.length>1?'s':'')):'');
 
   ct.innerHTML = liste.length ? '<div class="bg-grille">'+liste.map(function(r){
-    var vign = (r.fichierId && r.type==='photo')
-      ? '<div class="bg-vig" data-apercu="'+r.fichierId+'">🖼</div>'
-      : '<div class="bg-vig t-'+(r.type||'autre')+'">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+'</div>';
+    var idAp=bgApercuId(r);
+    var vign = r.vignetteUrl
+      ? '<div class="bg-vig" style="background:#0c1116 url('+JSON.stringify(r.vignetteUrl)+') center/cover no-repeat"></div>'
+      : ((idAp && r.vignette)
+        ? '<div class="bg-vig" data-apercu="'+idAp+'">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+'</div>'
+        : '<div class="bg-vig t-'+(r.type||'autre')+'">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+'</div>');
     return '<div class="bg-c">'
       +vign
       +'<div class="bg-corps">'
@@ -8753,6 +8908,7 @@ function mxLabelMoment(v){
   return v||'';
 }
 function mxLabelIntensite(v){
+  if(!v) return '';   // « non précisée » n'a rien à faire sur une carte
   for(var i=0;i<FEX_INTENSITES.length;i++) if(FEX_INTENSITES[i].v===v) return (FEX_INTENSITES[i].l||'').split(' — ')[0];
   return '';
 }
@@ -8771,6 +8927,7 @@ function mxObjetsDe(pr){
 
 var EXI_EDITION=null;   // l'exercice importé en cours de saisie
 var EXI_FICHIER=null;   // le fichier choisi, pas encore déposé
+var EXI_COUVERTURE=null; // une image d'aperçu choisie à la main
 
 function exiNouveau(){
   return {id:'', titre:'', theme:'', moment:'corps', duree:15, effMin:'', effMax:'',
@@ -8779,6 +8936,9 @@ function exiNouveau(){
     support:'', fichierId:'', nomFichier:'', poids:0, local:false, lien:'',
     auteur:'', dateAjout:''};
 }
+// L'aperçu vit sous l'identifiant du fichier quand il y en a un ; sinon
+// l'exercice s'en fait donner un à lui (cas d'un lien avec couverture choisie).
+function exiApercuId(e){ return (e&&(e.fichierId||e.apercuId))||''; }
 function exiParId(id){
   for(var i=0;i<EXOS_IMPORTES.length;i++) if(EXOS_IMPORTES[i].id===id) return EXOS_IMPORTES[i];
   return null;
@@ -8787,7 +8947,7 @@ function exiParId(id){
 // --- Le formulaire ----------------------------------------------------------
 function exiOuvrirForm(id){
   var bloc=document.getElementById('exi-form'); if(!bloc) return;
-  EXI_FICHIER=null;
+  EXI_FICHIER=null; EXI_COUVERTURE=null;
   EXI_EDITION = id ? Object.assign(exiNouveau(), exiParId(id)||{}) : exiNouveau();
   bloc.style.display='block';
   var t=document.getElementById('exi-form-titre');
@@ -8799,6 +8959,7 @@ function exiOuvrirForm(id){
   v('setup',EXI_EDITION.setup); v('consignes',EXI_EDITION.consignes); v('important',EXI_EDITION.important);
   v('lien',EXI_EDITION.lien);
   var f=document.getElementById('exi-file'); if(f) f.value='';
+  var fc=document.getElementById('exi-cover'); if(fc) fc.value='';
   var si=document.getElementById('exi-intensite');
   if(si && !si.options.length)
     si.innerHTML=FEX_INTENSITES.map(function(o){ return '<option value="'+o.v+'">'+o.l+'</option>'; }).join('');
@@ -8835,32 +8996,62 @@ function exiBasculerPrincipe(code){
   pjPuces('exi-principes', EXI_EDITION.principes, 'exiBasculerPrincipe');
 }
 // Ce qui est accroché à l'exercice : la photo, le PDF, ou rien encore
+// Le bouton qui permet de remplacer l'aperçu par une image à soi
+function exiBoutonCouverture(txt){
+  return '<button class="acc-b" style="margin-top:7px" '
+    +'onclick="document.getElementById(\'exi-cover\').click()">'+txt+'</button>';
+}
 function exiRendrePiece(){
   var ct=document.getElementById('exi-piece'); if(!ct) return;
   var e=EXI_EDITION||{};
   if(EXI_FICHIER){
+    var vu=EXI_COUVERTURE||EXI_FICHIER.apercu;
+    var mot = EXI_FICHIER.estPdf
+      ? (vu ? 'aperçu : première page du PDF'
+            : (EXI_FICHIER.apercuEchec
+               ? '<span style="color:var(--or)">aperçu impossible à fabriquer (hors ligne) — choisis une image</span>'
+               : 'aperçu en cours…'))
+      : (EXI_FICHIER.estImage ? 'photo compressée automatiquement' : 'fichier joint');
     ct.innerHTML='<div class="exi-piece-c">'
-      +(EXI_FICHIER.estImage
-        ? '<img src="'+EXI_FICHIER.apercu+'" alt="">'
-        : '<span class="exi-ic">'+(EXI_FICHIER.estPdf?'📄':'📎')+'</span>')
+      +(vu ? '<img src="'+vu+'" alt="">'
+           : '<span class="exi-ic">'+(EXI_FICHIER.estPdf?'📄':'📎')+'</span>')
       +'<div><b>'+esc2(EXI_FICHIER.nom)+'</b>'
-      +'<div class="exi-sous">'+Math.round(EXI_FICHIER.poids/1024)+' Ko'
-      +(EXI_FICHIER.estImage?' · photo compressée automatiquement':'')
+      +'<div class="exi-sous">'+Math.max(1,Math.round(EXI_FICHIER.poids/1024))+' Ko · '+mot
       +(EXI_FICHIER.poids>FICH_LIMITE
         ? ' · <span style="color:var(--or)">trop lourd pour le cloud : il restera sur cet appareil</span>'
-        : ' · part dans le cloud à l\'enregistrement')+'</div></div></div>';
+        : '')+'</div>'
+      +exiBoutonCouverture(vu?'Choisir une autre image d\'aperçu':'Choisir une image d\'aperçu')
+      +'</div></div>';
     return;
   }
+  var idAp=exiApercuId(e);
   if(e.fichierId){
     ct.innerHTML='<div class="exi-piece-c">'
-      +'<span class="exi-ic" data-apercu="'+e.fichierId+'">'+(e.support==='pdf'?'📄':'🖼')+'</span>'
+      +(EXI_COUVERTURE ? '<img src="'+EXI_COUVERTURE+'" alt="">'
+        : '<span class="exi-ic" data-apercu="'+idAp+'">'+(e.support==='pdf'?'📄':'🖼')+'</span>')
       +'<div><b>'+esc2(e.nomFichier||'Fichier joint')+'</b>'
       +'<div class="exi-sous">Déjà enregistré'+(e.local?' — sur cet appareil seulement':'')
-      +' · choisis un autre fichier pour le remplacer</div></div></div>';
-    fichPeuplerApercus(ct);
+      +' · choisis un autre fichier pour le remplacer</div>'
+      +exiBoutonCouverture('Changer l\'image d\'aperçu')
+      +'</div></div>';
+    if(!EXI_COUVERTURE) fichPeuplerApercus(ct);
     return;
   }
-  ct.innerHTML='<div class="exi-sous">Aucune pièce jointe pour l\'instant — un lien seul suffit aussi.</div>';
+  var lien=(document.getElementById('exi-lien')||{}).value||e.lien||'';
+  var vlien=vignetteDepuisLien(lien);
+  if(EXI_COUVERTURE || vlien || (idAp && e.vignette)){
+    ct.innerHTML='<div class="exi-piece-c">'
+      +(EXI_COUVERTURE ? '<img src="'+EXI_COUVERTURE+'" alt="">'
+        : (vlien ? '<img src="'+vlien+'" alt="">'
+                 : '<span class="exi-ic" data-apercu="'+idAp+'">🖼</span>'))
+      +'<div><b>'+(vlien&&!EXI_COUVERTURE?'Miniature de la vidéo':'Image d\'aperçu')+'</b>'
+      +'<div class="exi-sous">Pas de fichier joint — un lien seul suffit.</div>'
+      +exiBoutonCouverture('Choisir une autre image')+'</div></div>';
+    if(!EXI_COUVERTURE && !vlien) fichPeuplerApercus(ct);
+    return;
+  }
+  ct.innerHTML='<div class="exi-sous">Aucune pièce jointe pour l\'instant — un lien seul suffit aussi.</div>'
+    +exiBoutonCouverture('Choisir une image d\'aperçu');
 }
 function exiChoisirFichier(input){
   var f=input.files && input.files[0];
@@ -8868,13 +9059,26 @@ function exiChoisirFichier(input){
   var ct=document.getElementById('exi-piece');
   if(ct) ct.innerHTML='<div class="exi-sous">Lecture du fichier…</div>';
   fichLireEntree(f).then(function(lu){
-    EXI_FICHIER=lu;
+    EXI_FICHIER=lu; EXI_COUVERTURE=null;
+    if(lu.estPdf && ct) ct.innerHTML='<div class="exi-sous">Fabrication de l\'aperçu — première page du PDF…</div>';
     exiRendrePiece();
+    return fichCompleterVignette(lu).then(function(){ exiRendrePiece(); });
   }).catch(function(){
     EXI_FICHIER=null;
     notif('⚠ Ce fichier n\'a pas pu être lu');
     exiRendrePiece();
   });
+}
+// Une image de couverture choisie à la main : elle prime sur tout le reste
+function exiChoisirCouverture(input){
+  var f=input.files && input.files[0];
+  if(!f) return;
+  fichLireCouverture(f).then(function(v){
+    EXI_COUVERTURE=v;
+    if(EXI_FICHIER) EXI_FICHIER.apercu=v;
+    exiRendrePiece();
+    notif('✓ Aperçu choisi');
+  }).catch(function(){ notif('⚠ Choisis une image (photo, capture d\'écran)'); });
 }
 function exiEnregistrer(){
   if(!EXI_EDITION) return;
@@ -8895,15 +9099,27 @@ function exiEnregistrer(){
   if(!e.auteur) e.auteur=NOM_COACH||'';
   if(!e.dateAjout) e.dateAjout=new Date().toLocaleDateString('fr-FR');
 
+  e.vignetteUrl = e.fichierId ? '' : vignetteDepuisLien(lien);
+
   var suite = EXI_FICHIER
     ? fichDeposer(EXI_FICHIER, {titre:titre}).then(function(dep){
         if(e.fichierId && e.fichierId!==dep.id){ fichOterLocal(e.fichierId); fichSupprimerCloud(e.fichierId); }
         e.fichierId=dep.id; e.nomFichier=dep.nom; e.poids=dep.poids;
         e.support=dep.estPdf?'pdf':(dep.estImage?'photo':'fichier');
         e.local=!dep.enLigne;
+        e.vignette=!!EXI_FICHIER.apercu; e.vignetteUrl='';
         return dep;
       })
     : Promise.resolve(null);
+
+  // une couverture choisie à la main écrase l'aperçu automatique
+  suite=suite.then(function(dep){
+    if(!EXI_COUVERTURE) return dep;
+    if(!exiApercuId(e)) e.apercuId=fichId();
+    return fichDeposerApercu(exiApercuId(e), EXI_COUVERTURE).then(function(){
+      e.vignette=true; e.vignetteUrl=''; return dep;
+    });
+  });
 
   suite.then(function(dep){
     if(!e.fichierId && lien) e.support='lien';
@@ -8971,7 +9187,7 @@ function exiRecupererAncienne(){
       var id=fichId();
       return fichPoserLocal(id,data).then(function(){
         FICH_CACHE[id]=data;
-        if(s.img){ FICH_APERCU[id]=s.img; return fichPoserLocal('ap_'+id, s.img); }
+        if(s.img){ FICH_APERCU[id]=s.img; e.vignette=true; return fichPoserLocal('ap_'+id, s.img); }
       }).then(function(){
         if(poids<=FICH_LIMITE)
           return fichPousserCloud(id,{nom:s.nomFichier||e.titre, titre:e.titre}, data, s.img||'');
@@ -8991,6 +9207,38 @@ function exiRecupererAncienne(){
   }).catch(function(){
     renderMesExercices(); sauvegardeAuto();
     notif('⚠ Récupération interrompue — '+faits+' élément(s) repris');
+  });
+}
+
+// --- Fabriquer après coup les aperçus qui manquent -------------------------
+// Les PDF importés avant, ou importés sans réseau, n'ont qu'une icône.
+function exiSansVignette(){
+  return (EXOS_IMPORTES||[]).filter(function(e){
+    return e && e.support==='pdf' && e.fichierId && !e.vignette;
+  });
+}
+function exiFabriquerVignettes(){
+  var liste=exiSansVignette();
+  if(!liste.length){ notif('Tous tes PDF ont déjà un aperçu'); return; }
+  notif('Fabrication des aperçus… ('+liste.length+' PDF)');
+  var faits=0, rates=0;
+  var chaine=Promise.resolve();
+  liste.forEach(function(e){
+    chaine=chaine.then(function(){
+      return fichObtenir(e.fichierId).then(function(d){
+        if(!d){ rates++; return; }
+        return fichVignettePdf(d).then(function(v){
+          return fichDeposerApercu(e.fichierId, v).then(function(){ e.vignette=true; faits++; });
+        });
+      }).catch(function(){ rates++; });
+    });
+  });
+  chaine.then(function(){
+    renderMesExercices();
+    if(faits) sauvegardeAuto();
+    notif(faits
+      ? '✓ '+faits+' aperçu'+(faits>1?'s fabriqués':' fabriqué')+(rates?' · '+rates+' échec(s)':'')
+      : '⚠ Aucun aperçu fabriqué — il faut être connecté la première fois');
   });
 }
 
@@ -9059,9 +9307,11 @@ function mxEffectifTxt(x){
 function mxVignette(x){
   if(x.src==='dessin') return exoMiniature(x.pr,132);
   var e=x.ex||{};
-  if(e.fichierId && e.support!=='pdf')
-    return '<div class="mx-vig" data-apercu="'+e.fichierId+'">🖼</div>';
-  if(e.support==='pdf') return '<div class="mx-vig pdf">📄</div>';
+  if(e.vignetteUrl)
+    return '<div class="mx-vig" style="background:#0c1116 url('+JSON.stringify(e.vignetteUrl)+') center/cover no-repeat"></div>';
+  var id=exiApercuId(e);
+  if(id) return '<div class="mx-vig'+(e.support==='pdf'?' pdf':'')+'" data-apercu="'+id+'">'
+    +(e.support==='pdf'?'📄':'🖼')+'</div>';
   if(e.lien) return '<div class="mx-vig lien">🔗</div>';
   return '<div class="mx-vig">📎</div>';
 }
@@ -9095,6 +9345,18 @@ function renderMesExercices(){
     selP.innerHTML='<option value="">Tous les principes</option>'
       +principes.map(function(x){ return '<option value="'+x.code+'">'+x.code+' — '+esc2(x.titre.slice(0,38))+'</option>'; }).join('');
     selP.value=avP;
+  }
+
+  // les PDF qui n'ont encore qu'une icône
+  var vig=document.getElementById('mx-vignettes');
+  if(vig){
+    var nv=exiSansVignette().length;
+    vig.innerHTML = nv
+      ? '<div class="mx-recup-b"><span>🖼</span><div><b>'+nv+' PDF sans aperçu</b>'
+        +'<div>On les reconnaît mal à une icône. L\'appli peut fabriquer la vignette '
+        +'à partir de leur première page — une fois faite, elle reste, même hors ligne.</div></div>'
+        +'<button class="acc-b or" onclick="exiFabriquerVignettes()">Fabriquer les aperçus</button></div>'
+      : '';
   }
 
   // ce qui dort encore dans l'ancienne bibliothèque séances
@@ -10406,6 +10668,7 @@ var AIDE=[
   'Tout ce qu\'on veut pouvoir relire : un PDF de formation, un règlement de la ligue, un article, une conférence en vidéo.',
   'Tu déposes le <b>fichier</b> (PDF, photo, document) ou tu colles un <b>lien</b>, tu mets un <b>titre</b> et une <b>catégorie</b>.',
   'Les catégories construisent d\'elles-mêmes les pastilles de filtrage au-dessus de la liste — tu n\'as rien à paramétrer.',
+  'Comme pour les exercices, l\'aperçu d\'un PDF est sa <b>première page</b>, et celui d\'un lien YouTube la miniature de la vidéo. Tu peux aussi choisir ton image.',
   'Chaque document garde <b>qui l\'a ajouté et quand</b> : c\'est ce qui fait tenir une bibliothèque à plusieurs.',
   'Le fichier part dans le cloud : déposé depuis l\'ordi du bureau, il est sur ton téléphone au bord du terrain.'
  ],
@@ -10416,10 +10679,22 @@ var AIDE=[
   'Un exercice n\'a pas besoin d\'être dessiné dans l\'appli pour compter. Une feuille griffonnée au bord du terrain que tu photographies, un PDF récupéré en formation, une vidéo vue ailleurs : tout entre.',
   'Bouton <code>Ajouter une photo, un PDF, un lien</code>, puis tu choisis le fichier — ou tu colles juste un lien.',
   'Les <b>photos sont compressées automatiquement</b> : tu peux prendre la feuille en photo avec le téléphone sans y penser.',
+  'L\'<b>aperçu se fabrique tout seul</b> : la première page pour un PDF, la miniature de la vidéo pour un lien YouTube. Tu reconnais l\'exercice sur la carte sans l\'ouvrir.',
+  'Tu peux toujours <b>choisir ton image d\'aperçu</b> — photographie le schéma qui compte, il prendra la place de la page 1.',
   'Ensuite tu le <b>qualifies</b> comme les autres : titre, thème, moment de séance, effectif, ce qu\'il développe, le principe du projet de jeu qu\'il sert. C\'est ça qui le rend retrouvable — et utilisable par le générateur.',
   'Le fichier est gardé sur l\'appareil <b>immédiatement</b>, puis envoyé dans le cloud : chaque coach du club le retrouve sur son propre téléphone.'
  ],
  astuce:'Un PDF de plus de 700 Ko ne peut pas monter dans le cloud — l\'exercice reste utilisable, mais seulement sur cet appareil, et la carte porte une pastille <b>local</b>. Dans ce cas, mets le PDF sur un Drive et colle le lien à la place : là, tout le monde y a accès.'
+},
+{f:'entr', t:'Les aperçus des PDF', ou:'Écran Mes exercices', ecran:'mes-exos',
+ etapes:[
+  'Un carré gris avec une icône ne dit rien. L\'appli fabrique donc une vraie vignette : la <b>première page du PDF</b>, rendue en image.',
+  'C\'est le seul moment où l\'appli a besoin d\'être connectée : elle va chercher le lecteur de PDF la première fois. Une fois l\'aperçu fait, il est gardé — il s\'affiche même hors ligne, sur le téléphone comme sur l\'ordi.',
+  'Si tu importes sans réseau, l\'exercice est <b>enregistré quand même</b>, avec son icône. Un bandeau te le rappellera plus tard.',
+  'Bandeau <code>Fabriquer les aperçus</code> en haut de l\'écran : il rattrape d\'un clic tous les PDF qui n\'en ont pas encore.',
+  'Pour un lien <b>YouTube</b>, c\'est la miniature de la vidéo qui sert d\'aperçu — rien à faire.'
+ ],
+ astuce:'La page 1 n\'est pas toujours la plus parlante — parfois c\'est une page de garde. Dans ce cas, <b>Modifier</b> puis <code>Changer l\'image d\'aperçu</code> : photographie ou capture le schéma que tu veux voir sur la carte, et c\'est lui qui s\'affichera.'
 },
 {f:'entr', t:'Récupérer l\'ancienne Bibliothèque Séances', ou:'Écran Mes exercices', ecran:'mes-exos',
  etapes:[
