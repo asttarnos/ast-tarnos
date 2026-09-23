@@ -660,6 +660,64 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .mx-var{font-size:10px;color:#6ea8fe;margin-top:6px;font-weight:600}
 .mx-pied{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:9px}
 .mx-f{flex:1;min-width:0;font-size:10px;color:var(--gris2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pj-puces{display:flex;gap:6px;flex-wrap:wrap}
+.mx-routes{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.mx-route{flex:1;min-width:270px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--or);
+  border-radius:11px;padding:14px 16px;transition:border-color .14s,transform .14s}
+.mx-route:hover{border-color:var(--or);transform:translateY(-1px)}
+.mx-route .gros{font-size:29px;line-height:1}
+.mx-route .t{font-family:'Roboto Condensed',sans-serif;font-size:13.5px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.02em;color:#fff}
+.mx-route .d{font-size:11px;color:var(--gris2);line-height:1.45;margin-top:3px}
+.mx-route .cta{margin-left:auto;font-size:11px;font-weight:800;color:var(--or);white-space:nowrap}
+.mx-recup-b{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-bottom:14px;
+  background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.34);border-radius:10px;padding:12px 15px}
+.mx-recup-b>span{font-size:25px}
+.mx-recup-b b{font-size:12.5px;color:#fff}
+.mx-recup-b div div{font-size:11px;color:var(--gris2);line-height:1.45;margin-top:2px}
+.mx-recup-b button{margin-left:auto}
+.exi-sec{font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--or);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.exi-sec:first-child{margin-top:0}
+.exi-grille4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.exi-sous{font-size:10.5px;color:var(--gris2);line-height:1.45}
+.exi-piece-c{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px}
+.exi-piece-c img{width:58px;height:58px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.exi-piece-c b{font-size:12px;color:#fff}
+.exi-ic{width:58px;height:58px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:26px;background:#0c1116;border:1px solid var(--line);border-radius:6px}
+.mx-vig{height:132px;border-radius:7px;background:#0c1116;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:9px}
+.mx-vig.pdf{background:rgba(249,115,22,.08)}
+.mx-vig.lien{background:rgba(56,189,248,.08)}
+.mx-srcs{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.mx-src{font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--bg3);border:1px solid var(--line);color:var(--gris2);border-radius:9px;padding:2px 7px}
+.mx-src.dessin{border-color:rgba(249,115,22,.4);color:var(--or)}
+.mx-src.local{border-color:rgba(239,68,68,.4);color:#f87171}
+.mx-actions{display:flex;gap:5px;flex-shrink:0}
+.bg-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:11px}
+.bg-c{display:flex;gap:11px;background:var(--carte);border:1px solid var(--line);
+  border-left:3px solid var(--or);border-radius:9px;padding:11px 12px}
+.bg-vig{width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:24px;background:#0c1116;border:1px solid var(--line);border-radius:7px}
+.bg-vig.t-video{background:rgba(239,68,68,.09)}
+.bg-vig.t-site{background:rgba(56,189,248,.09)}
+.bg-vig.t-pdf{background:rgba(249,115,22,.09)}
+.bg-corps{flex:1;min-width:0;display:flex;flex-direction:column}
+.bg-t{font-size:12.5px;font-weight:700;color:#fff;cursor:pointer;line-height:1.3}
+.bg-t:hover{color:var(--or)}
+.bg-cat{display:inline-block;align-self:flex-start;margin-top:5px;background:rgba(249,115,22,.12);
+  color:var(--or);font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 8px;border-radius:9px}
+.bg-d{font-size:11px;color:var(--gris2);margin-top:5px;line-height:1.4}
+.bg-pied{display:flex;flex-direction:column;gap:7px;margin-top:auto;padding-top:9px}
+.bg-pied>span:first-child{font-size:9.5px;color:var(--gris2);line-height:1.5;word-break:break-word}
+.bg-pied .mx-actions{align-self:flex-end}
+.fa-o.sup{background:var(--bg3);color:#f87171;border:1px solid var(--line);padding:8px 10px}
+@media(max-width:700px){.exi-grille4{grid-template-columns:repeat(2,1fr)}}
 .obj-puces{display:flex;gap:6px;flex-wrap:wrap}
 .obj-p{font-size:11px;font-weight:700;padding:6px 11px;border-radius:16px;cursor:pointer;
   border:1px solid var(--line);background:var(--bg3);color:var(--gris2);white-space:nowrap;transition:all .12s}
@@ -1023,10 +1081,11 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     </label>
     <button class="gen-btn2" onclick="syncDepuisFirestore(false)">☁️ SYNCHRONISER CLOUD</button>
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
+    <div id="etat-sauvegarde" style="margin-top:10px;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v34</b> · 23/09/2026<br>
-      <span style="opacity:.7">Modèles, variantes, couverture du projet de jeu</span>
+      AST COACH <b style="color:var(--or)">v36</b> · 23/09/2026<br>
+      <span style="opacity:.7">Photos, PDF et documents dans la bibliothèque</span>
     </div>
   </div>
 </div>
@@ -2005,33 +2064,53 @@ Repli défensif après perte"></textarea>
 
 <!-- BIBLIOTHEQUE GENERALE -->
 <div class="scr-grille scr" id="scr-biblio-generale">
-  <div class="ph"><div><div class="ph-title">🗄️ Bibliothèque générale</div><div class="ph-sub">Tout ce que tu veux garder au même endroit — PDF, vidéo, site, doc...</div></div></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Ajouter une ressource</span></div>
+  <div class="ph"><div><div class="ph-title">🗄️ Documentation</div><div class="ph-sub">La bibliothèque du club — PDF, articles, vidéos, règlements. Déposés ici, ils suivent partout et chaque coach peut l'enrichir.</div></div></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">Ajouter un document</span>
+    <span class="bc" id="bg-annuler" style="display:none;cursor:pointer" onclick="bgAnnuler()">✕ Annuler</span></div>
     <div style="padding:14px">
       <div class="fg2">
-        <div class="fg"><label class="fl">Titre</label><input class="fi" id="bg-titre" placeholder="Ex: Règlement de la ligue 2026"></div>
+        <div class="fg"><label class="fl">Fichier (PDF, photo, doc…)</label>
+          <input class="fi" id="bg-file" type="file" accept=".pdf,application/pdf,image/*,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onchange="bgChoisirFichier(this)"></div>
+        <div class="fg"><label class="fl">Ou un lien</label>
+          <input class="fi" id="bg-url" placeholder="https://…"></div>
+      </div>
+      <div id="bg-piece" style="margin:8px 0 12px"></div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Titre</label><input class="fi" id="bg-titre" placeholder="Ex : Règlement des championnats régionaux 2026-27"></div>
         <div class="fg"><label class="fl">Type</label><select class="fi" id="bg-type">
           <option value="pdf">📄 PDF / Document</option>
           <option value="video">🎥 Vidéo</option>
           <option value="site">🌐 Site internet</option>
+          <option value="photo">🖼 Photo / capture</option>
           <option value="autre">📌 Autre</option>
         </select></div>
       </div>
-      <label class="fl">Lien</label>
-      <input class="fi" id="bg-url" placeholder="https://..." style="margin:4px 0 12px">
       <div class="fg2">
-        <div class="fg"><label class="fl">Catégorie (libre)</label><input class="fi" id="bg-categorie" placeholder="Ex: Administratif, Inspiration, Réglementation..."></div>
+        <div class="fg"><label class="fl">Catégorie</label>
+          <input class="fi" id="bg-categorie" list="bg-cats" placeholder="Entraînement, Arbitrage, Formation…">
+          <datalist id="bg-cats">
+            <option value="Entraînement"></option><option value="Tactique &amp; projet de jeu"></option>
+            <option value="Préparation physique"></option><option value="Gardiens"></option>
+            <option value="Mental &amp; management"></option><option value="Médical &amp; prévention"></option>
+            <option value="Arbitrage &amp; règlement"></option><option value="Formation &amp; diplômes"></option>
+            <option value="Administratif &amp; club"></option><option value="Inspiration"></option>
+          </datalist></div>
         <div class="fg"><label class="fl">Description (facultatif)</label><input class="fi" id="bg-description" placeholder="Un mot pour te rappeler ce que c'est"></div>
       </div>
-      <button class="btn" onclick="ajouterRessourceBiblio()">+ AJOUTER À LA BIBLIOTHÈQUE</button>
+      <button class="btn" id="bg-bouton" onclick="ajouterRessourceBiblio()">+ AJOUTER À LA DOCUMENTATION</button>
+      <div style="font-size:10.5px;color:var(--gris2);margin-top:9px;line-height:1.5">
+        Le fichier est gardé sur cet appareil immédiatement, puis envoyé dans le cloud — chaque coach
+        du club le retrouve sur son propre téléphone. Au-delà de 700 Ko, un PDF reste local : mets-le
+        sur un Drive et colle le lien.
+      </div>
     </div>
   </div>
-  <div class="blk"><div class="bh"><span class="bt">Ressources</span><span class="bc" id="bg-nb">0</span></div>
-    <div style="padding:10px 14px 0"><input class="fi" id="bg-recherche" placeholder="🔍 Rechercher par titre, catégorie..." oninput="renderBibliothequeGenerale()"></div>
+  <div class="blk"><div class="bh"><span class="bt">Documents</span><span class="bc" id="bg-nb">0</span></div>
+    <div style="padding:10px 14px 0"><input class="fi" id="bg-recherche" placeholder="🔍 Rechercher par titre, catégorie, nom de fichier…" oninput="renderBibliothequeGenerale()">
+      <div class="fa-chips" id="bg-chips" style="margin-top:9px"></div></div>
     <div id="bg-liste" style="padding:14px"></div>
   </div>
 </div>
-
 <!-- A CREUSER -->
 <div class="scr-grille scr" id="scr-a-creuser">
   <div class="ph"><div><div class="ph-title">🔬 À creuser</div><div class="ph-sub">Tout ce qu'on a exploré ensemble mais pas encore validé concrètement</div></div></div>
@@ -2324,7 +2403,102 @@ Repli défensif après perte"></textarea>
 </div>
 
 <div class="scr" id="scr-mes-exos">
-  <div class="ph"><div><div class="ph-title">🗂️ Mes exercices</div><div class="ph-sub">Tout ce que tu as dessiné, retrouvable par thème, moment, effectif ou principe de jeu</div></div></div>
+  <div class="ph"><div><div class="ph-title">🗂️ Mes exercices</div><div class="ph-sub">Dessinés, photographiés, en PDF ou en lien — tout ce qui sert à faire jouer, retrouvable par thème, moment, effectif ou principe de jeu</div></div></div>
+
+  <div class="mx-routes">
+    <div class="mx-route" onclick="exiOuvrirForm('')">
+      <span class="gros">📷</span>
+      <div><div class="t">Ajouter une photo, un PDF, un lien</div>
+        <div class="d">Une feuille griffonnée au bord du terrain, un document de formation, une vidéo vue ailleurs. Tu le qualifies, il rejoint la bibliothèque.</div></div>
+      <span class="cta">Ajouter ›</span>
+    </div>
+    <div class="mx-route" onclick="goNav('constructeur')">
+      <span class="gros">🎨</span>
+      <div><div class="t">Dessiner l'exercice</div>
+        <div class="d">Le constructeur : le terrain, les joueurs, les déplacements, l'animation en 8 étapes.</div></div>
+      <span class="cta">Ouvrir ›</span>
+    </div>
+  </div>
+
+  <div id="mx-recup"></div>
+
+  <div class="blk plein" id="exi-form" style="display:none;margin-bottom:14px">
+    <div class="bh"><span class="bt go" id="exi-form-titre">Ajouter un exercice</span>
+      <span class="bc" style="cursor:pointer" onclick="exiFermerForm()">✕ Fermer</span></div>
+    <div style="padding:12px 14px 14px">
+
+      <div class="exi-sec">La pièce</div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Photo, PDF ou autre fichier</label>
+          <input class="fi" id="exi-file" type="file" accept="image/*,.pdf,application/pdf,.doc,.docx,.ppt,.pptx" onchange="exiChoisirFichier(this)"></div>
+        <div class="fg"><label class="fl">Ou un lien (vidéo, site, Drive…)</label>
+          <input class="fi" id="exi-lien" placeholder="https://…"></div>
+      </div>
+      <div id="exi-piece" style="margin:8px 0 14px"></div>
+
+      <div class="exi-sec">Ce qui le rend retrouvable</div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Titre *</label>
+          <input class="fi" id="exi-titre" placeholder="Conservation 4v4+3 appuis"></div>
+        <div class="fg"><label class="fl">Thème *</label>
+          <input class="fi" id="exi-theme" list="exi-themes-liste" placeholder="Conservation, pressing, transition…">
+          <datalist id="exi-themes-liste">
+            <option value="Conservation"></option><option value="Transition"></option>
+            <option value="Pressing"></option><option value="Finition"></option>
+            <option value="Possession"></option><option value="Jeu long"></option>
+            <option value="Duel"></option><option value="Physique"></option>
+            <option value="Tactique"></option><option value="Gardien"></option>
+            <option value="Coups de pied arrêtés"></option><option value="Échauffement"></option>
+          </datalist></div>
+      </div>
+      <div class="exi-grille4">
+        <div class="fg"><label class="fl">Moment de séance</label>
+          <select class="fi" id="exi-moment">
+            <option value="echauffement">Échauffement</option>
+            <option value="corps" selected>Corps de séance</option>
+            <option value="retour">Retour au calme</option>
+          </select></div>
+        <div class="fg"><label class="fl">Durée (min)</label>
+          <input class="fi" id="exi-duree" type="number" min="3" max="60" value="15"></div>
+        <div class="fg"><label class="fl">Effectif mini</label>
+          <input class="fi" id="exi-effmin" type="number" min="1" max="40" placeholder="8"></div>
+        <div class="fg"><label class="fl">Effectif maxi</label>
+          <input class="fi" id="exi-effmax" type="number" min="1" max="40" placeholder="20"></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Espace</label>
+          <input class="fi" id="exi-espace" placeholder="30x25 m"></div>
+        <div class="fg"><label class="fl">Intensité</label>
+          <select class="fi" id="exi-intensite"></select></div>
+      </div>
+
+      <div class="exi-sec">Ce qu'il développe</div>
+      <div class="obj-puces" id="exi-objectifs"></div>
+
+      <div class="exi-sec">Les principes du projet de jeu qu'il sert</div>
+      <div class="pj-puces" id="exi-principes"></div>
+
+      <div class="exi-sec">Le contenu</div>
+      <div class="fg"><label class="fl">Matériel</label>
+        <input class="fi" id="exi-materiel" placeholder="12 coupelles, 4 chasubles, 6 ballons"></div>
+      <label class="fl">Mise en place</label>
+      <textarea class="fi" id="exi-setup" rows="2" style="margin:6px 0 10px" placeholder="Comment on installe le terrain, les équipes, les zones…"></textarea>
+      <label class="fl">Consignes</label>
+      <textarea class="fi" id="exi-consignes" rows="2" style="margin:6px 0 10px" placeholder="Ce qu'on demande aux joueurs, les règles, les variantes…"></textarea>
+      <label class="fl">Le point clé — ce sur quoi tu ne lâches rien</label>
+      <textarea class="fi" id="exi-important" rows="2" style="margin:6px 0 12px" placeholder="L'orientation du corps du premier appui."></textarea>
+
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn" onclick="exiEnregistrer()">✓ ENREGISTRER DANS LA BIBLIOTHÈQUE</button>
+        <button class="acc-b" onclick="exiFermerForm()">Annuler</button>
+      </div>
+      <div style="font-size:10.5px;color:var(--gris2);margin-top:9px;line-height:1.5">
+        Le fichier est gardé sur cet appareil <b>immédiatement</b>, puis envoyé dans le cloud pour que
+        les autres coachs le retrouvent. Les photos sont compressées automatiquement ; un PDF de plus
+        de 700 Ko reste sur cet appareil — dans ce cas, mets-le sur un Drive et colle le lien.
+      </div>
+    </div>
+  </div>
 
   <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">Chercher</span><span class="bc" id="mx-compteur">aucun</span></div>
     <div style="padding:12px 14px 14px">
@@ -2334,6 +2508,11 @@ Repli défensif après perte"></textarea>
         <select class="fi" id="mx-moment" onchange="mxChanger('moment',this.value)"></select>
         <select class="fi" id="mx-objectif" onchange="mxChanger('objectif',this.value)"></select>
         <select class="fi" id="mx-principe" onchange="mxChanger('principe',this.value)"></select>
+        <select class="fi" id="mx-support" onchange="mxChanger('support',this.value)">
+          <option value="">Tous les supports</option>
+          <option value="dessin">🎨 Dessinés dans l'appli</option>
+          <option value="import">📷 Photos, PDF, liens</option>
+        </select>
         <input class="fi" id="mx-effectif" type="number" min="1" max="40" placeholder="Effectif du soir" oninput="mxChanger('effectif',this.value)">
         <button class="acc-b" onclick="mxReinitialiser()">Tout effacer</button>
       </div>
@@ -2343,7 +2522,6 @@ Repli défensif après perte"></textarea>
 
   <div id="mx-liste"></div>
 </div>
-
 <div class="scr" id="scr-reunions">
   <div class="ph"><div><div class="ph-title">🗣️ Réunions</div><div class="ph-sub">Préparer, animer, décider — et retrouver ce qu'on avait décidé</div></div></div>
 
@@ -2898,6 +3076,7 @@ function reinitialiserPourNouveauClub(){
   HISTORIQUE_SAISONS=[];
   AFFECTATIONS_CONVOC={};
   BIBLIOTHEQUE_GENERALE=[];
+  EXOS_IMPORTES=[];
   A_CREUSER=[];
 
   try{ sauvegarder(); }catch(e){}
@@ -3493,7 +3672,7 @@ var POLES=[
     {s:'chat',ic:'💬',l:'Messagerie joueurs'},
     {s:'notifs-push',ic:'🔔',l:'Notifications push'},
     {s:'infos-club',ic:'📄',l:'Docs & contacts club'},
-    {s:'biblio-generale',ic:'🗄️',l:'Bibliothèque générale'},
+    {s:'biblio-generale',ic:'🗄️',l:'Documentation'},
     {s:'a-creuser',ic:'🔬',l:'À creuser'},
     {s:'sondage',ic:'📊',l:'Sondage'},
     {s:'activite',ic:'📶',l:"Qui utilise l'appli"}
@@ -3732,6 +3911,7 @@ function validerSeance(){
   }
   SEANCE_SAISIE=JOUEURS.map(function(){return {statut:'P',pts:0,amende:0};});
   renderPresList();
+  sauvegardeAuto();
 }
 
 // STATS MATCH
@@ -3794,6 +3974,7 @@ function validerNotes(){
   renderMatchs();
   updateDash();
   notif('✓ Notes & stats validées !');
+  sauvegardeAuto();
 }
 
 // MATCH
@@ -3803,6 +3984,7 @@ function rechargerCalendrierOfficiel(){
   renderCalendrier();
   renderMatchCalSelect();renderConvoCalSelect();
   notif('✓ Calendrier officiel rechargé ('+CALENDRIER.length+' matchs)');
+  sauvegardeAuto();
 }
 function addCalendrierMatch(){
   var adv=document.getElementById('cal-adv').value.trim();
@@ -3817,12 +3999,14 @@ function addCalendrierMatch(){
   renderCalendrier();
   renderMatchCalSelect();renderConvoCalSelect();
   notif('✓ Match ajouté au calendrier');
+  sauvegardeAuto();
 }
 function supprimerCalendrierMatch(i){
   if(!confirm('Retirer ce match du calendrier ?')) return;
   CALENDRIER.splice(i,1);
   renderCalendrier();
   renderMatchCalSelect();renderConvoCalSelect();
+  sauvegardeAuto();
 }
 function parseDateFr(str){
   var mois={'janvier':1,'février':2,'fevrier':2,'mars':3,'avril':4,'mai':5,'juin':6,'juillet':7,'août':8,'aout':8,'septembre':9,'octobre':10,'novembre':11,'décembre':12,'decembre':12};
@@ -3937,6 +4121,7 @@ function addMatch(){
   // Le match suivant repart d'une liste vierge, reproposée depuis la convocation
   MATCH_JOUEURS=[]; MATCH_JOUEURS_INIT=false;
   renderNotifList();
+  sauvegardeAuto();
 }
 function remplirHommeDuMatchSelect(){
   var sel=document.getElementById('m-homme-du-match');
@@ -4278,6 +4463,7 @@ function formeArchiver(reponses){
     ajoutes++;
   });
   return ajoutes;
+  sauvegardeAuto();
 }
 // Reconstruit les réponses à partir de la fiche des joueurs : la courbe couvre alors
 // toute la saison, même après l'effacement des documents dans la base.
@@ -4461,6 +4647,7 @@ function supprimerMatch(mi){
   MATCHS.splice(mi,1);
   renderMatchs();renderRecap();renderPointsEntrainement();renderFicheCoach();updateDash();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();
   notif('✓ Match supprime, statistiques recalculees');
+  sauvegardeAuto();
 }
 function appliquerStatsMatch(m){
   if(!m.notes) return;
@@ -5325,6 +5512,7 @@ function toggleGardien(){
   var idx=parseInt(document.getElementById('fiche-sel').value)||0;
   ATTRS_MANUELS[idx].gardien=document.getElementById('gardien-check').checked;
   renderFicheCoach();
+  sauvegardeAuto();
 }
 
 function setPlayerPhoto(input){
@@ -5349,12 +5537,14 @@ function setPlayerPhoto(input){
     img.src=e.target.result;
   };
   reader.readAsDataURL(file);
+  sauvegardeAuto();
 }
 function removePlayerPhoto(){
   var idx=parseInt(document.getElementById('fiche-sel').value)||0;
   PHOTOS[idx]=null;
   document.querySelector('#scr-effectif input[type=file]').value='';
   renderFicheCoach();
+  sauvegardeAuto();
 }
 
 function medicalBadgeHTML(idx){
@@ -5646,12 +5836,14 @@ function archiverSaison(){
   HISTORIQUE_SAISONS.unshift(snapshot);
   document.getElementById('archive-annee').value='';
   renderHistoriqueSaisons();
-  notif('✓ Saison "'+annee+'" archivée — pense à synchroniser pour la rendre visible aux joueurs');
+  notif('✓ Saison "'+annee+'" archivée et enregistrée');
+  sauvegardeAuto();
 }
 function supprimerArchiveSaison(i){
   if(!confirm('Supprimer cette archive de saison ? Irréversible.')) return;
   HISTORIQUE_SAISONS.splice(i,1);
   renderHistoriqueSaisons();
+  sauvegardeAuto();
 }
 function renderHistoriqueSaisons(){
   var ct=document.getElementById('historique-saisons-list');
@@ -5665,7 +5857,8 @@ function renderHistoriqueSaisons(){
 }
 function sauvegarderReglement(){
   INFOS_CLUB.reglement=document.getElementById('infos-reglement').value;
-  notif('✓ Règlement sauvegardé — pense à synchroniser pour le rendre visible aux joueurs');
+  notif('✓ Règlement enregistré — visible par les joueurs à leur prochaine ouverture');
+  sauvegardeAuto();
 }
 function ajouterContactClub(){
   var nom=document.getElementById('contact-nom').value.trim();
@@ -5937,6 +6130,7 @@ function majCompteurRepartition(){
 function changerAffectationConvoc(num,val){
   if(val) AFFECTATIONS_CONVOC[num]=val; else delete AFFECTATIONS_CONVOC[num];
   renderRepartitionJoueurs();
+  sauvegardeAuto();
 }
 function activerGlisserDeposerConvoc(){
   var ct=document.getElementById('repartition-list');
@@ -6022,49 +6216,403 @@ async function envoyerNotificationPush(){
     statutEl.style.color='var(--red)';
   }
 }
-var ICONES_TYPE_BIBLIO={pdf:'📄',video:'🎥',site:'🌐',autre:'📌'};
-function ajouterRessourceBiblio(){
-  var titre=document.getElementById('bg-titre').value.trim();
-  var url=document.getElementById('bg-url').value.trim();
-  if(!titre||!url){ notif('⚠ Titre et lien obligatoires'); return; }
-  BIBLIOTHEQUE_GENERALE.unshift({
-    titre:titre,
-    type:document.getElementById('bg-type').value,
-    url:url,
-    categorie:document.getElementById('bg-categorie').value.trim(),
-    description:document.getElementById('bg-description').value.trim(),
-    dateAjout:new Date().toLocaleDateString('fr-FR')
+// ===== Le socle fichiers =====
+// Une photo de feuille griffonnée, un PDF de 300 Ko : ça ne peut pas tenir dans
+// le document de saison, plafonné à 1 Mo pour TOUT le reste. Chaque fichier part
+// donc dans son propre document cloud, et reste en local dans une réserve à part —
+// beaucoup plus grande que le stockage habituel du navigateur. La bibliothèque,
+// elle, ne garde que la fiche : titre, thème, et le numéro du fichier.
+var FICH_LIMITE=700*1024;   // au-delà, un document cloud ne passe plus
+var FICH_CACHE={};          // ce qu'on a déjà ouvert dans cette session
+var FICH_DB=null;
+var FICH_APERCU={};         // les vignettes, une fois chargées
+var FICH_EN_COURS={};       // pour ne pas redemander deux fois le même aperçu
+
+function fichId(){ return 'f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+// --- La réserve locale (IndexedDB : des centaines de Mo, pas 5) --------------
+function fichDB(){
+  return new Promise(function(ok,non){
+    if(FICH_DB) return ok(FICH_DB);
+    if(!window.indexedDB) return non('pas de reserve locale');
+    var r=indexedDB.open('ast_fichiers',1);
+    r.onupgradeneeded=function(e){
+      var db=e.target.result;
+      if(!db.objectStoreNames.contains('f')) db.createObjectStore('f');
+    };
+    r.onsuccess=function(){ FICH_DB=r.result; ok(FICH_DB); };
+    r.onerror=function(){ non(r.error); };
   });
-  ['bg-titre','bg-url','bg-categorie','bg-description'].forEach(function(id){document.getElementById(id).value='';});
-  renderBibliothequeGenerale();
-  notif('✓ Ressource ajoutée — pense à synchroniser');
 }
-function supprimerRessourceBiblio(i){
-  if(!confirm('Supprimer cette ressource ?')) return;
-  BIBLIOTHEQUE_GENERALE.splice(i,1);
+function fichPoserLocal(cle,data){
+  return fichDB().then(function(db){
+    return new Promise(function(ok,non){
+      var t=db.transaction('f','readwrite');
+      t.objectStore('f').put(data,cle);
+      t.oncomplete=function(){ ok(true); };
+      t.onerror=function(){ non(t.error); };
+    });
+  }).catch(function(){ return false; });
+}
+function fichPrendreLocal(cle){
+  return fichDB().then(function(db){
+    return new Promise(function(ok){
+      var t=db.transaction('f','readonly');
+      var q=t.objectStore('f').get(cle);
+      q.onsuccess=function(){ ok(q.result||null); };
+      q.onerror=function(){ ok(null); };
+    });
+  }).catch(function(){ return null; });
+}
+function fichOterLocal(cle){
+  return fichDB().then(function(db){
+    return new Promise(function(ok){
+      var t=db.transaction('f','readwrite');
+      t.objectStore('f').delete(cle);
+      t.oncomplete=function(){ ok(true); };
+      t.onerror=function(){ ok(false); };
+    });
+  }).catch(function(){ return false; });
+}
+
+// --- Le cloud : un document par fichier, un document par vignette -----------
+async function fichPousserCloud(id, meta, data, apercu){
+  try{
+    var r1=await fbFetch(FIRESTORE_BASE+'/saison/fichier_'+id,{method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{
+        data:{stringValue:data},
+        nom:{stringValue:(meta&&meta.nom)||''},
+        titre:{stringValue:(meta&&meta.titre)||''},
+        auteur:{stringValue:NOM_COACH||''},
+        depose:{stringValue:new Date().toISOString()}
+      }})});
+    if(apercu){
+      await fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id,{method:'PATCH',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({fields:{data:{stringValue:apercu}}})});
+    }
+    return r1.ok;
+  }catch(e){ return false; }
+}
+async function fichTirerCloud(id){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/fichier_'+id);
+    if(!res.ok) return null;
+    var j=await res.json();
+    return (j.fields&&j.fields.data)?j.fields.data.stringValue:null;
+  }catch(e){ return null; }
+}
+async function fichTirerApercuCloud(id){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id);
+    if(!res.ok) return null;
+    var j=await res.json();
+    return (j.fields&&j.fields.data)?j.fields.data.stringValue:null;
+  }catch(e){ return null; }
+}
+async function fichSupprimerCloud(id){
+  try{
+    await fbFetch(FIRESTORE_BASE+'/saison/fichier_'+id,{method:'DELETE'});
+    await fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id,{method:'DELETE'});
+  }catch(e){}
+}
+
+// --- Aller chercher un fichier, d'où qu'il soit -----------------------------
+async function fichObtenir(id){
+  if(FICH_CACHE[id]) return FICH_CACHE[id];
+  var local=await fichPrendreLocal(id);
+  if(local){ FICH_CACHE[id]=local; return local; }
+  var nuage=await fichTirerCloud(id);
+  if(nuage){ FICH_CACHE[id]=nuage; fichPoserLocal(id,nuage); return nuage; }
+  return null;
+}
+async function fichObtenirApercu(id){
+  if(FICH_APERCU[id]) return FICH_APERCU[id];
+  var local=await fichPrendreLocal('ap_'+id);
+  if(local){ FICH_APERCU[id]=local; return local; }
+  var nuage=await fichTirerApercuCloud(id);
+  if(nuage){ FICH_APERCU[id]=nuage; fichPoserLocal('ap_'+id,nuage); return nuage; }
+  return null;
+}
+// Les vignettes se remplissent toutes seules, sans bloquer l'affichage
+function fichPeuplerApercus(racine){
+  var cibles=(racine||document).querySelectorAll('[data-apercu]');
+  Array.prototype.forEach.call(cibles,function(el){
+    var id=el.getAttribute('data-apercu');
+    if(!id || FICH_EN_COURS[id]) return;
+    if(FICH_APERCU[id]){ fichPoserApercu(el,FICH_APERCU[id]); return; }
+    FICH_EN_COURS[id]=1;
+    fichObtenirApercu(id).then(function(d){
+      delete FICH_EN_COURS[id];
+      if(d) fichPoserApercu(el,d);
+    }).catch(function(){ delete FICH_EN_COURS[id]; });
+  });
+}
+function fichPoserApercu(el,data){
+  el.style.background='#0c1116 url('+JSON.stringify(data)+') center/cover no-repeat';
+  el.innerHTML='';
+}
+
+// --- Lire ce que le coach vient de choisir ----------------------------------
+// Une photo est compressée jusqu'à passer sous la limite. Un PDF ne se compresse
+// pas : s'il est trop gros, on le dit franchement au lieu d'échouer en silence.
+function fichLireEntree(fichier){
+  return new Promise(function(ok,non){
+    if(!fichier) return non('aucun fichier');
+    var estPdf = fichier.type==='application/pdf' || /\.pdf$/i.test(fichier.name||'');
+    var estImg = /^image\//.test(fichier.type||'') || /\.(jpe?g|png|gif|webp|heic|bmp)$/i.test(fichier.name||'');
+    var lecteur=new FileReader();
+    lecteur.onerror=function(){ non('lecture impossible'); };
+    lecteur.onload=function(e){
+      var brut=e.target.result;
+      if(!estImg){
+        ok({data:brut, nom:fichier.name||(estPdf?'document.pdf':'fichier'),
+            type:fichier.type||(estPdf?'application/pdf':'application/octet-stream'),
+            poids:Math.round(brut.length*0.75), estImage:false, estPdf:estPdf, apercu:''});
+        return;
+      }
+      var img=new Image();
+      img.onerror=function(){ non('image illisible'); };
+      img.onload=function(){
+        var data=fichReduire(img,1500,0.78);
+        var q=0.72, largeur=1500;
+        while(data.length*0.75>FICH_LIMITE && q>0.4){ q-=0.08; data=fichReduire(img,largeur,q); }
+        while(data.length*0.75>FICH_LIMITE && largeur>700){ largeur-=200; data=fichReduire(img,largeur,0.62); }
+        ok({data:data, nom:fichier.name||'photo.jpg', type:'image/jpeg',
+            poids:Math.round(data.length*0.75), estImage:true, estPdf:false,
+            apercu:fichReduire(img,300,0.6)});
+      };
+      img.src=brut;
+    };
+    lecteur.readAsDataURL(fichier);
+  });
+}
+function fichReduire(img,largeurMax,qualite){
+  var e=Math.min(1, largeurMax/img.width);
+  var c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(img.width*e));
+  c.height=Math.max(1,Math.round(img.height*e));
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',qualite);
+}
+
+// --- Déposer : en local d'abord (rien ne se perd), le cloud ensuite ---------
+async function fichDeposer(lu, meta){
+  var id=fichId();
+  await fichPoserLocal(id, lu.data);
+  if(lu.apercu) await fichPoserLocal('ap_'+id, lu.apercu);
+  FICH_CACHE[id]=lu.data;
+  if(lu.apercu) FICH_APERCU[id]=lu.apercu;
+  var enLigne=false;
+  if(lu.poids<=FICH_LIMITE){
+    enLigne=await fichPousserCloud(id, {nom:lu.nom, titre:(meta&&meta.titre)||''}, lu.data, lu.apercu);
+  }
+  return {id:id, enLigne:enLigne, nom:lu.nom, poids:lu.poids, estImage:lu.estImage, estPdf:lu.estPdf};
+}
+
+// --- Ouvrir un fichier dans un onglet ---------------------------------------
+async function fichOuvrir(id, nom){
+  var data=await fichObtenir(id);
+  if(!data){ notif('\u26a0 Fichier introuvable — il n\'est ni sur cet appareil, ni dans le cloud'); return; }
+  try{
+    var partie=data.split(','), entete=partie[0]||'', b64=partie[1]||'';
+    var mime=(entete.match(/data:([^;]+)/)||[])[1]||'application/octet-stream';
+    var chars=atob(b64), nb=new Array(chars.length);
+    for(var i=0;i<chars.length;i++) nb[i]=chars.charCodeAt(i);
+    var url=URL.createObjectURL(new Blob([new Uint8Array(nb)],{type:mime}));
+    var w=window.open(url,'_blank');
+    if(!w){
+      var a=document.createElement('a'); a.href=url; a.download=nom||'fichier';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+  }catch(e){ notif('\u26a0 Impossible d\'ouvrir ce fichier'); }
+}
+function fichPoids(o){ return o&&o.poids ? (o.poids>=1048576 ? (o.poids/1048576).toFixed(1)+' Mo' : Math.round(o.poids/1024)+' Ko') : ''; }
+
+// ===== La documentation du club =====
+// Ce qu'on garde pour y revenir : un PDF de formation, un règlement, un article,
+// une vidéo. Le fichier lui-même part dans le cloud, comme les exercices, pour
+// qu'il soit là sur le téléphone au bord du terrain comme sur l'ordi du bureau.
+var ICONES_TYPE_BIBLIO={pdf:'📄',video:'🎥',site:'🌐',photo:'🖼',fichier:'📎',autre:'📌'};
+var DOC_CATEGORIES=['Entraînement','Tactique & projet de jeu','Préparation physique',
+  'Gardiens','Mental & management','Médical & prévention','Arbitrage & règlement',
+  'Formation & diplômes','Administratif & club','Inspiration'];
+var BG_FICHIER=null;   // le fichier choisi, pas encore déposé
+var BG_EDITION='';     // l'id en cours de modification
+var BG_CAT='';         // le filtre catégorie
+
+function bgParId(id){
+  for(var i=0;i<BIBLIOTHEQUE_GENERALE.length;i++)
+    if(BIBLIOTHEQUE_GENERALE[i].id===id) return BIBLIOTHEQUE_GENERALE[i];
+  return null;
+}
+function bgChoisirFichier(input){
+  var f=input.files && input.files[0];
+  if(!f) return;
+  var ct=document.getElementById('bg-piece');
+  if(ct) ct.innerHTML='<div class="exi-sous">Lecture du fichier…</div>';
+  fichLireEntree(f).then(function(lu){ BG_FICHIER=lu; bgRendrePiece(); })
+    .catch(function(){ BG_FICHIER=null; notif('⚠ Ce fichier n\'a pas pu être lu'); bgRendrePiece(); });
+}
+function bgRendrePiece(){
+  var ct=document.getElementById('bg-piece'); if(!ct) return;
+  var e=BG_EDITION?bgParId(BG_EDITION):null;
+  if(BG_FICHIER){
+    ct.innerHTML='<div class="exi-piece-c">'
+      +(BG_FICHIER.estImage?'<img src="'+BG_FICHIER.apercu+'" alt="">':'<span class="exi-ic">'+(BG_FICHIER.estPdf?'📄':'📎')+'</span>')
+      +'<div><b>'+esc2(BG_FICHIER.nom)+'</b><div class="exi-sous">'+Math.round(BG_FICHIER.poids/1024)+' Ko'
+      +(BG_FICHIER.poids>FICH_LIMITE
+        ? ' · <span style="color:var(--or)">trop lourd pour le cloud : il restera sur cet appareil</span>'
+        : ' · part dans le cloud à l\'enregistrement')+'</div></div></div>';
+    return;
+  }
+  if(e && e.fichierId){
+    ct.innerHTML='<div class="exi-piece-c"><span class="exi-ic" data-apercu="'+e.fichierId+'">'
+      +(ICONES_TYPE_BIBLIO[e.type]||'📎')+'</span>'
+      +'<div><b>'+esc2(e.nomFichier||'Fichier joint')+'</b>'
+      +'<div class="exi-sous">Déjà enregistré'+(e.local?' — sur cet appareil seulement':'')+'</div></div></div>';
+    fichPeuplerApercus(ct);
+    return;
+  }
+  ct.innerHTML='<div class="exi-sous">Aucun fichier pour l\'instant — un lien seul suffit aussi.</div>';
+}
+function bgModifier(id){
+  var e=bgParId(id); if(!e) return;
+  BG_EDITION=id; BG_FICHIER=null;
+  function v(c,val){ var el=document.getElementById('bg-'+c); if(el) el.value=(val==null?'':val); }
+  v('titre',e.titre); v('type',e.type||'pdf'); v('url',e.url||'');
+  v('categorie',e.categorie||''); v('description',e.description||'');
+  var f=document.getElementById('bg-file'); if(f) f.value='';
+  var b=document.getElementById('bg-bouton'); if(b) b.textContent='✓ ENREGISTRER LES MODIFICATIONS';
+  var a=document.getElementById('bg-annuler'); if(a) a.style.display='inline-block';
+  bgRendrePiece();
+  document.getElementById('bg-titre').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function bgAnnuler(){
+  BG_EDITION=''; BG_FICHIER=null;
+  ['titre','url','categorie','description'].forEach(function(c){
+    var e=document.getElementById('bg-'+c); if(e) e.value='';
+  });
+  var f=document.getElementById('bg-file'); if(f) f.value='';
+  var b=document.getElementById('bg-bouton'); if(b) b.textContent='+ AJOUTER À LA DOCUMENTATION';
+  var a=document.getElementById('bg-annuler'); if(a) a.style.display='none';
+  bgRendrePiece();
+}
+function ajouterRessourceBiblio(){
+  function lire(c){ var e=document.getElementById('bg-'+c); return e?e.value.trim():''; }
+  var titre=lire('titre'), url=lire('url');
+  if(!titre){ notif('⚠ Un document sans titre ne se retrouve pas'); return; }
+  if(!BG_FICHIER && !url && !(BG_EDITION && bgParId(BG_EDITION) && bgParId(BG_EDITION).fichierId)){
+    notif('⚠ Ajoute un fichier ou un lien'); return;
+  }
+  var e = BG_EDITION ? bgParId(BG_EDITION) : {id:'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+  if(!e){ notif('⚠ Document introuvable'); return; }
+  e.titre=titre; e.url=url;
+  e.type=lire('type')||'pdf';
+  e.categorie=lire('categorie');
+  e.description=lire('description');
+  if(!e.auteur) e.auteur=NOM_COACH||'';
+  if(!e.dateAjout) e.dateAjout=new Date().toLocaleDateString('fr-FR');
+
+  var suite = BG_FICHIER
+    ? fichDeposer(BG_FICHIER,{titre:titre}).then(function(dep){
+        if(e.fichierId && e.fichierId!==dep.id){ fichOterLocal(e.fichierId); fichSupprimerCloud(e.fichierId); }
+        e.fichierId=dep.id; e.nomFichier=dep.nom; e.poids=dep.poids; e.local=!dep.enLigne;
+        if(dep.estPdf) e.type='pdf'; else if(dep.estImage && e.type!=='pdf') e.type='photo';
+        return dep;
+      })
+    : Promise.resolve(null);
+
+  suite.then(function(dep){
+    if(!BG_EDITION) BIBLIOTHEQUE_GENERALE.unshift(e);
+    bgAnnuler();
+    renderBibliothequeGenerale();
+    sauvegardeAuto();
+    notif(dep && dep.enLigne===false
+      ? '✓ Enregistré — le fichier est trop lourd pour le cloud, il reste sur cet appareil'
+      : '✓ Document enregistré');
+  }).catch(function(){ notif('⚠ Le fichier n\'a pas pu être déposé — réessaie'); });
+}
+function supprimerRessourceBiblio(id){
+  var e=bgParId(id); if(!e) return;
+  if(!confirm('Supprimer « '+e.titre+' » de la documentation ?')) return;
+  if(e.fichierId){ fichOterLocal(e.fichierId); fichOterLocal('ap_'+e.fichierId); fichSupprimerCloud(e.fichierId); }
+  BIBLIOTHEQUE_GENERALE=BIBLIOTHEQUE_GENERALE.filter(function(x){ return x.id!==id; });
+  if(BG_EDITION===id) bgAnnuler();
   renderBibliothequeGenerale();
+  sauvegardeAuto();
+}
+function bgOuvrir(id){
+  var e=bgParId(id); if(!e) return;
+  if(e.fichierId) fichOuvrir(e.fichierId, e.nomFichier);
+  else if(e.url) window.open(e.url,'_blank');
+}
+function bgFiltrerCategorie(c){ BG_CAT=(BG_CAT===c?'':c); renderBibliothequeGenerale(); }
+// Les documents d'avant n'avaient pas d'identifiant : on leur en donne un, sinon
+// rien ne peut plus être ni modifié ni supprimé proprement.
+function bgNormaliser(){
+  var change=false;
+  (BIBLIOTHEQUE_GENERALE||[]).forEach(function(e){
+    if(!e.id){ e.id='g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); change=true; }
+  });
+  return change;
 }
 function renderBibliothequeGenerale(){
-  var ct=document.getElementById('bg-liste');
-  if(!ct) return;
-  var recherche=(document.getElementById('bg-recherche').value||'').toLowerCase();
-  var items=BIBLIOTHEQUE_GENERALE.map(function(r,i){return {r:r,i:i};}).filter(function(o){
+  var ct=document.getElementById('bg-liste'); if(!ct) return;
+  if(bgNormaliser()) sauvegardeLocale();
+  var champ=document.getElementById('bg-recherche');
+  var recherche=(champ?champ.value:'').toLowerCase();
+
+  // les catégories réellement présentes, en pastilles cliquables
+  var cats={};
+  BIBLIOTHEQUE_GENERALE.forEach(function(r){ if(r.categorie) cats[r.categorie]=(cats[r.categorie]||0)+1; });
+  var chips=document.getElementById('bg-chips');
+  if(chips){
+    var noms=Object.keys(cats).sort();
+    chips.innerHTML = noms.length
+      ? noms.map(function(c){
+          return '<span class="fa-chip'+(BG_CAT===c?' on':'')+'" onclick="bgFiltrerCategorie(\''+c.replace(/'/g,"\\'")+'\')">'
+            +esc2(c)+' <b>'+cats[c]+'</b></span>'; }).join('')
+      : '';
+  }
+
+  var liste=BIBLIOTHEQUE_GENERALE.filter(function(r){
+    if(BG_CAT && r.categorie!==BG_CAT) return false;
     if(!recherche) return true;
-    return (o.r.titre+' '+o.r.categorie+' '+o.r.description).toLowerCase().indexOf(recherche)!==-1;
+    return ((r.titre||'')+' '+(r.categorie||'')+' '+(r.description||'')+' '+(r.nomFichier||'')).toLowerCase().indexOf(recherche)!==-1;
   });
-  document.getElementById('bg-nb').textContent=BIBLIOTHEQUE_GENERALE.length;
-  ct.innerHTML=items.length?items.map(function(o){
-    var r=o.r;
-    return '<div style="background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--or);border-radius:6px;padding:12px 14px;margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
-      +'<a href="'+r.url+'" target="_blank" style="color:var(--gris);text-decoration:none;flex:1"><b style="font-size:13px">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+' '+r.titre+'</b></a>'
-      +'<span style="cursor:pointer;flex-shrink:0" onclick="supprimerRessourceBiblio('+o.i+')">🗑</span>'
-      +'</div>'
-      +(r.categorie?'<span style="display:inline-block;margin-top:6px;background:rgba(249,115,22,.12);color:var(--or);font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:10px">'+r.categorie+'</span>':'')
-      +(r.description?'<div style="font-size:11px;color:var(--gris2);margin-top:6px">'+r.description+'</div>':'')
-      +'<div style="font-size:9px;color:var(--gris2);margin-top:6px">Ajouté le '+r.dateAjout+'</div>'
-      +'</div>';
-  }).join(''):'<div style="text-align:center;padding:20px;color:var(--gris2);font-size:12px">'+(BIBLIOTHEQUE_GENERALE.length?'Aucun résultat pour cette recherche':'Rien dans la bibliothèque pour l\'instant')+'</div>';
+  var nb=document.getElementById('bg-nb');
+  if(nb) nb.textContent=BIBLIOTHEQUE_GENERALE.length+(BG_CAT||recherche?(' · '+liste.length+' affiché'+(liste.length>1?'s':'')):'');
+
+  ct.innerHTML = liste.length ? '<div class="bg-grille">'+liste.map(function(r){
+    var vign = (r.fichierId && r.type==='photo')
+      ? '<div class="bg-vig" data-apercu="'+r.fichierId+'">🖼</div>'
+      : '<div class="bg-vig t-'+(r.type||'autre')+'">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+'</div>';
+    return '<div class="bg-c">'
+      +vign
+      +'<div class="bg-corps">'
+        +'<div class="bg-t" onclick="bgOuvrir(\''+r.id+'\')">'+esc2(r.titre||'')+'</div>'
+        +(r.categorie?'<span class="bg-cat">'+esc2(r.categorie)+'</span>':'')
+        +(r.description?'<div class="bg-d">'+esc2(r.description)+'</div>':'')
+        +'<div class="bg-pied"><span>'
+          +(r.fichierId?esc2(r.nomFichier||'fichier')+(r.poids?' · '+Math.max(1,Math.round(r.poids/1024))+' Ko':''):(r.url?'lien externe':''))
+          +(r.local?' · <span style="color:#f87171">sur cet appareil seulement</span>':'')
+          +'<br>'+(r.auteur?'Ajouté par '+esc2(r.auteur)+' ':'Ajouté ')+'le '+esc2(r.dateAjout||'')+'</span>'
+          +'<span class="mx-actions">'
+            +'<button class="fa-o" onclick="bgOuvrir(\''+r.id+'\')">Ouvrir</button>'
+            +'<button class="fa-o" onclick="bgModifier(\''+r.id+'\')">Modifier</button>'
+            +'<button class="fa-o sup" onclick="supprimerRessourceBiblio(\''+r.id+'\')">🗑</button>'
+          +'</span></div>'
+      +'</div></div>';
+  }).join('')+'</div>'
+  : '<div class="fa-vide">'+(BIBLIOTHEQUE_GENERALE.length
+      ? 'Aucun document ne correspond.'
+      : "La documentation est vide.<br><span>Dépose ici ce que tu veux retrouver plus tard : un PDF de formation, un règlement, "
+        +"un article, une vidéo. Donne-lui un titre et une catégorie — c'est ce qui construit la bibliothèque du club, "
+        +"celle que chaque coach pourra enrichir.</span>")+'</div>';
+  fichPeuplerApercus(ct);
 }
 function ajouterPisteACreuser(){
   var titre=document.getElementById('ac-titre').value.trim();
@@ -6074,20 +6622,24 @@ function ajouterPisteACreuser(){
   document.getElementById('ac-titre').value='';
   document.getElementById('ac-description').value='';
   renderACreuser();
-  notif('✓ Ajouté — pense à synchroniser');
+  notif('✓ Ajouté et enregistré');
+  sauvegardeAuto();
 }
 function validerPisteACreuser(i){
   A_CREUSER[i].statut='valide';
   renderACreuser();
+  sauvegardeAuto();
 }
 function reouvrirPisteACreuser(i){
   A_CREUSER[i].statut='a_creuser';
   renderACreuser();
+  sauvegardeAuto();
 }
 function supprimerPisteACreuser(i){
   if(!confirm('Supprimer cette piste ?')) return;
   A_CREUSER.splice(i,1);
   renderACreuser();
+  sauvegardeAuto();
 }
 function renderACreuser(){
   var ctC=document.getElementById('ac-liste-creuser');
@@ -6330,6 +6882,7 @@ function transfererDeclarationSante(i,btn){
   renderFicheCoach();
   if(btn){ btn.textContent='✓ Transféré'; btn.style.opacity='0.5'; btn.onclick=null; }
   notif('✓ Blessure de '+d.joueurNom+' ajoutée au suivi médical');
+  sauvegardeAuto();
 }
 async function chargerSuiviObjectifs(){
   var ouiCt=document.getElementById('suivi-oui-list');
@@ -6678,13 +7231,14 @@ function prefillObjCollForm(){
   document.getElementById('oc-cible').value=t.default;
   document.getElementById('oc-unit').value=t.unit;
 }
-function updateObjColl(i,delta){OBJ_COLL[i].actuel=Math.max(0,OBJ_COLL[i].actuel+delta);renderObjColl();}
-function setObjColl(i,v){OBJ_COLL[i].actuel=parseInt(v)||0;renderObjColl();}
-function setObjCollCible(i,v){OBJ_COLL[i].cible=parseInt(v)||0;renderObjColl();}
+function updateObjColl(i,delta){OBJ_COLL[i].actuel=Math.max(0,OBJ_COLL[i].actuel+delta);renderObjColl();sauvegardeAuto();}
+function setObjColl(i,v){OBJ_COLL[i].actuel=parseInt(v)||0;renderObjColl();sauvegardeAuto();}
+function setObjCollCible(i,v){OBJ_COLL[i].cible=parseInt(v)||0;renderObjColl();sauvegardeAuto();}
 function supprimerObjColl(i){
   if(!confirm('Supprimer cet objectif collectif ?')) return;
   OBJ_COLL.splice(i,1);
   renderObjColl();
+  sauvegardeAuto();
 }
 function ajouterObjColl(){
   var label=document.getElementById('oc-label').value.trim();
@@ -6701,6 +7255,7 @@ function ajouterObjColl(){
   ['oc-icon','oc-label','oc-cible','oc-unit'].forEach(function(id){document.getElementById(id).value='';});
   renderObjColl();
   notif('✓ Objectif ajouté');
+  sauvegardeAuto();
 }
 
 // COMPOSITIONS & SCHEMA TACTIQUE
@@ -6794,6 +7349,7 @@ function enregistrerComposition(){
   COMPOSITIONS.unshift(JSON.parse(JSON.stringify(COMPO_COURANTE)));
   renderCompoList();
   notif('✓ Composition enregistrée (privée — pas encore visible des joueurs)');
+  sauvegardeAuto();
 }
 function chargerComposition(i){
   COMPO_COURANTE=JSON.parse(JSON.stringify(COMPOSITIONS[i]));
@@ -6817,6 +7373,7 @@ function supprimerComposition(i,ev){
   if(!confirm('Supprimer cette composition ?')) return;
   COMPOSITIONS.splice(i,1);
   renderCompoList();
+  sauvegardeAuto();
 }
 function togglePublicationCompo(i,ev){
   if(ev) ev.stopPropagation();
@@ -6902,6 +7459,7 @@ function addSeancePhoto(){
   document.getElementById('bp-size').textContent='';
   renderBiblio();
   notif('✓ Ajouté à la bibliothèque !');
+  sauvegardeAuto();
 }
 function supprimerSeancePhoto(idx,ev){
   if(ev) ev.stopPropagation();
@@ -6997,6 +7555,7 @@ function addVideo(){
   VIDEOS.unshift({titre:titre,url:url,categorie:document.getElementById('v-cat').value,date:document.getElementById('v-date').value,notes:document.getElementById('v-notes').value.trim()});
   renderVideos();['v-titre','v-url','v-date','v-notes'].forEach(function(id){document.getElementById(id).value='';});
   notif('✓ Vidéo ajoutée !');
+  sauvegardeAuto();
 }
 function sourceVideo(url){
   if(/youtu\.?be/i.test(url)) return 'youtube';
@@ -7057,6 +7616,7 @@ function saveConvos(){
     else{ CONVOCATIONS_HISTORIQUE.push({date:CONVOS.date,adv:CONVOS.adv,lieu:CONVOS.lieu,a:CONVOS.a,b:CONVOS.b}); }
   }
   notif('✓ Convocations sauvegardées !');
+  sauvegardeAuto();
 }
 function renderConvosFields(){
   var c=CONVOS||{};
@@ -7068,7 +7628,7 @@ function renderConvosFields(){
   setVal('conv-mardi',(CONVOC_MARDI||[]).join('\n'));
   setVal('conv-jeudi',(CONVOC_JEUDI||[]).join('\n'));
 }
-function saveSeance(){SEANCE=document.getElementById('seance-txt').value;notif('✓ Séance sauvegardée !');}
+function saveSeance(){SEANCE=document.getElementById('seance-txt').value;notif('✓ Séance sauvegardée !');sauvegardeAuto();}
 function publierActualite(){
   var txt=document.getElementById('msg-txt').value.trim();
   if(!txt){ notif('⚠ Écris quelque chose avant de publier'); return; }
@@ -7076,13 +7636,15 @@ function publierActualite(){
   MESSAGE=txt;
   document.getElementById('msg-txt').value='';
   renderActualites();
-  notif('✓ Actualité publiée — pense à régénérer le fichier joueurs');
+  notif('✓ Actualité publiée et enregistrée');
+  sauvegardeAuto();
 }
 function supprimerActualite(idx){
   if(!confirm('Supprimer cette actualité ?')) return;
   ACTUALITES.splice(idx,1);
   MESSAGE=ACTUALITES.length?ACTUALITES[0].texte:'';
   renderActualites();
+  sauvegardeAuto();
 }
 function renderActualites(){
   document.getElementById('actu-nb').textContent=ACTUALITES.length;
@@ -7120,15 +7682,18 @@ function publierSondage(){
   SONDAGES.push({id:'s'+Date.now(),question:question,options:options,actif:true,dateCreation:new Date().toLocaleString('fr-FR')});
   renderSondage();
   notif('✓ Sondage publié — pense à régénérer le fichier joueurs');
+  sauvegardeAuto();
 }
 function toggleSondageActif(idx){
   SONDAGES[idx].actif=!SONDAGES[idx].actif;
   renderSondage();
+  sauvegardeAuto();
 }
 function supprimerSondage(idx){
   if(!confirm('Supprimer définitivement ce sondage ?')) return;
   SONDAGES.splice(idx,1);
   renderSondage();
+  sauvegardeAuto();
 }
 async function chargerReponsesSondageDetail(idx){
   var s=SONDAGES[idx];
@@ -7244,6 +7809,7 @@ function validerResultatDuJour(){
   }
   renderMatchs();renderClassement();renderProchainMatchClassement();renderMatchCalSelect();renderConvoCalSelect();
   notif('✓ Résultat enregistré — pense à saisir les notes des joueurs dans l\'écran Matchs');
+  sauvegardeAuto();
 }
 function renderClassement(){
   renderProchainMatchClassement();
@@ -7358,10 +7924,12 @@ function ajouterAutreResultat(){
   ['ar-eq1','ar-eq2','ar-score1','ar-score2','ar-date'].forEach(function(id){document.getElementById(id).value='';});
   renderClassement();
   notif('✓ Résultat ajouté au classement');
+  sauvegardeAuto();
 }
 function supprimerAutreResultat(i){
   AUTRES_RESULTATS.splice(i,1);
   renderClassement();
+  sauvegardeAuto();
 }
 function renderAutresResultats(){
   var ct=document.getElementById('autres-resultats-list');
@@ -7484,32 +8052,37 @@ function appliquerClassementColle(){
   renderClassement();
   document.getElementById('import-classement-txt').value='';
   document.getElementById('import-classement-apercu').innerHTML='';
-  notif('✓ Classement mis à jour — pense à sauvegarder');
+  notif('✓ Classement mis à jour et enregistré');
 }
 
 function addEquipeClassement(){
   CLASSEMENT.push({equipe:'Nouvelle équipe',j:0,pts:0,ptsDom:0,ptsExt:0});
   renderClassement();
+  sauvegardeAuto();
 }
 function removeEquipeClassement(i){
   CLASSEMENT.splice(i,1);
   renderClassement();
+  sauvegardeAuto();
 }
 function updateEquipeClassement(i,field,val){
   if(field==='equipe') CLASSEMENT[i].equipe=val.trim();
   else CLASSEMENT[i][field]=parseInt(val)||0;
   renderClassement();
+  sauvegardeAuto();
 }
 function viderHistoriqueClassement(){
   if(!confirm('Vider tout l\'historique des instantanés du classement ? Utile si les noms d\'équipes se sont mélangés entre l\'ancien et le nouveau système. Le classement actuel n\'est pas touché, seul le graphique d\'évolution repart de zéro.')) return;
   CLASSEMENT_HISTORIQUE=[];
   renderClassement();
   notif('✓ Historique vidé — enregistre un nouvel instantané pour relancer le graphique');
+  sauvegardeAuto();
 }
 function enregistrerInstantaneClassement(){
   CLASSEMENT_HISTORIQUE.push({date:new Date().toLocaleDateString('fr-FR'),data:calculerClassementAuto()});
   renderClassement();
   notif('✓ Instantané enregistré ('+CLASSEMENT_HISTORIQUE.length+' au total)');
+  sauvegardeAuto();
 }
 function renderEvolutionClassement(){
   document.getElementById('classement-hist-nb').textContent=CLASSEMENT_HISTORIQUE.length+' instantané'+(CLASSEMENT_HISTORIQUE.length>1?'s':'');
@@ -7556,6 +8129,7 @@ function appliquerDonnees(p,silencieux){
   if(p.HISTORIQUE_SAISONS)HISTORIQUE_SAISONS=p.HISTORIQUE_SAISONS;
   if(p.AFFECTATIONS_CONVOC)AFFECTATIONS_CONVOC=p.AFFECTATIONS_CONVOC;
   if(p.BIBLIOTHEQUE_GENERALE)BIBLIOTHEQUE_GENERALE=p.BIBLIOTHEQUE_GENERALE;
+  if(p.EXOS_IMPORTES)EXOS_IMPORTES=p.EXOS_IMPORTES;
   if(p.A_CREUSER)A_CREUSER=p.A_CREUSER;
   if(p.FICHES_ARCHIVE)FICHES_ARCHIVE=p.FICHES_ARCHIVE;
   if(p.STAFF_CLUB)STAFF_CLUB=p.STAFF_CLUB;
@@ -7638,7 +8212,7 @@ function donneesSaisonSansPhotos(){
     });
     return copie;
   });
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7646,7 +8220,7 @@ function donneesSaisonSansPhotos(){
 // atteinte et la sauvegarde échouait en silence. On répartit donc en deux documents :
 //   · saison/main  = ce dont les joueurs ont besoin (leur appli ne lit que celui-ci)
 //   · saison/staff = le matériel du staff, lourd et interne (exercices, biblio, entretiens)
-var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME','REFL_PERSO'];
+var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME','REFL_PERSO','EXOS_IMPORTES'];
 var LIMITE_DOC_OCTETS=900*1024; // marge de sécurité sous la limite réelle de 1 Mo
 
 function poidsOctets(txt){
@@ -7934,6 +8508,7 @@ function ajouterBlessure(){
   renderMedical();
   renderFicheCoach();
   notif('✓ Blessure enregistrée');
+  sauvegardeAuto();
 }
 function parseFrDateSimple(str){
   if(!str) return null;
@@ -7966,12 +8541,14 @@ function updateBlessureStatut(i,val){
   }
   renderMedical();
   renderFicheCoach();
+  sauvegardeAuto();
 }
 function supprimerBlessure(i){
   if(!confirm('Supprimer cette entrée du suivi médical ?')) return;
   BLESSURES.splice(i,1);
   renderMedical();
   renderFicheCoach();
+  sauvegardeAuto();
 }
 function joueurBlessureActive(idx){
   return BLESSURES.find(function(b){return b.joueurIdx===idx && b.statut!=='disponible';});
@@ -8156,11 +8733,11 @@ function remplirThemesGenerateur(){
 // Une bibliothèque sans filtre n'est qu'un tas. Ici on retrouve un exercice par
 // ce qui compte vraiment : le thème, le moment, l'effectif du soir, ce qu'il
 // développe, et le principe du projet de jeu qu'il sert.
-var MX_FILTRES={q:'', theme:'', moment:'', objectif:'', principe:'', effectif:''};
+var MX_FILTRES={q:'', theme:'', moment:'', objectif:'', principe:'', effectif:'', support:''};
 
 function mxReinitialiser(){
-  MX_FILTRES={q:'', theme:'', moment:'', objectif:'', principe:'', effectif:''};
-  ['mx-q','mx-theme','mx-moment','mx-objectif','mx-principe','mx-effectif'].forEach(function(id){
+  MX_FILTRES={q:'', theme:'', moment:'', objectif:'', principe:'', effectif:'', support:''};
+  ['mx-q','mx-theme','mx-moment','mx-objectif','mx-principe','mx-effectif','mx-support'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.value='';
   });
   renderMesExercices();
@@ -8185,37 +8762,308 @@ function mxObjetsDe(pr){
     return null;
   }).filter(Boolean);
 }
-// Tous les procédés dessinés, à plat, avec leur fiche d'origine
+// ===== Mes exercices : tout ce qui sert à faire jouer =====
+// Un exercice n'a pas besoin d'être dessiné dans l'appli pour compter. Une photo
+// de feuille griffonnée au bord du terrain, un PDF récupéré en formation, un lien :
+// du moment qu'il porte un titre, un thème et un moment de séance, il entre dans la
+// bibliothèque au même titre que les autres — mêmes filtres, même générateur, même
+// couverture du projet de jeu.
+
+var EXI_EDITION=null;   // l'exercice importé en cours de saisie
+var EXI_FICHIER=null;   // le fichier choisi, pas encore déposé
+
+function exiNouveau(){
+  return {id:'', titre:'', theme:'', moment:'corps', duree:15, effMin:'', effMax:'',
+    objectifs:[], principes:[], materiel:'', espace:'', intensite:'',
+    setup:'', consignes:'', important:'',
+    support:'', fichierId:'', nomFichier:'', poids:0, local:false, lien:'',
+    auteur:'', dateAjout:''};
+}
+function exiParId(id){
+  for(var i=0;i<EXOS_IMPORTES.length;i++) if(EXOS_IMPORTES[i].id===id) return EXOS_IMPORTES[i];
+  return null;
+}
+
+// --- Le formulaire ----------------------------------------------------------
+function exiOuvrirForm(id){
+  var bloc=document.getElementById('exi-form'); if(!bloc) return;
+  EXI_FICHIER=null;
+  EXI_EDITION = id ? Object.assign(exiNouveau(), exiParId(id)||{}) : exiNouveau();
+  bloc.style.display='block';
+  var t=document.getElementById('exi-form-titre');
+  if(t) t.textContent = id ? 'Modifier l\'exercice' : 'Ajouter un exercice';
+  function v(champ,val){ var e=document.getElementById('exi-'+champ); if(e) e.value=(val==null?'':val); }
+  v('titre',EXI_EDITION.titre); v('theme',EXI_EDITION.theme); v('moment',EXI_EDITION.moment||'corps');
+  v('duree',EXI_EDITION.duree); v('effmin',EXI_EDITION.effMin); v('effmax',EXI_EDITION.effMax);
+  v('espace',EXI_EDITION.espace); v('intensite',EXI_EDITION.intensite); v('materiel',EXI_EDITION.materiel);
+  v('setup',EXI_EDITION.setup); v('consignes',EXI_EDITION.consignes); v('important',EXI_EDITION.important);
+  v('lien',EXI_EDITION.lien);
+  var f=document.getElementById('exi-file'); if(f) f.value='';
+  var si=document.getElementById('exi-intensite');
+  if(si && !si.options.length)
+    si.innerHTML=FEX_INTENSITES.map(function(o){ return '<option value="'+o.v+'">'+o.l+'</option>'; }).join('');
+  if(si) si.value=EXI_EDITION.intensite||'';
+  exiRendreObjectifs();
+  pjPuces('exi-principes', EXI_EDITION.principes, 'exiBasculerPrincipe');
+  exiRendrePiece();
+  bloc.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function exiFermerForm(){
+  var bloc=document.getElementById('exi-form'); if(bloc) bloc.style.display='none';
+  EXI_EDITION=null; EXI_FICHIER=null;
+}
+function exiRendreObjectifs(){
+  var ct=document.getElementById('exi-objectifs'); if(!ct || !EXI_EDITION) return;
+  ct.innerHTML=FEX_OBJECTIFS.map(function(o){
+    var on=(EXI_EDITION.objectifs||[]).indexOf(o.v)!==-1;
+    return '<span class="obj-p'+(on?' on':'')+'" style="--oc:'+o.coul+'" onclick="exiBasculerObjectif(\''+o.v+'\')">'
+      +o.ic+' '+o.l+'</span>';
+  }).join('');
+}
+function exiBasculerObjectif(v){
+  if(!EXI_EDITION) return;
+  if(!EXI_EDITION.objectifs) EXI_EDITION.objectifs=[];
+  var i=EXI_EDITION.objectifs.indexOf(v);
+  if(i===-1) EXI_EDITION.objectifs.push(v); else EXI_EDITION.objectifs.splice(i,1);
+  exiRendreObjectifs();
+}
+function exiBasculerPrincipe(code){
+  if(!EXI_EDITION) return;
+  if(!EXI_EDITION.principes) EXI_EDITION.principes=[];
+  var i=EXI_EDITION.principes.indexOf(code);
+  if(i===-1) EXI_EDITION.principes.push(code); else EXI_EDITION.principes.splice(i,1);
+  pjPuces('exi-principes', EXI_EDITION.principes, 'exiBasculerPrincipe');
+}
+// Ce qui est accroché à l'exercice : la photo, le PDF, ou rien encore
+function exiRendrePiece(){
+  var ct=document.getElementById('exi-piece'); if(!ct) return;
+  var e=EXI_EDITION||{};
+  if(EXI_FICHIER){
+    ct.innerHTML='<div class="exi-piece-c">'
+      +(EXI_FICHIER.estImage
+        ? '<img src="'+EXI_FICHIER.apercu+'" alt="">'
+        : '<span class="exi-ic">'+(EXI_FICHIER.estPdf?'📄':'📎')+'</span>')
+      +'<div><b>'+esc2(EXI_FICHIER.nom)+'</b>'
+      +'<div class="exi-sous">'+Math.round(EXI_FICHIER.poids/1024)+' Ko'
+      +(EXI_FICHIER.estImage?' · photo compressée automatiquement':'')
+      +(EXI_FICHIER.poids>FICH_LIMITE
+        ? ' · <span style="color:var(--or)">trop lourd pour le cloud : il restera sur cet appareil</span>'
+        : ' · part dans le cloud à l\'enregistrement')+'</div></div></div>';
+    return;
+  }
+  if(e.fichierId){
+    ct.innerHTML='<div class="exi-piece-c">'
+      +'<span class="exi-ic" data-apercu="'+e.fichierId+'">'+(e.support==='pdf'?'📄':'🖼')+'</span>'
+      +'<div><b>'+esc2(e.nomFichier||'Fichier joint')+'</b>'
+      +'<div class="exi-sous">Déjà enregistré'+(e.local?' — sur cet appareil seulement':'')
+      +' · choisis un autre fichier pour le remplacer</div></div></div>';
+    fichPeuplerApercus(ct);
+    return;
+  }
+  ct.innerHTML='<div class="exi-sous">Aucune pièce jointe pour l\'instant — un lien seul suffit aussi.</div>';
+}
+function exiChoisirFichier(input){
+  var f=input.files && input.files[0];
+  if(!f) return;
+  var ct=document.getElementById('exi-piece');
+  if(ct) ct.innerHTML='<div class="exi-sous">Lecture du fichier…</div>';
+  fichLireEntree(f).then(function(lu){
+    EXI_FICHIER=lu;
+    exiRendrePiece();
+  }).catch(function(){
+    EXI_FICHIER=null;
+    notif('⚠ Ce fichier n\'a pas pu être lu');
+    exiRendrePiece();
+  });
+}
+function exiEnregistrer(){
+  if(!EXI_EDITION) return;
+  function lire(champ){ var e=document.getElementById('exi-'+champ); return e?e.value.trim():''; }
+  var titre=lire('titre');
+  if(!titre){ notif('⚠ Un exercice sans titre ne se retrouve pas — donne-lui un nom'); return; }
+  var theme=lire('theme'), moment=lire('moment')||'corps', lien=lire('lien');
+  if(!theme){ notif('⚠ Sans thème, le générateur ne saura pas quand le proposer'); return; }
+  if(!EXI_FICHIER && !EXI_EDITION.fichierId && !lien){
+    notif('⚠ Ajoute une photo, un PDF ou au moins un lien'); return;
+  }
+  var e=EXI_EDITION;
+  e.titre=titre; e.theme=theme; e.moment=moment; e.lien=lien;
+  e.duree=parseInt(lire('duree'))||15;
+  e.effMin=lire('effmin'); e.effMax=lire('effmax');
+  e.espace=lire('espace'); e.intensite=lire('intensite'); e.materiel=lire('materiel');
+  e.setup=lire('setup'); e.consignes=lire('consignes'); e.important=lire('important');
+  if(!e.auteur) e.auteur=NOM_COACH||'';
+  if(!e.dateAjout) e.dateAjout=new Date().toLocaleDateString('fr-FR');
+
+  var suite = EXI_FICHIER
+    ? fichDeposer(EXI_FICHIER, {titre:titre}).then(function(dep){
+        if(e.fichierId && e.fichierId!==dep.id){ fichOterLocal(e.fichierId); fichSupprimerCloud(e.fichierId); }
+        e.fichierId=dep.id; e.nomFichier=dep.nom; e.poids=dep.poids;
+        e.support=dep.estPdf?'pdf':(dep.estImage?'photo':'fichier');
+        e.local=!dep.enLigne;
+        return dep;
+      })
+    : Promise.resolve(null);
+
+  suite.then(function(dep){
+    if(!e.fichierId && lien) e.support='lien';
+    if(!e.id){ e.id='x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); EXOS_IMPORTES.unshift(e); }
+    else {
+      for(var i=0;i<EXOS_IMPORTES.length;i++) if(EXOS_IMPORTES[i].id===e.id){ EXOS_IMPORTES[i]=e; break; }
+    }
+    exiFermerForm();
+    renderMesExercices();
+    sauvegardeAuto();
+    notif(dep && dep.enLigne===false
+      ? '✓ Exercice enregistré — le fichier est trop lourd pour le cloud, il reste sur cet appareil'
+      : '✓ Exercice enregistré dans la bibliothèque');
+  }).catch(function(){
+    notif('⚠ Le fichier n\'a pas pu être déposé — réessaie');
+  });
+}
+function exiSupprimer(id){
+  var e=exiParId(id); if(!e) return;
+  if(!confirm('Supprimer « '+e.titre+' » de la bibliothèque ?')) return;
+  if(e.fichierId){ fichOterLocal(e.fichierId); fichOterLocal('ap_'+e.fichierId); fichSupprimerCloud(e.fichierId); }
+  EXOS_IMPORTES=EXOS_IMPORTES.filter(function(x){ return x.id!==id; });
+  renderMesExercices();
+  sauvegardeAuto();
+}
+function exiOuvrirPiece(id){
+  var e=exiParId(id); if(!e) return;
+  if(e.fichierId) fichOuvrir(e.fichierId, e.nomFichier);
+  else if(e.lien) window.open(e.lien,'_blank');
+}
+
+// --- Reprendre l'ancienne bibliothèque séances ------------------------------
+// Les photos et PDF déposés avant ne quittaient jamais l'appareil. On les fait
+// entrer dans la bibliothèque, avec leur titre et leur thème, et cette fois ils
+// montent dans le cloud.
+function exiARecuperer(){
+  return (SEANCES_PHOTOS||[]).filter(function(s){
+    return !s.ficheExerciceId && !s.repris && (s.img||s.pdf||s.lien);
+  });
+}
+function exiRecupererAncienne(){
+  var liste=exiARecuperer();
+  if(!liste.length){ notif('Rien à récupérer'); return; }
+  if(!confirm(liste.length+' élément'+(liste.length>1?'s':'')+' de l\'ancienne bibliothèque séances '
+    +'vont rejoindre Mes exercices, avec leur titre et leur thème.\n\n'
+    +'Ils y seront modifiables, et cette fois ils partiront dans le cloud. '
+    +'L\'ancienne bibliothèque n\'est pas touchée.\n\nOn y va ?')) return;
+  notif('Récupération en cours…');
+  var faits=0;
+  var chaine=Promise.resolve();
+  liste.forEach(function(s){
+    chaine=chaine.then(function(){
+      var data=s.pdf||s.img||'';
+      var e=exiNouveau();
+      e.id='x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      e.titre=s.titre||'Sans titre';
+      e.theme=s.theme||'';
+      e.moment='corps';
+      e.lien=s.lien||'';
+      e.auteur=NOM_COACH||'';
+      e.dateAjout=s.date||new Date().toLocaleDateString('fr-FR');
+      e.support=s.pdf?'pdf':(s.img?'photo':'lien');
+      if(!data){ EXOS_IMPORTES.push(e); s.repris=true; faits++; return; }
+      var poids=Math.round(data.length*0.75);
+      var id=fichId();
+      return fichPoserLocal(id,data).then(function(){
+        FICH_CACHE[id]=data;
+        if(s.img){ FICH_APERCU[id]=s.img; return fichPoserLocal('ap_'+id, s.img); }
+      }).then(function(){
+        if(poids<=FICH_LIMITE)
+          return fichPousserCloud(id,{nom:s.nomFichier||e.titre, titre:e.titre}, data, s.img||'');
+        return false;
+      }).then(function(enLigne){
+        e.fichierId=id; e.nomFichier=s.nomFichier||(s.pdf?'document.pdf':'photo.jpg');
+        e.poids=poids; e.local=!enLigne;
+        EXOS_IMPORTES.push(e); s.repris=true; faits++;
+      });
+    });
+  });
+  chaine.then(function(){
+    renderMesExercices();
+    if(typeof renderBiblio==='function') renderBiblio();
+    sauvegardeAuto();
+    notif('✓ '+faits+' élément'+(faits>1?'s récupérés':' récupéré')+' — ils sont dans Mes exercices');
+  }).catch(function(){
+    renderMesExercices(); sauvegardeAuto();
+    notif('⚠ Récupération interrompue — '+faits+' élément(s) repris');
+  });
+}
+
+// --- La bibliothèque, dessinés et importés ensemble -------------------------
+function mxDeDessin(f,pr,i){
+  return {src:'dessin', id:'d:'+f.id+':'+i, titre:pr.titre||'', theme:pr.theme||'',
+    moment:pr.moment||'corps', duree:pr.duree||10, effMin:pr.effMin, effMax:pr.effMax,
+    objectifs:pr.objectifs||[], principes:pr.principes||[], important:pr.important||'',
+    materiel:pr.materiel||'', espace:pr.espace||'', intensite:pr.intensite||'',
+    setup:pr.setup||'', consignes:pr.consignes||'',
+    fiche:f, pr:pr, i:i, origine:f.titre||''};
+}
+function mxDeImport(e){
+  return {src:'import', id:'i:'+e.id, exId:e.id, titre:e.titre||'', theme:e.theme||'',
+    moment:e.moment||'corps', duree:e.duree||15, effMin:e.effMin, effMax:e.effMax,
+    objectifs:e.objectifs||[], principes:e.principes||[], important:e.important||'',
+    materiel:e.materiel||'', espace:e.espace||'', intensite:e.intensite||'',
+    setup:e.setup||'', consignes:e.consignes||'',
+    ex:e, origine:e.auteur?('Ajouté par '+e.auteur):'Importé'};
+}
 function mxTous(){
   var out=[];
   (FICHES_EXERCICES||[]).forEach(function(f){
     (f.procedes||[]).forEach(function(pr,i){
       if(!pr || !pr.elements || !pr.elements.length) return;
       if(!(pr.titre||'').trim()) return;
-      out.push({fiche:f, pr:pr, i:i});
+      out.push(mxDeDessin(f,pr,i));
     });
+  });
+  (EXOS_IMPORTES||[]).forEach(function(e){
+    if(!e || !(e.titre||'').trim()) return;
+    out.push(mxDeImport(e));
   });
   return out;
 }
 function mxCorrespond(x){
-  var pr=x.pr, F=MX_FILTRES;
-  if(F.theme && pr.theme!==F.theme) return false;
-  if(F.moment && (pr.moment||'corps')!==F.moment) return false;
-  if(F.objectif && (pr.objectifs||[]).indexOf(F.objectif)===-1) return false;
-  if(F.principe && (pr.principes||[]).indexOf(F.principe)===-1) return false;
+  var F=MX_FILTRES;
+  if(F.theme && x.theme!==F.theme) return false;
+  if(F.moment && (x.moment||'corps')!==F.moment) return false;
+  if(F.objectif && (x.objectifs||[]).indexOf(F.objectif)===-1) return false;
+  if(F.principe && (x.principes||[]).indexOf(F.principe)===-1) return false;
+  if(F.support && x.src!==F.support) return false;
   if(F.effectif){
     var n=parseInt(F.effectif);
     if(!isNaN(n)){
-      if(pr.effMin && n<parseInt(pr.effMin)) return false;
-      if(pr.effMax && n>parseInt(pr.effMax)) return false;
+      if(x.effMin && n<parseInt(x.effMin)) return false;
+      if(x.effMax && n>parseInt(x.effMax)) return false;
     }
   }
   if(F.q){
-    var t=(pr.titre+' '+(pr.theme||'')+' '+(pr.setup||'')+' '+(pr.consignes||'')+' '
-      +(pr.important||'')+' '+(pr.materiel||'')+' '+(x.fiche.titre||'')).toLowerCase();
+    var t=(x.titre+' '+x.theme+' '+x.setup+' '+x.consignes+' '+x.important+' '
+      +x.materiel+' '+x.origine).toLowerCase();
     if(t.indexOf(F.q.toLowerCase())===-1) return false;
   }
   return true;
+}
+// « 10-18 joueurs » quand les deux sont là, sinon une borne seule — jamais de « 14-? »
+function mxEffectifTxt(x){
+  var a=x.effMin, b=x.effMax;
+  if(a && b) return a+'-'+b+' joueurs';
+  if(a) return a+' joueurs mini';
+  if(b) return b+' joueurs maxi';
+  return '';
+}
+// La vignette : le dessin pour les uns, la photo ou l'icône pour les autres
+function mxVignette(x){
+  if(x.src==='dessin') return exoMiniature(x.pr,132);
+  var e=x.ex||{};
+  if(e.fichierId && e.support!=='pdf')
+    return '<div class="mx-vig" data-apercu="'+e.fichierId+'">🖼</div>';
+  if(e.support==='pdf') return '<div class="mx-vig pdf">📄</div>';
+  if(e.lien) return '<div class="mx-vig lien">🔗</div>';
+  return '<div class="mx-vig">📎</div>';
 }
 function renderMesExercices(){
   var ct=document.getElementById('mx-liste'); if(!ct) return;
@@ -8224,7 +9072,7 @@ function renderMesExercices(){
   // les menus se remplissent avec ce qui existe vraiment
   var selT=document.getElementById('mx-theme');
   if(selT){
-    var themes=Array.from(new Set(tous.map(function(x){ return x.pr.theme; }).filter(Boolean))).sort();
+    var themes=Array.from(new Set(tous.map(function(x){ return x.theme; }).filter(Boolean))).sort();
     var av=MX_FILTRES.theme;
     selT.innerHTML='<option value="">Tous les thèmes</option>'
       +themes.map(function(t){ return '<option value="'+esc2(t)+'">'+esc2(t)+'</option>'; }).join('');
@@ -8249,57 +9097,85 @@ function renderMesExercices(){
     selP.value=avP;
   }
 
+  // ce qui dort encore dans l'ancienne bibliothèque séances
+  var rec=document.getElementById('mx-recup');
+  if(rec){
+    var n=exiARecuperer().length;
+    rec.innerHTML = n
+      ? '<div class="mx-recup-b"><span>📸</span><div><b>'+n+' élément'+(n>1?'s':'')+' dans l\'ancienne Bibliothèque Séances</b>'
+        +'<div>Photos et PDF déposés avant : ils ne quittaient jamais cet appareil. '
+        +'Fais-les entrer ici — ils deviendront des exercices comme les autres, et ils partiront dans le cloud.</div></div>'
+        +'<button class="acc-b or" onclick="exiRecupererAncienne()">Les récupérer</button></div>'
+      : '';
+  }
+
   var liste=tous.filter(mxCorrespond);
   var cpt=document.getElementById('mx-compteur');
   if(cpt) cpt.textContent=tous.length ? (liste.length+' sur '+tous.length) : 'aucun';
 
-  // Sans thème, le générateur ne peut sortir un exercice qu'en complément :
-  // c'est le seul manque qui coûte vraiment quelque chose.
-  var sansTheme=tous.filter(function(x){ return !x.pr.theme; }).length;
-  var sansEffectif=tous.filter(function(x){ return !x.pr.effMin && !x.pr.effMax; }).length;
+  // combien sont encore mal renseignés : c'est ça qui les rend invisibles au générateur
+  var incomplets=tous.filter(function(x){ return !x.theme || !x.moment; }).length;
+  var nDessin=tous.filter(function(x){ return x.src==='dessin'; }).length;
+  var nImport=tous.length-nDessin;
   var avis=document.getElementById('mx-avis');
   if(avis){
-    var m=[];
-    if(sansTheme) m.push('<span style="color:var(--gold)">⚠ '+sansTheme+' sans thème : le générateur ne '
-      +(sansTheme>1?'les':'le')+' proposera qu\'en complément, jamais sur le thème du jour.</span>');
-    if(sansEffectif) m.push('<span style="color:var(--gris2)">'+sansEffectif+' sans nombre de joueurs : '
-      +(sansEffectif>1?'ils sortiront':'il sortira')+' quel que soit l\'effectif du soir.</span>');
+    var compo = tous.length
+      ? '<span style="color:var(--gris2)">'+nDessin+' dessiné'+(nDessin>1?'s':'')
+        +' · '+nImport+' importé'+(nImport>1?'s':'')+' (photo, PDF, lien)</span>'
+      : '';
     avis.innerHTML = !tous.length ? ''
-      : (m.length ? m.join('<br>')
-                  : '<span style="color:var(--green)">✓ Tous tes exercices sont complètement renseignés.</span>');
+      : (incomplets
+        ? '<span style="color:var(--or)">⚠ '+incomplets+' exercice'+(incomplets>1?'s':'')+' sans thème ou sans moment de séance : '
+          +'le générateur ne peut pas '+(incomplets>1?'les':'le')+' proposer. Ouvre la fiche et complète.</span><br>'+compo
+        : '<span style="color:var(--green)">✓ Tous tes exercices sont exploitables par le générateur.</span><br>'+compo);
   }
 
   if(!liste.length){
     ct.innerHTML='<div class="fa-vide">'+(tous.length
       ? 'Aucun exercice ne correspond à ces filtres.'
-      : "Tu n'as pas encore d'exercice dessiné.<br><span>Va dans le <b>Constructeur</b>, dessine ton exercice, donne-lui un titre, un thème et un moment de séance, puis enregistre-le dans la bibliothèque.</span>")+'</div>';
+      : "Ta bibliothèque est vide.<br><span>Trois façons de la remplir : <b>ajouter</b> une photo de feuille, un PDF ou un lien avec le bouton ci-dessus ; "
+        +"ou <b>dessiner</b> ton exercice dans le Constructeur. Dans les deux cas, donne-lui un titre, un thème et un moment de séance — "
+        +"c'est ce qui le rend retrouvable et utilisable par le générateur.</span>")+'</div>';
     return;
   }
   ct.innerHTML='<div class="mx-grille">'+liste.map(function(x){
-    var pr=x.pr;
-    var objs=mxObjetsDe(pr);
-    var principes=(pr.principes||[]).map(function(code){
+    var objs=(x.objectifs||[]).map(function(v){
+      for(var i=0;i<FEX_OBJECTIFS.length;i++) if(FEX_OBJECTIFS[i].v===v) return FEX_OBJECTIFS[i];
+      return null;
+    }).filter(Boolean);
+    var principes=(x.principes||[]).map(function(code){
       var p=pjParCode(code);
       return '<span class="mx-pr" style="--pc:'+(p?p.phase.coul:'#7b848d')+'" title="'+esc2(p?p.titre:code)+'">'+esc2(code)+'</span>';
     }).join('');
+    var etiq = x.src==='dessin'
+      ? '<span class="mx-src dessin">🎨 dessiné</span>'
+      : (x.ex.support==='pdf' ? '<span class="mx-src">📄 PDF</span>'
+        : (x.ex.support==='photo' ? '<span class="mx-src">📷 photo</span>'
+        : '<span class="mx-src">🔗 lien</span>'))
+        +(x.ex.local?'<span class="mx-src local" title="Trop lourd pour le cloud">📵 local</span>':'');
+    var boutons = x.src==='dessin'
+      ? '<button class="fa-o" onclick="ouvrirFicheExerciceDepuisBiblio(\''+x.fiche.id+'\')">Ouvrir</button>'
+      : '<button class="fa-o" onclick="exiOuvrirPiece(\''+x.exId+'\')">Ouvrir</button>'
+        +'<button class="fa-o" onclick="exiOuvrirForm(\''+x.exId+'\')">Modifier</button>'
+        +'<button class="fa-o sup" onclick="exiSupprimer(\''+x.exId+'\')">🗑</button>';
     return '<div class="mx-c">'
-      +exoMiniature(pr,132)
-      +'<div class="mx-t">'+esc2(pr.titre)+'</div>'
-      +'<div class="mx-meta">'+(pr.theme?'<b>'+esc2(pr.theme)+'</b> · ':'')+mxLabelMoment(pr.moment||'corps')
-        +' · '+(pr.duree||10)+' min'
-        +((pr.effMin||pr.effMax)?' · '+(pr.effMin||'?')+'-'+(pr.effMax||'?')+' joueurs':'')
-        +(pr.espace?' · '+esc2(pr.espace):'')
-        +(pr.intensite?' · '+esc2(mxLabelIntensite(pr.intensite)):'')+'</div>'
+      +mxVignette(x)
+      +'<div class="mx-t">'+esc2(x.titre)+'</div>'
+      +'<div class="mx-meta">'+(x.theme?'<b>'+esc2(x.theme)+'</b> · ':'')+mxLabelMoment(x.moment||'corps')
+        +' · '+(x.duree||10)+' min'
+        +(mxEffectifTxt(x)?' · '+mxEffectifTxt(x):'')
+        +(x.espace?' · '+esc2(x.espace):'')
+        +(mxLabelIntensite(x.intensite)?' · '+esc2(mxLabelIntensite(x.intensite)):'')+'</div>'
+      +'<div class="mx-srcs">'+etiq+'</div>'
       +(objs.length?'<div class="mx-objs">'+objs.map(function(o){
           return '<span class="mx-o" style="--oc:'+o.coul+'">'+o.ic+' '+o.l+'</span>'; }).join('')+'</div>':'')
       +(principes?'<div class="mx-prs">'+principes+'</div>':'')
-      +(pr.important?'<div class="mx-cle">⚠️ '+esc2(pr.important)+'</div>':'')
-      +(pr.varianteDe?'<div class="mx-var">↳ variante de « '+esc2(pr.varianteDe.titre||'')+' »</div>':'')
-      +'<div class="mx-pied"><span class="mx-f">'+esc2(x.fiche.titre||'')+'</span>'
-        +'<button class="acc-b" onclick="mdlCreerVariante(\''+x.fiche.id+'\','+x.i+')" title="Repartir de ce dessin">Variante</button>'
-        +'<button class="fa-o" onclick="ouvrirFicheExerciceDepuisBiblio(\''+x.fiche.id+'\')">Ouvrir</button></div>'
+      +(x.important?'<div class="mx-cle">⚠️ '+esc2(x.important)+'</div>':'')
+      +'<div class="mx-pied"><span class="mx-f">'+esc2(x.origine)+'</span>'
+        +'<span class="mx-actions">'+boutons+'</span></div>'
     +'</div>';
   }).join('')+'</div>';
+  fichPeuplerApercus(ct);
 }
 
 // ===== Les deux bibliothèques n'en font plus qu'une =====
@@ -8326,6 +9202,22 @@ function exoNormaliserMaison(f, pr, i){
     pointCle:pr.important||'', objectifs:pr.objectifs||[], principes:pr.principes||[],
     espace:pr.espace||'', intensite:pr.intensite||''};
 }
+// Un exercice importé : photo, PDF ou lien. Il est aussi "le tien" qu'un exercice
+// dessiné, donc il entre dans la pioche au même titre.
+function exoNormaliserImporte(e){
+  var d=[];
+  if(e.setup) d.push(e.setup);
+  if(e.consignes) d.push(e.consignes);
+  var support = e.support==='pdf' ? 'PDF' : (e.support==='photo' ? 'Photo' : 'Lien');
+  return {src:'maison', id:'i:'+e.id, theme:e.theme||'', cat:e.moment||'corps',
+    titre:e.titre||'', duree:parseInt(e.duree)||15,
+    materiel:e.materiel||'', desc:d.join(' \u2014 ')||(support+' de ta biblioth\u00e8que.'),
+    effMin:e.effMin?parseInt(e.effMin):null, effMax:e.effMax?parseInt(e.effMax):null,
+    ficheId:null, ficheTitre:'', procedeIdx:null, procede:null,
+    exId:e.id, support:e.support||'', nomFichier:e.nomFichier||'',
+    pointCle:e.important||'', objectifs:e.objectifs||[], principes:e.principes||[],
+    espace:e.espace||'', intensite:e.intensite||''};
+}
 // Tous les exercices disponibles, d'où qu'ils viennent
 function exoTous(){
   var out=(BIBLIOTHEQUE_EXERCICES||[]).map(exoNormaliserUsine);
@@ -8336,6 +9228,9 @@ function exoTous(){
       if(!(pr.titre||'').trim()) return;
       out.push(exoNormaliserMaison(f, pr, i));
     });
+  });
+  (EXOS_IMPORTES||[]).forEach(function(e){
+    if(e && (e.titre||'').trim()) out.push(exoNormaliserImporte(e));
   });
   return out;
 }
@@ -8503,7 +9398,9 @@ function genererSeance(eviterRepetition){
       : '<span class="exo-src">appli</span>';
     var lien=(mien && e.ficheId)
       ? '<div class="exo-lien" onclick="ouvrirFicheExerciceDepuisBiblio(\''+e.ficheId+'\')">Ouvrir la fiche « '+esc2(e.ficheTitre||'')+' » ›</div>'
-      : '';
+      : ((mien && e.exId)
+        ? '<div class="exo-lien" onclick="exiOuvrirPiece(\''+e.exId+'\')">Ouvrir '+(e.support==='pdf'?'le PDF':(e.support==='photo'?'la photo':'le lien'))+' ›</div>'
+        : '');
     return '<div style="background:var(--carte);border-left:3px solid '+(mien?'var(--or)':col)+';border-radius:5px;padding:12px 14px;margin-bottom:8px">'
       +'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px">'
         +'<span style="font-family:Inter,sans-serif;font-weight:700;font-size:13px">'+titre+' — '+esc2(e.titre)+' '+badge
@@ -8711,10 +9608,12 @@ function ajouterPlanningTheme(){
   document.getElementById('pl-theme-autre').value='';
   renderPlanning();
   notif('✓ Ajouté au planning');
+  sauvegardeAuto();
 }
 function supprimerPlanningTheme(i){
   PLANNING_MENSUEL.splice(i,1);
   renderPlanning();
+  sauvegardeAuto();
 }
 function moisKeyDe(dateStr){
   var d=parseFrDateSimple(dateStr);
@@ -9502,13 +10401,43 @@ var AIDE=[
  piege:'Un principe ne compte comme travaillé que si la séance du calendrier a une <b>fiche liée</b> et que la fiche porte ce principe. Sans ce lien, l\'appli ne peut rien savoir — c\'est pour ça qu\'un des quatre chiffres te dit combien de séances ont une fiche.',
  astuce:'Le compte n\'est pas un jugement. On ne travaille pas tout en même temps. Mais si un principe est écrit depuis le début de saison et n\'a jamais été touché, il faut trancher : soit il n\'est pas si important, soit il faut le programmer.'},
 
+{f:'docs', t:'Constituer la documentation du club', ou:'Écran Documentation', ecran:'biblio-generale',
+ etapes:[
+  'Tout ce qu\'on veut pouvoir relire : un PDF de formation, un règlement de la ligue, un article, une conférence en vidéo.',
+  'Tu déposes le <b>fichier</b> (PDF, photo, document) ou tu colles un <b>lien</b>, tu mets un <b>titre</b> et une <b>catégorie</b>.',
+  'Les catégories construisent d\'elles-mêmes les pastilles de filtrage au-dessus de la liste — tu n\'as rien à paramétrer.',
+  'Chaque document garde <b>qui l\'a ajouté et quand</b> : c\'est ce qui fait tenir une bibliothèque à plusieurs.',
+  'Le fichier part dans le cloud : déposé depuis l\'ordi du bureau, il est sur ton téléphone au bord du terrain.'
+ ],
+ astuce:'C\'est le patrimoine du club, pas ton dossier personnel. Range par catégorie dès le dépôt — « Arbitrage & règlement », « Préparation physique », « Formation & diplômes » — et un éducateur qui arrive en septembre trouve tout seul ce qu\'il cherche.'
+},
+{f:'entr', t:'Ajouter un exercice qui n\'est pas dessiné', ou:'Écran Mes exercices', ecran:'mes-exos',
+ etapes:[
+  'Un exercice n\'a pas besoin d\'être dessiné dans l\'appli pour compter. Une feuille griffonnée au bord du terrain que tu photographies, un PDF récupéré en formation, une vidéo vue ailleurs : tout entre.',
+  'Bouton <code>Ajouter une photo, un PDF, un lien</code>, puis tu choisis le fichier — ou tu colles juste un lien.',
+  'Les <b>photos sont compressées automatiquement</b> : tu peux prendre la feuille en photo avec le téléphone sans y penser.',
+  'Ensuite tu le <b>qualifies</b> comme les autres : titre, thème, moment de séance, effectif, ce qu\'il développe, le principe du projet de jeu qu\'il sert. C\'est ça qui le rend retrouvable — et utilisable par le générateur.',
+  'Le fichier est gardé sur l\'appareil <b>immédiatement</b>, puis envoyé dans le cloud : chaque coach du club le retrouve sur son propre téléphone.'
+ ],
+ astuce:'Un PDF de plus de 700 Ko ne peut pas monter dans le cloud — l\'exercice reste utilisable, mais seulement sur cet appareil, et la carte porte une pastille <b>local</b>. Dans ce cas, mets le PDF sur un Drive et colle le lien à la place : là, tout le monde y a accès.'
+},
+{f:'entr', t:'Récupérer l\'ancienne Bibliothèque Séances', ou:'Écran Mes exercices', ecran:'mes-exos',
+ etapes:[
+  'Les photos et PDF déposés avant dans <b>Bibliothèque Séances</b> ne quittaient jamais l\'appareil : ils n\'étaient ni synchronisés, ni filtrables, ni visibles du générateur.',
+  'Si tu en as, un bandeau orange apparaît en haut de <b>Mes exercices</b> avec le nombre d\'éléments concernés.',
+  '<code>Les récupérer</code> les fait entrer dans la bibliothèque avec leur titre et leur thème, et cette fois ils montent dans le cloud.',
+  'L\'ancienne bibliothèque n\'est pas touchée : rien n\'est supprimé, c\'est une copie.'
+ ],
+ astuce:'Après la récupération, ouvre chacun et complète le <b>moment de séance</b> et l\'<b>effectif</b> — ils arrivent en « corps de séance » par défaut, sans effectif. C\'est le seul travail qui reste, et il rend le générateur vraiment utile.'
+},
 {f:'entr', t:'Retrouver un exercice dans ta bibliothèque', ou:'Écran Mes exercices', ecran:'mes-exos',
  etapes:[
-  'Tous tes procédés dessinés sont là, avec leur miniature — tu reconnais l\'exercice sans l\'ouvrir.',
-  'Cinq filtres se combinent : le <b>thème</b>, le <b>moment</b> de séance, <b>ce que ça développe</b>, le <b>principe</b> du projet de jeu, et <b>l\'effectif du soir</b>.',
+  'Tout y est : les procédés <b>dessinés</b> dans le constructeur, et ceux que tu as <b>importés</b> — photo de feuille, PDF, lien.',
+  'Six filtres se combinent : le <b>thème</b>, le <b>moment</b> de séance, <b>ce que ça développe</b>, le <b>principe</b> du projet de jeu, et <b>l\'effectif du soir</b>.',
   'Le champ de recherche fouille le titre, les consignes, le point clé, le matériel et le nom de la fiche.',
   'L\'<b>effectif du soir</b> est le plus utile du lot : tape 12 et tu ne vois que ce qui se monte à 12.',
-  '<code>Ouvrir</code> te renvoie à la fiche dans le constructeur.'
+  'Le filtre <b>support</b> s\'ajoute aux cinq autres : ne voir que les dessinés, ou que les photos et PDF.',
+  '<code>Ouvrir</code> te renvoie à la fiche dans le constructeur, ou ouvre la photo, le PDF ou le lien.'
  ],
  astuce:'Le bandeau te dit combien d\'exercices sont encore incomplets. Un exercice sans thème ne sortira qu\'en complément du générateur, jamais sur le thème du jour — deux secondes pour le corriger, et il devient utile.'},
 
@@ -10314,6 +11243,7 @@ function genererEntrainementsRecurrents(){
   }
   notif('✓ '+ajoutes+' entraînement(s) ajouté(s) (mardi/jeudi jusqu\'à fin juin 2027)');
   renderCalendrierAnnuel();
+  sauvegardeAuto();
 }
 function renderCalendrierAnnuel(){
   var maintenant=new Date();
@@ -10393,11 +11323,13 @@ function caAjouterEvenement(){
   caRenderGrille();
   caOuvrirJour(window._caJourSel.y,window._caJourSel.m,window._caJourSel.d);
   notif('✓ Ajouté');
+  sauvegardeAuto();
 }
 function caSupprimerEvenement(idx){
   EVENEMENTS_PERSO.splice(idx,1);
   caRenderGrille();
   if(window._caJourSel) caOuvrirJour(window._caJourSel.y,window._caJourSel.m,window._caJourSel.d);
+  sauvegardeAuto();
 }
 function remplirEntretienSelect(){
   var sel=document.getElementById('entretien-sel');
@@ -10459,17 +11391,23 @@ function archiverEntretien(){
   ['ent-date','ent-positif','ent-travailler','ent-ressenti','ent-actions'].forEach(function(id){document.getElementById(id).value='';});
   renderEntretien();
   notif('✓ Entretien archivé');
+  sauvegardeAuto();
 }
 function supprimerEntretien(i){
   if(!confirm('Supprimer cet entretien archivé ?')) return;
   ENTRETIENS.splice(i,1);
   renderEntretien();
+  sauvegardeAuto();
 }
 
 // ADVERSAIRES — fiche permanente par équipe adverse
 var ADVERSAIRES=[];
 var HISTORIQUE_SAISONS=[];
 var BIBLIOTHEQUE_GENERALE=[];
+// Les exercices qui n'ont pas ete dessines dans l'appli : une photo de feuille,
+// un PDF, un lien. Meme qualification que les autres, donc meme place dans les
+// filtres, dans le generateur et dans la couverture du projet de jeu.
+var EXOS_IMPORTES=[];
 // ===== Les feuilles de réunion =====
 // Même charte que les fiches d'observation : bandeau, blocs à liseré, champs
 // pointillés, pastilles au doigt. Ce qui change : la feuille arrive déjà remplie
@@ -11430,6 +12368,7 @@ function trouverOuCreerAdversaire(nom){
   var a=ADVERSAIRES.find(function(x){return x.nom.toLowerCase()===nom.toLowerCase();});
   if(!a){ a={nom:nom,fiches:[]}; ADVERSAIRES.push(a); }
   return a;
+  sauvegardeAuto();
 }
 function ajouterFicheAdversaire(nom,fiche){
   var a=trouverOuCreerAdversaire(nom);
@@ -12699,6 +13638,7 @@ function fexDupliquerVersOnglet(){
   FEX_PROCEDES[cible]=copie;
   notif('✓ Copié vers le procédé '+(cible+1));
   fexRenderTabs();
+  sauvegardeAuto();
 }
 // ===== La couverture du projet de jeu =====
 // La question de départ : est-ce qu'on travaille vraiment ce qu'on veut voir
@@ -12711,6 +13651,13 @@ function cvChangerPeriode(v){ CV_PERIODE=parseInt(v)||90; renderCouverture(); }
 // Les exercices, par code de principe
 function cvExercicesParPrincipe(){
   var m={};
+  (EXOS_IMPORTES||[]).forEach(function(e){
+    if(!e || !(e.titre||'').trim()) return;
+    (e.principes||[]).forEach(function(code){
+      if(!m[code]) m[code]=[];
+      m[code].push({importe:e});
+    });
+  });
   (FICHES_EXERCICES||[]).forEach(function(f){
     (f.procedes||[]).forEach(function(pr,i){
       if(!pr || !pr.elements || !pr.elements.length) return;
@@ -12734,6 +13681,10 @@ function cvSeancesRecentes(){
     var dt=new Date(d.y,d.m,d.d);
     if(dt<limite || dt>aujourdhui) return;
     var codes=[];
+    if(s.exoImporteId){
+      var ei=(EXOS_IMPORTES||[]).filter(function(x){ return x.id===s.exoImporteId; })[0];
+      if(ei) (ei.principes||[]).forEach(function(c){ if(codes.indexOf(c)===-1) codes.push(c); });
+    }
     if(s.ficheId){
       var f=(FICHES_EXERCICES||[]).filter(function(x){ return x.id===s.ficheId; })[0];
       if(f) (f.procedes||[]).forEach(function(pr){
@@ -13050,6 +14001,7 @@ function mdlCreerVariante(ficheId, idx){
   goNav('constructeur');
   setTimeout(function(){ fexChargerProcede(libre); }, 60);
   notif('✓ Variante créée à partir de « '+(src.titre||'')+' » — change ce qui doit changer');
+  sauvegardeAuto();
 }
 function fexPlacerFormation(){
   var key=document.getElementById('fex-formation-sel').value;
@@ -13074,6 +14026,7 @@ function fexUndo(){
   var elements=JSON.parse(precedent);
   FEX_PROCEDES[fexActif].elements=elements;
   fexRedessinerElements(elements);
+  sauvegardeAuto();
 }
 function fexPointSurCourbe(x1,y1,x2,y2,t){
   var mx=(x1+x2)/2, my=(y1+y2)/2, dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy)||1;
@@ -13383,6 +14336,7 @@ function fexChargerFiche(id){
   fexMajBadgeEdition();
   fexRenderListeFiches();
   notif('✓ Fiche "'+f.titre+'" chargée — modifiez-la puis enregistrez');
+  sauvegardeAuto();
 }
 function fexDupliquerFiche(id){
   var f=FICHES_EXERCICES.find(function(x){return x.id===id;});
@@ -13413,6 +14367,7 @@ function fexNouvelleFiche(){
   fexChargerProcede(0);
   fexMajBadgeEdition();
   fexRenderListeFiches();
+  sauvegardeAuto();
 }
 
 // ===== Documents imprimables : la carte mentale d'avant-match et la fiche d'observation =====
@@ -14288,6 +15243,7 @@ function collecterFeuilleMatch(){
     if(lines.length) indiv[ta.getAttribute('data-slot')]=lines;
   });
   FEUILLE_MATCH.consignesIndiv=indiv;
+  sauvegardeAuto();
 }
 // ===== Fiche bilan A4 à remettre au joueur =====
 // Tout est déjà saisi dans l'appli : cette page ne fait que le mettre en forme,
@@ -15233,6 +16189,7 @@ function enregistrerSchemaCPA(){
   document.getElementById('cpa-nom').value='';
   renderCPA();
   notif('✓ Schéma enregistré');
+  sauvegardeAuto();
 }
 function chargerSchemaCPA(i){
   var s=SCHEMAS_CPA[i];
@@ -15246,12 +16203,61 @@ function supprimerSchemaCPA(i){
   if(!confirm('Supprimer ce schéma ?')) return;
   SCHEMAS_CPA.splice(i,1);
   renderCPA();
+  sauvegardeAuto();
+}
+
+// Les données gardées sur cet appareil : une seule liste, utilisée partout
+function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
+
+// ===== L'enregistrement automatique =====
+// Une donnée modifiée mais pas enregistrée vit uniquement en mémoire : la
+// synchronisation suivante récupère la version du cloud et l'efface sans rien dire.
+// Toute modification passe donc désormais par ici. On regroupe les modifications
+// rapprochées pour ne pas écrire dans le cloud à chaque clic.
+var _autoTimer=null, _autoEnAttente=false;
+function sauvegardeLocale(){
+  try{
+    if(typeof _fexInitialise!=='undefined' && _fexInitialise) fexCapturerProcede();
+    localStorage.setItem('ast_v2',JSON.stringify(donneesLocales()));
+    return true;
+  }catch(e){
+    if(e && e.name==='QuotaExceededError')
+      notif('⚠ Stockage plein — trop de photos dans la bibliothèque. Allège-la.');
+    return false;
+  }
+}
+function sauvegardeAuto(){
+  // la copie locale est immédiate : même si le navigateur ferme, rien n'est perdu
+  sauvegardeLocale();
+  _autoEnAttente=true;
+  majEtatSauvegarde('en-cours');
+  if(_autoTimer) clearTimeout(_autoTimer);
+  _autoTimer=setTimeout(function(){
+    _autoTimer=null;
+    sauvegarderFirestore().then(function(res){
+      _autoEnAttente=false;
+      if(res && res.conflit){ ouvrirConflitCloud(res.conflit); majEtatSauvegarde('conflit'); return; }
+      if(res){ majEtatSauvegarde('ok'); if(typeof majPoidsSauvegarde==='function') majPoidsSauvegarde(); }
+      else majEtatSauvegarde('local');
+    }).catch(function(){ _autoEnAttente=false; majEtatSauvegarde('local'); });
+  }, 1500);
+}
+// Un témoin discret, pour qu'on sache toujours où en sont les données
+function majEtatSauvegarde(etat){
+  var e=document.getElementById('etat-sauvegarde'); if(!e) return;
+  var t={
+    'en-cours':{c:'var(--gold)', t:'● Enregistrement…', d:'Copie locale faite, envoi au cloud en cours'},
+    'ok':      {c:'var(--green)',t:'● À jour',          d:'Tout est enregistré, en local et dans le cloud'},
+    'local':   {c:'var(--red)',  t:'● Local seulement', d:'Enregistré sur cet appareil, mais le cloud n\'a pas répondu'},
+    'conflit': {c:'var(--red)',  t:'● Conflit',         d:'Un autre coach a enregistré entre-temps'}
+  }[etat]||{c:'var(--gris2)',t:'',d:''};
+  e.style.color=t.c; e.textContent=t.t; e.title=t.d;
 }
 
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify(donneesLocales()));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(res){
       if(res && res.conflit){ ouvrirConflitCloud(res.conflit); return; }
@@ -15275,7 +16281,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
