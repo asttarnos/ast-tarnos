@@ -602,6 +602,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .refl-txt{flex:1;min-width:0}
 .refl-q{font-weight:700;font-size:12.5px;line-height:1.35}
 .refl-phare{color:var(--or);font-size:11px}
+.refl-perso{font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(37,99,235,.18);color:#6ea8fe;border-radius:10px;padding:2px 7px;margin-left:5px;vertical-align:1px}
 .refl-s{font-size:11px;color:var(--gris2);margin-top:2px;line-height:1.45}
 /* Les fiches remplies qu'on a gardées */
 .fa-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
@@ -943,8 +944,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v30</b> · 23/09/2026<br>
-      <span style="opacity:.7">Réunion technique : 59 questions de réflexion</span>
+      AST COACH <b style="color:var(--or)">v31</b> · 23/09/2026<br>
+      <span style="opacity:.7">Catalogue, cahier, et tes propres questions</span>
     </div>
   </div>
 </div>
@@ -2230,6 +2231,15 @@ Repli défensif après perte"></textarea>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">
           <button class="acc-b or" onclick="reflLesPhares()">★ Prendre les questions phares</button>
           <button class="acc-b" onclick="reflVider()">Tout décocher</button>
+        </div>
+        <div style="margin-top:14px;padding-top:13px;border-top:1px solid var(--line)">
+          <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:9px">
+            Deux documents qui prennent <b>toutes</b> les questions, tes ajouts compris :
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <button class="acc-b" onclick="genererCatalogueQuestions()">📋 Le catalogue — la liste à cocher</button>
+            <button class="acc-b" onclick="genererCahierQuestions()">📓 Le cahier — une page par famille</button>
+          </div>
         </div>
       </div>
     </div>
@@ -7385,6 +7395,7 @@ function appliquerDonnees(p,silencieux){
   if(p.DECISIONS)DECISIONS=p.DECISIONS;
   if(p.REFL_CHOIX)REFL_CHOIX=p.REFL_CHOIX;
   if(p.REFL_THEME)REFL_THEME=p.REFL_THEME;
+  if(p.REFL_PERSO)REFL_PERSO=p.REFL_PERSO;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -7458,7 +7469,7 @@ function donneesSaisonSansPhotos(){
     });
     return copie;
   });
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7466,7 +7477,7 @@ function donneesSaisonSansPhotos(){
 // atteinte et la sauvegarde échouait en silence. On répartit donc en deux documents :
 //   · saison/main  = ce dont les joueurs ont besoin (leur appli ne lit que celui-ci)
 //   · saison/staff = le matériel du staff, lourd et interne (exercices, biblio, entretiens)
-var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME'];
+var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME','REFL_PERSO'];
 var LIMITE_DOC_OCTETS=900*1024; // marge de sécurité sous la limite réelle de 1 Mo
 
 function poidsOctets(txt){
@@ -8950,6 +8961,24 @@ var AIDE=[
  ],
  astuce:'Ne pose pas les questions du miroir à la première réunion. Commence par le contenu — les méthodes, les exercices — et garde le miroir pour quand le groupe se fait assez confiance pour répondre honnêtement.'},
 
+{f:'docs', t:'Ajouter tes propres questions', ou:'Écran Réunions', ecran:'reunions',
+ etapes:[
+  'Ouvre la famille qui convient, puis utilise le champ tout en bas : <b>« Ajouter ta propre question à cette famille »</b>.',
+  'Elle apparaît dans la liste avec l\'étiquette <b>la tienne</b>, et se coche comme les autres.',
+  'Elle part aussi dans le catalogue et dans le cahier — partout où les questions sont imprimées.',
+  'La corbeille à droite la retire, si elle ne sert plus.'
+ ],
+ astuce:'Ce sont souvent les meilleures : elles viennent de ce que tu as vu sur ton terrain, pas d\'une liste générale. Ajoute-les à chaud, juste après une réunion ou un entraînement.'},
+
+{f:'docs', t:'Sortir la liste complète des questions', ou:'Écran Réunions', ecran:'reunions',
+ etapes:[
+  'En bas du bloc <b>💭 Les questions de réflexion</b>, deux boutons.',
+  '<code>📋 Le catalogue</code> : toutes les questions sur quelques pages, avec une case devant chacune. Tu le lis tranquillement, tu coches au stylo, tu choisis. Trois lignes vides sous chaque famille pour écrire les tiennes.',
+  '<code>📓 Le cahier</code> : les mêmes questions, mais <b>une famille par page</b> et un cadre pour écrire sous chacune. Huit pages. C\'est le document pour une réunion longue, ou pour un séminaire d\'éducateurs.',
+  'Le cahier s\'archive dans l\'appli comme les autres feuilles : tu le remplis sur plusieurs réunions et tu le retrouves.'
+ ],
+ astuce:'Le catalogue sert à <b>préparer</b>, le cahier sert à <b>travailler</b>, la feuille de réunion sert à <b>animer</b> une séance précise. Trois usages, les mêmes questions.'},
+
 {f:'docs', t:'Suivre ce qui a été décidé', ou:'Écran Réunions', ecran:'reunions',
  etapes:[
   'Le bloc <b>✅ Les décisions</b> liste tout ce qui a été décidé en réunion et qui n\'est pas encore fait.',
@@ -10141,6 +10170,147 @@ function genererReunionStaff(){
 }
 
 // ======================= LA RÉUNION TECHNIQUE DU CLUB =======================
+// ===== Les deux documents de questions =====
+// Le catalogue : toute la liste, compacte, avec une case devant chaque question —
+// on le lit, on coche au stylo, on choisit. Le cahier : les mêmes questions,
+// chacune avec sa page pour écrire — dix pages assumées.
+function reflStylesDoc(){
+  return '<style>'
+    +'@page{size:A4 portrait;margin:6mm}'
+    +'.feuille{width:764px;min-height:1060px;padding:16px 18px 12px;display:flex;flex-direction:column;gap:9px}'
+    +'.feuille+.feuille{margin-top:14px}'
+    +'.bandeau{display:flex;align-items:center;gap:11px;border-bottom:3px solid #d97706;padding-bottom:7px}'
+    +'.bandeau img{width:36px;height:36px;object-fit:contain}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:19px;line-height:1}'
+    +'.bandeau .sous{font-size:10px;color:#6b7480;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}'
+    +'.bandeau .droite{margin-left:auto;text-align:right;font-size:9.5px;color:#6b7480;line-height:1.7}'
+    +'.bandeau .droite span[contenteditable]{display:inline-block;min-width:96px;border-bottom:1.2px dotted #b4bcc4;color:#11161c;font-weight:600;text-align:left;padding:0 3px}'
+    +'.bl{border:1.5px solid #e2e6ea;border-left:4px solid var(--c);border-radius:8px;padding:8px 11px 9px;background:#fff}'
+    +'.bl-t{font-family:Anton,sans-serif;font-size:12.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--c);margin-bottom:2px}'
+    +'.bl-i{font-size:9px;color:#6b7480;font-style:italic;margin-bottom:7px}'
+    // le catalogue : une ligne par question
+    +'.cq{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px dotted #eceff2}'
+    +'.cq:last-child{border-bottom:none}'
+    +'.cq-case{flex:0 0 12px;width:12px;height:12px;border:1.3px solid #b4bcc4;border-radius:3px;margin-top:2px}'
+    +'.cq-t{flex:1;min-width:0}'
+    +'.cq-q{font-size:10.5px;font-weight:700;color:#11161c;line-height:1.3}'
+    +'.cq-s{font-size:8.8px;color:#98a2ad;font-style:italic;line-height:1.35}'
+    +'.cq-p{color:#d97706;font-size:9px}'
+    +'.cq-m{font-size:7.6px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#2563eb;'
+      +'background:#eaf1ff;border-radius:8px;padding:1px 6px;margin-left:4px;vertical-align:1px}'
+    // les lignes à ajouter soi-même, au stylo
+    +'.cq-vide .cq-t{display:block;width:100%}'
+    +'.cq-vide .cq-q{display:block;width:100%;border-bottom:1.2px dotted #c3cbd3;min-height:15px;font-weight:400}'
+    +'.ajout-t{font-size:7.6px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#98a2ad;margin:7px 0 2px}'
+    // le cahier : la question, la relance, la place pour écrire
+    +'.kq{margin-bottom:11px}'
+    +'.kq:last-child{margin-bottom:0}'
+    +'.kq-q{font-size:12px;font-weight:700;color:#11161c;line-height:1.3}'
+    +'.kq-s{font-size:9px;color:#98a2ad;font-style:italic;margin:1px 0 4px}'
+    +'.kq-r{min-height:66px;border:1px dashed #c3cbd3;border-radius:6px;padding:5px 8px;font-size:10.5px;line-height:1.6}'
+    +'.pied{margin-top:auto;display:flex;justify-content:space-between;font-size:8.4px;color:#98a2ad;'
+      +'border-top:1px solid #e2e6ea;padding-top:6px}'
+    +'@media print{.pg{break-before:page;page-break-before:always}'
+      +'.cq,.kq,.bl{break-inside:avoid;page-break-inside:avoid}}'
+    +'</style>';
+}
+
+// ---------------------------------------------------------- LE CATALOGUE
+function genererCatalogueQuestions(){
+  var logo=docLogoClub();
+  var total=0;
+  var corps=REFLEXIONS.map(function(f){
+    var qs=reflQuestions(f.cle);
+    total+=qs.length;
+    return '<div class="bl" style="--c:'+f.coul+'">'
+      +'<div class="bl-t">'+f.ic+' '+docEsc(f.nom)+'</div>'
+      +'<div class="bl-i">'+docEsc(f.intro)+'</div>'
+      +qs.map(function(q){
+        return '<div class="cq"><span class="cq-case"></span><span class="cq-t">'
+          +'<span class="cq-q">'+docEsc(q.q)
+            +(q.phare?' <span class="cq-p">★</span>':'')
+            +(q.perso?'<span class="cq-m">la tienne</span>':'')+'</span>'
+          +(q.s?'<span class="cq-s">'+docEsc(q.s)+'</span>':'')
+        +'</span></div>';
+      }).join('')
+      +'<div class="ajout-t">Les questions qu\'on ajoute</div>'
+      +[1,2,3].map(function(){
+        return '<div class="cq cq-vide"><span class="cq-case"></span><span class="cq-t">'
+          +'<span class="cq-q" contenteditable data-vide="…"></span></span></div>';
+      }).join('')
+    +'</div>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Catalogue des questions — '+docEsc(NOM_CLUB)+'</title>'
+    +docStylesCommuns()+reflStylesDoc()
+    +'</head><body>'
+    +docBarre(false)
+    +'<div class="feuille">'
+    +'<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+      +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">Catalogue des questions de réflexion</div></div>'
+      +'<div class="droite">Réunion du : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+      +'Animée par : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span></div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:#6b7480;line-height:1.6;border:1.5px solid #e2e6ea;border-radius:8px;padding:9px 11px;background:#f7f9fb">'
+      +'<b>'+total+' questions, '+REFLEXIONS.length+' familles.</b> Coche celles que tu veux poser — au stylo, ou à l\'écran avant d\'imprimer. '
+      +'Les <b style="color:#d97706">★</b> sont celles qui font bouger une réunion. '
+      +'Sous chaque famille, trois lignes vides pour tes propres questions. '
+      +'Ensuite, dans l\'appli — écran <b>Réunions</b> — coche les mêmes et la feuille de réunion se construit toute seule autour d\'elles.'
+    +'</div>'
+    +corps
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — le catalogue. À lire avant de choisir.</span>'
+      +'<span>Six questions suffisent pour une réunion d\'une heure</span></div>'
+    +'</div>'
+    +docMemoire('catalogue_questions', null)
+    +'</body></html>';
+  docOuvrir(html,'Catalogue des questions');
+}
+
+// ---------------------------------------------------------- LE CAHIER COMPLET
+function genererCahierQuestions(){
+  var logo=docLogoClub();
+  var total=0;
+  var pages=REFLEXIONS.map(function(f,idx){
+    var qs=reflQuestions(f.cle);
+    total+=qs.length;
+    return '<div class="feuille'+(idx?' pg':'')+'">'
+      +'<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+        +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div>'
+        +'<div class="sous">'+f.ic+' '+docEsc(f.nom)+'</div></div>'
+        +'<div class="droite">Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+        +'Page '+(idx+1)+' sur '+REFLEXIONS.length+'</div>'
+      +'</div>'
+      +'<div class="bl" style="--c:'+f.coul+'">'
+        +'<div class="bl-i" style="margin-bottom:9px">'+docEsc(f.intro)+'</div>'
+        +qs.map(function(q){
+          return '<div class="kq">'
+            +'<div class="kq-q">'+docEsc(q.q)+(q.phare?' <span class="cq-p">★</span>':'')
+              +(q.perso?'<span class="cq-m">la tienne</span>':'')+'</div>'
+            +(q.s?'<div class="kq-s">'+docEsc(q.s)+'</div>':'')
+            +'<div class="kq-r" contenteditable data-vide="ce qui se dit autour de la table…"></div>'
+          +'</div>';
+        }).join('')
+        +'<div class="ajout-t">Une question qu\'on ajoute</div>'
+        +'<div class="kq"><div class="kq-q" contenteditable data-vide="écris ta question ici…"></div>'
+        +'<div class="kq-r" contenteditable data-vide="…"></div></div>'
+      +'</div>'
+      +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — '+docEsc(f.nom)+'</span>'
+        +'<span>★ = les questions qui font bouger</span></div>'
+    +'</div>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Cahier des questions — '+docEsc(NOM_CLUB)+'</title>'
+    +docStylesCommuns()+reflStylesDoc()
+    +'</head><body>'
+    +docBarre(true)
+    +pages
+    +docMemoire('cahier_questions', {type:'cahier_questions', titre:'Cahier des questions', sujet:'Cahier — '+new Date().toLocaleDateString('fr-FR')})
+    +'</body></html>';
+  docOuvrir(html,'Cahier complet des questions');
+}
+
 function genererReunionClub(){
   var logo=docLogoClub();
   var cats=(CATEGORIES_CLUB||[]).slice(0,14);
@@ -10435,6 +10605,36 @@ var REFLEXIONS=[
  ]}
 ];
 
+// Les questions que le coach ajoute lui-même, rangées dans la famille de son choix.
+// Elles vivent à côté des 59 d'origine et se cochent exactement pareil.
+var REFL_PERSO=[];
+function reflAjouter(cle){
+  var e=document.getElementById('refl-ajout');
+  var v=(e&&e.value||'').trim();
+  if(!v){ notif('\u26a0 Ecris ta question'); return; }
+  REFL_PERSO.push({id:'p'+Date.now()+'x'+Math.floor(Math.random()*1000), famille:cle, q:v, s:''});
+  e.value=''; renderReflexions(); sauvegarder();
+  notif('\u2713 Question ajoutee a la famille '+((reflFamille(cle)||{}).nom||''));
+}
+function reflSupprimerPerso(id){
+  var p=REFL_PERSO.filter(function(x){ return x.id===id; })[0];
+  if(!p) return;
+  if(!confirm('Supprimer ta question : '+p.q+' ?')) return;
+  REFL_PERSO=REFL_PERSO.filter(function(x){ return x.id!==id; });
+  var k=REFL_CHOIX.indexOf(id); if(k!==-1) REFL_CHOIX.splice(k,1);
+  renderReflexions(); sauvegarder();
+}
+// La liste complete d'une famille : les questions d'origine puis celles du coach
+function reflQuestions(cle){
+  var f=reflFamille(cle); if(!f) return [];
+  var out=f.questions.map(function(q,i){
+    return {id:reflId(cle,i), q:q.q, s:q.s||'', phare:!!q.phare, perso:false};
+  });
+  REFL_PERSO.forEach(function(p){
+    if(p.famille===cle) out.push({id:p.id, q:p.q, s:p.s||'', phare:false, perso:true});
+  });
+  return out;
+}
 function reflFamille(cle){
   for(var i=0;i<REFLEXIONS.length;i++) if(REFLEXIONS[i].cle===cle) return REFLEXIONS[i];
   return null;
@@ -10442,7 +10642,7 @@ function reflFamille(cle){
 function reflToutes(){
   var out=[];
   REFLEXIONS.forEach(function(f){
-    f.questions.forEach(function(q,i){ out.push({famille:f, i:i, q:q}); });
+    reflQuestions(f.cle).forEach(function(q){ out.push({famille:f, q:q}); });
   });
   return out;
 }
@@ -10466,15 +10666,16 @@ function reflVider(){ REFL_CHOIX=[]; renderReflexions(); sauvegarder(); }
 function reflLesPhares(){
   REFL_CHOIX=[];
   REFLEXIONS.forEach(function(f){
-    f.questions.forEach(function(q,i){ if(q.phare && REFL_CHOIX.length<10) REFL_CHOIX.push(reflId(f.cle,i)); });
+    reflQuestions(f.cle).forEach(function(q){ if(q.phare && REFL_CHOIX.length<10) REFL_CHOIX.push(q.id); });
   });
   renderReflexions(); sauvegarder();
 }
 function reflChoisies(){
   var out=[];
   REFL_CHOIX.forEach(function(id){
-    var p=id.split('#'), f=reflFamille(p[0]);
-    if(f && f.questions[p[1]]) out.push({famille:f, q:f.questions[p[1]]});
+    REFLEXIONS.forEach(function(f){
+      reflQuestions(f.cle).forEach(function(q){ if(q.id===id) out.push({famille:f, q:q}); });
+    });
   });
   return out;
 }
@@ -10493,20 +10694,31 @@ function renderReflexions(){
   var onglets=document.getElementById('refl-familles');
   if(onglets){
     onglets.innerHTML=REFLEXIONS.map(function(f){
-      var n=f.questions.filter(function(q,i){ return REFL_CHOIX.indexOf(reflId(f.cle,i))!==-1; }).length;
+      var n=reflQuestions(f.cle).filter(function(q){ return REFL_CHOIX.indexOf(q.id)!==-1; }).length;
       return '<button class="fa-chip'+(REFL_FAMILLE_OUVERTE===f.cle?' on':'')+'" onclick="reflOuvrir(\'' +f.cle+ '\')">'
         +f.ic+' '+esc2(f.nom)+(n?' <b>'+n+'</b>':'')+'</button>';
     }).join('');
   }
   var f=reflFamille(REFL_FAMILLE_OUVERTE)||REFLEXIONS[0];
   ct.innerHTML='<div class="refl-intro">'+esc2(f.intro)+'</div>'
-    +f.questions.map(function(q,i){
-      var id=reflId(f.cle,i), on=REFL_CHOIX.indexOf(id)!==-1;
-      return '<div class="refl-l'+(on?' on':'')+'" onclick="reflBasculer(\'' +id+ '\')">'
-        +'<div class="refl-case">'+(on?'✓':'')+'</div>'
-        +'<div class="refl-txt"><div class="refl-q">'+esc2(q.q)+(q.phare?' <span class="refl-phare">★</span>':'')+'</div>'
-        +'<div class="refl-s">'+esc2(q.s||'')+'</div></div></div>';
-    }).join('');
+    +reflQuestions(f.cle).map(function(q){
+      var on=REFL_CHOIX.indexOf(q.id)!==-1;
+      return '<div class="refl-l'+(on?' on':'')+'">'
+        +'<div class="refl-case" onclick="reflBasculer(\'' +q.id+ '\')">'+(on?'✓':'')+'</div>'
+        +'<div class="refl-txt" onclick="reflBasculer(\'' +q.id+ '\')">'
+          +'<div class="refl-q">'+esc2(q.q)
+            +(q.phare?' <span class="refl-phare">★</span>':'')
+            +(q.perso?' <span class="refl-perso">la tienne</span>':'')+'</div>'
+          +(q.s?'<div class="refl-s">'+esc2(q.s)+'</div>':'')
+        +'</div>'
+        +(q.perso?'<button class="fa-x" onclick="event.stopPropagation();reflSupprimerPerso(\'' +q.id+ '\')" title="Supprimer ta question">🗑</button>':'')
+      +'</div>';
+    }).join('')
+    +'<div class="dec-form" style="margin-top:10px">'
+      +'<input class="fi" id="refl-ajout" placeholder="Ajouter ta propre question à cette famille…" '
+        +'onkeydown="if(event.key===\'Enter\')reflAjouter(\'' +f.cle+ '\')">'
+      +'<button class="acc-b or" onclick="reflAjouter(\'' +f.cle+ '\')">Ajouter</button>'
+    +'</div>';
 }
 
 // ===== Les décisions de réunion =====
@@ -12404,7 +12616,8 @@ var FICHE_TYPES={
   obs_equipe: {ic:'🔍', nom:'Observation équipe',          gen:function(f){ genererFicheObservationEquipe(f.sujet||''); }},
   obs_joueur: {ic:'👤', nom:'Observation joueur',          gen:function(f){ genererFicheObservation(f.sujet||''); }},
   reunion_staff:{ic:'🧑‍🏫', nom:'Réunion staff',             gen:function(f){ genererReunionStaff(); }},
-  reunion_club: {ic:'🏛', nom:'Réunion technique club',     gen:function(f){ genererReunionClub(); }}
+  reunion_club: {ic:'🏛', nom:'Réunion technique club',     gen:function(f){ genererReunionClub(); }},
+  cahier_questions:{ic:'📓', nom:'Cahier des questions',    gen:function(f){ genererCahierQuestions(); }}
 };
 function ficheHorodatage(){
   var d=new Date(), z=function(n){ return (n<10?'0':'')+n; };
@@ -14112,7 +14325,7 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(res){
       if(res && res.conflit){ ouvrirConflitCloud(res.conflit); return; }
@@ -14136,7 +14349,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
