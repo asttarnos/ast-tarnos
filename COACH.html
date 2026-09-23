@@ -547,6 +547,31 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 @media(max-width:700px){ .fm-colonnes{grid-template-columns:1fr} }
 /* ===== Docs à imprimer : on voit le document avant de le générer ===== */
 .doc-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:14px}
+/* L'écran de connexion */
+.cx-bandeau{display:flex;align-items:center;gap:11px;margin:10px 12px 0;padding:11px 14px;border-radius:11px;
+  background:linear-gradient(135deg,#d97706,#b45309);color:#1a0f02;cursor:pointer;border:1px solid rgba(0,0,0,.25)}
+.cx-bandeau.hidden{display:none}
+.cx-b-ic{font-size:19px;flex:0 0 auto}
+.cx-b-txt{flex:1;min-width:0;font-size:12px;line-height:1.45}
+.cx-b-btn{flex:0 0 auto;background:#1a0f02;color:var(--or);font-size:11px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;padding:8px 13px;border-radius:7px;white-space:nowrap}
+@media(max-width:620px){ .cx-bandeau{flex-wrap:wrap} .cx-b-txt{flex:1 1 100%;order:3} }
+#scr-connexion{position:fixed;inset:0;z-index:9000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:22px}
+#scr-connexion.hidden{display:none}
+.cx-carte{width:100%;max-width:352px;background:var(--carte);border:1px solid var(--line);border-radius:16px;padding:26px 22px 20px;text-align:center}
+.cx-titre{font-family:Anton,sans-serif;font-size:25px;letter-spacing:.5px}
+.cx-sous{font-size:12px;color:var(--gris2);margin:5px 0 18px;line-height:1.5}
+.cx-err{margin-top:11px;font-size:12px;color:var(--red);font-weight:600;line-height:1.5}
+.cx-err.hidden{display:none}
+.cx-pied{margin-top:17px;padding-top:13px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);display:flex;flex-direction:column;gap:3px}
+.cx-pied span:first-child{color:var(--or);font-weight:700;cursor:pointer}
+/* Les accès des joueurs */
+.acc-l{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg3);margin-bottom:6px}
+.acc-n{flex:0 0 30px;height:30px;border-radius:8px;background:rgba(37,99,235,.15);color:#6ea8fe;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.acc-nom{flex:1;min-width:0;font-weight:700;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-code{font-family:'Roboto Mono',monospace;font-size:15px;font-weight:800;letter-spacing:3px;color:var(--or);background:rgba(217,119,6,.12);border-radius:7px;padding:5px 11px}
+.acc-b{font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:8px 12px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--gris2);cursor:pointer;white-space:nowrap}
+.acc-b.or{background:var(--or);border-color:var(--or);color:#1a0f02}
 /* Les fiches remplies qu'on a gardées */
 .fa-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
 .fa-chip{font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 11px;border-radius:20px;
@@ -795,6 +820,23 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </style>
 </head><body>
 <div class="bg"></div>
+
+<div id="scr-connexion" class="hidden">
+  <div class="cx-carte">
+    <img id="cx-logo" alt="" style="width:62px;height:auto;margin:0 auto 14px;display:block">
+    <div class="cx-titre">AST COACH</div>
+    <div class="cx-sous">Connecte-toi pour retrouver les données du club</div>
+    <input class="fi" id="cx-email" type="email" autocomplete="username" placeholder="Ton adresse e-mail" style="margin-bottom:9px">
+    <input class="fi" id="cx-mdp" type="password" autocomplete="current-password" placeholder="Ton mot de passe"
+      onkeydown="if(event.key==='Enter')connexionCoach()">
+    <button class="gen-btn2" id="cx-btn" style="width:100%;margin-top:12px" onclick="connexionCoach()">Entrer</button>
+    <div id="cx-err" class="cx-err hidden"></div>
+    <div class="cx-pied">
+      <span onclick="continuerHorsLigne()">Continuer hors ligne</span>
+      <span style="opacity:.55">Les données resteront celles de cet appareil</span>
+    </div>
+  </div>
+</div>
 <div id="burger-mobile" onclick="toggleSideMobile()">☰</div>
 <div id="side-overlay" onclick="toggleSideMobile(false)"></div>
 <div id="bdt">
@@ -885,13 +927,19 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v25</b> · 23/09/2026<br>
-      <span style="opacity:.7">Observation équipe — la sœur de la fiche joueur</span>
+      AST COACH <b style="color:var(--or)">v27</b> · 23/09/2026<br>
+      <span style="opacity:.7">Forme quand on veut, base purgée à 7 jours</span>
     </div>
   </div>
 </div>
 
 <div class="main" id="main">
+  <div id="cx-bandeau" class="cx-bandeau hidden" onclick="ouvrirConnexion()">
+    <span class="cx-b-ic">🔓</span>
+    <span class="cx-b-txt"><b>Tu n'es pas connecté au cloud.</b>
+      Tes données restent sur cet appareil : rien ne part vers les joueurs, rien n'arrive de leur part.</span>
+    <span class="cx-b-btn">Se connecter</span>
+  </div>
 <div class="breadcrumb" id="breadcrumb" style="display:none"></div>
 
 <!-- DASHBOARD -->
@@ -909,6 +957,22 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <!-- Blocs d'infos retirés de l'accueil : on les retrouve dans les écrans dédiés (Bilan, Calendrier, Récap...) -->
   <div class="blk" style="margin:24px 12px 12px"><div class="bh" style="cursor:pointer" onclick="var b=document.getElementById('param-club-blk');b.style.display=b.style.display==='none'?'block':'none'"><span class="bt">⚙️ Paramètres du club</span></div>
     <div id="param-club-blk" style="display:none;padding:12px">
+
+      <div class="fg" style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)">
+        <label class="fl">🔐 Ta connexion</label>
+        <div id="cx-etat" style="font-size:12px;color:var(--gris2);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
+      </div>
+
+      <div class="fg" style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)">
+        <label class="fl">🎟️ Les accès des joueurs</label>
+        <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin:6px 0 10px">
+          C'est toi qui ouvres l'accès de chaque joueur — sinon n'importe qui pourrait s'inventer
+          un numéro et lire les données du groupe. Le code s'affiche <b>une seule fois</b> ici :
+          note-le et donne-le au joueur. Il se connectera avec son <b>numéro de maillot</b> et ce code.
+        </div>
+        <div id="acc-liste"></div>
+      </div>
+
       <div class="fg"><label class="fl">Nom du club (affiché partout dans l'appli et les PDF)</label>
         <div style="display:flex;gap:8px;margin-top:4px">
           <input class="fi" id="param-nom-club" value="AST TARNOS" style="flex:1">
@@ -1223,8 +1287,17 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">📨 Déclarations reçues des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDeclarationsSante()">🔄 Charger</span></div>
     <div id="declarations-sante-list" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour voir les blessures déclarées par les joueurs depuis leur appli.</div></div>
   </div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">🧾 Fiches santé des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerFichesSante()">🔄 Charger</span></div>
-    <div id="fiches-sante-list" style="padding:12px"><div style="font-size:11px;color:var(--gris2)">Certificat médical, allergies, traitement, antécédents, groupe sanguin et contact d'urgence — remplis par chaque joueur depuis son appli.</div></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt r">🧹 Anciennes fiches santé</span></div>
+    <div style="padding:12px">
+      <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:10px">
+        Une version précédente de l'appli demandait aux joueurs leurs allergies, leur traitement,
+        leurs antécédents, leur groupe sanguin et un contact d'urgence. <b>Ce questionnaire a été retiré</b> :
+        l'appli ne collecte plus aucune donnée médicale. Il reste peut-être ce qui a été rempli à l'époque,
+        dans le cloud. Le bouton ci-dessous l'efface définitivement.
+      </div>
+      <div id="purge-sante-etat" style="font-size:11.5px;color:var(--gris2);margin-bottom:10px"></div>
+      <button class="btn" style="background:var(--red);border-color:var(--red)" onclick="purgerFichesSante()">🗑 Effacer définitivement ces fiches du cloud</button>
+    </div>
   </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt r">En cours</span><span class="bc" id="medical-nb-actives">0</span></div>
     <div id="medical-list-actives" style="padding:12px"></div>
@@ -3034,12 +3107,12 @@ async function purgerJoueurCloud(nom, num){
   ];
   var effaces=0;
   for(var i=0;i<parNumero.length;i++){
-    try{ var r=await fetch(FIRESTORE_BASE+'/'+parNumero[i]+'/'+num,{method:'DELETE'}); if(r.ok) effaces++; }catch(e){}
+    try{ var r=await fbFetch(FIRESTORE_BASE+'/'+parNumero[i]+'/'+num,{method:'DELETE'}); if(r.ok) effaces++; }catch(e){}
   }
   for(var k=0;k<parChamp.length;k++){
     var def=parChamp[k];
     try{
-      var res=await fetch(FIRESTORE_BASE+'/'+def.col+'?pageSize=500');
+      var res=await fbFetch(FIRESTORE_BASE+'/'+def.col+'?pageSize=500');
       if(!res.ok) continue;
       var data=await res.json();
       var docs=(data.documents||[]).filter(function(d){
@@ -3051,7 +3124,7 @@ async function purgerJoueurCloud(nom, num){
       });
       for(var d2=0;d2<docs.length;d2++){
         var chemin=docs[d2].name.split('/documents/')[1];
-        try{ var rr=await fetch(FIRESTORE_BASE+'/'+chemin,{method:'DELETE'}); if(rr.ok) effaces++; }catch(e){}
+        try{ var rr=await fbFetch(FIRESTORE_BASE+'/'+chemin,{method:'DELETE'}); if(rr.ok) effaces++; }catch(e){}
       }
     }catch(e){}
   }
@@ -3610,6 +3683,105 @@ function remplirHommeDuMatchSelect(){
 var FIREBASE_PROJECT_ID_DEFAUT = 'notes-match-ast';
 var FIREBASE_PROJECT_ID = (function(){ try{ return localStorage.getItem('ast_firebase_project_id')||FIREBASE_PROJECT_ID_DEFAUT; }catch(e){ return FIREBASE_PROJECT_ID_DEFAUT; } })();
 var FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects/'+FIREBASE_PROJECT_ID+'/databases/(default)/documents';
+
+// ===== Identification (Firebase Auth, en REST) =====
+// Sans identification, aucune règle de sécurité ne peut distinguer le coach
+// d'un inconnu : la base est lisible par quiconque connaît l'adresse du projet.
+// On passe donc par de vrais comptes. Le jeton obtenu accompagne chaque appel
+// à Firestore, et c'est lui que les règles vérifient.
+var FIREBASE_API_KEY='AIzaSyC2Ip1OWL505ZfXIuvt7UHHy3t7wr6Vq1U';
+var AUTH_BASE='https://identitytoolkit.googleapis.com/v1/accounts:';
+var AUTH_REFRESH='https://securetoken.googleapis.com/v1/token?key='+FIREBASE_API_KEY;
+var AUTH_CLE='ast_auth_coach';
+var SESSION=null; // {idToken, refreshToken, expire, email, uid}
+
+function authLire(){
+  try{ var d=JSON.parse(localStorage.getItem(AUTH_CLE)||'null'); return d&&d.refreshToken?d:null; }
+  catch(e){ return null; }
+}
+function authRetenir(s){
+  SESSION=s;
+  try{ s?localStorage.setItem(AUTH_CLE,JSON.stringify(s)):localStorage.removeItem(AUTH_CLE); }catch(e){}
+}
+function authDepuisReponse(d){
+  return {
+    idToken:d.idToken||d.id_token,
+    refreshToken:d.refreshToken||d.refresh_token,
+    expire:Date.now()+(parseInt(d.expiresIn||d.expires_in||3600,10)-120)*1000,
+    email:d.email||(SESSION?SESSION.email:''),
+    uid:d.localId||d.user_id||(SESSION?SESSION.uid:'')
+  };
+}
+// Les messages de Google sont en anglais et parlent de "identifier" : on traduit.
+function authMessage(code){
+  var t={
+    'EMAIL_NOT_FOUND':'Ce compte n\'existe pas encore',
+    'INVALID_PASSWORD':'Mot de passe incorrect',
+    'INVALID_LOGIN_CREDENTIALS':'Identifiant ou mot de passe incorrect',
+    'USER_DISABLED':'Ce compte a été désactivé',
+    'EMAIL_EXISTS':'Ce compte existe déjà',
+    'WEAK_PASSWORD : Password should be at least 6 characters':'Mot de passe trop court (6 caractères minimum)',
+    'TOO_MANY_ATTEMPTS_TRY_LATER : Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.':'Trop d\'essais — réessaie dans quelques minutes',
+    'OPERATION_NOT_ALLOWED':'La connexion par mot de passe n\'est pas activée dans la console Firebase'
+  };
+  return t[code]||t[(code||'').split(' :')[0]]||code||'Connexion impossible';
+}
+async function authAppel(quoi, corps){
+  var res=await fetch(AUTH_BASE+quoi+'?key='+FIREBASE_API_KEY,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(Object.assign({returnSecureToken:true}, corps))
+  });
+  var d=await res.json();
+  if(!res.ok) throw new Error(authMessage(((d.error||{}).message)||''));
+  return d;
+}
+async function authConnexion(email, motDePasse){
+  var d=await authAppel('signInWithPassword',{email:email,password:motDePasse});
+  authRetenir(authDepuisReponse(d)); return SESSION;
+}
+async function authCreation(email, motDePasse){
+  var d=await authAppel('signUp',{email:email,password:motDePasse});
+  authRetenir(authDepuisReponse(d)); return SESSION;
+}
+function authDeconnexion(){ authRetenir(null); }
+// Le jeton vaut une heure : on le renouvelle tout seul avec le jeton de rafraîchissement.
+var _authEnCours=null;
+async function authJeton(){
+  if(!SESSION) SESSION=authLire();
+  if(!SESSION) return null;
+  if(SESSION.idToken && Date.now()<SESSION.expire) return SESSION.idToken;
+  if(_authEnCours) return _authEnCours;
+  _authEnCours=(async function(){
+    try{
+      var res=await fetch(AUTH_REFRESH,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(SESSION.refreshToken)});
+      var d=await res.json();
+      if(!res.ok) throw new Error('refresh');
+      authRetenir(authDepuisReponse(d));
+      return SESSION.idToken;
+    }catch(e){
+      authRetenir(null);
+      if(typeof authSessionPerdue==='function') authSessionPerdue();
+      return null;
+    }finally{ _authEnCours=null; }
+  })();
+  return _authEnCours;
+}
+function authConnecte(){ if(!SESSION) SESSION=authLire(); return !!SESSION; }
+
+// Tout appel à Firestore passe par ici : le jeton est ajouté, et une réponse 401/403
+// veut dire que la session est finie — on le dit plutôt que de laisser l'écran vide.
+async function fbFetch(url, opts){
+  opts=opts||{};
+  var jeton=await authJeton();
+  if(jeton){
+    opts.headers=Object.assign({}, opts.headers||{}, {'Authorization':'Bearer '+jeton});
+  }
+  var res=await fetch(url, opts);
+  if((res.status===401||res.status===403) && typeof authRefusee==='function') authRefusee();
+  return res;
+}
+
 function changerProjetFirebase(){
   var val=document.getElementById('param-firebase-id').value.trim();
   if(!val){ notif('⚠ Indique un identifiant de projet'); return; }
@@ -3631,7 +3803,7 @@ async function chargerHommeDuMatch(){
   if(!matchKey){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Aucune convocation en cours.</div>'; return; }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/homme_du_match?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/homme_du_match?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var votes=(data.documents||[]).map(function(d){
@@ -3665,7 +3837,7 @@ async function chargerVotesJoueurs(){
   }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/votes?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/votes?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=data.documents||[];
@@ -3794,16 +3966,93 @@ function renderEvolutionForme(reponses){
 }
 function echapForme(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
 
+// Les réponses de plus d'une semaine sont effacées de la base — mais avant de les
+// effacer on les range dans la fiche du joueur, pour que la courbe ne reparte pas de zéro.
+var FORME_RETENTION_JOURS=7;
+function formeIndexJoueur(r){
+  var i=-1;
+  if(r.joueurNum!=null) JOUEURS.forEach(function(j,k){ if(j.num===r.joueurNum) i=k; });
+  if(i===-1 && r.joueur) JOUEURS.forEach(function(j,k){ if(memeJoueur(j.nom||'', r.joueur)) i=k; });
+  return i;
+}
+var FORME_MOMENTS={debut:'Début de semaine', milieu:'Milieu de semaine',
+  'avant-match':'Avant le match', 'apres-match':'Après le match', libre:'Spontané', fin:'Fin de semaine'};
+// La date exacte à laquelle le joueur a rempli — c'est elle qui compte pour lire une baisse
+function formeQuand(r){
+  var m=FORME_MOMENTS[r.periode]||r.periode||'';
+  if(!r.dateEnvoi) return m||(r.semaine||'');
+  var d=new Date(r.dateEnvoi);
+  if(isNaN(d.getTime())) return m;
+  var quand=d.toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'2-digit'})
+    +' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  return (m?m+'<br>':'')+'<b style="color:var(--gris)">'+quand+'</b>';
+}
+function formeMoyenne(r){
+  var t=['forme','mental','sommeil','jambes','courbatures','motivation']
+    .map(function(k){ return r[k]; }).filter(function(v){ return typeof v==='number' && !isNaN(v); });
+  return t.length ? t.reduce(function(a,b){return a+b;},0)/t.length : null;
+}
+function formeArchiver(reponses){
+  var ajoutes=0;
+  reponses.forEach(function(r){
+    var i=formeIndexJoueur(r);
+    if(i===-1 || !r.dateEnvoi) return;
+    if(!FORME_HISTORIQUE[i]) FORME_HISTORIQUE[i]=[];
+    var deja=FORME_HISTORIQUE[i].some(function(e){ return e.dateEnvoi===r.dateEnvoi; });
+    if(deja) return;
+    var m=formeMoyenne(r);
+    FORME_HISTORIQUE[i].push({
+      date:r.semaine||new Date(r.dateEnvoi).toLocaleDateString('fr-FR'),
+      dateEnvoi:r.dateEnvoi,
+      // "valeur" reste sur 5 : c'est l'échelle de la courbe de la fiche joueur
+      valeur:m==null?3:Math.max(1,Math.min(5,Math.round(m/2))),
+      source:'joueur', periode:r.periode||'', bobo:r.bobo||'', motCoach:r.motCoach||'',
+      detail:{forme:r.forme,mental:r.mental,sommeil:r.sommeil,jambes:r.jambes,courbatures:r.courbatures,motivation:r.motivation}
+    });
+    FORME_HISTORIQUE[i].sort(function(a,b){ return (a.dateEnvoi||'').localeCompare(b.dateEnvoi||''); });
+    ajoutes++;
+  });
+  return ajoutes;
+}
+// Reconstruit les réponses à partir de la fiche des joueurs : la courbe couvre alors
+// toute la saison, même après l'effacement des documents dans la base.
+function formeDepuisHistorique(){
+  var out=[];
+  JOUEURS.forEach(function(j,i){
+    (FORME_HISTORIQUE[i]||[]).forEach(function(e){
+      if(e.source!=='joueur' || !e.detail) return;
+      out.push({joueur:j.nom, joueurNum:j.num, periode:e.periode||'', semaine:e.date||'',
+        forme:e.detail.forme, mental:e.detail.mental, sommeil:e.detail.sommeil,
+        jambes:e.detail.jambes, courbatures:e.detail.courbatures, motivation:e.detail.motivation,
+        motCoach:e.motCoach||'', bobo:e.bobo||'', dateEnvoi:e.dateEnvoi||''});
+    });
+  });
+  return out;
+}
+async function formePurger(docs){
+  var limite=Date.now()-FORME_RETENTION_JOURS*86400000, efface=0;
+  for(var i=0;i<docs.length;i++){
+    var f=docs[i].fields||{};
+    var envoi=f.dateEnvoi?f.dateEnvoi.stringValue:'';
+    var t=envoi?Date.parse(envoi):NaN;
+    if(isNaN(t) || t>=limite) continue;
+    try{
+      var r=await fbFetch('https://firestore.googleapis.com/v1/'+docs[i].name,{method:'DELETE'});
+      if(r.ok) efface++;
+    }catch(e){}
+  }
+  return efface;
+}
 async function chargerFormeJoueurs(){
   var ct=document.getElementById('forme-coach-ct');
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ notif('⚠ Connexion Firebase pas encore configurée'); return; }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/forme?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/forme?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=data.documents||[];
-    var reponses=docs.map(function(d){
+    var recues=docs.map(function(d){
       var f=d.fields||{};
       return {
         joueur:f.joueur?f.joueur.stringValue:'',
@@ -3817,10 +4066,23 @@ async function chargerFormeJoueurs(){
         motivation:f.motivation?parseInt(f.motivation.integerValue):null,
         motCoach:f.motCoach?f.motCoach.stringValue:'',
         bobo:f.bobo?f.bobo.stringValue:'',
+        joueurNum:f.joueurNum?parseInt(f.joueurNum.integerValue||f.joueurNum.stringValue):null,
         dateEnvoi:f.dateEnvoi?f.dateEnvoi.stringValue:''
       };
     });
-    if(!reponses.length){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Aucun formulaire reçu pour l\'instant.</div>'; renderEvolutionForme([]); return; }
+    // 1) on range dans la fiche des joueurs, 2) on efface de la base au-delà d'une semaine
+    var ajoutes=formeArchiver(recues);
+    var efface=await formePurger(docs);
+    if(ajoutes||efface) sauvegarder();
+    // La courbe se lit sur tout l'historique, pas seulement sur ce qui reste dans la base
+    var reponses=formeDepuisHistorique();
+    if(!reponses.length) reponses=recues;
+    var avis='<div style="font-size:10.5px;color:var(--gris2);margin-bottom:8px">'
+      +recues.length+' formulaire(s) dans la base'
+      +(efface?' · <span style="color:var(--or)">'+efface+' de plus d\'une semaine effacé(s)</span>':'')
+      +(ajoutes?' · '+ajoutes+' rangé(s) dans les fiches joueurs':'')
+      +'</div>';
+    if(!reponses.length){ ct.innerHTML=avis+'<div style="font-size:11px;color:var(--gris2)">Aucun formulaire reçu pour l\'instant.</div>'; renderEvolutionForme([]); return; }
     renderEvolutionForme(reponses);
     var dernierParJoueur={};
     reponses.forEach(function(r){
@@ -3837,13 +4099,14 @@ async function chargerFormeJoueurs(){
       return {r:r,alertes:alertes};
     }).sort(function(a,b){return b.alertes.length-a.alertes.length;});
     var nbAlertes=liste.filter(function(x){return x.alertes.length>0;}).length;
-    ct.innerHTML='<div style="font-size:11px;color:var(--gris2);margin-bottom:10px">'+liste.length+' joueur(s) répondu — '+(nbAlertes?'<span style="color:var(--red);font-weight:700">🚨 '+nbAlertes+' à surveiller</span>':'aucune alerte')+'</div>'
+    ct.innerHTML=avis+'<div style="font-size:11px;color:var(--gris2);margin-bottom:10px">'+liste.length+' joueur(s) répondu — '+(nbAlertes?'<span style="color:var(--red);font-weight:700">🚨 '+nbAlertes+' à surveiller</span>':'aucune alerte')+'</div>'
       +liste.map(function(x){
         var r=x.r;
         var enAlerte=x.alertes.length>0;
         return '<div class="blk" style="margin:0 0 8px;border-left:3px solid '+(enAlerte?'var(--red)':'var(--green)')+'">'
           +'<div style="padding:10px 12px">'
-          +'<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:13px">'+r.joueur+'</span><span style="font-size:9px;color:var(--gris2)">'+(r.periode==='debut'?'Début de semaine':'Fin de semaine')+'</span></div>'
+          +'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-weight:700;font-size:13px">'+echapForme(r.joueur)+'</span>'
+            +'<span style="font-size:9.5px;color:var(--gris2);text-align:right">'+formeQuand(r)+'</span></div>'
           +(enAlerte?'<div style="font-size:11px;color:var(--red);margin-top:4px">🚨 '+x.alertes.join(' · ')+'</div>':'')
           +(r.bobo?'<div style="font-size:11px;color:var(--gold);margin-top:4px">🩹 '+r.bobo+'</div>':'')
           +(r.motCoach?'<div style="font-size:11px;color:var(--gris2);margin-top:4px">💬 '+r.motCoach+'</div>':'')
@@ -4422,7 +4685,7 @@ async function renderAlertesCoach(){
 
   // 2. Rotation : disponible plusieurs fois mais jamais aligné
   try{
-    var resD=await fetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
+    var resD=await fbFetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
     if(resD.ok){
       var dataD=await resD.json();
       var parJoueurD={};
@@ -4447,7 +4710,7 @@ async function renderAlertesCoach(){
 
   // 3. Forme en baisse sur les 3 derniers relevés
   try{
-    var resF=await fetch(FIRESTORE_BASE+'/forme?pageSize=300');
+    var resF=await fbFetch(FIRESTORE_BASE+'/forme?pageSize=300');
     if(resF.ok){
       var dataF=await resF.json();
       var parJoueurF={};
@@ -4564,7 +4827,7 @@ async function dvChargerCloud(adversaire){
   DV_CLOUD_CLE=cle;
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ DV_CLOUD=null; return null; }
   try{
-    var r=await fetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
+    var r=await fbFetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
     if(!r.ok) throw new Error('HTTP '+r.status);
     var data=await r.json();
     var dernier={};
@@ -5038,7 +5301,7 @@ async function chargerReactionObjectifs(){
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   var docId=encodeURIComponent(j.nom.replace(/\s+/g,'_'));
   try{
-    var res=await fetch(FIRESTORE_BASE+'/objectifs_individuels_demandes/'+docId);
+    var res=await fbFetch(FIRESTORE_BASE+'/objectifs_individuels_demandes/'+docId);
     if(res.status===404){ ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Ce joueur n\'a pas encore choisi ses objectifs.</div>'; return; }
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
@@ -5095,7 +5358,7 @@ async function reinitialiserPinJoueur(){
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ statutEl.textContent='⚠ Connexion Firebase pas encore configurée'; return; }
   statutEl.textContent='Réinitialisation...';
   try{
-    await fetch(FIRESTORE_BASE+'/pins_joueurs/'+num,{method:'DELETE'});
+    await fbFetch(FIRESTORE_BASE+'/pins_joueurs/'+num,{method:'DELETE'});
     statutEl.textContent='✓ Code réinitialisé — il en créera un nouveau à sa prochaine connexion';
   }catch(e){
     statutEl.textContent='⚠ Erreur — vérifie ta connexion';
@@ -5167,7 +5430,7 @@ function renderContactsClub(){
 }
 async function chargerMessagesChatCoach(){
   try{
-    var res=await fetch(FIRESTORE_BASE+'/messages_chat?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/messages_chat?pageSize=300');
     if(!res.ok) return [];
     var data=await res.json();
     return (data.documents||[]).map(function(doc){
@@ -5185,7 +5448,7 @@ async function chargerMessagesChatCoach(){
 async function supprimerMessageChatCoach(id){
   if(!confirm('Supprimer ce message ? Ça vaut pour tout le monde.')) return;
   try{
-    await fetch(FIRESTORE_BASE+'/messages_chat/'+id,{method:'DELETE'});
+    await fbFetch(FIRESTORE_BASE+'/messages_chat/'+id,{method:'DELETE'});
     await renderChatCoach();
   }catch(e){
     notif('⚠ Suppression impossible — vérifie ta connexion');
@@ -5203,7 +5466,7 @@ async function envoyerMessageChatCoach(){
   }};
   input.disabled=true;
   try{
-    await fetch(FIRESTORE_BASE+'/messages_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    await fbFetch(FIRESTORE_BASE+'/messages_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     input.value='';
     await renderChatCoach();
   }catch(e){
@@ -5232,7 +5495,7 @@ async function chargerDebriefsMatchs(){
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/debriefs_matchs?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/debriefs_matchs?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=(data.documents||[]).map(function(d){
@@ -5273,7 +5536,7 @@ async function chargerStatsLive(){
     {k:'duelsPerdus',lab:'Duels aériens perdus',ic:'🥊'}
   ];
   try{
-    var res=await fetch(FIRESTORE_BASE+'/stats_live?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/stats_live?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=(data.documents||[]).map(function(d){
@@ -5307,7 +5570,7 @@ async function chargerMomentsVideoCoach(){
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/moments_video?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/moments_video?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var moments=(data.documents||[]).map(function(d){
@@ -5341,7 +5604,7 @@ async function chargerConfirmations(){
   var matchKey=date+'|'+adv;
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/confirmations_convocation?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/confirmations_convocation?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=(data.documents||[]).map(function(d){
@@ -5480,7 +5743,7 @@ async function envoyerNotificationPush(){
   statutEl.textContent='Envoi en cours...';
   statutEl.style.color='var(--gris2)';
   try{
-    await fetch(FIRESTORE_BASE+'/notifications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+    await fbFetch(FIRESTORE_BASE+'/notifications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
       titre:{stringValue:titre},
       corps:{stringValue:corps},
       dateEnvoi:{stringValue:new Date().toISOString()}
@@ -5622,7 +5885,7 @@ async function chargerDisponibilites(){
   var cle=date+'|'+adv;
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/disponibilites?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=(data.documents||[]).map(function(d){
@@ -5685,7 +5948,7 @@ async function sauvegarderDonneesJoueursCloud(){
   for(var i=0;i<COLLECTIONS_JOUEURS_FIRESTORE.length;i++){
     var nomCollection=COLLECTIONS_JOUEURS_FIRESTORE[i];
     try{
-      var res=await fetch(FIRESTORE_BASE+'/'+nomCollection+'?pageSize=1000');
+      var res=await fbFetch(FIRESTORE_BASE+'/'+nomCollection+'?pageSize=1000');
       if(!res.ok){ erreurs.push(nomCollection); resultat[nomCollection]=[]; continue; }
       var data=await res.json();
       resultat[nomCollection]=(data.documents||[]).map(firestoreDocVersPlain);
@@ -5712,65 +5975,41 @@ async function sauvegarderDonneesJoueursCloud(){
   }
 }
 function echap(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
-async function chargerFichesSante(){
-  var ct=document.getElementById('fiches-sante-list');
-  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
-  ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
+// Le questionnaire de santé a été retiré de l'appli. Il reste à effacer ce qui a
+// été collecté avant : cette fonction supprime les documents, un par un, sans retour.
+async function purgerFichesSante(){
+  var etat=document.getElementById('purge-sante-etat');
+  if(!authConnecte()){ notif('⚠ Connecte-toi d\'abord'); return; }
+  if(!confirm('Effacer définitivement toutes les anciennes fiches santé du cloud ?\n\nAllergies, traitements, antécédents, groupe sanguin, contacts d\'urgence : tout sera supprimé, sans possibilité de revenir en arrière.')) return;
+  etat.innerHTML='Lecture en cours...';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/questionnaires_sante?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/questionnaires_sante?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
-    var data=await res.json();
-    var docs=(data.documents||[]).map(function(d){
-      var f=d.fields||{};
-      function v(k){ return (f[k]||{}).stringValue||''; }
-      return {
-        num:f.joueurNum?parseInt(f.joueurNum.integerValue||f.joueurNum.stringValue):null,
-        nom:v('joueurNom'), certifDate:v('certifDate'), allergies:v('allergies'),
-        traitement:v('traitement'), antecedents:v('antecedents'),
-        contactNom:v('contactNom'), contactTel:v('contactTel'),
-        groupeSanguin:v('groupeSanguin'), dateMaj:v('dateMaj')
-      };
-    }).filter(function(x){ return x.nom||x.num; });
-    var parNum={}; docs.forEach(function(d){ if(d.num!=null) parNum[d.num]=d; });
-    var remplies=[], manquantes=[];
-    JOUEURS.forEach(function(j){ if(parNum[j.num]) remplies.push({j:j,d:parNum[j.num]}); else manquantes.push(j); });
-    remplies.sort(function(a,b){ return a.j.nom.localeCompare(b.j.nom); });
-    function ligneInfo(label,val,couleur){
-      if(!val) return '';
-      return '<div style="display:flex;gap:8px;padding:3px 0;font-size:11.5px"><span style="color:var(--gris2);min-width:112px">'+label+'</span><span style="color:'+(couleur||'var(--gris)')+';font-weight:'+(couleur?'700':'400')+'">'+echap(val)+'</span></div>';
+    var docs=((await res.json()).documents)||[];
+    if(!docs.length){ etat.innerHTML='<span style="color:var(--green)">✓ Rien à effacer — il n\'y a aucune fiche dans le cloud.</span>'; return; }
+    var efface=0, rates=0;
+    for(var i=0;i<docs.length;i++){
+      etat.innerHTML='Effacement '+(i+1)+' / '+docs.length+'...';
+      try{
+        var r=await fbFetch('https://firestore.googleapis.com/v1/'+docs[i].name,{method:'DELETE'});
+        if(r.ok) efface++; else rates++;
+      }catch(e){ rates++; }
     }
-    var html=remplies.length?remplies.map(function(o){
-      var d=o.d;
-      var alerte=(d.allergies||d.traitement)?true:false;
-      var tel=d.contactTel?'<a href="tel:'+echap(d.contactTel).replace(/\s/g,'')+'" style="color:var(--or);font-weight:700;text-decoration:none">'+echap(d.contactTel)+'</a>':'';
-      return '<div style="background:var(--carte);border:1px solid var(--line);border-left:3px solid '+(alerte?'var(--red)':'var(--green)')+';border-radius:5px;padding:10px 12px;margin-bottom:8px">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
-        +'<span style="font-family:Inter,sans-serif;font-weight:700;font-size:12.5px">'+(o.j.num?o.j.num+'. ':'')+echap(o.j.nom)+'</span>'
-        +(d.groupeSanguin?'<span style="background:rgba(239,68,68,.15);border:1px solid var(--red);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;color:var(--red)">'+echap(d.groupeSanguin)+'</span>':'')
-        +'</div>'
-        +ligneInfo('Certificat méd.',d.certifDate)
-        +ligneInfo('Allergies',d.allergies,'var(--red)')
-        +ligneInfo('Traitement',d.traitement,'var(--or)')
-        +ligneInfo('Antécédents',d.antecedents)
-        +((d.contactNom||tel)?'<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-size:11.5px"><span style="color:var(--gris2)">📞 Urgence&nbsp;: </span><span style="font-weight:700">'+echap(d.contactNom)+'</span> '+tel+'</div>':'<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-size:11px;color:var(--red)">⚠ Aucun contact d\'urgence renseigné</div>')
-        +'</div>';
-    }).join(''):'<div style="text-align:center;padding:14px;color:var(--gris2);font-size:12px">Aucune fiche santé remplie pour l\'instant</div>';
-    if(manquantes.length){
-      html+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)"><div style="font-size:11px;color:var(--gris2);margin-bottom:6px">Fiche non remplie ('+manquantes.length+')&nbsp;:</div>'
-        +manquantes.map(function(j){ return '<span style="display:inline-block;background:rgba(239,68,68,.08);border:1px solid var(--line);border-radius:12px;padding:5px 12px;margin:0 6px 6px 0;font-size:11.5px">'+j.num+'. '+echap(j.nom)+'</span>'; }).join('')
-        +'</div>';
-    }
-    ct.innerHTML=html;
+    etat.innerHTML=rates
+      ? '<span style="color:var(--red)">'+efface+' fiche(s) effacée(s), '+rates+' en échec — réessaie.</span>'
+      : '<span style="color:var(--green)">✓ '+efface+' fiche(s) effacée(s). Il n\'y a plus aucune donnée médicale dans le cloud.</span>';
+    notif(rates?'⚠ Effacement incomplet':'✓ Fiches santé effacées');
   }catch(e){
-    ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Erreur de chargement — vérifie ta connexion</div>';
+    etat.innerHTML='<span style="color:var(--red)">Échec : '+echap(e.message)+'</span>';
   }
 }
+
 async function chargerDeclarationsSante(){
   var ct=document.getElementById('declarations-sante-list');
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/blessures_declarees?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/blessures_declarees?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=(data.documents||[]).map(function(d){
@@ -5834,7 +6073,7 @@ async function chargerSuiviObjectifs(){
   ouiCt.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   nonCt.innerHTML='';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/objectifs_individuels_demandes?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/objectifs_individuels_demandes?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=data.documents||[];
@@ -5895,7 +6134,7 @@ async function chargerVotesObjColl(){
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   ouiCt.innerHTML='';nonCt.innerHTML='';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/votes_objectifs_collectifs?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/votes_objectifs_collectifs?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=data.documents||[];
@@ -5962,7 +6201,7 @@ async function chargerTableauVotes(){
   ct.innerHTML='<div style="padding:14px;color:var(--gris2);font-size:11px">Chargement...</div>';
   var matchKey=(m.date||'')+'|'+(m.adversaire||'');
   try{
-    var res=await fetch(FIRESTORE_BASE+'/votes?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/votes?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=data.documents||[];
@@ -6021,7 +6260,7 @@ async function chargerActivite(){
   try{
     var derniere={}; // nom du joueur -> date ISO la plus récente
     var reponses=await Promise.all(COLLECTIONS_ACTIVITE.map(function(col){
-      return fetch(FIRESTORE_BASE+'/'+col+'?pageSize=300')
+      return fbFetch(FIRESTORE_BASE+'/'+col+'?pageSize=300')
         .then(function(r){ return r.ok?r.json():{documents:[]}; })
         .catch(function(){ return {documents:[]}; });
     }));
@@ -6632,7 +6871,7 @@ async function chargerReponsesSondageDetail(idx){
   if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){ ct.innerHTML='<div style="font-size:11px;color:var(--red)">⚠ Connexion Firebase pas encore configurée</div>'; return; }
   ct.innerHTML='<div style="font-size:11px;color:var(--gris2)">Chargement...</div>';
   try{
-    var res=await fetch(FIRESTORE_BASE+'/sondage_reponses?pageSize=300');
+    var res=await fbFetch(FIRESTORE_BASE+'/sondage_reponses?pageSize=300');
     if(!res.ok) throw new Error('HTTP '+res.status);
     var data=await res.json();
     var docs=data.documents||[];
@@ -7168,7 +7407,7 @@ try{ NOM_COACH=localStorage.getItem('ast_coach_nom')||''; }catch(e){}
 
 async function ecrireDocSaison(nomDoc,json){
   var version=(VERSIONS_CLOUD[nomDoc]||0)+1;
-  var res=await fetch(FIRESTORE_BASE+'/saison/'+nomDoc,{
+  var res=await fbFetch(FIRESTORE_BASE+'/saison/'+nomDoc,{
     method:'PATCH',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({fields:{
@@ -7229,7 +7468,7 @@ async function sauvegarderFirestore(forcer){
 }
 async function lireDocSaison(nomDoc){
   try{
-    var res=await fetch(FIRESTORE_BASE+'/saison/'+nomDoc);
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/'+nomDoc);
     if(!res.ok) return null;
     var j=await res.json();
     if(!j.fields || !j.fields.data) return null;
@@ -9709,7 +9948,7 @@ async function publierPlateauJoueurs(){
   }).filter(Boolean);
   situation.nonNegociables=(PROJET_JEU.nonNegociables||[]).filter(function(x){ return (x||'').trim(); });
   try{
-    var res=await fetch(FIRESTORE_BASE+'/plateau_joueurs/actuel',{
+    var res=await fbFetch(FIRESTORE_BASE+'/plateau_joueurs/actuel',{
       method:'PATCH', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({fields:{
         data:{stringValue:JSON.stringify(situation)},
@@ -9727,7 +9966,7 @@ async function publierPlateauJoueurs(){
 async function retirerPlateauJoueurs(){
   if(!confirm('Retirer la situation publiée ? Les joueurs ne la verront plus.')) return;
   try{
-    await fetch(FIRESTORE_BASE+'/plateau_joueurs/actuel',{method:'DELETE'});
+    await fbFetch(FIRESTORE_BASE+'/plateau_joueurs/actuel',{method:'DELETE'});
     document.getElementById('plateau-publie-info').textContent='rien de publié';
     notif('✓ Retiré de l\'appli joueurs');
   }catch(e){ notif('⚠ Impossible de retirer — vérifie ta connexion'); }
@@ -9736,7 +9975,7 @@ async function etatPlateauPublie(){
   var el=document.getElementById('plateau-publie-info');
   if(!el || FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI') return;
   try{
-    var res=await fetch(FIRESTORE_BASE+'/plateau_joueurs/actuel');
+    var res=await fbFetch(FIRESTORE_BASE+'/plateau_joueurs/actuel');
     if(!res.ok){ el.textContent='rien de publié'; return; }
     var j=await res.json();
     var f=j.fields||{};
@@ -12974,6 +13213,7 @@ function sauvegarder(){
     sauvegarderFirestore().then(function(res){
       if(res && res.conflit){ ouvrirConflitCloud(res.conflit); return; }
       if(res){ notif('☁️ Sauvegardé aussi dans le cloud'); majPoidsSauvegarde(); }
+      else if(!authConnecte()) notif('⚠ Pas connecté au cloud — la copie locale est OK, mais les joueurs ne verront pas cette mise à jour. Connecte-toi (bandeau orange en haut).');
       else notif('⚠ Cloud KO — la copie locale est OK, mais les joueurs ne verront pas cette mise à jour. Vérifie ta connexion ou le poids des données (Paramètres du club).');
     });
   }catch(e){
@@ -13027,8 +13267,124 @@ function restaurerSauvegarde(input){
   };
   reader.readAsText(file);
 }
+
+// ===== La connexion du coach, et les accès des joueurs =====
+var HORS_LIGNE=false;
+function ouvrirConnexion(){
+  var e=document.getElementById('scr-connexion'); if(!e) return;
+  var l=document.getElementById('cx-logo'); if(l && typeof PHOTO_LOGO!=='undefined') l.src=PHOTO_LOGO;
+  e.classList.remove('hidden');
+  var c=document.getElementById('cx-email'); if(c) c.focus();
+}
+function fermerConnexion(){
+  var e=document.getElementById('scr-connexion'); if(e) e.classList.add('hidden');
+}
+function continuerHorsLigne(){
+  HORS_LIGNE=true; fermerConnexion();
+  notif('📴 Hors ligne — rien ne partira dans le cloud tant que tu ne seras pas connecté');
+}
+async function connexionCoach(){
+  var email=(document.getElementById('cx-email').value||'').trim();
+  var mdp=document.getElementById('cx-mdp').value||'';
+  var err=document.getElementById('cx-err'), btn=document.getElementById('cx-btn');
+  err.classList.add('hidden');
+  if(!email || !mdp){ err.textContent='⚠ Remplis les deux champs'; err.classList.remove('hidden'); return; }
+  btn.disabled=true; btn.textContent='Connexion...';
+  try{
+    await authConnexion(email, mdp);
+    HORS_LIGNE=false;
+    fermerConnexion();
+    document.getElementById('cx-mdp').value='';
+    notif('✓ Connecté — synchronisation en cours');
+    syncDepuisFirestore(true);
+    majEtatConnexion();
+  }catch(e){
+    err.textContent='⚠ '+(e.message||'Connexion impossible');
+    err.classList.remove('hidden');
+  }finally{
+    btn.disabled=false; btn.textContent='Entrer';
+  }
+}
+function deconnexionCoach(){
+  if(!confirm('Te déconnecter ?\n\nTes données restent sur cet appareil, mais plus rien ne partira dans le cloud tant que tu ne te reconnecteras pas.')) return;
+  authDeconnexion(); majEtatConnexion(); ouvrirConnexion();
+}
+// Le module d'identification appelle ceci quand la session ne peut plus être renouvelée
+function authSessionPerdue(){ majEtatConnexion(); if(!HORS_LIGNE) ouvrirConnexion(); }
+function authRefusee(){ majEtatConnexion(); }
+function majEtatConnexion(){
+  var b=document.getElementById('cx-bandeau');
+  if(b) b.classList.toggle('hidden', authConnecte());
+  var e=document.getElementById('cx-etat'); if(!e) return;
+  if(authConnecte()){
+    e.innerHTML='<span style="color:var(--green);font-weight:700">● Connecté</span> — '+esc2((SESSION&&SESSION.email)||'')
+      +' <button class="acc-b" style="margin-left:8px" onclick="deconnexionCoach()">Se déconnecter</button>';
+  }else{
+    e.innerHTML='<span style="color:var(--red);font-weight:700">● Non connecté</span> — le cloud est inaccessible'
+      +' <button class="acc-b or" style="margin-left:8px" onclick="ouvrirConnexion()">Se connecter</button>';
+  }
+}
+
+// --- Les accès des joueurs ---------------------------------------------------
+// Un joueur ne peut pas créer son compte lui-même : n'importe qui pourrait alors
+// s'inventer un numéro et lire les données du groupe. C'est le coach qui ouvre
+// l'accès, et l'appli garde la trace du compte dans "comptes/{identifiant}".
+function accEmail(num){ return String(num)+'@joueurs.asttarnos.fr'; }
+function accCodeAuHasard(){
+  var n=Math.floor(Math.random()*10000);
+  return ('000'+n).slice(-4);
+}
+var ACCES_CREES={}; // num -> code, affiché une seule fois après création
+async function creerAccesJoueur(num, nom){
+  if(!authConnecte()){ notif('⚠ Connecte-toi d\'abord'); return; }
+  var code=accCodeAuHasard();
+  try{
+    var compte=await authCreationAutreCompte(accEmail(num), 'ast-'+code);
+    await fbFetch(FIRESTORE_BASE+'/comptes/'+compte.localId,{
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{num:{integerValue:String(num)}, nom:{stringValue:nom||''},
+        role:{stringValue:'joueur'}, cree:{stringValue:new Date().toLocaleDateString('fr-FR')}}})
+    });
+    ACCES_CREES[num]=code;
+    renderAccesJoueurs();
+    notif('✓ Accès créé pour le n°'+num+' — code '+code);
+  }catch(e){
+    if((e.message||'').indexOf('existe déjà')!==-1){
+      notif('⚠ Le n°'+num+' a déjà un accès — utilise « Nouveau code » pour le remplacer');
+    }else{
+      notif('✗ '+(e.message||'Création impossible'));
+    }
+  }
+}
+// Firebase renvoie un jeton pour le compte créé : on ne veut surtout pas remplacer
+// la session du coach, donc on met la sienne de côté et on la remet aussitôt.
+async function authCreationAutreCompte(email, motDePasse){
+  var moi=SESSION;
+  try{
+    var res=await fetch(AUTH_BASE+'signUp?key='+FIREBASE_API_KEY,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:motDePasse,returnSecureToken:false})
+    });
+    var d=await res.json();
+    if(!res.ok) throw new Error(authMessage(((d.error||{}).message)||''));
+    return d;
+  }finally{ authRetenir(moi); }
+}
+function renderAccesJoueurs(){
+  var ct=document.getElementById('acc-liste'); if(!ct) return;
+  if(!JOUEURS.length){ ct.innerHTML='<div style="font-size:12px;color:var(--gris2);padding:10px 2px">Aucun joueur dans l\'effectif.</div>'; return; }
+  ct.innerHTML=JOUEURS.slice().sort(function(a,b){ return (a.num||0)-(b.num||0); }).map(function(j){
+    var code=ACCES_CREES[j.num];
+    return '<div class="acc-l"><div class="acc-n">'+esc2(String(j.num))+'</div>'
+      +'<div class="acc-nom">'+esc2(j.nom)+'</div>'
+      +(code?'<div class="acc-code">'+code+'</div>':'')
+      +'<button class="acc-b'+(code?'':' or')+'" onclick="creerAccesJoueur('+j.num+',\''+esc2(j.nom).replace(/'/g,"\\'")+'\')">'
+      +(code?'Refaire':'Créer l\'accès')+'</button></div>';
+  }).join('');
+}
+
 function notif(txt){var el=document.getElementById('notif');el.textContent=txt;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
-window.addEventListener('load',function(){appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();syncDepuisFirestore(true);});
+window.addEventListener('load',function(){appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();majEtatConnexion();renderAccesJoueurs();if(authConnecte()) syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
