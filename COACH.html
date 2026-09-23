@@ -547,6 +547,35 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 @media(max-width:700px){ .fm-colonnes{grid-template-columns:1fr} }
 /* ===== Docs à imprimer : on voit le document avant de le générer ===== */
 .doc-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:14px}
+/* Les fiches remplies qu'on a gardées */
+.fa-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+.fa-chip{font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 11px;border-radius:20px;
+  border:1px solid var(--line);background:var(--bg3);color:var(--gris2);cursor:pointer;white-space:nowrap}
+.fa-chip b{opacity:.7;font-weight:800;margin-left:2px}
+.fa-chip.on{background:var(--or);border-color:var(--or);color:#1a0f02}
+.fa-chip.on b{opacity:.85}
+.fa-l{display:flex;align-items:center;gap:11px;padding:10px 11px;border:1px solid var(--line);
+  border-radius:10px;background:var(--bg3);margin-bottom:7px}
+.fa-l:last-child{margin-bottom:0}
+.fa-ic{flex:0 0 36px;height:36px;border-radius:9px;background:rgba(217,119,6,.14);
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.fa-txt{flex:1;min-width:0}
+.fa-t{font-weight:800;font-size:13px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fa-s{font-size:10.5px;color:var(--gris2);margin-top:2px}
+.fa-b{flex:0 0 auto;display:flex;gap:6px}
+.fa-o{font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:8px 13px;border-radius:7px;border:none;background:var(--or);color:#1a0f02;cursor:pointer}
+.fa-x{font-family:inherit;font-size:13px;padding:8px 10px;border-radius:7px;border:1px solid var(--line);
+  background:transparent;color:var(--gris2);cursor:pointer}
+.fa-x:hover{border-color:var(--red);color:var(--red)}
+.fa-vide{font-size:12px;color:var(--gris2);line-height:1.6;padding:14px 4px;text-align:center}
+.fa-vide span{font-size:11.5px;opacity:.85}
+@media(max-width:560px){
+  .fa-l{flex-wrap:wrap}
+  .fa-txt{flex:1 1 auto}
+  .fa-b{flex:1 1 100%;margin-top:2px}
+  .fa-o{flex:1}
+}
 .doc-carte{background:var(--carte);border:1.5px solid var(--line);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 18px rgba(0,0,0,.45);transition:border-color .15s,transform .15s}
 .doc-carte:hover{border-color:var(--or);transform:translateY(-2px)}
 .doc-carte.phare{border-color:var(--or);border-width:2px}
@@ -856,8 +885,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v22</b> · 22/09/2026<br>
-      <span style="opacity:.7">Clips vidéo · Projet de jeu</span>
+      AST COACH <b style="color:var(--or)">v25</b> · 23/09/2026<br>
+      <span style="opacity:.7">Observation équipe — la sœur de la fiche joueur</span>
     </div>
   </div>
 </div>
@@ -1011,6 +1040,12 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 <!-- ADVERSAIRES -->
 <div class="scr-grille scr" id="scr-adversaires">
   <div class="ph"><div><div class="ph-title">🔍 Adversaires</div><div class="ph-sub">Fiche permanente par équipe — se remplit match après match</div></div></div>
+  <div class="doc-bandeau" onclick="genererFicheObservationEquipe(document.getElementById('adv-sel').value)">
+    <span class="gros">🔍</span>
+    <div class="coeur"><div class="t">Fiche d'observation équipe</div>
+      <div class="d">Leur dispositif sur deux terrains, avec et sans le ballon, les transitions, les coups de pied arrêtés, les hommes à surveiller, leur force et leur faille — et notre plan contre eux.</div></div>
+    <span class="cta">Ouvrir ›</span>
+  </div>
   <div class="doc-bandeau" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">
     <span class="gros">👁</span>
     <div class="coeur"><div class="t">Fiche d'observation joueur</div>
@@ -2077,6 +2112,13 @@ Repli défensif après perte"></textarea>
 <div class="scr" id="scr-imprimer">
   <div class="ph"><div><div class="ph-title">🖨️ Docs à imprimer</div><div class="ph-sub">Tout ce qui sort de l'appli sur papier — un aperçu, un clic, c'est prêt</div></div></div>
 
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">📚 Mes fiches remplies</span><span class="bc" id="fa-compteur">aucune</span></div>
+    <div style="padding:12px 14px 14px">
+      <div class="fa-chips" id="fa-chips"></div>
+      <div id="fa-liste"></div>
+    </div>
+  </div>
+
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go">À remplir avant le match</span></div>
     <div style="padding:14px">
       <div class="doc-grille">
@@ -2094,6 +2136,24 @@ Repli défensif après perte"></textarea>
             <div class="doc-titre">🧠 Carte mentale d'avant-match</div>
             <div class="doc-desc">Le logo au centre, huit branches autour : adversaire, groupe, plan de jeu, coups de pied arrêtés, objectifs, discours, logistique, après-match. Le prochain match, ta dernière compo et tes blessés sont déjà dedans.</div>
             <button class="btn" onclick="genererCarteMentaleMatch()">Ouvrir la carte mentale</button>
+          </div>
+        </div>
+
+        <div class="doc-carte phare">
+          <div class="doc-apercu"><span class="doc-etiq">Nouveau</span>
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mobs">
+                <div class="r" style="flex:0 0 20px"><span class="k" style="--c:#11161c"><u></u></span><span class="k" style="--c:#0e7490"><u></u></span></div>
+                <div class="r"><span class="mter"></span><span class="mter"></span><span class="k" style="--c:#2563eb"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#d97706"><u></u><u class="court"></u></span><span class="k" style="--c:#0f8a5f"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#c0392b"><u></u><u></u><u class="court"></u></span></div>
+              </div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">🔍 Fiche d'observation équipe</div>
+            <div class="doc-desc">Leur dispositif sur deux terrains, avec et sans le ballon, les transitions, les coups de pied arrêtés, les hommes à surveiller, leur force et leur faille, et notre plan contre eux.</div>
+            <div class="doc-champ"><select class="fi" id="doc-obs-eq"></select></div>
+            <button class="btn" onclick="genererFicheObservationEquipe(document.getElementById('doc-obs-eq')?document.getElementById('doc-obs-eq').value:'')">Ouvrir la fiche équipe</button>
           </div>
         </div>
 
@@ -6993,6 +7053,7 @@ function appliquerDonnees(p,silencieux){
   if(p.AFFECTATIONS_CONVOC)AFFECTATIONS_CONVOC=p.AFFECTATIONS_CONVOC;
   if(p.BIBLIOTHEQUE_GENERALE)BIBLIOTHEQUE_GENERALE=p.BIBLIOTHEQUE_GENERALE;
   if(p.A_CREUSER)A_CREUSER=p.A_CREUSER;
+  if(p.FICHES_ARCHIVE)FICHES_ARCHIVE=p.FICHES_ARCHIVE;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -7066,7 +7127,7 @@ function donneesSaisonSansPhotos(){
     });
     return copie;
   });
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7074,7 +7135,7 @@ function donneesSaisonSansPhotos(){
 // atteinte et la sauvegarde échouait en silence. On répartit donc en deux documents :
 //   · saison/main  = ce dont les joueurs ont besoin (leur appli ne lit que celui-ci)
 //   · saison/staff = le matériel du staff, lourd et interne (exercices, biblio, entretiens)
-var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE'];
+var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE'];
 var LIMITE_DOC_OCTETS=900*1024; // marge de sécurité sous la limite réelle de 1 Mo
 
 function poidsOctets(txt){
@@ -8020,6 +8081,289 @@ function renderClips(){
   }).join('');
 }
 
+// ===== La fiche d'observation d'une équipe =====
+// Le pendant collectif exact de la fiche joueur : mêmes blocs, même grille de notes,
+// même verdict — mais tout est traduit en collectif. Sur deux pages A4, parce qu'une
+// équipe se regarde plus longtemps qu'un joueur : page 1 ce qu'ils sont, page 2 ce qu'on en fait.
+var DOC_EQ_CRITERES=[
+  {bloc:'Avec le ballon', coul:'#d97706', items:[
+    'Relance depuis le gardien',
+    'Qualité de circulation',
+    'Vitesse de jeu / temps de passe',
+    'Largeur et profondeur',
+    'Attaques placées',
+    'Danger sur transition offensive']},
+  {bloc:'Sans le ballon', coul:'#2563eb', items:[
+    'Hauteur et compacité du bloc',
+    'Pressing coordonné',
+    'Couverture des intervalles',
+    'Défense de la profondeur',
+    'Réaction immédiate à la perte',
+    'Défense des centres']},
+  {bloc:'Duels, rythme, physique', coul:'#c0392b', items:[
+    'Duels au sol',
+    'Jeu aérien dans les deux surfaces',
+    'Intensité sur 90 minutes',
+    'Vitesse de leurs attaquants',
+    'Répétition des efforts']},
+  {bloc:'Tête et animation', coul:'#7c3aed', items:[
+    'Discipline et comportement',
+    'Réaction après un but encaissé',
+    'Gestion des temps faibles',
+    'Communication et leaders',
+    'Coaching depuis le banc']}
+];
+var DOC_EQ_ZONES=[
+  ['Z1','Z2','Z3'],['Z4','Z5','Z6'],['Z7','Z8','Z9'],['Z10','Z11','Z12']
+];
+
+function genererFicheObservationEquipe(nomAdversaire){
+  var logo=docLogoClub();
+  var fiche=null;
+  (ADVERSAIRES||[]).forEach(function(a){
+    if(a.nom===nomAdversaire && a.fiches && a.fiches.length) fiche=a.fiches[a.fiches.length-1];
+  });
+  var possConnu=fiche?(fiche.dispoPoss||''):'';
+  var defConnu=fiche?(fiche.dispoDef||''):'';
+
+  function note(){
+    var s='';
+    for(var i=1;i<=5;i++) s+='<span class="pt">'+i+'</span>';
+    return '<span class="notes">'+s+'</span>';
+  }
+  function champ(lab, vide, valeur, large){
+    return '<div class="ch'+(large?' large':'')+'"><span class="ch-l">'+docEsc(lab)+'</span>'
+      +'<span class="ch-v" contenteditable data-vide="'+docEsc(vide)+'">'+docEsc(valeur||'')+'</span></div>';
+  }
+  function bloc(titre, coul, corps){
+    return '<div class="bl" style="--c:'+coul+'"><div class="bl-t">'+docEsc(titre)+'</div>'+corps+'</div>';
+  }
+  var criteres=DOC_EQ_CRITERES.map(function(b){
+    return '<div class="cbloc" style="--c:'+b.coul+'"><div class="cbloc-t">'+docEsc(b.bloc)+'</div>'
+      +b.items.map(function(it){ return '<div class="crit"><span class="crit-l">'+docEsc(it)+'</span>'+note()+'</div>'; }).join('')
+      +'</div>';
+  }).join('');
+
+  // Le terrain des zones : on entoure par où ils font mal, on barre où ils souffrent
+  var grille='';
+  DOC_EQ_ZONES.forEach(function(rangee,r){
+    rangee.forEach(function(z,c){
+      grille+='<div class="zcell" style="left:'+(c*33.33)+'%;top:'+(r*25)+'%">'+z+'</div>';
+    });
+  });
+
+  // Leur onze : on repart d'une observation avec des numéros et des noms
+  var onze=[1,2,3,4,5,6,7,8,9,10,11].map(function(i){
+    return '<div class="on-l"><span class="on-r">'+i+'</span>'
+      +'<span class="on-n" contenteditable data-vide="n°"></span>'
+      +'<span class="on-nom" contenteditable data-vide="nom ou signe distinctif"></span>'
+      +'<span class="on-p" contenteditable data-vide="poste"></span></div>';
+  }).join('');
+
+  // Trois lignes pour les joueurs à surveiller
+  var hommes=[1,2,3].map(function(){
+    return '<div class="hm">'
+      +'<span class="hm-n" contenteditable data-vide="n°"></span>'
+      +'<span class="hm-nom" contenteditable data-vide="nom"></span>'
+      +'<span class="hm-p" contenteditable data-vide="poste"></span>'
+      +'<span class="hm-q" contenteditable data-vide="pourquoi il est dangereux, comment le gêner"></span>'
+      +'</div>';
+  }).join('');
+
+  function bandeau(sous){
+    return '<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+      +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">'+docEsc(sous)+'</div></div>'
+      +'<div class="droite">Observateur : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span><br>'
+        +'Date : <span contenteditable data-vide="jj/mm/aaaa"></span></div>'
+    +'</div>';
+  }
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Observation équipe — '+docEsc(nomAdversaire||'adversaire')+'</title>'
+    +docStylesCommuns()
+    +'<style>'
+    +'@page{size:A4 portrait;margin:6mm}'
+    +'.feuille{width:764px;min-height:1060px;padding:16px 18px 12px;display:flex;flex-direction:column;gap:9px}'
+    +'.feuille+.feuille{margin-top:14px}'
+    +'.bandeau{display:flex;align-items:center;gap:11px;border-bottom:3px solid #d97706;padding-bottom:7px}'
+    +'.bandeau img{width:36px;height:36px;object-fit:contain}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:19px;line-height:1}'
+    +'.bandeau .sous{font-size:10px;color:#6b7480;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}'
+    +'.bandeau .droite{margin-left:auto;text-align:right;font-size:9.5px;color:#6b7480;line-height:1.7}'
+    +'.bandeau .droite span[contenteditable]{display:inline-block;min-width:96px;border-bottom:1.2px dotted #b4bcc4;color:#11161c;font-weight:600;text-align:left;padding:0 3px}'
+    +'.rang{display:grid;gap:9px}'
+    +'.r2{grid-template-columns:1fr 1fr}.r3{grid-template-columns:1fr 1fr 1fr}'
+    +'.bl{border:1.5px solid #e2e6ea;border-left:4px solid var(--c);border-radius:8px;padding:7px 10px 8px;background:#fff}'
+    +'.bl-t{font-family:Anton,sans-serif;font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--c);margin-bottom:5px}'
+    +'.ch{display:flex;flex-direction:column;margin-bottom:5px}'
+    +'.ch-l{font-size:7.4px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad}'
+    +'.ch-v{font-size:11px;font-weight:600;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding-bottom:1px}'
+    +'.ch.large .ch-v{min-height:30px}'
+    +'.duo{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    +'.terrains{display:flex;gap:10px;align-items:flex-start}'
+    +'.tcol{flex:0 0 132px;text-align:center}'
+    +'.tcol .tt{font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#6b7480;margin-bottom:3px}'
+    +'.tcol .terrain{width:132px;aspect-ratio:100/130;position:relative}'
+    +'.terrain{position:relative}'
+    +'.zcell{position:absolute;width:33.33%;height:25%;display:flex;align-items:flex-start;justify-content:flex-start;'
+      +'font-size:7.5px;font-weight:700;color:#5c6b61;padding:2px 0 0 3px}'
+    +'.terrain-bloc{display:flex;gap:10px}'
+    +'.terrain-bloc .terrain{width:132px;flex:0 0 132px;aspect-ratio:100/130}'
+    +'.terrain-aide{flex:1;font-size:9px;color:#6b7480;line-height:1.55}'
+    +'.terrain-aide b{color:#11161c;display:block;font-size:9.5px;margin-bottom:2px}'
+    +'.tsuite{flex:1;min-width:0}'
+    +'.cgrille{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    +'.cbloc{border:1.5px solid #e2e6ea;border-top:4px solid var(--c);border-radius:8px;padding:6px 9px 7px;background:#fff}'
+    +'.cbloc-t{font-family:Anton,sans-serif;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--c);margin-bottom:4px}'
+    +'.crit{display:flex;align-items:center;gap:6px;padding:2.2px 0;border-bottom:1px dotted #e6eaee}'
+    +'.crit:last-child{border-bottom:none}'
+    +'.crit-l{flex:1;font-size:9.3px;color:#3c4650;line-height:1.25}'
+    +'.notes{display:flex;gap:3px;flex:0 0 auto}'
+    +'.pt{width:14px;height:14px;border:1.2px solid #b4bcc4;border-radius:50%;font-size:8px;font-weight:700;'
+      +'color:#8a949e;display:flex;align-items:center;justify-content:center}'
+    +'.verdict{display:flex;gap:7px;margin-top:4px;flex-wrap:wrap}'
+    +'.vb{flex:1;min-width:104px;border:1.5px solid #d6dbe0;border-radius:7px;padding:6px 8px;text-align:center;font-size:9.5px;font-weight:700;color:#5c6670}'
+    +'.vb i{display:block;font-size:15px;font-style:normal;margin-bottom:1px}'
+    +'.hm{display:grid;grid-template-columns:34px 112px 62px 1fr;gap:7px;align-items:center;'
+      +'padding:5px 0;border-bottom:1px dotted #e0e5ea}'
+    +'.hm:last-child{border-bottom:none}'
+    +'.hm span{font-size:10.5px;min-height:15px;border-bottom:1.2px dotted #c3cbd3;padding:1px 3px}'
+    +'.hm .hm-n{font-weight:800;color:#c0392b;text-align:center}'
+    +'.hm .hm-nom{font-weight:700}'
+    +'.onze{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}'
+    +'.on-l{display:grid;grid-template-columns:12px 26px 1fr 54px;gap:5px;align-items:center;'
+      +'padding:3.4px 0;border-bottom:1px dotted #e6eaee}'
+    +'.on-r{font-size:7.5px;font-weight:800;color:#c3cbd3;text-align:center}'
+    +'.on-l span[contenteditable]{font-size:10px;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding:1px 3px}'
+    +'.on-l .on-n{font-weight:800;color:#2563eb;text-align:center}'
+    +'.on-l .on-nom{font-weight:700}'
+    +'.on-l .on-p{color:#6b7480;font-size:9px}'
+    +'.pied{margin-top:auto;display:flex;justify-content:space-between;font-size:8.4px;color:#98a2ad;'
+      +'border-top:1px solid #e2e6ea;padding-top:6px}'
+    +'@media print{.p2{break-before:page;page-break-before:always}}'
+    +'@media screen and (max-width:860px){'
+      +'.hm{grid-template-columns:58px 1fr;grid-auto-rows:min-content;gap:6px;padding:9px 0}'
+      +'.hm .hm-p,.hm .hm-q{grid-column:1/-1}'
+      +'.terrains{flex-direction:column;align-items:stretch}'
+      +'.tcol{flex:none;width:100%}.tcol .terrain{width:100%;max-width:200px;margin:0 auto}'
+      +'.onze{grid-template-columns:1fr}'
+      +'.on-l{grid-template-columns:14px 46px 1fr;gap:6px;padding:7px 0}'
+      +'.on-l .on-p{grid-column:2/-1}'
+      +'}'
+    +'</style></head><body>'
+    +docBarre(true)
+
+    // ---------------------------------------------------------------- PAGE 1 : ce qu'ils sont
+    +'<div class="feuille">'
+    +bandeau('Fiche d\'observation — équipe · page 1')
+
+    +'<div class="rang r3">'
+      +bloc('L\'équipe observée','#11161c',
+        champ('Club','nom du club', nomAdversaire||'')
+        +champ('Division','R2, R1, N3…')
+        +champ('Entraîneur','son nom, si tu le sais')
+        +champ('Terrain','synthétique, herbe, dimensions'))
+      +bloc('Le match observé','#0e7490',
+        champ('Contre qui','adversaire du jour')
+        +champ('Score','2-1')
+        +champ('Compétition','championnat, coupe')
+        +champ('Conditions','météo, terrain, enjeu'))
+      +bloc('Leur identité','#2563eb',
+        champ('Système annoncé','4-2-3-1, 3-5-2…', possConnu)
+        +champ('Système réel','ce qu\'ils font vraiment', defConnu)
+        +champ('Style dominant','jeu direct, possession, contre')
+        +champ('Ce qui les fait gagner','en une phrase'))
+    +'</div>'
+
+    +bloc('Leur dispositif','#2563eb',
+      '<div class="terrains">'
+        +'<div class="tcol"><div class="tt">⚽ Avec le ballon</div>'
+          +'<div class="terrain">'+docTerrainSvg({formation:possConnu, couleur:'#2563eb'})+'</div></div>'
+        +'<div class="tcol"><div class="tt">🛡 À la perte</div>'
+          +'<div class="terrain">'+docTerrainSvg({formation:defConnu, couleur:'#0f8a5f'})+'</div></div>'
+        +'<div class="tsuite">'
+          +champ('Changements en cours de match','bascule de système, remplacements types',null,true)
+          +champ('Où ils se placent quand ils défendent','hauteur du bloc, largeur',null,true)
+          +champ('Leur côté fort','par où passe le jeu')
+        +'</div>'
+      +'</div>')
+
+    +'<div class="rang r2">'
+      +bloc('Par où ils font mal','#0f8a5f',
+        '<div class="terrain-bloc"><div class="terrain">'+docTerrainSvg({zones:true})+grille+'</div>'
+        +'<div class="terrain-aide"><b>Entoure leurs 2 ou 3 zones, barre celles où ils souffrent.</b>'
+        +'Le terrain est découpé en couloirs (gauche / axe / droite) et en quatre hauteurs, de leur but (en haut) au nôtre (en bas). '
+        +'Note où ils récupèrent le plus de ballons, et où ils nous laisseront de l\'espace.'
+        +'<div style="margin-top:5px"><span class="ch-l">Zone de récupération préférée</span>'
+        +'<div class="ch-v" contenteditable data-vide="haut, milieu, bas — et de quel côté"></div></div></div></div>')
+      +bloc('Ce qu\'ils font du ballon','#7c3aed',
+        champ('Comment ils relancent','court par le gardien, long sur le 9, côté fort',null,true)
+        +champ('Par où ils attaquent','couloirs, axe, profondeur',null,true)
+        +champ('Ce qui les met en confiance','leur temps fort'))
+    +'</div>'
+
+    +'<div class="cgrille">'+criteres+'</div>'
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — observation d\'équipe, page 1 sur 2 : ce qu\'ils sont.</span>'
+      +'<span>1 = faible · 5 = très bon</span></div>'
+    +'</div>'
+
+    // ---------------------------------------------------------------- PAGE 2 : ce qu'on en fait
+    +'<div class="feuille p2">'
+    +bandeau('Fiche d\'observation — équipe · page 2')
+
+    +'<div class="rang r2">'
+      +bloc('Comment ils défendent','#2563eb',
+        champ('Hauteur du bloc','haut, médian, bas')
+        +champ('Déclencheurs de pressing','passe en retrait, contrôle orienté vers l\'extérieur…',null,true)
+        +champ('Ce qu\'ils laissent','l\'espace qu\'on pourra prendre',null,true))
+      +bloc('Les transitions','#c0392b',
+        champ('À la perte','contre-pressing immédiat ou repli',null,true)
+        +champ('À la récupération','vite devant, ou ils conservent',null,true)
+        +champ('Combien de temps ils tiennent l\'intensité','les 20 dernières minutes'))
+    +'</div>'
+
+    +bloc('Coups de pied arrêtés','#7c3aed',
+      '<div class="duo">'+champ('Corners offensifs','schéma, cible')+champ('Corners défensifs','zone ou individuel')+'</div>'
+      +'<div class="duo">'+champ('Tireur de coup franc','n° et pied')+champ('Le plus dangereux de la tête','n°')+'</div>')
+
+    +bloc('Leur onze','#2563eb',
+      '<div class="onze">'+onze+'</div>'
+      +champ('Les remplaçants qui changent le match','n°, à quelle minute, ce que ça change'))
+
+    +bloc('Les hommes à surveiller','#c0392b', hommes)
+
+    +'<div class="rang r2">'
+      +bloc('Leur force','#0f8a5f','<div class="ch large"><span class="ch-v" contenteditable data-vide="ce sur quoi il ne faut pas les laisser jouer"></span></div>')
+      +bloc('Leur faille','#c0392b','<div class="ch large"><span class="ch-v" contenteditable data-vide="là où on va appuyer, avec des exemples précis du match"></span></div>')
+    +'</div>'
+
+    +bloc('Verdict','#d97706',
+      '<div class="duo">'+champ('Où je les situe','en haut, dans notre poule, derrière nous')
+      +champ('Le match qu\'il faut faire','en une phrase')+'</div>'
+      +'<div class="verdict">'
+      +'<div class="vb"><i>🔥</i>Plus forts que nous</div>'
+      +'<div class="vb"><i>⚖️</i>À notre niveau</div>'
+      +'<div class="vb"><i>👍</i>Prenables</div>'
+      +'<div class="vb"><i>🎯</i>On doit les battre</div>'
+      +'</div>')
+
+    +bloc('Notre plan contre eux','#d97706',
+      champ('Ce qu\'on change dans notre organisation','système, rôles, consignes particulières',null,true)
+      +'<div class="duo">'+champ('Le joueur qu\'on prend en individuel','n° et qui s\'en charge')
+      +champ('Notre premier objectif','ce qu\'on veut dans les 15 premières minutes')+'</div>'
+      +champ('Le message au groupe','la phrase qu\'ils doivent retenir',null,true))
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — observation d\'équipe, page 2 sur 2 : ce qu\'on en fait.</span>'
+      +'<span>Coche les notes à l\'écran, ou entoure-les au stylo.</span></div>'
+    +'</div>'
+
+    +docMemoire('obs_equipe_'+(nomAdversaire||'libre'),
+       {type:'obs_equipe', titre:'Observation équipe', sujet:nomAdversaire||'Équipe observée'})
+    +'</body></html>';
+  docOuvrir(html,'Fiche d\'observation équipe');
+}
+
 // ===== Mode d'emploi =====
 // Chaque fiche : ce qu'on veut faire, où ça se passe, les étapes, et le piège s'il y en a un.
 var AIDE_FAMILLES=[
@@ -8218,6 +8562,29 @@ var AIDE=[
   'La bannière orange en haut ouvre la <b>fiche d\'observation</b> à imprimer.'
  ],
  astuce:'Ces infos remontent toutes seules sur ton accueil quand le match approche, et dans la carte mentale d\'avant-match.'},
+
+{f:'tact', t:'Observer une équipe adverse depuis la tribune', ou:'Écran Adversaires — bannière 🔍', ecran:'adversaires',
+ etapes:[
+  'Choisis l\'adversaire dans la liste, puis clique la bannière orange <b>🔍 Fiche d\'observation équipe</b>.',
+  'La fiche s\'ouvre déjà remplie de ce que tu sais : le nom du club, et ses deux dispositifs dessinés sur les terrains.',
+  'Sur place, <b>tu cliques directement dans un champ et tu écris</b> — au téléphone comme sur l\'ordinateur. Tout ce qui est en pointillé orange se remplit.',
+  'Les 6 critères de <b>Ce qu\'ils valent</b> s\'entourent au stylo une fois la feuille imprimée : 1 = faible, 5 = très bon.',
+  'Rien à enregistrer : la fiche se retient toute seule sur l\'appareil, adversaire par adversaire. Tu peux fermer et revenir.',
+  '<code>🖨 Imprimer / PDF</code> quand tu veux la version papier. Les pointillés et la barre du haut ne s\'impriment pas.'
+ ],
+ piege:'La fiche se retient <b>sur l\'appareil où tu l\'as remplie</b>. Ce que tu écris au stade sur ton téléphone ne se retrouve pas sur l\'ordinateur du club — imprime en PDF pour la faire voyager.',
+ astuce:'<b>Vider (version brouillon)</b> efface tout et te rend une feuille vierge : c\'est celle-là qu\'on imprime pour aller la remplir au stylo en tribune.'},
+
+{f:'docs', t:'Garder une fiche remplie, et la retrouver ailleurs', ou:'Sur la fiche elle-même, puis écran Docs à imprimer', ecran:'imprimer',
+ etapes:[
+  'Remplis ta fiche — carte mentale d\'avant-match, observation joueur ou observation équipe — au bureau ou au stade sur ton téléphone.',
+  'En haut de la fiche, appuie sur <code>📥 Archiver dans l\'appli</code>.',
+  'La fiche rejoint <b>📚 Mes fiches remplies</b>, tout en haut de l\'écran Docs à imprimer, et part dans la sauvegarde du club.',
+  '<code>Rouvrir</code> la réaffiche telle que tu l\'avais laissée : tu peux la compléter, la réarchiver ou l\'imprimer.',
+  'Les pastilles de note et les cases de verdict se <b>touchent au doigt</b> : la note choisie s\'allume en orange et part avec la fiche.'
+ ],
+ piege:'<b>L\'appli doit rester ouverte derrière la fiche.</b> La fiche s\'ouvre dans un second onglet et c\'est par là qu\'elle renvoie ce que tu as écrit. Si tu as fermé l\'onglet AST COACH, rouvre la fiche depuis l\'appli : ta saisie est retenue, rien n\'est perdu.',
+ astuce:'C\'est ça qui fait voyager une fiche : remplie sur le téléphone en tribune puis archivée, elle est sur l\'ordinateur du club au prochain chargement. Sans l\'archiver, elle reste sur l\'appareil où tu l\'as écrite.'},
 
 // ---------------------------------------------------------------- LES DOCUMENTS
 {f:'docs', t:'Sortir un document sur papier', ou:'Écran Docs à imprimer', ecran:'imprimer',
@@ -8424,7 +8791,7 @@ function genererProjetJeuPDF(){
       +'</div>';
   }).join('');
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Projet de jeu — '+docEsc(NOM_CLUB)+'</title>'
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Projet de jeu — '+docEsc(NOM_CLUB)+'</title>'
     +docStylesCommuns()
     +'<style>'
     +'@page{size:A4 portrait;margin:8mm}'
@@ -10832,8 +11199,10 @@ function docTerrainSvg(opts){
 
 // Styles partagés par les deux documents : sombre à l'écran, encre économe à l'impression
 function docStylesCommuns(){
-  return '<style>'
-    +'@import url("https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Condensed:wght@400;600;700;800&display=swap");'
+  return '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    +'<link rel="stylesheet" media="print" onload="this.media=\'all\'" '
+      +'href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Condensed:wght@400;600;700;800&display=swap">'
+    +'<style>'
     +'*{box-sizing:border-box;margin:0;padding:0;font-family:"Roboto Condensed",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
     +'body{background:#0d1014;color:#11161c;padding:18px;display:flex;flex-direction:column;align-items:center;gap:14px}'
     +'.barre{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}'
@@ -10844,15 +11213,224 @@ function docStylesCommuns(){
     +'[contenteditable]{outline:none}'
     +'[contenteditable]:focus{background:rgba(217,119,6,.12);border-radius:3px}'
     +'[contenteditable]:empty:before{content:attr(data-vide);color:#b9c0c7;font-style:italic;font-weight:400}'
+    // Une note ou un verdict se coche du doigt à l'écran, et reste coché sur le papier
+    +'.pt.on{background:#d97706;border-color:#d97706;color:#fff}'
+    +'.vb.on{border-color:#d97706;background:rgba(217,119,6,.13);color:#8a4d06}'
+    +'@media screen{.notes .pt,.vb{cursor:pointer;-webkit-tap-highlight-color:rgba(217,119,6,.3);transition:background .1s}'
+      +'.notes .pt:hover,.vb:hover{border-color:#d97706}}'
+    // Un champ doit se voir et s'atteindre au doigt : encadré pointillé à l'écran, invisible au papier
+    +'@media screen{'
+      +'[contenteditable]{background:rgba(217,119,6,.06);border:1px dashed rgba(217,119,6,.4);'
+        +'border-radius:5px;padding:2px 5px;min-height:20px;cursor:text;-webkit-tap-highlight-color:rgba(217,119,6,.3);transition:background .12s}'
+      +'[contenteditable]:hover{background:rgba(217,119,6,.11)}'
+      +'[contenteditable]:focus{background:rgba(217,119,6,.17);border-style:solid;border-color:#d97706}'
+      +'.feuille{max-width:100%}'
+    +'}'
+    // Sur téléphone, la feuille A4 se déplie en une colonne et les champs grossissent
+    +'@media screen and (max-width:860px){'
+      +'body{padding:10px 8px 28px}'
+      +'.barre{position:sticky;top:0;z-index:60;background:rgba(13,16,20,.96);padding:9px 0;width:100%;'
+        +'backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.1)}'
+      +'.barre button{flex:1;min-width:130px;padding:13px 10px;font-size:13px}'
+      +'.feuille{width:100%!important;min-width:0!important;min-height:0!important;padding:14px 13px!important}'
+      // les grilles des différentes fiches repassent sur une colonne
+      +'.nn,.rang,.r2,.r3,.cgrille,.duo,.gr{grid-template-columns:1fr!important;grid-template-areas:none!important}'
+      // La carte mentale est une grille nommée : en une colonne, toutes les branches
+      // se superposeraient dans la même case. On repasse donc en simple pile.
+      +'.carte{display:flex!important;flex-direction:column!important;gap:9px!important}'
+      +'.br,.a1,.a2,.a3,.b1,.b3,.c1,.c2,.c3{grid-area:auto!important;width:100%}'
+      +'#fils{display:none}'
+      +'.hub{border-radius:14px!important;order:-1;padding:16px!important;grid-area:auto!important;width:100%}'
+      +'.ln{min-height:46px}'
+      +'.terrain-bloc{flex-direction:column}'
+      +'.terrain{width:100%!important;flex:none!important;max-width:220px;margin:0 auto}'
+      +'.mfm,.mex{flex-direction:column}'
+      +'.verdict{flex-direction:column}'
+      // 16 px minimum : en dessous, l\'iPhone zoome tout seul quand on tape
+      +'[contenteditable]{font-size:16px!important;line-height:1.45!important;min-height:30px;padding:7px 9px}'
+      +'.crit,.pr{padding:6px 0}'
+      +'.notes .pt{width:27px;height:27px;font-size:12px}'
+      +'.crit{gap:8px}'
+      +'.vb{min-width:calc(50% - 4px);padding:10px 8px}'
+    +'}'
     +'@media print{body{background:#fff;padding:0;display:block}.barre{display:none!important}'
-      +'.feuille{box-shadow:none;border-radius:0;margin:0}'
+      +'.feuille{box-shadow:none;border-radius:0;margin:0;width:auto!important;padding:initial}'
+      +'[contenteditable]{background:none!important;border:none!important;padding:0!important;min-height:0!important}'
       +'[contenteditable]:empty:before{content:""}}'
     +'</style>';
 }
-function docBarre(){
+// Ce qu'on écrit sur une fiche est retenu dans le navigateur : un appel qui arrive,
+// une rotation d'écran, et la saisie serait perdue sans ça.
+// ===== Les fiches remplies qu'on garde =====
+// Une observation, une carte mentale d'avant-match : une fois remplie, la fiche part
+// dans la sauvegarde du club. Remplie au stade sur le téléphone, elle se retrouve sur
+// l'ordinateur du club — c'est le seul chemin, le navigateur ne partage rien tout seul.
+var FICHES_ARCHIVE=[];
+var FICHE_TYPES={
+  carte:      {ic:'🧠', nom:"Carte mentale d'avant-match", gen:function(f){ genererCarteMentaleMatch(); }},
+  obs_equipe: {ic:'🔍', nom:'Observation équipe',          gen:function(f){ genererFicheObservationEquipe(f.sujet||''); }},
+  obs_joueur: {ic:'👤', nom:'Observation joueur',          gen:function(f){ genererFicheObservation(f.sujet||''); }}
+};
+function ficheHorodatage(){
+  var d=new Date(), z=function(n){ return (n<10?'0':'')+n; };
+  return z(d.getDate())+'/'+z(d.getMonth()+1)+'/'+d.getFullYear()+' à '+z(d.getHours())+'h'+z(d.getMinutes());
+}
+function ficheArchiveExistante(cle){
+  for(var i=0;i<FICHES_ARCHIVE.length;i++) if(FICHES_ARCHIVE[i].cle===cle) return FICHES_ARCHIVE[i];
+  return null;
+}
+// Appelée depuis la fenêtre de la fiche (window.opener) : c'est le pont entre le document et l'appli
+function ficheArchiver(meta, donnees, remplacer){
+  if(!meta || !meta.cle || !donnees) return false;
+  var nb=0,k; for(k in (donnees.c||{})) nb++;
+  var deja=ficheArchiveExistante(meta.cle);
+  if(deja && remplacer!==false){
+    deja.donnees=donnees; deja.champs=nb; deja.maj=ficheHorodatage();
+    if(meta.titre) deja.titre=meta.titre;
+    if(meta.sujet) deja.sujet=meta.sujet;
+  }else{
+    FICHES_ARCHIVE.unshift({
+      id:'fa'+Date.now()+'x'+Math.floor(Math.random()*1000),
+      // deux fiches sur le même sujet : la seconde prend une clé à elle pour ne pas écraser la première
+      cle:(deja? meta.cle+'~'+Date.now() : meta.cle),
+      type:meta.type||'autre', titre:meta.titre||'Fiche', sujet:meta.sujet||'',
+      champs:nb, creee:ficheHorodatage(), maj:ficheHorodatage(), donnees:donnees
+    });
+  }
+  renderFichesArchive();
+  sauvegarder();
+  return true;
+}
+function ficheRouvrir(id){
+  var f=null; FICHES_ARCHIVE.forEach(function(x){ if(x.id===id) f=x; });
+  if(!f){ notif('⚠ Fiche introuvable'); return; }
+  var t=FICHE_TYPES[f.type];
+  if(!t){ notif('⚠ Type de fiche inconnu — impossible de la rouvrir'); return; }
+  DOC_CHARGE={cle:f.cle, donnees:f.donnees};
+  t.gen(f);
+}
+function ficheSupprimer(id){
+  var f=null; FICHES_ARCHIVE.forEach(function(x){ if(x.id===id) f=x; });
+  if(!f) return;
+  if(!confirm('Supprimer la fiche « '+(f.sujet||f.titre)+' » remplie le '+f.maj+' ?\n\nElle disparaîtra aussi de la sauvegarde du club.')) return;
+  FICHES_ARCHIVE=FICHES_ARCHIVE.filter(function(x){ return x.id!==id; });
+  renderFichesArchive();
+  sauvegarder();
+  notif('🗑 Fiche supprimée');
+}
+var FA_FILTRE='tous';
+function faFiltrer(t){ FA_FILTRE=t; renderFichesArchive(); }
+function renderFichesArchive(){
+  var ct=document.getElementById('fa-liste'); if(!ct) return;
+  var cpt=document.getElementById('fa-compteur');
+  if(cpt) cpt.textContent=FICHES_ARCHIVE.length? (FICHES_ARCHIVE.length+' fiche'+(FICHES_ARCHIVE.length>1?'s':'')) : 'aucune';
+  var chips=document.getElementById('fa-chips');
+  if(chips){
+    var defs=[{c:'tous',n:'Toutes'}].concat(Object.keys(FICHE_TYPES).map(function(k){
+      return {c:k, n:FICHE_TYPES[k].ic+' '+FICHE_TYPES[k].nom}; }));
+    chips.innerHTML=defs.map(function(d){
+      var n=(d.c==='tous')?FICHES_ARCHIVE.length:FICHES_ARCHIVE.filter(function(f){return f.type===d.c;}).length;
+      return '<button class="fa-chip'+(FA_FILTRE===d.c?' on':'')+'" onclick="faFiltrer(\''+d.c+'\')">'+esc2(d.n)+' <b>'+n+'</b></button>';
+    }).join('');
+  }
+  var liste=FICHES_ARCHIVE.filter(function(f){ return FA_FILTRE==='tous' || f.type===FA_FILTRE; });
+  if(!liste.length){
+    ct.innerHTML='<div class="fa-vide">'+(FICHES_ARCHIVE.length
+      ? 'Aucune fiche de ce type pour l\'instant.'
+      : "Rien d'archivé pour l'instant.<br><span>Ouvre une fiche ci-dessous, remplis-la — au bureau ou en tribune sur ton téléphone — puis appuie sur <b>📥 Archiver dans l'appli</b> en haut de la fiche. Elle se range ici et part dans la sauvegarde du club, donc sur tous tes appareils.</span>")+'</div>';
+    return;
+  }
+  ct.innerHTML=liste.map(function(f){
+    var t=FICHE_TYPES[f.type]||{ic:'📄',nom:'Fiche'};
+    return '<div class="fa-l">'
+      +'<div class="fa-ic">'+t.ic+'</div>'
+      +'<div class="fa-txt"><div class="fa-t">'+esc2(f.sujet||f.titre)+'</div>'
+        +'<div class="fa-s">'+esc2(t.nom)+' · rempli le '+esc2(f.maj)+' · '+(f.champs||0)+' champ'+((f.champs||0)>1?'s':'')+'</div></div>'
+      +'<div class="fa-b">'
+        +'<button class="fa-o" onclick="ficheRouvrir(\''+f.id+'\')">Rouvrir</button>'
+        +'<button class="fa-x" onclick="ficheSupprimer(\''+f.id+'\')" title="Supprimer cette fiche">🗑</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+var DOC_CHARGE=null; // fiche archivée à réinjecter dans le prochain document généré
+function docMemoire(cle, meta){
+  var charge=DOC_CHARGE; DOC_CHARGE=null;
+  if(charge && charge.cle) cle=charge.cle;
+  var m=meta?{type:meta.type, titre:meta.titre, sujet:meta.sujet||'', cle:cle}:null;
+  function json(o){ return JSON.stringify(o===undefined?null:o).replace(/</g,'\\u003c'); }
+  return '<script>(function(){'
+    +'var CLE="ast_fiche_'+cle+'";'
+    +'var META='+json(m)+';'
+    +'var CHARGE='+json(charge?charge.donnees:null)+';'
+    +'function champs(){ return [].slice.call(document.querySelectorAll("[contenteditable]")); }'
+    +'function pastilles(){ return [].slice.call(document.querySelectorAll(".notes .pt,.vb")); }'
+    // Un champ est repere par son libelle, pas par sa position : si la fiche evolue
+    // (un bloc ajoute, deux blocs echanges), ce qui a ete ecrit retombe au bon endroit.
+    +'function cleChamp(e,i,cpt){ var v=e.getAttribute("data-vide")||("#"+i);'
+      +'var n=(cpt[v]=(cpt[v]||0)+1); return v+"\u00a7"+n; }'
+    +'function clePastille(e,cpt){ var g=e.closest(".crit,.verdict");'
+      +'var l=(g&&g.querySelector(".crit-l"))?g.querySelector(".crit-l").textContent.trim():"verdict";'
+      +'var k=l+"\u00a7"+e.textContent.trim(); var n=(cpt[k]=(cpt[k]||0)+1); return k+"\u00a7"+n; }'
+    +'function lire(){ var d={c:{},n:{},v:2}, a={}, b={};'
+      +'champs().forEach(function(e,i){ var t=e.textContent.trim(), k=cleChamp(e,i,a); if(t) d.c[k]=t; });'
+      +'pastilles().forEach(function(e){ var k=clePastille(e,b); if(e.classList.contains("on")) d.n[k]=1; });'
+      +'return d; }'
+    +'function vide(d){ if(!d) return true; var n=0,k; for(k in (d.c||{})) n++; for(k in (d.n||{})) n++; return !n; }'
+    // Les premieres sauvegardes reperaient les champs par leur position : on sait encore les relire
+    +'function poser(d){ if(!d) return; var c=d.c||d, n=d.n||{}, a={}, b={};'
+      +'if(d.v===2){'
+        +'champs().forEach(function(e,i){ var k=cleChamp(e,i,a); if(c[k]!=null && c[k]!=="") e.textContent=c[k]; });'
+        +'pastilles().forEach(function(e){ var k=clePastille(e,b); if(n[k]) e.classList.add("on"); else e.classList.remove("on"); });'
+      +'}else{'
+        +'champs().forEach(function(e,i){ if(c[i]!=null && c[i]!=="") e.textContent=c[i]; });'
+        +'pastilles().forEach(function(e,i){ if(n[i]) e.classList.add("on"); else e.classList.remove("on"); });'
+      +'}'
+    +'}'
+    +'function retenir(){ try{ localStorage.setItem(CLE, JSON.stringify(lire())); }catch(e){} }'
+    +'function relire(){ try{ return JSON.parse(localStorage.getItem(CLE)||"null"); }catch(e){ return null; } }'
+    +'window.docVider=function(){ champs().forEach(function(e){ e.textContent=""; });'
+      +'pastilles().forEach(function(e){ e.classList.remove("on"); });'
+      +'try{ localStorage.removeItem(CLE); }catch(e){} };'
+    // Archiver : la fiche remplie repart dans l'appli restée ouverte derrière,
+    // qui l'enregistre et la pousse dans le cloud du club.
+    +'window.docArchiver=function(){'
+      +'if(!META){ alert("Cette fiche ne s\'archive pas."); return; }'
+      +'var d=lire();'
+      +'if(vide(d)){ alert("La fiche est encore vide — remplis au moins un champ avant de l\'archiver."); return; }'
+      +'var app=null; try{ app=(window.opener && !window.opener.closed && window.opener.ficheArchiver)?window.opener:null; }catch(e){}'
+      +'if(!app){ alert("L\'appli n\'est plus ouverte derrière cette fiche.\\n\\nReviens sur AST COACH, rouvre la fiche depuis l\'appli, puis archive : ce que tu as écrit est retenu, rien n\'est perdu."); return; }'
+      +'var remplacer=true;'
+      +'try{ var deja=app.ficheArchiveExistante?app.ficheArchiveExistante(META.cle):null;'
+        +'if(deja) remplacer=confirm("Une fiche est déjà archivée pour « "+(deja.sujet||deja.titre)+" », remplie le "+deja.maj+".\\n\\nOK = remplacer celle-là\\nAnnuler = garder les deux"); }catch(e){}'
+      +'try{ app.ficheArchiver(META, d, remplacer); }catch(e){ alert("Archivage impossible : "+e.message); return; }'
+      +'var b=document.getElementById("b-archive");'
+      +'if(b){ var t=b.innerHTML; b.innerHTML="✓ Archivée dans l\'appli"; b.className="on";'
+        +'setTimeout(function(){ b.innerHTML=t; b.className=""; },2800); }'
+    +'};'
+    +'(function demarrer(){'
+      +'poser(CHARGE || relire());'
+      +'if(CHARGE) retenir();'
+      +'document.addEventListener("input",function(e){ if(e.target.isContentEditable) retenir(); });'
+      +'document.addEventListener("blur",function(e){ if(e.target.isContentEditable) retenir(); },true);'
+      // Les pastilles de note et les cases de verdict se touchent au doigt : une seule par groupe
+      +'document.addEventListener("click",function(e){'
+        +'var p=e.target.closest?e.target.closest(".notes .pt,.vb"):null; if(!p) return;'
+        +'var g=p.closest(".notes,.verdict"); if(!g) return;'
+        +'var deja=p.classList.contains("on");'
+        +'[].slice.call(g.querySelectorAll(".pt,.vb")).forEach(function(x){ x.classList.remove("on"); });'
+        +'if(!deja) p.classList.add("on");'
+        +'retenir();'
+      +'});'
+    +'})();'
+  +'})();<\/script>';
+}
+
+function docBarre(archivable){
   return '<div class="barre">'
     +'<button class="on" onclick="window.print()">🖨 Imprimer / PDF</button>'
-    +'<button onclick="document.querySelectorAll(\'[contenteditable]\').forEach(function(e){e.textContent=\'\';})">🧹 Vider (version brouillon)</button>'
+    +(archivable?'<button id="b-archive" onclick="if(window.docArchiver)docArchiver()">📥 Archiver dans l\'appli</button>':'')
+    +'<button onclick="if(window.docVider){docVider();}else{document.querySelectorAll(\'[contenteditable]\').forEach(function(e){e.textContent=\'\';});}">🧹 Vider (version brouillon)</button>'
     +'</div>';
 }
 
@@ -10931,8 +11509,10 @@ function docPrefillCarte(){
 
 // ===== L'écran « Docs à imprimer » =====
 function renderDocsImprimer(){
+  renderFichesArchive();
   // Les adversaires connus, pour ouvrir la fiche d'observation déjà située
-  var selAdv=document.getElementById('doc-obs-adv');
+  ['doc-obs-adv','doc-obs-eq'].forEach(function(idSel){
+  var selAdv=document.getElementById(idSel);
   if(selAdv){
     var noms=Array.from(new Set((ADVERSAIRES||[]).map(function(a){return a.nom;})
       .concat((CALENDRIER||[]).map(function(c){return c.adversaire;}))
@@ -10943,6 +11523,7 @@ function renderDocsImprimer(){
         return '<option value="'+n.replace(/"/g,'&quot;')+'"'+((prochain&&prochain.adversaire===n)?' selected':'')+'>'+esc2(n)+'</option>';
       }).join('');
   }
+  });
   var selJ=document.getElementById('doc-bilan-joueur');
   if(selJ){
     selJ.innerHTML=JOUEURS.length
@@ -10993,7 +11574,7 @@ function genererCarteMentaleMatch(){
       +'</div>';
   }).join('');
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Carte mentale — '+docEsc(v.adversaire||'match')+'</title>'
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Carte mentale — '+docEsc(v.adversaire||'match')+'</title>'
     +docStylesCommuns()
     +'<style>'
     +'@page{size:A4 landscape;margin:6mm}'
@@ -11026,7 +11607,7 @@ function genererCarteMentaleMatch(){
     +'.hub .meta b{color:#fff}'
     +'.pied{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;font-size:8.6px;color:#98a2ad;padding-top:6px;margin-top:8px;border-top:1px solid #e2e6ea}'
     +'</style></head><body>'
-    +docBarre()
+    +docBarre(true)
     +'<div class="feuille">'
     +'<div class="bandeau">'
       +(logo?'<img class="mini" src="'+logo+'" alt="">':'')
@@ -11069,7 +11650,8 @@ function genererCarteMentaleMatch(){
     +'window.addEventListener("resize",tracerFils);'
     +'window.addEventListener("beforeprint",tracerFils);'
     +'setTimeout(tracerFils,120);'
-    +'<\/script></body></html>';
+    +'<\/script>'+docMemoire('carte_'+(v.adversaire||'sans'),
+       {type:'carte', titre:'Carte mentale d\'avant-match', sujet:v.adversaire||'Prochain match'})+'</body></html>';
   docOuvrir(html,'Carte mentale d\'avant-match');
 }
 
@@ -11142,7 +11724,7 @@ function genererFicheObservation(nomAdversaire){
     });
   });
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Fiche d\'observation — '+docEsc(NOM_CLUB)+'</title>'
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Fiche d\'observation — '+docEsc(NOM_CLUB)+'</title>'
     +docStylesCommuns()
     +'<style>'
     +'@page{size:A4 portrait;margin:6mm}'
@@ -11182,7 +11764,7 @@ function genererFicheObservation(nomAdversaire){
     +'.vb i{display:block;font-size:15px;font-style:normal;margin-bottom:1px}'
     +'.pied{display:flex;justify-content:space-between;font-size:8.4px;color:#98a2ad;border-top:1px solid #e2e6ea;padding-top:6px;margin-top:auto}'
     +'</style></head><body>'
-    +docBarre()
+    +docBarre(true)
     +'<div class="feuille">'
     +'<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
       +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">Fiche d\'observation — joueur</div></div>'
@@ -11236,7 +11818,8 @@ function genererFicheObservation(nomAdversaire){
 
     +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — une fiche par joueur observé. Entoure les notes au stylo, ou remplis à l\'écran avant d\'imprimer.</span>'
       +'<span>1 = insuffisant · 5 = très bon</span></div>'
-    +'</div></body></html>';
+    +'</div>'+docMemoire('obs_'+(nomAdversaire||'libre'),
+       {type:'obs_joueur', titre:'Observation joueur', sujet:nomAdversaire||'Joueur observé'})+'</body></html>';
   docOuvrir(html,'Fiche d\'observation joueur');
 }
 
@@ -12055,7 +12638,7 @@ function genererFicheMatchPDF(mi){
 
   var cr=m.compteRendu||{};
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Fiche match — '+esc(m.adversaire)+'</title>'
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Fiche match — '+esc(m.adversaire)+'</title>'
    +'<style>'
    +'@page{size:A4 portrait;margin:10mm}'
    +'*{box-sizing:border-box;margin:0;padding:0}'
@@ -12165,7 +12748,7 @@ function genererBilanJoueurPDF(idx, motDuCoach){
   var img=document.querySelector('.side-logo img');
   if(img) logo='<img class="logo" src="'+img.getAttribute('src')+'" alt="">';
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Bilan — '+esc(j.nom)+'</title>'
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Bilan — '+esc(j.nom)+'</title>'
    +'<style>'
    +'@page{size:A4 portrait;margin:11mm}'
    +'*{box-sizing:border-box;margin:0;padding:0}'
@@ -12293,7 +12876,7 @@ function genererFeuilleMatchPDF(){
   var consignesOffLi=(FEUILLE_MATCH.consignesOff||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l){return '<li>'+esc(l)+'</li>';}).join('');
   var consignesDefLi=(FEUILLE_MATCH.consignesDef||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l){return '<li>'+esc(l)+'</li>';}).join('');
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Feuille de match</title>'
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Feuille de match</title>'
     +'<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">'
     +'<style>'
     +':root{--or:#F97316;--dark:#111}*{box-sizing:border-box;margin:0;padding:0;font-family:\'Roboto Condensed\',sans-serif}'
@@ -12386,7 +12969,7 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(res){
       if(res && res.conflit){ ouvrirConflitCloud(res.conflit); return; }
@@ -12410,7 +12993,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
