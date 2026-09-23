@@ -572,6 +572,24 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .acc-code{font-family:'Roboto Mono',monospace;font-size:15px;font-weight:800;letter-spacing:3px;color:var(--or);background:rgba(217,119,6,.12);border-radius:7px;padding:5px 11px}
 .acc-b{font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:8px 12px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--gris2);cursor:pointer;white-space:nowrap}
 .acc-b.or{background:var(--or);border-color:var(--or);color:#1a0f02}
+/* Les décisions de réunion */
+.dec-form{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.dec-form .fi{flex:1;min-width:120px;width:auto}
+.dec-form .fi:first-child{flex:2;min-width:180px}
+.dec-l{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg3);margin-bottom:6px}
+.dec-l.ok{opacity:.55}
+.dec-l.ok .dec-q{text-decoration:line-through}
+.dec-case{flex:0 0 22px;height:22px;border:1.6px solid var(--line);border-radius:6px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green)}
+.dec-l.ok .dec-case{background:rgba(63,174,106,.18);border-color:var(--green)}
+.dec-txt{flex:1;min-width:0}
+.dec-q{font-weight:700;font-size:12.5px;line-height:1.3}
+.dec-s{font-size:10.5px;color:var(--gris2);margin-top:2px}
+.cat-p{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--line);
+  border-radius:16px;padding:6px 12px;margin:0 6px 6px 0;font-size:11.5px;font-weight:700}
+.cat-p b{cursor:pointer;color:var(--gris2);font-weight:700}
+.cat-p b:hover{color:var(--red)}
 /* Les fiches remplies qu'on a gardées */
 .fa-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
 .fa-chip{font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.02em;padding:7px 11px;border-radius:20px;
@@ -821,22 +839,7 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 </head><body>
 <div class="bg"></div>
 
-<div id="scr-connexion" class="hidden">
-  <div class="cx-carte">
-    <img id="cx-logo" alt="" style="width:62px;height:auto;margin:0 auto 14px;display:block">
-    <div class="cx-titre">AST COACH</div>
-    <div class="cx-sous">Connecte-toi pour retrouver les données du club</div>
-    <input class="fi" id="cx-email" type="email" autocomplete="username" placeholder="Ton adresse e-mail" style="margin-bottom:9px">
-    <input class="fi" id="cx-mdp" type="password" autocomplete="current-password" placeholder="Ton mot de passe"
-      onkeydown="if(event.key==='Enter')connexionCoach()">
-    <button class="gen-btn2" id="cx-btn" style="width:100%;margin-top:12px" onclick="connexionCoach()">Entrer</button>
-    <div id="cx-err" class="cx-err hidden"></div>
-    <div class="cx-pied">
-      <span onclick="continuerHorsLigne()">Continuer hors ligne</span>
-      <span style="opacity:.55">Les données resteront celles de cet appareil</span>
-    </div>
-  </div>
-</div>
+
 <div id="burger-mobile" onclick="toggleSideMobile()">☰</div>
 <div id="side-overlay" onclick="toggleSideMobile(false)"></div>
 <div id="bdt">
@@ -927,19 +930,14 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">🗄️ SAUVEGARDER DONNÉES JOUEURS</button>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v27</b> · 23/09/2026<br>
-      <span style="opacity:.7">Forme quand on veut, base purgée à 7 jours</span>
+      AST COACH <b style="color:var(--or)">v29</b> · 23/09/2026<br>
+      <span style="opacity:.7">Réunions staff & club · sans connexion</span>
     </div>
   </div>
 </div>
 
 <div class="main" id="main">
-  <div id="cx-bandeau" class="cx-bandeau hidden" onclick="ouvrirConnexion()">
-    <span class="cx-b-ic">🔓</span>
-    <span class="cx-b-txt"><b>Tu n'es pas connecté au cloud.</b>
-      Tes données restent sur cet appareil : rien ne part vers les joueurs, rien n'arrive de leur part.</span>
-    <span class="cx-b-btn">Se connecter</span>
-  </div>
+
 <div class="breadcrumb" id="breadcrumb" style="display:none"></div>
 
 <!-- DASHBOARD -->
@@ -958,20 +956,6 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
   <div class="blk" style="margin:24px 12px 12px"><div class="bh" style="cursor:pointer" onclick="var b=document.getElementById('param-club-blk');b.style.display=b.style.display==='none'?'block':'none'"><span class="bt">⚙️ Paramètres du club</span></div>
     <div id="param-club-blk" style="display:none;padding:12px">
 
-      <div class="fg" style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)">
-        <label class="fl">🔐 Ta connexion</label>
-        <div id="cx-etat" style="font-size:12px;color:var(--gris2);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"></div>
-      </div>
-
-      <div class="fg" style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)">
-        <label class="fl">🎟️ Les accès des joueurs</label>
-        <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin:6px 0 10px">
-          C'est toi qui ouvres l'accès de chaque joueur — sinon n'importe qui pourrait s'inventer
-          un numéro et lire les données du groupe. Le code s'affiche <b>une seule fois</b> ici :
-          note-le et donne-le au joueur. Il se connectera avec son <b>numéro de maillot</b> et ce code.
-        </div>
-        <div id="acc-liste"></div>
-      </div>
 
       <div class="fg"><label class="fl">Nom du club (affiché partout dans l'appli et les PDF)</label>
         <div style="display:flex;gap:8px;margin-top:4px">
@@ -2182,6 +2166,71 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- DOCS À IMPRIMER -->
+<div class="scr" id="scr-reunions">
+  <div class="ph"><div><div class="ph-title">🗣️ Réunions</div><div class="ph-sub">Préparer, animer, décider — et retrouver ce qu'on avait décidé</div></div></div>
+
+  <div class="doc-bandeau" onclick="genererReunionStaff()">
+    <span class="gros">🧑‍🏫</span>
+    <div class="coeur"><div class="t">Réunion du staff</div>
+      <div class="d">Elle arrive déjà remplie : le dernier match, les blessés, les baisses de forme, le thème de la semaine, le prochain adversaire. Tu n'écris que ce qui se discute — et ce qui se décide.</div></div>
+    <span class="cta">Ouvrir ›</span>
+  </div>
+
+  <div class="doc-bandeau" onclick="genererReunionClub()">
+    <span class="gros">🏛</span>
+    <div class="coeur"><div class="t">Réunion technique du club</div>
+      <div class="d">Pour le directeur sportif : le tour de chaque catégorie, les passerelles, le projet de jeu commun, la formation des éducateurs, l'intendance et ce qui remonte à la direction.</div></div>
+    <span class="cta">Ouvrir ›</span>
+  </div>
+
+  <div class="scr-grille on">
+
+    <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">✅ Les décisions</span><span class="bc" id="dec-compteur">—</span></div>
+      <div style="padding:12px 14px 14px">
+        <div class="fa-chips" id="dec-chips"></div>
+        <div id="dec-liste"></div>
+        <div class="dec-form">
+          <input class="fi" id="dec-quoi" placeholder="Ajouter une décision à la main…">
+          <select class="fi" id="dec-qui"></select>
+          <input class="fi" id="dec-quand" placeholder="Pour quand">
+          <select class="fi" id="dec-origine"><option value="staff">Staff</option><option value="club">Club</option></select>
+          <button class="acc-b or" onclick="decAjouter()">Ajouter</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="blk"><div class="bh"><span class="bt b">🧑‍🤝‍🧑 Mon staff</span></div>
+      <div style="padding:12px 14px 14px">
+        <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:10px">
+          Ceux qui sont autour de la table le lundi. Ils apparaissent en haut de la feuille de réunion,
+          et dans la liste « qui s'en charge » des décisions.
+        </div>
+        <div id="staff-liste" style="margin-bottom:11px"></div>
+        <div class="dec-form">
+          <input class="fi" id="staff-nom" placeholder="Nom">
+          <select class="fi" id="staff-role"></select>
+          <button class="acc-b or" onclick="staffAjouter()">Ajouter</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="blk"><div class="bh"><span class="bt p">🏫 Les catégories du club</span></div>
+      <div style="padding:12px 14px 14px">
+        <div style="font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:10px">
+          Celles de ton club, dans l'ordre que tu veux. Chacune aura son encadré dans la feuille
+          de réunion technique.
+        </div>
+        <div id="cat-liste" style="margin-bottom:11px"></div>
+        <div class="dec-form">
+          <input class="fi" id="cat-nom" placeholder="Ex : U13, Futsal, Loisirs…">
+          <button class="acc-b or" onclick="categoriesAjouter()">Ajouter</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div class="scr" id="scr-imprimer">
   <div class="ph"><div><div class="ph-title">🖨️ Docs à imprimer</div><div class="ph-sub">Tout ce qui sort de l'appli sur papier — un aperçu, un clic, c'est prêt</div></div></div>
 
@@ -3227,6 +3276,7 @@ var POLES=[
   {id:'accueil',label:'Accueil & Vie de club',icon:'🏠',color:'#F97316',screens:[
     {s:'dash',ic:'📊',l:'Dashboard'},
     {s:'imprimer',ic:'🖨️',l:'Docs à imprimer'},
+    {s:'reunions',ic:'🗣️',l:'Réunions'},
     {s:'aide',ic:'📖',l:"Mode d'emploi"},
     {s:'hub',ic:'🎯',l:'Vue d\'ensemble'},
     {s:'calendrier-annuel',ic:'🗓️',l:'Calendrier Annuel'},
@@ -3374,6 +3424,7 @@ function goNav(elOrS){
   majBreadcrumb(s);
   if(s==='dash') updateDash();
   if(s==='imprimer') renderDocsImprimer();
+  if(s==='reunions'){ renderDecisions(); renderStaffClub(); renderCategoriesClub(); }
   if(s==='projet-jeu') renderProjetJeuCoach();
   if(s==='aide') renderAide();
   if(s==='seances-cal') renderCalSeances();
@@ -7293,6 +7344,9 @@ function appliquerDonnees(p,silencieux){
   if(p.BIBLIOTHEQUE_GENERALE)BIBLIOTHEQUE_GENERALE=p.BIBLIOTHEQUE_GENERALE;
   if(p.A_CREUSER)A_CREUSER=p.A_CREUSER;
   if(p.FICHES_ARCHIVE)FICHES_ARCHIVE=p.FICHES_ARCHIVE;
+  if(p.STAFF_CLUB)STAFF_CLUB=p.STAFF_CLUB;
+  if(p.CATEGORIES_CLUB)CATEGORIES_CLUB=p.CATEGORIES_CLUB;
+  if(p.DECISIONS)DECISIONS=p.DECISIONS;
   if(p.NOM_CLUB){NOM_CLUB=p.NOM_CLUB;appliquerNomClub();}
   if(p.OBJECTIFS)OBJECTIFS=p.OBJECTIFS;if(p.OBJ_COLL)OBJ_COLL=p.OBJ_COLL;
   if(p.ATTRS_MANUELS)ATTRS_MANUELS=p.ATTRS_MANUELS;
@@ -7366,7 +7420,7 @@ function donneesSaisonSansPhotos(){
     });
     return copie;
   });
-  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
+  return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
 }
 // ===== Sauvegarde cloud =====
 // Un document Firestore est plafonné à 1 Mo. Tout tenait dans "saison/main", y compris
@@ -7374,7 +7428,7 @@ function donneesSaisonSansPhotos(){
 // atteinte et la sauvegarde échouait en silence. On répartit donc en deux documents :
 //   · saison/main  = ce dont les joueurs ont besoin (leur appli ne lit que celui-ci)
 //   · saison/staff = le matériel du staff, lourd et interne (exercices, biblio, entretiens)
-var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE'];
+var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS'];
 var LIMITE_DOC_OCTETS=900*1024; // marge de sécurité sous la limite réelle de 1 Mo
 
 function poidsOctets(txt){
@@ -8825,6 +8879,37 @@ var AIDE=[
  piege:'<b>L\'appli doit rester ouverte derrière la fiche.</b> La fiche s\'ouvre dans un second onglet et c\'est par là qu\'elle renvoie ce que tu as écrit. Si tu as fermé l\'onglet AST COACH, rouvre la fiche depuis l\'appli : ta saisie est retenue, rien n\'est perdu.',
  astuce:'C\'est ça qui fait voyager une fiche : remplie sur le téléphone en tribune puis archivée, elle est sur l\'ordinateur du club au prochain chargement. Sans l\'archiver, elle reste sur l\'appareil où tu l\'as écrite.'},
 
+{f:'docs', t:'Tenir la réunion du staff', ou:'Écran Réunions', ecran:'reunions',
+ etapes:[
+  'Renseigne une fois <b>Mon staff</b> — ton adjoint, ton préparateur physique, ton entraîneur des gardiens. Ils apparaîtront en haut de la feuille.',
+  'Clique la bannière <b>🧑‍🏫 Réunion du staff</b>. Elle s\'ouvre <b>déjà remplie</b> : le dernier match, les blessés, les baisses de forme, le thème de la semaine, le prochain adversaire et sa fiche.',
+  'Les encadrés gris sont ce que l\'appli sait — tu ne les recopies pas. Les champs en pointillé sont pour vous.',
+  'Les six pastilles <b>« est-ce que notre projet de jeu s\'est vu ? »</b> se cochent au doigt, de 1 à 5.',
+  'Remplis le bloc <b>Ce qu\'on décide aujourd\'hui</b> : la décision, qui s\'en charge, pour quand.',
+  '<code>📥 Archiver dans l\'appli</code> : la feuille est rangée <b>et les décisions remontent</b> dans l\'écran Réunions.'
+ ],
+ astuce:'À la réunion suivante, la feuille s\'ouvre avec un bloc <b>« ce qu\'on avait décidé la dernière fois »</b> : tu coches ✓ ou ✗ et tu mets à jour dans l\'appli. C\'est ça qui transforme une réunion en suite.'},
+
+{f:'docs', t:'Animer la réunion technique du club', ou:'Écran Réunions', ecran:'reunions',
+ etapes:[
+  'Règle une fois <b>Les catégories du club</b> : celles de ton club, dans ton ordre. Chacune aura son encadré.',
+  'Clique la bannière <b>🏛 Réunion technique du club</b>. Deux pages : l\'état du club, puis ce qu\'on décide.',
+  'Page 1 : le climat noté, puis le tour de chaque catégorie — éducateur, effectif, où ça en est, ce qui coince.',
+  'Page 2 : les passerelles, le projet de jeu commun, la formation des éducateurs, l\'intendance, et ce qui remonte à la direction.',
+  'Le bloc <b>Les séniors en chiffres</b> se remplit tout seul depuis tes données : tu arrives avec tes chiffres déjà là.',
+  'Termine par les décisions, puis <code>📥 Archiver dans l\'appli</code>.'
+ ],
+ astuce:'Rien n\'est figé sur un club en particulier. Un autre coach ouvre l\'outil, met ses catégories et son staff, et la feuille est la sienne.'},
+
+{f:'docs', t:'Suivre ce qui a été décidé', ou:'Écran Réunions', ecran:'reunions',
+ etapes:[
+  'Le bloc <b>✅ Les décisions</b> liste tout ce qui a été décidé en réunion et qui n\'est pas encore fait.',
+  'Les pastilles filtrent : en cours · staff · club · faites.',
+  'La case à gauche se clique : la décision passe en <b>faite</b> et disparaît des rappels.',
+  'Tu peux aussi en ajouter une à la main, sans réunion — c\'est le champ en bas du bloc.'
+ ],
+ piege:'Une décision cochée <b>faite</b> ne réapparaîtra plus sur la feuille de la prochaine réunion. Ne coche que ce qui est vraiment réglé.'},
+
 // ---------------------------------------------------------------- LES DOCUMENTS
 {f:'docs', t:'Sortir un document sur papier', ou:'Écran Docs à imprimer', ecran:'imprimer',
  etapes:[
@@ -9764,6 +9849,496 @@ function supprimerEntretien(i){
 var ADVERSAIRES=[];
 var HISTORIQUE_SAISONS=[];
 var BIBLIOTHEQUE_GENERALE=[];
+// ===== Les feuilles de réunion =====
+// Même charte que les fiches d'observation : bandeau, blocs à liseré, champs
+// pointillés, pastilles au doigt. Ce qui change : la feuille arrive déjà remplie
+// de ce que l'appli sait, et ce qui s'y décide repart dans l'appli.
+
+// --- Ce que l'appli peut dire toute seule -----------------------------------
+function reuDernierMatch(){
+  var m=(MATCHS||[])[0];
+  if(!m) return null;
+  return {date:m.date||'', adversaire:m.adversaire||'', lieu:m.lieu||'', comp:m.comp||'',
+    score:(m.ast!=null&&m.adv!=null)?(m.ast+'-'+m.adv):'', res:m.res||''};
+}
+function reuBlesses(){
+  return (BLESSURES||[]).filter(function(b){ return !b.dateRetour; }).slice(0,8).map(function(b){
+    var j=JOUEURS[b.joueurIdx];
+    return (j?((j.num?j.num+'. ':'')+j.nom):'Joueur')+' — '+(b.zone||'?')+(b.typeBlessure?' ('+b.typeBlessure+')':'');
+  });
+}
+function reuFormeEnBaisse(){
+  var out=[];
+  JOUEURS.forEach(function(j,i){
+    var h=(FORME_HISTORIQUE[i]||[]).filter(function(e){ return e.source==='joueur'; });
+    if(h.length<2) return;
+    var dernier=h[h.length-1], avant=h[h.length-2];
+    if(dernier.valeur<=2 || (avant.valeur-dernier.valeur)>=2){
+      out.push((j.num?j.num+'. ':'')+j.nom+' ('+dernier.valeur+'/5'+(dernier.bobo?', '+dernier.bobo:'')+')');
+    }
+  });
+  return out.slice(0,8);
+}
+function reuThemeSemaine(){
+  var t=suggestionThemePlanning();
+  return t ? (t.theme+(t.date?' — '+t.date:'')) : '';
+}
+function reuProchain(){
+  var c=docProchainMatch();
+  if(!c) return null;
+  var f=null;
+  (ADVERSAIRES||[]).forEach(function(a){
+    if(a.nom===c.adversaire && a.fiches && a.fiches.length) f=a.fiches[a.fiches.length-1];
+  });
+  return {adversaire:c.adversaire||'', date:c.date||'', lieu:c.lieu||'', comp:c.comp||'',
+    dispo:f?(f.dispoPoss||''):'', surveiller:f?(f.joueursSurveiller||''):''};
+}
+
+// --- La charte commune aux deux feuilles ------------------------------------
+function reuStyles(){
+  return '<style>'
+    +'@page{size:A4 portrait;margin:6mm}'
+    +'.feuille{width:764px;min-height:1060px;padding:16px 18px 12px;display:flex;flex-direction:column;gap:9px}'
+    +'.feuille+.feuille{margin-top:14px}'
+    +'.bandeau{display:flex;align-items:center;gap:11px;border-bottom:3px solid #d97706;padding-bottom:7px}'
+    +'.bandeau img{width:36px;height:36px;object-fit:contain}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:19px;line-height:1}'
+    +'.bandeau .sous{font-size:10px;color:#6b7480;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}'
+    +'.bandeau .droite{margin-left:auto;text-align:right;font-size:9.5px;color:#6b7480;line-height:1.7}'
+    +'.bandeau .droite span[contenteditable]{display:inline-block;min-width:96px;border-bottom:1.2px dotted #b4bcc4;color:#11161c;font-weight:600;text-align:left;padding:0 3px}'
+    +'.rang{display:grid;gap:9px}.r2{grid-template-columns:1fr 1fr}.r3{grid-template-columns:1fr 1fr 1fr}'
+    +'.bl{border:1.5px solid #e2e6ea;border-left:4px solid var(--c);border-radius:8px;padding:7px 10px 8px;background:#fff}'
+    +'.bl-t{font-family:Anton,sans-serif;font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--c);margin-bottom:5px}'
+    +'.ch{display:flex;flex-direction:column;margin-bottom:5px}'
+    +'.ch-l{font-size:7.4px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad}'
+    +'.ch-v{font-size:11px;font-weight:600;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding-bottom:1px}'
+    +'.ch.large .ch-v{min-height:30px}'
+    +'.duo{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    // ce que l'appli a déjà rempli : gris clair, non modifiable, pour le distinguer
+    +'.su{background:#f4f6f8;border:1px solid #e2e6ea;border-radius:6px;padding:6px 8px;margin-bottom:5px}'
+    +'.su-t{font-size:7.4px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad;margin-bottom:3px}'
+    +'.su li{font-size:10px;color:#3c4650;line-height:1.5;list-style:none;padding-left:11px;position:relative}'
+    +'.su li:before{content:"•";position:absolute;left:2px;color:#d97706}'
+    +'.su .vide{font-size:9.5px;color:#98a2ad;font-style:italic}'
+    +'.crit{display:flex;align-items:center;gap:6px;padding:2.4px 0;border-bottom:1px dotted #e6eaee}'
+    +'.crit:last-child{border-bottom:none}'
+    +'.crit-l{flex:1;font-size:9.3px;color:#3c4650;line-height:1.25}'
+    +'.notes{display:flex;gap:3px;flex:0 0 auto}'
+    +'.pt{width:14px;height:14px;border:1.2px solid #b4bcc4;border-radius:50%;font-size:8px;font-weight:700;'
+      +'color:#8a949e;display:flex;align-items:center;justify-content:center}'
+    // les lignes de décision, qui repartent dans l'appli
+    +'.dec{display:grid;grid-template-columns:1fr 104px 84px;gap:7px;align-items:center;padding:5px 0;border-bottom:1px dotted #e0e5ea}'
+    +'.dec:last-child{border-bottom:none}'
+    +'.dec span{font-size:10.5px;min-height:15px;border-bottom:1.2px dotted #c3cbd3;padding:1px 3px}'
+    +'.dec .d-quoi{font-weight:600}.dec .d-qui{font-weight:700;color:#d97706}.dec .d-quand{color:#5c6670}'
+    +'.dec-e{display:grid;grid-template-columns:1fr 104px 84px;gap:7px;font-size:7.4px;font-weight:700;'
+      +'letter-spacing:.09em;text-transform:uppercase;color:#98a2ad;padding-bottom:3px}'
+    // le rappel de la dernière fois
+    +'.rap{display:flex;align-items:flex-start;gap:7px;padding:4px 0;border-bottom:1px dotted #e6eaee;font-size:10px}'
+    +'.rap:last-child{border-bottom:none}'
+    +'.rap .cases{flex:0 0 auto;display:flex;gap:4px}'
+    +'.rap .cs{width:13px;height:13px;border:1.2px solid #b4bcc4;border-radius:3px;font-size:7px;'
+      +'display:flex;align-items:center;justify-content:center;color:#8a949e;font-weight:700}'
+    +'.rap .txt{flex:1;color:#3c4650;line-height:1.35}'
+    +'.rap .qui{color:#98a2ad}'
+    // le tour des catégories
+    +'.cats{display:grid;grid-template-columns:1fr 1fr;gap:7px}'
+    +'.cat{border:1.5px solid #e2e6ea;border-radius:8px;padding:6px 9px;background:#fff}'
+    +'.cat-t{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.5px;color:#2563eb;margin-bottom:4px}'
+    +'.cat-g{display:grid;grid-template-columns:44px 1fr;gap:4px 7px;align-items:center}'
+    +'.cat-g .lab{font-size:6.6px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#98a2ad;text-align:right;line-height:1.2}'
+    +'.cat-g span[contenteditable]{font-size:10px;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding:1px 3px}'
+    +'.pied{margin-top:auto;display:flex;justify-content:space-between;font-size:8.4px;color:#98a2ad;'
+      +'border-top:1px solid #e2e6ea;padding-top:6px}'
+    +'@media print{.p2{break-before:page;page-break-before:always}}'
+    +'@media screen and (max-width:860px){'
+      +'.dec,.dec-e{grid-template-columns:1fr;gap:5px}'
+      +'.cats{grid-template-columns:1fr}'
+      +'.cat-g{grid-template-columns:1fr}.cat-g .lab{text-align:left;font-size:7.4px}'
+      +'}'
+    +'</style>';
+}
+function reuBandeau(logo, sous, droite){
+  return '<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+    +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">'+docEsc(sous)+'</div></div>'
+    +'<div class="droite">'+droite+'</div></div>';
+}
+function reuChamp(lab, vide, valeur, large){
+  return '<div class="ch'+(large?' large':'')+'"><span class="ch-l">'+docEsc(lab)+'</span>'
+    +'<span class="ch-v" contenteditable data-vide="'+docEsc(vide)+'">'+docEsc(valeur||'')+'</span></div>';
+}
+function reuBloc(titre, coul, corps){
+  return '<div class="bl" style="--c:'+coul+'"><div class="bl-t">'+docEsc(titre)+'</div>'+corps+'</div>';
+}
+// Ce que l'appli sait déjà : affiché tel quel, pas à recopier
+function reuSu(titre, lignes, siVide){
+  var l=(lignes||[]).filter(Boolean);
+  return '<div class="su"><div class="su-t">'+docEsc(titre)+'</div>'
+    +(l.length? '<ul>'+l.map(function(x){ return '<li>'+docEsc(x)+'</li>'; }).join('')+'</ul>'
+              : '<div class="vide">'+docEsc(siVide||'rien à signaler')+'</div>')
+    +'</div>';
+}
+function reuNote(){
+  var s='';
+  for(var i=1;i<=5;i++) s+='<span class="pt">'+i+'</span>';
+  return '<span class="notes">'+s+'</span>';
+}
+function reuCriteres(items){
+  return items.map(function(it){
+    return '<div class="crit"><span class="crit-l">'+docEsc(it)+'</span>'+reuNote()+'</div>';
+  }).join('');
+}
+function reuLignesDecision(n){
+  return '<div class="dec-e"><span>La décision</span><span>Qui s\'en charge</span><span>Pour quand</span></div>'
+    +Array.apply(null,{length:n}).map(function(){
+      return '<div class="dec">'
+        +'<span class="d-quoi" contenteditable data-vide="ce qu\'on fait, précisément"></span>'
+        +'<span class="d-qui" contenteditable data-vide="nom"></span>'
+        +'<span class="d-quand" contenteditable data-vide="date"></span></div>';
+    }).join('');
+}
+// Le rappel de la dernière réunion : ce qui était décidé, fait ou pas
+function reuRappel(origine){
+  var ouvertes=decOuvertes(origine);
+  if(!ouvertes.length) return '';
+  return reuBloc('Ce qu\'on avait décidé la dernière fois','#0e7490',
+    ouvertes.slice(0,8).map(function(d){
+      return '<div class="rap"><span class="cases"><span class="cs">✓</span><span class="cs">✗</span></span>'
+        +'<span class="txt">'+docEsc(d.quoi)
+        +'<span class="qui">'+(d.qui?' — '+docEsc(d.qui):'')+(d.quand?' · pour le '+docEsc(d.quand):'')+'</span></span></div>';
+    }).join('')
+    +'<div style="font-size:8.5px;color:#98a2ad;margin-top:5px">Coche ✓ si c\'est fait, ✗ sinon — puis mets à jour dans l\'appli, écran Réunions.</div>');
+}
+
+// ============================ LA RÉUNION DU STAFF ============================
+function genererReunionStaff(){
+  var logo=docLogoClub();
+  var dm=reuDernierMatch(), pr=reuProchain();
+  var staff=STAFF_CLUB.length
+    ? STAFF_CLUB.map(function(m){ return m.nom+(m.role?' — '+m.role:''); })
+    : [];
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Réunion staff — '+docEsc(NOM_CLUB)+'</title>'
+    +docStylesCommuns()+reuStyles()
+    +'</head><body>'
+    +docBarre(true)
+    +'<div class="feuille">'
+    +reuBandeau(logo,'Réunion hebdomadaire du staff',
+      'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+      +'Animée par : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
+
+    +'<div class="rang r2">'
+      +reuBloc('Qui est là','#11161c',
+        reuSu('Le staff', staff, 'Aucun staff renseigné — ajoute-le dans l\'écran Réunions')
+        +reuChamp('Absents / excusés','qui manque aujourd\'hui')
+        +reuChamp('Invité','un dirigeant, un éducateur, un joueur'))
+      +reuBloc('Le dernier match','#0e7490',
+        reuSu('Ce que l\'appli retient', dm?[
+          (dm.date?dm.date+' · ':'')+(dm.adversaire||'')+(dm.lieu?' ('+dm.lieu+')':''),
+          (dm.score?'Score : '+dm.score:'')+(dm.res?' — '+dm.res:''),
+          dm.comp?'Compétition : '+dm.comp:''
+        ]:[], 'Aucun match enregistré')
+        +reuChamp('Ce qu\'on garde','ce qui a marché, et pourquoi',null,true)
+        +reuChamp('Ce qu\'on corrige','le point à travailler cette semaine',null,true))
+    +'</div>'
+
+    +reuBloc('Est-ce que notre projet de jeu s\'est vu ?','#7c3aed',
+      '<div style="font-size:9px;color:#6b7480;margin-bottom:5px">La question qui compte : ce qu\'on travaille le mardi se retrouve-t-il le samedi ?</div>'
+      +'<div class="duo"><div>'+reuCriteres(['Organisation offensive','Transition à la perte','Organisation défensive'])+'</div>'
+      +'<div>'+reuCriteres(['Transition à la récupération','Coups de pied arrêtés','Attitude et discipline'])+'</div></div>'
+      +reuChamp('Le principe qui n\'est pas passé','celui qu\'on remet au programme'))
+
+    +'<div class="rang r2">'
+      +reuBloc('L\'état du groupe','#c0392b',
+        reuSu('Blessés en cours', reuBlesses(), 'personne')
+        +reuSu('Forme en baisse', reuFormeEnBaisse(), 'personne ne décroche')
+        +reuChamp('Suspendus / indisponibles','qui, et jusqu\'à quand')
+        +reuChamp('Retours attendus','qui revient, et quand'))
+      +reuBloc('La semaine','#0f8a5f',
+        reuSu('Au planning', [reuThemeSemaine()], 'aucun thème programmé')
+        +reuChamp('Séance 1 — thème et animateur','qui mène quoi')
+        +reuChamp('Séance 2 — thème et animateur','qui mène quoi')
+        +reuChamp('Matériel et terrain','ce qu\'il faut prévoir'))
+    +'</div>'
+
+    +'<div class="rang r2">'
+      +reuBloc('Les joueurs','#d97706',
+        reuChamp('À qui on parle cette semaine','et qui s\'en charge',null,true)
+        +reuChamp('Entretien à caler','nom et date')
+        +reuChamp('Le cas à traiter','comportement, assiduité, situation',null,true))
+      +reuBloc('Le prochain match','#2563eb',
+        reuSu('Au calendrier', pr?[
+          (pr.date?pr.date+' · ':'')+(pr.adversaire||'')+(pr.lieu?' ('+pr.lieu+')':''),
+          pr.dispo?'Leur dispositif : '+pr.dispo:'',
+          pr.surveiller?'À surveiller : '+pr.surveiller:''
+        ]:[], 'aucun match à venir au calendrier')
+        +reuChamp('Qui va les observer','nom et date du match')
+        +reuChamp('Le groupe pressenti','ce qui se dessine',null,true))
+    +'</div>'
+
+    +reuRappel('staff')
+
+    +reuBloc('Ce qu\'on décide aujourd\'hui','#d97706',
+      '<div style="font-size:9px;color:#6b7480;margin-bottom:5px">Ces lignes remontent dans l\'appli quand tu archives la feuille — et reviendront à la prochaine réunion.</div>'
+      +reuLignesDecision(5))
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion de staff. Remplis à l\'écran, archive, imprime.</span>'
+      +'<span>1 = pas vu du tout · 5 = très présent</span></div>'
+    +'</div>'
+    +docMemoire('reunion_staff', {type:'reunion_staff', titre:'Réunion staff', sujet:'Staff — '+new Date().toLocaleDateString('fr-FR')})
+    +'</body></html>';
+  docOuvrir(html,'Feuille de réunion staff');
+}
+
+// ======================= LA RÉUNION TECHNIQUE DU CLUB =======================
+function genererReunionClub(){
+  var logo=docLogoClub();
+  var dm=reuDernierMatch();
+  var cats=(CATEGORIES_CLUB||[]).slice(0,12);
+
+  var tour=cats.map(function(c){
+    return '<div class="cat"><div class="cat-t">'+docEsc(c)+'</div><div class="cat-g">'
+      +'<span class="lab">Éducateur</span><span contenteditable data-vide="nom, diplôme"></span>'
+      +'<span class="lab">Effectif</span><span contenteditable data-vide="nombre, assiduité"></span>'
+      +'<span class="lab">Où ça<br>en est</span><span contenteditable data-vide="résultats, ambiance"></span>'
+      +'<span class="lab">Ce qui<br>coince</span><span contenteditable data-vide="ce dont elle a besoin"></span>'
+      +'</div></div>';
+  }).join('');
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Réunion technique — '+docEsc(NOM_CLUB)+'</title>'
+    +docStylesCommuns()+reuStyles()
+    +'</head><body>'
+    +docBarre(true)
+
+    // ---------------- PAGE 1 : le tour du club
+    +'<div class="feuille">'
+    +reuBandeau(logo,'Réunion technique — les éducateurs du club',
+      'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+      +'Directeur sportif : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
+
+    +'<div class="rang r3">'
+      +reuBloc('La séance du jour','#11161c',
+        reuChamp('Présents','combien d\'éducateurs')
+        +reuChamp('Absents / excusés','qui manque')
+        +reuChamp('Durée prévue','1h, 1h30…'))
+      +reuBloc('L\'ordre du jour','#0e7490',
+        reuChamp('Le sujet principal','ce pour quoi on se réunit',null,true)
+        +reuChamp('Ce qu\'on veut en sortir','la décision attendue',null,true))
+      +reuBloc('Le climat','#7c3aed',
+        '<div style="font-size:8.6px;color:#6b7480;margin-bottom:4px">Où en est le club, de ton point de vue</div>'
+        +reuCriteres(['Entente entre éducateurs','Cohérence des méthodes','Moyens à disposition']))
+    +'</div>'
+
+    +reuBloc('Le tour des catégories','#2563eb', '<div class="cats">'+tour+'</div>')
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 1 sur 2 : l\'état du club.</span>'
+      +'<span>1 = faible · 5 = très bon</span></div>'
+    +'</div>'
+
+    // ---------------- PAGE 2 : ce qu'on décide ensemble
+    +'<div class="feuille p2">'
+    +reuBandeau(logo,'Réunion technique — page 2',
+      'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+      +'Directeur sportif : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span>')
+
+    +'<div class="rang r2">'
+      +reuBloc('Les passerelles entre catégories','#0f8a5f',
+        reuChamp('Qui monte, et où','nom, catégorie d\'origine, catégorie d\'accueil',null,true)
+        +reuChamp('Qui s\'entraîne au-dessus','nom et rythme')
+        +reuChamp('Les règles qu\'on se donne','prévenir qui, combien de temps avant',null,true))
+      +reuBloc('Le projet de jeu du club','#7c3aed',
+        '<div style="font-size:8.8px;color:#6b7480;margin-bottom:4px">Est-ce qu\'on parle le même langage du plus jeune aux séniors ?</div>'
+        +reuCriteres(['Principes communs connus de tous','Vocabulaire partagé','Continuité d\'une catégorie à l\'autre'])
+        +reuChamp('Ce qu\'on décide d\'harmoniser','le point de départ commun',null,true))
+    +'</div>'
+
+    +'<div class="rang r2">'
+      +reuBloc('Les éducateurs','#d97706',
+        reuChamp('Formations en cours','qui, quel diplôme, quelle échéance',null,true)
+        +reuChamp('Besoins exprimés','ce que les éducateurs demandent',null,true)
+        +reuChamp('Recrutement d\'encadrement','les postes à pourvoir'))
+      +reuBloc('L\'intendance','#0e7490',
+        reuChamp('Créneaux et terrains','ce qui coince, ce qui se libère',null,true)
+        +reuChamp('Matériel','ce qui manque, ce qu\'on commande')
+        +reuChamp('Arbitrage et référents','qui couvre quoi'))
+    +'</div>'
+
+    +reuBloc('Ce que les catégories font remonter','#c0392b',
+      reuChamp('À la direction du club','les sujets qui dépassent le sportif',null,true)
+      +reuChamp('Ce qui ne peut plus attendre','le point à régler en premier'))
+
+    +(dm?reuBloc('Les séniors, en chiffres','#11161c',
+      reuSu('Depuis l\'appli', [
+        (dm.date?'Dernier match : '+dm.date+' · ':'Dernier match : ')+(dm.adversaire||'')+(dm.score?' — '+dm.score:''),
+        'Effectif suivi : '+JOUEURS.length+' joueurs',
+        'Blessés en cours : '+reuBlesses().length
+      ], 'rien à signaler')):'')
+
+    +reuRappel('club')
+
+    +reuBloc('Ce qu\'on décide aujourd\'hui','#d97706',
+      '<div style="font-size:9px;color:#6b7480;margin-bottom:5px">Ces lignes remontent dans l\'appli quand tu archives la feuille — et reviendront à la prochaine réunion.</div>'
+      +reuLignesDecision(6))
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — réunion technique, page 2 sur 2 : ce qu\'on décide.</span>'
+      +'<span>Prochaine réunion : <span contenteditable data-vide="jj/mm/aaaa"></span></span></div>'
+    +'</div>'
+    +docMemoire('reunion_club', {type:'reunion_club', titre:'Réunion technique club', sujet:'Club — '+new Date().toLocaleDateString('fr-FR')})
+    +'</body></html>';
+  docOuvrir(html,'Feuille de réunion technique');
+}
+
+// ===== Les décisions de réunion =====
+// Une réunion ne vaut que par ce qu'elle décide. Ce qui est écrit dans la feuille
+// remonte ici à l'archivage, et la réunion suivante s'ouvre sur « fait / pas fait ».
+var DECISIONS=[];
+function decHorodatage(){
+  var d=new Date(), z=function(n){ return (n<10?'0':'')+n; };
+  return z(d.getDate())+'/'+z(d.getMonth()+1)+'/'+d.getFullYear();
+}
+function decOuvertes(origine){
+  return DECISIONS.filter(function(d){
+    return d.statut!=='faite' && (!origine || d.origine===origine);
+  });
+}
+// Appelée depuis la feuille de réunion au moment de l'archivage
+function reunionDecisions(origine, lignes){
+  var n=0;
+  (lignes||[]).forEach(function(l){
+    var quoi=(l.quoi||'').trim();
+    if(!quoi) return;
+    var deja=DECISIONS.some(function(d){ return d.quoi===quoi && d.origine===origine && d.statut!=='faite'; });
+    if(deja) return;
+    DECISIONS.unshift({id:'dec'+Date.now()+'x'+Math.floor(Math.random()*1000),
+      quoi:quoi, qui:(l.qui||'').trim(), quand:(l.quand||'').trim(),
+      origine:origine, prise:decHorodatage(), statut:'ouverte'});
+    n++;
+  });
+  if(n){ renderDecisions(); sauvegarder(); notif('✅ '+n+' décision(s) remontée(s) dans l\'appli'); }
+  return n;
+}
+function decBasculer(id){
+  DECISIONS.forEach(function(d){
+    if(d.id===id) d.statut = (d.statut==='faite') ? 'ouverte' : 'faite';
+  });
+  renderDecisions(); sauvegarder();
+}
+function decSupprimer(id){
+  var d=DECISIONS.filter(function(x){ return x.id===id; })[0];
+  if(!d) return;
+  if(!confirm('Supprimer la décision « '+d.quoi+' » ?')) return;
+  DECISIONS=DECISIONS.filter(function(x){ return x.id!==id; });
+  renderDecisions(); sauvegarder();
+}
+function decAjouter(){
+  var q=document.getElementById('dec-quoi'), w=document.getElementById('dec-qui'),
+      d=document.getElementById('dec-quand'), o=document.getElementById('dec-origine');
+  if(!q || !q.value.trim()){ notif('⚠ Écris la décision'); return; }
+  DECISIONS.unshift({id:'dec'+Date.now()+'x'+Math.floor(Math.random()*1000),
+    quoi:q.value.trim(), qui:(w.value||'').trim(), quand:(d.value||'').trim(),
+    origine:(o.value||'staff'), prise:decHorodatage(), statut:'ouverte'});
+  q.value=''; w.value=''; d.value='';
+  renderDecisions(); sauvegarder();
+}
+var DEC_FILTRE='ouvertes';
+function decFiltrer(f){ DEC_FILTRE=f; renderDecisions(); }
+function renderDecisions(){
+  var ct=document.getElementById('dec-liste'); if(!ct) return;
+  var cpt=document.getElementById('dec-compteur');
+  var ouvertes=decOuvertes().length;
+  if(cpt) cpt.textContent=ouvertes? (ouvertes+' en cours') : 'tout est fait';
+  var sel=document.getElementById('dec-qui');
+  if(sel && sel.tagName==='SELECT'){
+    var noms=STAFF_CLUB.map(function(m){ return m.nom; });
+    sel.innerHTML='<option value="">— qui s\'en charge —</option>'
+      +noms.map(function(n){ return '<option>'+esc2(n)+'</option>'; }).join('');
+  }
+  var chips=document.getElementById('dec-chips');
+  if(chips){
+    var defs=[{c:'ouvertes',n:'En cours'},{c:'staff',n:'🧑‍🏫 Staff'},{c:'club',n:'🏛 Club'},{c:'faites',n:'✓ Faites'}];
+    chips.innerHTML=defs.map(function(d){
+      return '<button class="fa-chip'+(DEC_FILTRE===d.c?' on':'')+'" onclick="decFiltrer(\''+d.c+'\')">'+esc2(d.n)+'</button>';
+    }).join('');
+  }
+  var liste=DECISIONS.filter(function(d){
+    if(DEC_FILTRE==='faites') return d.statut==='faite';
+    if(DEC_FILTRE==='ouvertes') return d.statut!=='faite';
+    return d.origine===DEC_FILTRE && d.statut!=='faite';
+  });
+  if(!liste.length){
+    ct.innerHTML='<div class="fa-vide">'+(DECISIONS.length
+      ? 'Rien dans cette catégorie.'
+      : "Aucune décision pour l'instant.<br><span>Écris-les dans la feuille de réunion, puis <b>📥 Archiver dans l'appli</b> : elles arrivent ici, et la réunion suivante s'ouvrira sur ce qui a été fait ou non.</span>")+'</div>';
+    return;
+  }
+  ct.innerHTML=liste.map(function(d){
+    var faite=d.statut==='faite';
+    return '<div class="dec-l'+(faite?' ok':'')+'">'
+      +'<div class="dec-case" onclick="decBasculer(\''+d.id+'\')" title="Marquer fait / pas fait">'+(faite?'✓':'')+'</div>'
+      +'<div class="dec-txt"><div class="dec-q">'+esc2(d.quoi)+'</div>'
+        +'<div class="dec-s">'+(d.origine==='club'?'🏛 Réunion club':'🧑‍🏫 Réunion staff')
+        +' · prise le '+esc2(d.prise||'')
+        +(d.qui?' · <b>'+esc2(d.qui)+'</b>':'')
+        +(d.quand?' · pour le '+esc2(d.quand):'')+'</div></div>'
+      +'<button class="fa-x" onclick="decSupprimer(\''+d.id+'\')" title="Supprimer">🗑</button>'
+    +'</div>';
+  }).join('');
+}
+
+// ===== Le staff et les catégories du club =====
+// Rien n'est figé sur un club en particulier : chaque coach règle son staff et
+// ses catégories dans l'appli, et les documents de réunion se remplissent avec.
+var STAFF_ROLES=['Entraîneur principal','Entraîneur adjoint','Préparateur physique',
+  'Entraîneur des gardiens','Analyste vidéo','Kiné / soigneur','Dirigeant','Directeur sportif','Autre'];
+var STAFF_CLUB=[];
+var CATEGORIES_CLUB=['U7','U9','U11','U13','U15','U18','Séniors','Vétérans','Féminines'];
+
+function staffAjouter(){
+  var nom=(document.getElementById('staff-nom')||{}).value||'';
+  var role=(document.getElementById('staff-role')||{}).value||'';
+  nom=nom.trim();
+  if(!nom){ notif('⚠ Indique un nom'); return; }
+  STAFF_CLUB.push({nom:nom, role:role||'Autre'});
+  document.getElementById('staff-nom').value='';
+  renderStaffClub(); sauvegarder();
+}
+function staffSupprimer(i){
+  if(!STAFF_CLUB[i]) return;
+  if(!confirm('Retirer '+STAFF_CLUB[i].nom+' du staff ?')) return;
+  STAFF_CLUB.splice(i,1); renderStaffClub(); sauvegarder();
+}
+function renderStaffClub(){
+  var ct=document.getElementById('staff-liste'); if(!ct) return;
+  var sel=document.getElementById('staff-role');
+  if(sel && !sel.options.length) sel.innerHTML=STAFF_ROLES.map(function(r){ return '<option>'+esc2(r)+'</option>'; }).join('');
+  ct.innerHTML=STAFF_CLUB.length
+    ? STAFF_CLUB.map(function(m,i){
+        return '<div class="acc-l"><div class="acc-n">'+esc2((m.nom||'?').slice(0,2).toUpperCase())+'</div>'
+          +'<div class="acc-nom">'+esc2(m.nom)+'<div style="font-size:10.5px;color:var(--gris2);font-weight:400">'+esc2(m.role||'')+'</div></div>'
+          +'<button class="fa-x" onclick="staffSupprimer('+i+')" title="Retirer">🗑</button></div>';
+      }).join('')
+    : '<div style="font-size:11.5px;color:var(--gris2);padding:8px 2px">Personne pour l\'instant. Ajoute ton adjoint, ton préparateur physique, ton entraîneur des gardiens — ils apparaîtront dans la feuille de réunion.</div>';
+}
+function categoriesAjouter(){
+  var e=document.getElementById('cat-nom'); var v=(e.value||'').trim();
+  if(!v){ notif('⚠ Indique une catégorie'); return; }
+  if(CATEGORIES_CLUB.indexOf(v)!==-1){ notif('⚠ Cette catégorie existe déjà'); return; }
+  CATEGORIES_CLUB.push(v); e.value=''; renderCategoriesClub(); sauvegarder();
+}
+function categoriesSupprimer(i){
+  CATEGORIES_CLUB.splice(i,1); renderCategoriesClub(); sauvegarder();
+}
+function renderCategoriesClub(){
+  var ct=document.getElementById('cat-liste'); if(!ct) return;
+  ct.innerHTML=CATEGORIES_CLUB.length
+    ? CATEGORIES_CLUB.map(function(c,i){
+        return '<span class="cat-p">'+esc2(c)+'<b onclick="categoriesSupprimer('+i+')" title="Retirer">✕</b></span>';
+      }).join('')
+    : '<div style="font-size:11.5px;color:var(--gris2)">Aucune catégorie — ajoute celles de ton club.</div>';
+}
+
 var A_CREUSER=[
   {titre:'Carte mentale match (PDF)',description:"Modèle imprimable à remplir à la main avant chaque match — adversaire, plan de jeu, effectif, objectifs.",statut:'a_creuser'},
   {titre:'Fiche observation joueur (PDF)',description:"Pour noter tes observations quand tu vas voir un match — technique, physique, mental, conclusion.",statut:'a_creuser'},
@@ -11508,7 +12083,9 @@ var FICHES_ARCHIVE=[];
 var FICHE_TYPES={
   carte:      {ic:'🧠', nom:"Carte mentale d'avant-match", gen:function(f){ genererCarteMentaleMatch(); }},
   obs_equipe: {ic:'🔍', nom:'Observation équipe',          gen:function(f){ genererFicheObservationEquipe(f.sujet||''); }},
-  obs_joueur: {ic:'👤', nom:'Observation joueur',          gen:function(f){ genererFicheObservation(f.sujet||''); }}
+  obs_joueur: {ic:'👤', nom:'Observation joueur',          gen:function(f){ genererFicheObservation(f.sujet||''); }},
+  reunion_staff:{ic:'🧑‍🏫', nom:'Réunion staff',             gen:function(f){ genererReunionStaff(); }},
+  reunion_club: {ic:'🏛', nom:'Réunion technique club',     gen:function(f){ genererReunionClub(); }}
 };
 function ficheHorodatage(){
   var d=new Date(), z=function(n){ return (n<10?'0':'')+n; };
@@ -11611,6 +12188,11 @@ function docMemoire(cle, meta){
     +'function clePastille(e,cpt){ var g=e.closest(".crit,.verdict");'
       +'var l=(g&&g.querySelector(".crit-l"))?g.querySelector(".crit-l").textContent.trim():"verdict";'
       +'var k=l+"\u00a7"+e.textContent.trim(); var n=(cpt[k]=(cpt[k]||0)+1); return k+"\u00a7"+n; }'
+    // Les lignes de décision d'une feuille de réunion : on les ramasse pour l'appli
+    +'function decisions(){ return [].slice.call(document.querySelectorAll(".dec")).map(function(l){'
+      +'var g=function(c){ var e=l.querySelector(c); return e?e.textContent.trim():""; };'
+      +'return {quoi:g(".d-quoi"), qui:g(".d-qui"), quand:g(".d-quand")};'
+      +'}).filter(function(x){ return x.quoi; }); }'
     +'function lire(){ var d={c:{},n:{},v:2}, a={}, b={};'
       +'champs().forEach(function(e,i){ var t=e.textContent.trim(), k=cleChamp(e,i,a); if(t) d.c[k]=t; });'
       +'pastilles().forEach(function(e){ var k=clePastille(e,b); if(e.classList.contains("on")) d.n[k]=1; });'
@@ -11643,6 +12225,9 @@ function docMemoire(cle, meta){
       +'try{ var deja=app.ficheArchiveExistante?app.ficheArchiveExistante(META.cle):null;'
         +'if(deja) remplacer=confirm("Une fiche est déjà archivée pour « "+(deja.sujet||deja.titre)+" », remplie le "+deja.maj+".\\n\\nOK = remplacer celle-là\\nAnnuler = garder les deux"); }catch(e){}'
       +'try{ app.ficheArchiver(META, d, remplacer); }catch(e){ alert("Archivage impossible : "+e.message); return; }'
+      // Une feuille de réunion renvoie aussi ses décisions, pour qu'elles vivent dans l'appli
+      +'try{ if(app.reunionDecisions && META.type && META.type.indexOf("reunion_")===0){'
+        +'app.reunionDecisions(META.type==="reunion_club"?"club":"staff", decisions()); } }catch(e){}'
       +'var b=document.getElementById("b-archive");'
       +'if(b){ var t=b.innerHTML; b.innerHTML="✓ Archivée dans l\'appli"; b.className="on";'
         +'setTimeout(function(){ b.innerHTML=t; b.className=""; },2800); }'
@@ -13208,12 +13793,11 @@ function supprimerSchemaCPA(i){
 function sauvegarder(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,NOM_CLUB}));
+    localStorage.setItem('ast_v2',JSON.stringify({JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,NOM_CLUB}));
     notif('✓ Sauvegardé (navigateur) — synchro cloud en cours...');
     sauvegarderFirestore().then(function(res){
       if(res && res.conflit){ ouvrirConflitCloud(res.conflit); return; }
       if(res){ notif('☁️ Sauvegardé aussi dans le cloud'); majPoidsSauvegarde(); }
-      else if(!authConnecte()) notif('⚠ Pas connecté au cloud — la copie locale est OK, mais les joueurs ne verront pas cette mise à jour. Connecte-toi (bandeau orange en haut).');
       else notif('⚠ Cloud KO — la copie locale est OK, mais les joueurs ne verront pas cette mise à jour. Vérifie ta connexion ou le poids des données (Paramètres du club).');
     });
   }catch(e){
@@ -13233,7 +13817,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
@@ -13340,6 +13924,11 @@ async function creerAccesJoueur(num, nom){
   var code=accCodeAuHasard();
   try{
     var compte=await authCreationAutreCompte(accEmail(num), 'ast-'+code);
+    // Sans identifiant de compte, l'accès ne servirait à rien : mieux vaut le dire.
+    if(!compte || !compte.localId){
+      notif('✗ Le compte a été créé mais son identifiant n\'est pas revenu — préviens-moi, ne distribue pas ce code');
+      return;
+    }
     await fbFetch(FIRESTORE_BASE+'/comptes/'+compte.localId,{
       method:'PATCH', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({fields:{num:{integerValue:String(num)}, nom:{stringValue:nom||''},
@@ -13384,7 +13973,7 @@ function renderAccesJoueurs(){
 }
 
 function notif(txt){var el=document.getElementById('notif');el.textContent=txt;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
-window.addEventListener('load',function(){appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();majEtatConnexion();renderAccesJoueurs();if(authConnecte()) syncDepuisFirestore(true);});
+window.addEventListener('load',function(){appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});

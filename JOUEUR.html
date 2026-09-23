@@ -23,10 +23,10 @@ body{background:var(--bg);padding-bottom:24px;min-height:100vh}
 .brand-title .accent{color:var(--or)}
 .brand-sub{font-size:13px;color:var(--mute);margin-top:3px}
 /* --- Ecran "qui es-tu" --- */
-#scr-login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
-#scr-login .crest{display:block}
-#scr-login .brand-title{font-size:26px;margin-bottom:2px}
-#scr-login .sub{color:var(--mute);font-size:14.5px;margin:20px 0 20px;font-weight:500}
+#scr-login,#scr-pin{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
+#scr-login .crest,#scr-pin .crest{display:block}
+#scr-login .brand-title,#scr-pin .brand-title{font-size:26px;margin-bottom:2px}
+#scr-login .sub,#scr-pin .sub{color:var(--mute);font-size:14.5px;margin:20px 0 20px;font-weight:500}
 .fi{width:100%;background:#0a0b0d;border:1.5px solid rgba(255,255,255,.2);border-radius:5px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:inherit}
 .fi:focus{border-color:var(--or);background:#111316;outline:none;box-shadow:0 0 0 3px rgba(217,119,6,.18)}
 .fl{font-family:'Roboto Condensed',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--or);text-transform:uppercase;display:block;margin-bottom:6px}
@@ -213,16 +213,21 @@ input[type=range]{accent-color:var(--or)}
   <img class="crest" id="login-crest" alt="AST Tarnos" style="width:64px;height:auto;margin:0 auto 16px;display:block;filter:drop-shadow(0 6px 16px rgba(249,115,22,.3))">
   <div class="brand-title">AS<span class="accent">T</span> TARNOS</div>
   <div class="brand-sub">Espace joueur — R2 Poule F</div>
-  <div class="sub">Ton numéro et ton code</div>
-  <input class="fi" id="login-num" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="N° de maillot"
-    style="text-align:center;font-size:20px;letter-spacing:3px" onkeydown="if(event.key==='Enter')document.getElementById('login-code').focus()">
-  <input class="fi" id="login-code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••"
-    style="text-align:center;font-size:24px;letter-spacing:12px;margin-top:10px" onkeydown="if(event.key==='Enter')validerLogin()">
-  <button class="btn-or" id="login-btn" onclick="validerLogin()">Entrer</button>
+  <div class="sub">Qui es-tu ?</div>
+  <select class="fi" id="login-select"><option value="">Chargement de l'effectif...</option></select>
+  <button class="btn-or" id="login-btn" disabled onclick="validerLogin()">C'est parti</button>
   <div id="login-err" class="err-msg hidden"></div>
-  <div style="margin-top:18px;font-size:11px;color:var(--mute);line-height:1.6">
-    Pas encore de code ? Demande-le au coach :<br>c'est lui qui crée les accès.
-  </div>
+</div>
+
+<div id="scr-pin" class="hidden">
+  <img class="crest" src="" alt="AST Tarnos" style="width:56px;height:auto;margin:0 auto 14px;display:block;filter:drop-shadow(0 6px 16px rgba(217,119,6,.3))" id="pin-crest">
+  <div class="brand-title" id="pin-titre">Crée ton code</div>
+  <div id="pin-nom-affiche" style="color:var(--or);font-weight:700;font-size:13px;margin-top:4px"></div>
+  <div class="sub" id="pin-sous-titre">Choisis 4 chiffres.</div>
+  <input class="fi" id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:12px" onkeydown="if(event.key==='Enter')validerPin()">
+  <button class="btn-or" onclick="validerPin()">Valider</button>
+  <div id="pin-err" class="err-msg hidden"></div>
+  <div onclick="document.getElementById('scr-pin').classList.add('hidden');document.getElementById('scr-login').classList.remove('hidden');" style="margin-top:16px;font-size:11px;color:var(--mute);cursor:pointer;text-align:center">‹ Choisir un autre nom</div>
 </div>
 
 <div id="app" class="hidden">
@@ -819,74 +824,139 @@ async function chargerSaison(){
 
 function init(){
   document.getElementById('login-crest').src=PHOTO_LOGO;
+  document.getElementById('pin-crest').src=PHOTO_LOGO;
   var savedNum=localStorage.getItem('ast_joueur_num');
   var savedNom=localStorage.getItem('ast_joueur_nom');
-  // On ne reprend la session que si le compte est toujours ouvert : sinon
-  // l'appli afficherait un écran vide, tous les appels étant refusés.
-  if(savedNum!==null && savedNom && authConnecte()){
+  if(savedNum!==null && savedNom){
     MON_NUM=parseInt(savedNum); MON_NOM=savedNom;
     demarrerApp();
   }else{
     initLogin();
   }
 }
-// Appelée par le module d'identification quand le jeton ne peut plus être renouvelé
-function authSessionPerdue(){
-  try{ localStorage.removeItem('ast_joueur_num'); localStorage.removeItem('ast_joueur_nom'); }catch(e){}
-}
-function authRefusee(){ /* les règles ont dit non : on laisse l'écran afficher son message */ }
 
-function initLogin(){
-  var e=document.getElementById('login-num'); if(e) e.focus();
-}
-
-// Chaque joueur a un vrai compte : <numéro>@joueurs.asttarnos.fr, avec son code.
-// Le code n'est plus vérifié dans le téléphone mais par Google — on ne peut plus
-// passer à côté, et il n'est plus stocké dans la base.
-function emailJoueur(num){ return String(num)+'@joueurs.asttarnos.fr'; }
-function motDePasseJoueur(code){ return 'ast-'+code; }
-
-async function validerLogin(){
-  var num=(document.getElementById('login-num').value||'').trim();
-  var code=(document.getElementById('login-code').value||'').trim();
-  var err=document.getElementById('login-err');
-  var btn=document.getElementById('login-btn');
-  err.classList.add('hidden');
-  if(!/^\d{1,2}$/.test(num)){ err.textContent='⚠ Entre ton numéro de maillot'; err.classList.remove('hidden'); return; }
-  if(!/^\d{4}$/.test(code)){ err.textContent='⚠ Le code fait 4 chiffres'; err.classList.remove('hidden'); return; }
-  btn.disabled=true; btn.textContent='Connexion...';
+async function initLogin(){
+  var sel=document.getElementById('login-select');
   try{
-    await authConnexion(emailJoueur(parseInt(num,10)), motDePasseJoueur(code));
-    MON_NUM=parseInt(num,10);
     await chargerSaison();
-    var moi=(SAISON.JOUEURS||[]).filter(function(j){ return j.num===MON_NUM; })[0];
-    MON_NOM=moi?moi.nom:('N°'+MON_NUM);
-    finaliserConnexion();
-  }catch(e){
-    authDeconnexion();
-    var m=e.message||'';
-    if(m.indexOf('n\'existe pas')!==-1){
-      err.innerHTML='⚠ Aucun accès pour le n°'+num+'.<br>Demande au coach de te créer ton code.';
-    }else if(m.indexOf('incorrect')!==-1){
-      err.textContent='⚠ Numéro ou code incorrect';
-    }else{
-      err.textContent='⚠ '+m;
+    var joueurs=(SAISON.JOUEURS||[]).slice().sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
+    if(!joueurs.length){
+      sel.innerHTML='<option value="">Aucun joueur trouvé</option>';
+      return;
     }
-    err.classList.remove('hidden');
-  }finally{
-    btn.disabled=false; btn.textContent='Entrer';
+    sel.innerHTML='<option value="">— Sélectionne ton nom —</option>'+joueurs.map(function(j){
+      return '<option value="'+j.num+'|'+esc(j.nom)+'">'+esc(j.num)+'. '+esc(j.nom)+'</option>';
+    }).join('');
+    sel.disabled=false;
+    document.getElementById('login-btn').disabled=false;
+  }catch(e){
+    document.getElementById('login-err').textContent='⚠ Impossible de charger l\'effectif ('+e.message+'). Vérifie ta connexion et réessaie.';
+    document.getElementById('login-err').classList.remove('hidden');
+    sel.innerHTML='<option value="">Erreur de chargement</option>';
   }
 }
 
+function validerLogin(){
+  var sel=document.getElementById('login-select');
+  var val=sel.value;
+  if(!val) return;
+  var parts=val.split('|');
+  MON_NUM=parseInt(parts[0]); MON_NOM=parts.slice(1).join('|');
+  lancerEtapePin();
+}
+
 function changerJoueur(){
-  if(!confirm('Te déconnecter ? Tu devras retaper ton numéro et ton code.')) return;
-  authDeconnexion();
+  if(!confirm('Changer de joueur ? Tu devras te resélectionner dans la liste.')) return;
   localStorage.removeItem('ast_joueur_num');
   localStorage.removeItem('ast_joueur_nom');
   location.reload();
 }
 
+// ===== Code PIN à 4 chiffres =====
+async function hashPin(pin){
+  var enc=new TextEncoder().encode('ast-'+pin+'-tarnos');
+  var buf=await crypto.subtle.digest('SHA-256',enc);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+var PIN_MODE=null; // 'creer' ou 'verifier'
+var PIN_PREMIERE_SAISIE=null;
+async function lancerEtapePin(){
+  document.getElementById('scr-login').classList.add('hidden');
+  document.getElementById('scr-pin').classList.remove('hidden');
+  document.getElementById('pin-nom-affiche').textContent=MON_NOM;
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-err').classList.add('hidden');
+  PIN_PREMIERE_SAISIE=null;
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM);
+    if(res.ok){
+      PIN_MODE='verifier';
+      document.getElementById('pin-titre').textContent='Entre ton code';
+      document.getElementById('pin-sous-titre').textContent='Le code à 4 chiffres que tu as créé la première fois.';
+    }else{
+      PIN_MODE='creer';
+      document.getElementById('pin-titre').textContent='Crée ton code';
+      document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+    }
+  }catch(e){
+    PIN_MODE='creer';
+    document.getElementById('pin-titre').textContent='Crée ton code';
+    document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+  }
+  document.getElementById('pin-input').focus();
+}
+async function validerPin(){
+  var val=document.getElementById('pin-input').value.trim();
+  var errEl=document.getElementById('pin-err');
+  errEl.classList.add('hidden');
+  if(!/^\d{4}$/.test(val)){ errEl.textContent='⚠ Entre exactement 4 chiffres'; errEl.classList.remove('hidden'); return; }
+  if(PIN_MODE==='creer'){
+    if(PIN_PREMIERE_SAISIE===null){
+      PIN_PREMIERE_SAISIE=val;
+      document.getElementById('pin-input').value='';
+      document.getElementById('pin-sous-titre').textContent='Retape le même code pour confirmer.';
+      document.getElementById('pin-input').focus();
+      return;
+    }
+    if(val!==PIN_PREMIERE_SAISIE){
+      errEl.textContent='⚠ Les deux codes ne correspondent pas, recommence';
+      errEl.classList.remove('hidden');
+      PIN_PREMIERE_SAISIE=null;
+      document.getElementById('pin-input').value='';
+      document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+      return;
+    }
+    var hash=await hashPin(val);
+    try{
+      await fbFetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{pinHash:{stringValue:hash}}})});
+    }catch(e){
+      errEl.textContent='⚠ Impossible d\'enregistrer le code — vérifie ta connexion';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    finaliserConnexion();
+  }else{
+    var hashSaisi=await hashPin(val);
+    try{
+      var res=await fbFetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM);
+      var data=await res.json();
+      var hashAttendu=((data.fields||{}).pinHash||{}).stringValue;
+      if(hashSaisi===hashAttendu){
+        finaliserConnexion();
+      }else{
+        errEl.textContent='⚠ Code incorrect';
+        errEl.classList.remove('hidden');
+        document.getElementById('pin-input').value='';
+      }
+    }catch(e){
+      errEl.textContent='⚠ Vérification impossible — réessaie';
+      errEl.classList.remove('hidden');
+    }
+  }
+}
+
 function finaliserConnexion(){
+  document.getElementById('scr-pin').classList.add('hidden');
   localStorage.setItem('ast_joueur_num',MON_NUM);
   localStorage.setItem('ast_joueur_nom',MON_NOM);
   demarrerApp();
@@ -1370,7 +1440,7 @@ function renderHub(){
   }).join('');
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v27</b> · 22/09/2026<br>'
+    +'AST JOUEUR <b style="color:var(--or)">v29</b> · 22/09/2026<br>'
     +'<span style="opacity:.8">Mes clips · Projet de jeu</span></div>';
   ct.innerHTML=htmlHub;
   jvBrancher();
