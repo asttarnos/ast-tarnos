@@ -276,6 +276,46 @@ input[type=range]{accent-color:var(--or)}
 .mc-ent-l b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1px}
 @media(min-width:460px){ .mc-traj{grid-template-columns:1fr} .mc-derniers{grid-template-columns:repeat(3,1fr)} }
 @media(max-width:360px){ .mc-cles{grid-template-columns:repeat(2,1fr)} .mc-attrs{grid-template-columns:1fr} }
+/* ===== Le dossier d'avant-match, côté joueur ===== */
+.dmj-affiche{background:linear-gradient(160deg,rgba(217,119,6,.20),rgba(217,119,6,.02) 66%);
+  border:1px solid rgba(217,119,6,.32);border-radius:14px;padding:18px;margin-bottom:14px}
+.dmj-eyebrow{font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--or)}
+.dmj-adv{font-family:'Roboto Condensed',sans-serif;font-size:27px;font-weight:800;color:#fff;
+  line-height:1.1;margin-top:5px}
+.dmj-meta{font-size:13px;color:var(--mute);margin-top:4px}
+.dmj-maj{font-size:11px;color:var(--mute);margin-top:9px;opacity:.8}
+.dmj-collectif{font-size:14px;color:var(--ink);line-height:1.6}
+.dmj-bulles{display:grid;gap:10px}
+.dmj-bulle{background:rgba(8,9,10,.4);border:1px solid var(--hair);border-left:3px solid var(--bc);
+  border-radius:10px;padding:11px 13px}
+.dmj-bulle-t{font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.03em;color:var(--bc);margin-bottom:7px}
+.dmj-l{font-size:13.5px;color:var(--ink);line-height:1.5;margin-bottom:5px}
+.dmj-l:last-child{margin-bottom:0}
+.dmj-l span{display:block;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--mute)}
+.dmj-sous{font-size:12px;color:var(--mute);margin-bottom:9px}
+.dmj-moi{background:rgba(217,119,6,.13);border:1px solid rgba(217,119,6,.45);border-radius:9px;
+  padding:10px 12px;margin-bottom:11px;font-size:14px;color:var(--ink);line-height:1.5}
+.dmj-moi b{display:block;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--or);margin-bottom:3px}
+.dmj-terrain{border-radius:10px;overflow:hidden}
+.dmj-cmd{display:flex;align-items:center;gap:8px;margin-top:11px;flex-wrap:wrap}
+.dmj-btn{font-family:inherit;font-size:13px;font-weight:700;padding:9px 13px;border-radius:9px;
+  border:1px solid var(--hair);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer}
+.dmj-btn.play{flex:1;background:var(--or);border-color:var(--or);color:#160d02}
+.dmj-etat{font-size:11.5px;color:var(--mute);flex:0 0 100%}
+.dmj-vid{display:flex;align-items:center;gap:11px;background:rgba(8,9,10,.4);border:1px solid var(--hair);
+  border-left:3px solid var(--or);border-radius:10px;padding:10px 12px;margin-bottom:9px;cursor:pointer}
+.dmj-vid:last-child{margin-bottom:0}
+.dmj-vig{width:86px;height:58px;flex:0 0 86px;border-radius:7px;background:#0c1116;border:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:center;font-size:22px}
+.dmj-vid-c{flex:1;min-width:0}
+.dmj-vid-t{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3}
+.dmj-vid-m{font-size:11px;color:var(--mute);margin-top:3px}
+.dmj-vid-n{font-size:12px;color:var(--mute);margin-top:5px;line-height:1.4}
+.dmj-go{font-size:22px;color:var(--or);flex-shrink:0}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
@@ -1082,7 +1122,7 @@ var RENDER_MAP={
   infosclub:[renderInfosClub],
   statslive:[renderEcranStatsLive],
   jourmatch:[renderJourDeMatch],
-  prepa:[renderPrepaAdversaire], projetjeu:[renderProjetJeu],
+  prepa:[chargerDossierMatch,renderPrepaAdversaire], projetjeu:[renderProjetJeu],
   calannuel:[renderCalendrierAnnuelJoueur],
   sante:[renderSante],
   coach:[renderCoach]
@@ -1513,8 +1553,8 @@ function renderHub(){
   }).join('');
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v30</b> · 24/09/2026<br>'
-    +'<span style="opacity:.8">Ma carte : photo, courbes, entretiens</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v31</b> · 24/09/2026<br>'
+    +'<span style="opacity:.8">Le dossier d\'avant-match</span></div>';
   ct.innerHTML=htmlHub;
   jvBrancher();
 }
@@ -3095,18 +3135,304 @@ function renderJourDeMatch(){
 
   ct.innerHTML=html;
 }
+// ===== Le dossier d'avant-match, côté joueur =====
+// Le coach a rangé cinq situations, des consignes et de la vidéo. Ici, ça se
+// regarde : les phases s'animent, les adversaires sont là, et sa consigne à lui
+// ressort en orange.
+var DOSSIER_MATCH=null;
+var DMJ_ANIM={};   // { idSituation : {timer, etape, joue} }
+
+async function chargerDossierMatch(){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/plateau_joueurs/dossier');
+    if(!res.ok) return null;
+    var j=await res.json();
+    var f=j.fields||{};
+    if(!f.data) return null;
+    DOSSIER_MATCH=JSON.parse(f.data.stringValue);
+    DOSSIER_MATCH._maj=(f.updated||{}).stringValue||'';
+    DOSSIER_MATCH._auteur=(f.auteur||{}).stringValue||'';
+    return DOSSIER_MATCH;
+  }catch(e){ return null; }
+}
+// Lequel de ces pions, c'est moi ?
+function dmjCleMoi(plateau){
+  var js=(plateau&&plateau.joueurs)||[];
+  for(var i=0;i<js.length;i++){
+    if(js[i].nom && typeof fexNomsCorrespondent==='function'
+       && fexNomsCorrespondent(js[i].nom, MON_NOM)) return js[i].cle;
+  }
+  for(var k=0;k<js.length;k++){
+    if((js[k].nom||'').toLowerCase().trim()===(MON_NOM||'').toLowerCase().trim()) return js[k].cle;
+  }
+  return null;
+}
+// La situation telle qu'elle est à une étape donnée
+function dmjEtape(plateau, idx){
+  var seq=plateau.sequence||[];
+  if(!seq.length || idx==null || !seq[idx]) return plateau;
+  var st=seq[idx];
+  var copie=Object.assign({}, plateau);
+  copie.joueurs=(plateau.joueurs||[]).map(function(j){
+    var p=st.own&&st.own[j.cle];
+    return p? Object.assign({}, j, {x:p[0], y:p[1]}) : j;
+  });
+  copie.adversaire=(st.oppVisible===false)? [] : (plateau.adversaire||[]).map(function(o){
+    var p=st.opp&&st.opp[o.cle];
+    return p? Object.assign({}, o, {x:p[0], y:p[1]}) : o;
+  });
+  return copie;
+}
+// Entre deux étapes : les pions glissent, les bulles se taisent
+function dmjEntre(plateau, a, b, t){
+  var lerp=function(u,v){ return u+(v-u)*t; };
+  var A=dmjEtape(plateau,a), B=dmjEtape(plateau,b);
+  var parCle={}; (B.joueurs||[]).forEach(function(j){ parCle[j.cle]=j; });
+  var oppB={}; (B.adversaire||[]).forEach(function(o){ oppB[o.cle]=o; });
+  var copie=Object.assign({}, plateau);
+  copie.joueurs=(A.joueurs||[]).map(function(j){
+    var d=parCle[j.cle]||j;
+    return Object.assign({}, j, {x:lerp(j.x,d.x), y:lerp(j.y,d.y), note:''});
+  });
+  copie.adversaire=(A.adversaire||[]).map(function(o){
+    var d=oppB[o.cle]||o;
+    return Object.assign({}, o, {x:lerp(o.x,d.x), y:lerp(o.y,d.y)});
+  });
+  return copie;
+}
+function dmjEtapesPleines(plateau){
+  var seq=plateau.sequence||[], out=[];
+  seq.forEach(function(st,i){ if(st) out.push(i); });
+  return out;
+}
+function dmjDessiner(id, plateau, idx, sansBulles){
+  var el=document.getElementById('dmj-t-'+id); if(!el) return;
+  var sit=(idx==null)?plateau:dmjEtape(plateau,idx);
+  if(sansBulles){
+    sit=Object.assign({}, sit);
+    sit.joueurs=(sit.joueurs||[]).map(function(j){ return Object.assign({}, j, {note:''}); });
+  }
+  el.innerHTML=terrainProjetJeuSvg(sit, dmjCleMoi(plateau));
+}
+function dmjMajEtat(id, plateau){
+  var e=document.getElementById('dmj-e-'+id); if(!e) return;
+  var a=DMJ_ANIM[id]||{}, pleines=dmjEtapesPleines(plateau);
+  if(!pleines.length){ e.textContent=''; return; }
+  var pos=pleines.indexOf(a.etape!=null?a.etape:pleines[0]);
+  e.textContent='Étape '+(pos+1)+' sur '+pleines.length;
+}
+function dmjLire(id){
+  var sit=(DOSSIER_MATCH.situations||[]).filter(function(s){ return s.id===id; })[0];
+  if(!sit) return;
+  var plateau=sit.plateau, pleines=dmjEtapesPleines(plateau);
+  var a=DMJ_ANIM[id]=DMJ_ANIM[id]||{etape:pleines[0], joue:false};
+  var btn=document.getElementById('dmj-b-'+id);
+  if(a.joue){ dmjStop(id); return; }
+  if(pleines.length<2){ return; }
+  a.joue=true;
+  if(btn) btn.textContent='⏸ Pause';
+  var pos=pleines.indexOf(a.etape);
+  if(pos<0 || pos>=pleines.length-1) pos=0;
+  var DUREE=1000, PAUSE=450;
+  function versSuivante(){
+    if(!a.joue) return;
+    var de=pleines[pos], vers=pleines[(pos+1)%pleines.length];
+    var t0=performance.now();
+    (function cadre(t){
+      if(!a.joue) return;
+      var k=Math.min(1,(t-t0)/DUREE);
+      var doux=k<0.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;   // départ et arrivée en douceur
+      var el=document.getElementById('dmj-t-'+id);
+      if(el) el.innerHTML=terrainProjetJeuSvg(dmjEntre(plateau,de,vers,doux), dmjCleMoi(plateau));
+      if(k<1){ a.timer=requestAnimationFrame(cadre); return; }
+      a.etape=vers; dmjDessiner(id, plateau, vers, false); dmjMajEtat(id, plateau);
+      pos=(pos+1)%pleines.length;
+      if(pos===0){ dmjStop(id); return; }          // un tour, puis on s'arrête
+      a.timer=setTimeout(versSuivante, PAUSE);
+    })(performance.now());
+  }
+  versSuivante();
+}
+function dmjStop(id){
+  var a=DMJ_ANIM[id]; if(!a) return;
+  a.joue=false;
+  if(a.timer){ try{ cancelAnimationFrame(a.timer); }catch(e){} try{ clearTimeout(a.timer); }catch(e){} }
+  var btn=document.getElementById('dmj-b-'+id);
+  if(btn) btn.textContent='▶ Lire la phase';
+  var sit=(DOSSIER_MATCH.situations||[]).filter(function(s){ return s.id===id; })[0];
+  if(sit) dmjDessiner(id, sit.plateau, a.etape, false);
+}
+function dmjPas(id, sens){
+  var sit=(DOSSIER_MATCH.situations||[]).filter(function(s){ return s.id===id; })[0];
+  if(!sit) return;
+  dmjStop(id);
+  var pleines=dmjEtapesPleines(sit.plateau);
+  if(!pleines.length) return;
+  var a=DMJ_ANIM[id]=DMJ_ANIM[id]||{etape:pleines[0]};
+  var pos=pleines.indexOf(a.etape);
+  if(pos<0) pos=0;
+  pos=(pos+sens+pleines.length)%pleines.length;
+  a.etape=pleines[pos];
+  dmjDessiner(id, sit.plateau, a.etape, false);
+  dmjMajEtat(id, sit.plateau);
+}
+function dmjOuvrirVideo(id){
+  var v=(DOSSIER_MATCH.videos||[]).filter(function(x){ return x.id===id; })[0];
+  if(!v) return;
+  var url=v.url||'';
+  var s=dmjSecondes(v.minute);
+  if(v.source==='youtube' && s) url+=(url.indexOf('?')===-1?'?':'&')+'t='+s+'s';
+  window.open(url,'_blank');
+}
+function dmjSecondes(txt){
+  txt=(txt||'').trim(); if(!txt) return 0;
+  var m=txt.match(/^(\d+)\s*[:'m]\s*(\d{1,2})/); if(m) return parseInt(m[1])*60+parseInt(m[2]);
+  m=txt.match(/^(\d+)\s*(s|sec)?$/i); if(m) return parseInt(m[1]);
+  m=txt.match(/^(\d+)\s*(min|')/i); if(m) return parseInt(m[1])*60;
+  return 0;
+}
+// La vignette d'une vidéo : celle de YouTube, ou la capture déposée par le coach
+async function dmjVignette(v, el){
+  if(v.vignetteUrl){ el.style.background='#0c1116 url("'+v.vignetteUrl+'") center/cover no-repeat'; el.innerHTML=''; return; }
+  if(!v.apercuId) return;
+  try{
+    var cache=localStorage.getItem('ast_ap_'+v.apercuId);
+    if(cache){ el.style.background='#0c1116 url("'+cache+'") center/cover no-repeat'; el.innerHTML=''; return; }
+  }catch(e){}
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/apercu_'+v.apercuId);
+    if(!res.ok) return;
+    var j=await res.json();
+    var d=(j.fields&&j.fields.data)?j.fields.data.stringValue:null;
+    if(!d) return;
+    try{ localStorage.setItem('ast_ap_'+v.apercuId, d); }catch(e){}
+    el.style.background='#0c1116 url("'+d+'") center/cover no-repeat'; el.innerHTML='';
+  }catch(e){}
+}
+
+function dmjBrancheHtml(cle){
+  var b=null;
+  for(var i=0;i<DMJ_BRANCHES.length;i++) if(DMJ_BRANCHES[i].cle===cle) b=DMJ_BRANCHES[i];
+  if(!b) return '';
+  var vals=(DOSSIER_MATCH.bulles||{})[cle]||{};
+  var lignes=Object.keys(vals).filter(function(k){ return (vals[k]||'').trim(); });
+  if(!lignes.length) return '';
+  return '<div class="dmj-bulle" style="--bc:'+b.coul+'">'
+    +'<div class="dmj-bulle-t">'+b.ic+' '+esc(b.titre)+'</div>'
+    +lignes.map(function(k){
+      return '<div class="dmj-l"><span>'+esc(k)+'</span>'+esc(vals[k])+'</div>';
+    }).join('')
+  +'</div>';
+}
+var DMJ_BRANCHES=[
+  {cle:'adv',  ic:'🔍', titre:"L'adversaire",         coul:'#c0392b'},
+  {cle:'grp',  ic:'👥', titre:'Le groupe',             coul:'#2563eb'},
+  {cle:'plan', ic:'🧠', titre:'Notre plan',            coul:'#d97706'},
+  {cle:'cpa',  ic:'⚡', titre:'Coups de pied arrêtés', coul:'#7c3aed'},
+  {cle:'obj',  ic:'🎯', titre:'Les objectifs',         coul:'#0f8a5f'},
+  {cle:'verif',ic:'✅', titre:'À vérifier',            coul:'#0e7490'}
+];
+
+function renderDossierMatchHtml(){
+  var d=DOSSIER_MATCH;
+  if(!d) return '';
+  var html='<div class="dmj-affiche">'
+    +'<div class="dmj-eyebrow">📣 Avant le match</div>'
+    +'<div class="dmj-adv">'+esc(d.adv||'Prochain match')+'</div>'
+    +'<div class="dmj-meta">'+esc([d.date,d.lieu,d.comp].filter(Boolean).join(' · '))+'</div>'
+    +(d._maj?'<div class="dmj-maj">Envoyé par '+esc(d._auteur||'le coach')+' le '+esc(d._maj)+'</div>':'')
+  +'</div>';
+
+  if((d.collectif||'').trim()){
+    html+='<div class="blk"><div class="blk-h"><span class="t">📢 Les consignes pour tout le monde</span></div>'
+      +'<div class="blk-body"><div class="dmj-collectif">'+esc(d.collectif).replace(/\n/g,'<br>')+'</div></div></div>';
+  }
+
+  var bulles=DMJ_BRANCHES.map(function(b){ return dmjBrancheHtml(b.cle); }).join('');
+  if(bulles){
+    html+='<div class="blk"><div class="blk-h"><span class="t">🗒️ Ce qu\'il faut savoir</span></div>'
+      +'<div class="blk-body"><div class="dmj-bulles">'+bulles+'</div></div></div>';
+  }
+
+  (d.situations||[]).forEach(function(s,i){
+    var pleines=dmjEtapesPleines(s.plateau);
+    var maConsigne='';
+    var cle=dmjCleMoi(s.plateau);
+    if(cle){
+      var moi=(s.plateau.joueurs||[]).filter(function(j){ return j.cle===cle; })[0];
+      if(moi && (moi.note||'').trim()) maConsigne=moi.note.trim();
+    }
+    html+='<div class="blk"><div class="blk-h"><span class="t">⚽ '+esc(s.titre||('Situation '+(i+1)))+'</span>'
+      +'<span class="bc">'+(pleines.length>1?pleines.length+' étapes':'')+'</span></div>'
+      +'<div class="blk-body">'
+      +(s.sous?'<div class="dmj-sous">'+esc(s.sous)+'</div>':'')
+      +(maConsigne?'<div class="dmj-moi"><b>Toi</b>'+esc(maConsigne)+'</div>':'')
+      +'<div class="dmj-terrain" id="dmj-t-'+s.id+'"></div>'
+      +(pleines.length>1
+        ? '<div class="dmj-cmd">'
+          +'<button class="dmj-btn" onclick="dmjPas(\''+s.id+'\',-1)">‹</button>'
+          +'<button class="dmj-btn play" id="dmj-b-'+s.id+'" onclick="dmjLire(\''+s.id+'\')">▶ Lire la phase</button>'
+          +'<button class="dmj-btn" onclick="dmjPas(\''+s.id+'\',1)">›</button>'
+          +'<span class="dmj-etat" id="dmj-e-'+s.id+'"></span></div>'
+        : '')
+      +'</div></div>';
+  });
+
+  if((d.videos||[]).length){
+    html+='<div class="blk"><div class="blk-h"><span class="t">🎬 À regarder</span>'
+      +'<span class="bc">'+d.videos.length+'</span></div><div class="blk-body">'
+      +d.videos.map(function(v){
+        return '<div class="dmj-vid" onclick="dmjOuvrirVideo(\''+v.id+'\')">'
+          +'<div class="dmj-vig" id="dmj-v-'+v.id+'">🎬</div>'
+          +'<div class="dmj-vid-c"><div class="dmj-vid-t">'+esc(v.titre||'')+'</div>'
+          +'<div class="dmj-vid-m">'+(v.source==='veo'?'Veo':(v.source==='youtube'?'YouTube':'Vidéo'))
+          +(v.minute?' · démarre à '+esc(v.minute):'')+'</div>'
+          +(v.note?'<div class="dmj-vid-n">'+esc(v.note)+'</div>':'')
+          +'</div><span class="dmj-go">›</span></div>';
+      }).join('')
+      +'</div></div>';
+  }
+  return html;
+}
+// Après l'insertion : on dessine les terrains et on va chercher les vignettes
+function dmjApresRendu(){
+  if(!DOSSIER_MATCH) return;
+  (DOSSIER_MATCH.situations||[]).forEach(function(s){
+    var pleines=dmjEtapesPleines(s.plateau);
+    var depart=pleines.length?pleines[0]:null;
+    DMJ_ANIM[s.id]={etape:depart, joue:false};
+    dmjDessiner(s.id, s.plateau, depart, false);
+    dmjMajEtat(s.id, s.plateau);
+  });
+  (DOSSIER_MATCH.videos||[]).forEach(function(v){
+    var el=document.getElementById('dmj-v-'+v.id);
+    if(el) dmjVignette(v, el);
+  });
+}
+
 function renderPrepaAdversaire(){
   var ct=document.getElementById('scr-prepa');
   if(!ct) return;
   var conv=SAISON.CONVOS||{};
-  if(!conv.adv){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucun adversaire annoncé pour le moment</div></div></div>'; return; }
+  // Le dossier du coach passe devant : c'est ce qu'on vient chercher.
+  var dossier=DOSSIER_MATCH?renderDossierMatchHtml():'';
+  if(!conv.adv && !dossier){
+    ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Aucun adversaire annoncé pour le moment</div></div></div>';
+    return;
+  }
+  if(!conv.adv){
+    ct.innerHTML=dossier;
+    dmjApresRendu();
+    return;
+  }
   var adv=(SAISON.ADVERSAIRES||[]).find(function(a){ return fexNomsCorrespondent(a.nom,conv.adv); });
   var fiche=adv&&adv.fiches&&adv.fiches.length?adv.fiches[0]:null;
   var ms=(SAISON.MATCHS||[]).filter(function(m){return fexNomsCorrespondent(m.adversaire,conv.adv);});
   var v=0,n=0,d=0;
   ms.forEach(function(m){ if(m.res==='V')v++; else if(m.res==='N')n++; else d++; });
-  var html='<div class="hero-convoc"><div class="hero-eyebrow">🎯 Prochain adversaire</div><div class="convoc-adv">'+esc(conv.adv)+'</div>'
-    +'<div class="convoc-meta">'+esc(conv.date||'')+(conv.lieu?' — '+esc(conv.lieu):'')+'</div></div>';
+  var html=dossier
+    || ('<div class="hero-convoc"><div class="hero-eyebrow">🎯 Prochain adversaire</div><div class="convoc-adv">'+esc(conv.adv)+'</div>'
+        +'<div class="convoc-meta">'+esc(conv.date||'')+(conv.lieu?' — '+esc(conv.lieu):'')+'</div></div>');
   html+='<div class="blk"><div class="blk-h"><span class="t">📊 Historique face à eux</span></div><div class="blk-body">';
   if(ms.length){
     html+='<div style="display:flex;gap:14px;margin-bottom:10px;font-size:14px"><span style="color:var(--green)">'+v+'V</span><span style="color:var(--gold)">'+n+'N</span><span style="color:var(--red)">'+d+'D</span><span style="color:var(--mute)">sur '+ms.length+' match(s)</span></div>'
@@ -3135,6 +3461,7 @@ function renderPrepaAdversaire(){
   }
   html+='</div></div>';
   ct.innerHTML=html;
+  dmjApresRendu();
 }
 function renderCalendrierAnnuelJoueur(){
   var ct=document.getElementById('scr-calannuel');
