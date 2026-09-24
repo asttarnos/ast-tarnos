@@ -146,6 +146,89 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .fa-star{width:8px;height:8px;border-radius:50%;background:#2a2a2a}
 .fa-star.on{background:var(--gold)}
 .fa-detail{font-size:10.5px;font-weight:500;color:var(--gris2);margin-top:2px}
+/* ===== La fiche joueur ===== */
+.fj-bandeau{grid-column:1/-1;display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px;
+  background:linear-gradient(120deg,rgba(224,165,48,.13),rgba(217,119,6,.04) 58%);
+  border:1px solid rgba(224,165,48,.34);border-radius:12px;padding:16px 19px}
+.fj-photo{width:74px;height:74px;flex:0 0 74px;border-radius:50%;overflow:hidden;
+  border:3px solid var(--or);background:#12161c;display:flex;align-items:center;justify-content:center}
+.fj-photo img{width:100%;height:100%;object-fit:cover}
+.fj-photo span{font-family:'Roboto Condensed',sans-serif;font-size:25px;font-weight:800;color:var(--or)}
+.fj-ident{flex:1;min-width:210px}
+.fj-nom{font-family:'Roboto Condensed',sans-serif;font-size:25px;font-weight:800;color:#fff;line-height:1.1}
+.fj-num{display:inline-block;background:var(--or);color:#1a0f02;font-size:14px;font-weight:800;
+  border-radius:6px;padding:1px 8px;margin-right:9px;vertical-align:3px}
+.fj-sous{font-size:11.5px;color:var(--gris2);margin-top:4px}
+.fj-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.fj-note{text-align:center;flex-shrink:0;padding:0 8px}
+.fj-note-v{font-family:'Roboto Condensed',sans-serif;font-size:48px;font-weight:800;color:var(--gold);line-height:1}
+.fj-note-l{font-size:9px;color:var(--gris2);text-transform:uppercase;letter-spacing:.09em}
+.fj-cles{display:grid;grid-template-columns:repeat(4,minmax(78px,1fr));gap:8px;flex:0 1 350px}
+.fj-cle{background:rgba(6,6,6,.45);border:1px solid var(--line);border-radius:7px;padding:8px 6px;text-align:center}
+.fj-cle b{display:block;font-family:'Roboto Condensed',sans-serif;font-size:17px;font-weight:800;line-height:1.1}
+.fj-cle span{display:block;font-size:8.6px;color:var(--gris2);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.fj-blk{margin-bottom:14px}
+.fj-traj{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:14px}
+.fj-col{background:var(--carte);border:1px solid var(--line);border-radius:8px;padding:12px}
+.fj-col-t{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--gris2)}
+.fj-col-v{font-family:'Roboto Condensed',sans-serif;font-size:27px;font-weight:800;line-height:1.15;margin:3px 0 6px}
+.fj-col-v span{font-size:13px;color:var(--gris2);font-weight:600}
+.fj-col-p{font-size:10px;color:var(--gris2);margin-top:7px;line-height:1.4}
+.fj-tend{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;border-radius:9px;
+  padding:2px 8px;border:1px solid var(--line);color:var(--gris2)}
+.fj-tend.hausse{color:var(--green);border-color:rgba(34,197,94,.45)}
+.fj-tend.baisse{color:#f87171;border-color:rgba(239,68,68,.45)}
+.fj-tend.stable{color:var(--gold);border-color:rgba(224,165,48,.4)}
+.fj-graph{position:relative;height:56px;margin-top:9px}
+.fj-graph svg{width:100%;height:100%;display:block}
+.fj-pt{position:absolute;width:7px;height:7px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.fj-vide{font-size:11.5px;color:var(--gris2);line-height:1.5;padding:4px 0}
+.fj-vide span{font-size:10.5px}
+.fj-col.vide{display:flex;flex-direction:column;justify-content:center}
+.fj-forme-saisie{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:0 14px 14px}
+.fj-forme-saisie>span{font-size:11px;color:var(--gris2)}
+.fj-forme-saisie select{width:auto}
+.fj-derniers-t{font-size:10px;color:var(--gris2);padding:0 14px 7px;letter-spacing:.02em}
+.fj-derniers{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px;padding:0 14px 14px}
+.fj-m{background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--mc);border-radius:7px;padding:8px 10px}
+.fj-m-h b{display:block;font-size:11.5px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fj-m-h span{font-size:9px;color:var(--gris2)}
+.fj-m-b{display:flex;align-items:baseline;gap:8px;margin-top:5px;flex-wrap:wrap}
+.fj-m-n{font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800}
+.fj-m-n i{font-size:10px;color:var(--gris2);font-style:normal}
+.fj-m-t{font-size:11px;color:var(--gris2)}
+.fj-m-e{font-size:10px;margin-left:auto}
+.fj-attrs{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:11px;padding:14px}
+.fj-a-h{display:flex;align-items:baseline;gap:7px}
+.fj-a-l{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gris2)}
+.fj-ecart{font-size:9.5px;font-weight:700}
+.fj-a-v{font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800;margin-left:auto}
+.fj-a-j{height:5px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:5px;overflow:hidden}
+.fj-a-j i{display:block;height:100%;border-radius:3px}
+.fj-a-d{font-size:10px;color:var(--gris2);margin-top:5px;line-height:1.4}
+.fj-a-note{font-size:10.5px;color:var(--gris2);padding:0 14px 14px;line-height:1.5}
+.fj-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:9px;padding:14px}
+.fj-s{background:var(--carte);border:1px solid var(--line);border-radius:7px;padding:10px;text-align:center}
+.fj-s-l{display:block;font-size:9px;color:var(--gris2);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.fj-s-v{display:block;font-family:'Roboto Condensed',sans-serif;font-size:21px;font-weight:800;margin-top:4px}
+.fj-dit{padding:14px;display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start}
+.fj-ent{background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--or);border-radius:8px;padding:12px 14px}
+.fj-ent-d{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gris2);font-weight:700;margin-bottom:7px}
+.fj-ent-l{font-size:11.5px;color:var(--gris);line-height:1.55;margin-bottom:5px}
+.fj-ent-l b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+.fj-obs-t{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gris2);font-weight:700;margin-bottom:7px}
+.fj-o{background:var(--carte);border:1px solid var(--line);border-radius:7px;padding:9px 11px;margin-bottom:7px;cursor:pointer}
+.fj-o:hover{border-color:var(--or)}
+.fj-o b{display:block;font-size:11.5px;color:#fff}
+.fj-o span{font-size:9.5px;color:var(--gris2)}
+@media(max-width:900px){
+  .fj-traj{grid-template-columns:1fr}
+  .fj-dit{grid-template-columns:1fr}
+  .fj-cles{flex:1 1 100%;grid-template-columns:repeat(4,1fr)}
+  .fj-photo{order:-2}
+  .fj-note{order:-1}
+}
+@media(max-width:520px){ .fj-cles{grid-template-columns:repeat(2,1fr)} }
 .obj-coll{background:#15171b;border:1px solid var(--line);border-left:3px solid var(--or);border-radius:7px;padding:15px;margin-bottom:12px}
 .obj-icon{font-size:24px;flex-shrink:0}
 .obj-pct-big{font-family:'Roboto Condensed',sans-serif;font-size:26px;font-weight:700;flex-shrink:0;min-width:65px;text-align:right}
@@ -1084,8 +1167,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v37</b> · 23/09/2026<br>
-      <span style="opacity:.7">Aperçu réel des PDF et des vidéos</span>
+      AST COACH <b style="color:var(--or)">v38</b> · 24/09/2026<br>
+      <span style="opacity:.7">Fiche joueur et feuille d'entretien</span>
     </div>
   </div>
 </div>
@@ -1657,13 +1740,20 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 
 <!-- EFFECTIF + CARTE FIFA -->
 <div class="scr-grille scr" id="scr-effectif">
-  <div class="ph"><div><div class="ph-title">Effectif</div><div class="ph-sub">Carte FIFA & stats saison</div></div>
+  <div class="ph"><div><div class="ph-title">Effectif</div><div class="ph-sub">Qui c'est, où il en est, ce qu'on en fait — et la feuille d'entretien qui va avec</div></div>
     <span class="bc" style="cursor:pointer;color:var(--or)" onclick="recalculerStats()">🔄 Recalculer les stats depuis l'historique</span>
   </div>
-  <div class="blk plein"><div class="bh"><span class="bt">Sélectionner un joueur</span></div>
+  <div class="blk plein"><div class="bh"><span class="bt">Sélectionner un joueur</span>
+    <span class="bc" id="fj-reglages-b" style="cursor:pointer" onclick="fjBasculerReglages()">⚙ Réglages de la fiche</span></div>
     <div style="padding:12px">
       <select class="fi" id="fiche-sel" onchange="renderFicheCoach()" style="font-size:14px"><!-- rempli par renderFicheSel() --></select>
-      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+    </div>
+    <div id="fj-reglages" style="display:none;padding:0 12px 12px;border-top:1px solid var(--line);margin-top:2px">
+      <div style="font-size:10.5px;color:var(--gris2);padding:10px 0 4px;line-height:1.5">
+        Ce que tu règles à la main : les trois attributs que l'appli ne peut pas deviner,
+        la photo, et le statut de gardien.
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <label style="font-size:11px;color:var(--gris2);display:flex;align-items:center;gap:6px;cursor:pointer">
           <input type="checkbox" id="gardien-check" onchange="toggleGardien()"> 🧤 Gardien de but
         </label>
@@ -1685,8 +1775,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
       </div>
     </div>
   </div>
-  <div id="fiche-coach-ct"></div>
-  <div id="fiche-obj-ct"></div>
+  <div id="fiche-coach-ct" class="plein"></div>
+  <div id="fiche-obj-ct" class="plein"></div>
   <div class="blk"><div class="bh"><span class="bt">Objectifs demandés par le joueur</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerReactionObjectifs()">🔄 Charger</span></div>
     <div id="fiche-obj-reaction-ct" style="padding:14px"><div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour voir si le joueur a réagi à ses objectifs.</div></div>
   </div>
@@ -2746,6 +2836,27 @@ Repli défensif après perte"></textarea>
   <div class="blk"><div class="bh"><span class="bt">À sortir après coup</span></div>
     <div style="padding:14px">
       <div class="doc-grille">
+
+        <div class="doc-carte phare">
+          <div class="doc-apercu"><span class="doc-etiq">Nouveau</span>
+            <div class="mini"><div class="band"></div><div class="corps">
+              <div class="mobs">
+                <div class="r" style="flex:0 0 20px"><span class="k" style="--c:#2563eb"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#0f8a5f"><u></u><u class="court"></u></span><span class="k" style="--c:#c0392b"><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#7c3aed"><u></u><u></u><u class="court"></u></span></div>
+                <div class="r"><span class="k" style="--c:#d97706"><u></u><u></u><u></u><u class="court"></u></span></div>
+              </div></div></div>
+          </div>
+          <div class="doc-corps">
+            <div class="doc-titre">🗣️ Feuille d'entretien</div>
+            <div class="doc-desc">Le document qu'on a sous les yeux <b>pendant</b> l'entretien, pas après.
+              Il arrive déjà rempli : sa saison, ses tendances, ses six derniers matchs, ses objectifs,
+              et ce qu'on avait décidé la dernière fois. Tu n'écris que ce qui se dit — et ce qui se
+              décide repart dans l'appli.</div>
+            <div class="doc-champ"><select class="fi" id="doc-entretien-joueur"></select></div>
+            <button class="btn" onclick="docFeuilleEntretien()">Ouvrir la feuille d'entretien</button>
+          </div>
+        </div>
 
         <div class="doc-carte">
           <div class="doc-apercu">
@@ -5555,11 +5666,122 @@ function medicalBadgeHTML(idx){
   if(!b) return '';
   var st=STATUTS_MEDICAL.find(function(s){return s.id===b.statut;})||STATUTS_MEDICAL[0];
   var jours=joursBlessure(b);
-  return ' <span style="font-size:11px;font-weight:700;background:rgba(0,0,0,.5);border:1px solid '+st.col+';color:'+st.col+';padding:2px 8px;border-radius:10px;vertical-align:middle">'+st.label+(jours!==null?' · '+jours+' j':'')+'</span>';
+  return ' <span style="display:inline-block;white-space:nowrap;font-size:11px;font-weight:700;background:rgba(0,0,0,.5);border:1px solid '+st.col+';color:'+st.col+';padding:2px 8px;border-radius:10px;vertical-align:middle">'+st.label+(jours!==null?' · '+jours+' j':'')+'</span>';
 }
+// ===== La fiche joueur =====
+// Trois questions, dans cet ordre : qui c'est, où il en est, ce qu'on en fait.
+// Le réglage de la fiche (attributs manuels, photo) passe derrière : c'est de
+// l'administration, ça n'a rien à faire en haut de l'écran qu'on ouvre avant
+// un entretien.
+var FJ_DETAIL=false;   // le détail du calcul des attributs, replié par défaut
+var FJ_REGLAGES=false; // les réglages de la fiche, repliés aussi
+
+// --- Ce que l'appli sait de lui, match par match ----------------------------
+function fjMatchs(idx){
+  var j=JOUEURS[idx]; if(!j) return [];
+  var out=[];
+  (MATCHS||[]).slice().reverse().forEach(function(m){
+    if(!m || !m.notes) return;
+    var n=null;
+    for(var i=0;i<m.notes.length;i++) if(m.notes[i].num===j.num){ n=m.notes[i]; break; }
+    if(!n) return;
+    out.push({date:m.date||'', adv:m.adversaire||'', res:m.res||'', lieu:m.lieu||'',
+      note:n.note||0, tps:n.tps||0, buts:n.buts||0, pd:n.pd||0,
+      cj:n.cj||0, cr:n.cr||0, statut:n.statut||''});
+  });
+  return out;
+}
+// La tendance n'est pas la dernière valeur : c'est les derniers points comparés
+// aux précédents. En dessous de quatre relevés, on ne dit rien — ce serait du bruit.
+function fjTendance(vals, seuil){
+  if(!vals || vals.length<4) return null;
+  var n=Math.min(3, Math.floor(vals.length/2));
+  var recents=vals.slice(-n), avant=vals.slice(0, vals.length-n);
+  var moy=function(a){ var t=0; a.forEach(function(v){ t+=v; }); return t/a.length; };
+  var d=moy(recents)-moy(avant);
+  var s=(seuil==null?0.35:seuil);
+  if(d>=s)  return {sens:'hausse', d:d, txt:'En progression'};
+  if(d<=-s) return {sens:'baisse', d:d, txt:'En baisse'};
+  return {sens:'stable', d:d, txt:'Stable'};
+}
+function fjPuceTendance(t){
+  if(!t) return '<span class="fj-tend neutre">Pas assez de relevés</span>';
+  var fl={hausse:'▲', baisse:'▼', stable:'='}[t.sens];
+  return '<span class="fj-tend '+t.sens+'">'+fl+' '+t.txt+'</span>';
+}
+function fjCourbe(vals, opts){
+  opts=opts||{};
+  var max=opts.max||10, coul=opts.coul||'var(--gold)';
+  if(!vals.length) return '<div class="fj-vide">Rien d\'enregistré pour l\'instant</div>';
+  var n=vals.length;
+  var haut=function(v){ return 100-Math.max(0,Math.min(100,(v/max)*100)); };
+  var pts=vals.map(function(v,i){ return (n>1?(i/(n-1))*100:50)+','+haut(v); }).join(' ');
+  var dots=vals.map(function(v,i){
+    return '<span class="fj-pt" style="left:'+(n>1?(i/(n-1))*100:50)+'%;top:'+haut(v)+'%;background:'+coul+'"></span>';
+  }).join('');
+  return '<div class="fj-graph">'
+    +'<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'
+      +'<polygon points="0,100 '+pts+' 100,100" fill="'+coul+'" opacity=".13"/>'
+      +'<polyline points="'+pts+'" fill="none" stroke="'+coul+'" stroke-width="1.7" '
+        +'vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>'
+    +'</svg>'+dots+'</div>';
+}
+function fjColonne(titre, valeur, unite, vals, max, coul, seuil, pied){
+  var t=fjTendance(vals, seuil);
+  if(!vals.length){
+    return '<div class="fj-col vide">'
+      +'<div class="fj-col-t">'+titre+'</div>'
+      +'<div class="fj-vide">Rien d\'enregistr\u00e9 pour l\'instant.<br><span>'+(pied||'')+'</span></div>'
+    +'</div>';
+  }
+  return '<div class="fj-col">'
+    +'<div class="fj-col-t">'+titre+'</div>'
+    +'<div class="fj-col-v" style="color:'+coul+'">'+valeur+'<span>'+(unite||'')+'</span></div>'
+    +fjPuceTendance(t)
+    +fjCourbe(vals,{max:max, coul:coul})
+    +'<div class="fj-col-p">'+(pied||'')+'</div>'
+  +'</div>';
+}
+function fjDernierEntretien(idx){
+  for(var i=0;i<(ENTRETIENS||[]).length;i++) if(ENTRETIENS[i].joueurIdx===idx) return ENTRETIENS[i];
+  return null;
+}
+function fjNbEntretiens(idx){
+  return (ENTRETIENS||[]).filter(function(e){ return e.joueurIdx===idx; }).length;
+}
+// Les fiches d'observation archivées qui parlent de lui
+function fjObservations(idx){
+  var j=JOUEURS[idx]; if(!j) return [];
+  var cible=fexNormaliserNom(j.nom);
+  return (FICHES_ARCHIVE||[]).filter(function(f){
+    if(f.type!=='obs_joueur') return false;
+    var s=fexNormaliserNom(f.sujet||'');
+    return s && (s.indexOf(cible)!==-1 || cible.indexOf(s)!==-1);
+  });
+}
+function fjFormeActuelle(idx){
+  var h=FORME_HISTORIQUE[idx]||[];
+  return h.length ? h[h.length-1].valeur : null;
+}
+function fjMotForme(v){
+  return {5:'Excellente',4:'Bonne',3:'Normale',2:'Fatigue visible',1:'Grosse fatigue'}[Math.round(v)]||'—';
+}
+function fjBasculerDetail(){ FJ_DETAIL=!FJ_DETAIL; renderFicheCoach(); }
+function fjObserver(idx){
+  var j=JOUEURS[idx]; if(!j) return;
+  genererFicheObservation(j.nom||'');
+}
+function fjBasculerReglages(){
+  FJ_REGLAGES=!FJ_REGLAGES;
+  var e=document.getElementById('fj-reglages');
+  if(e) e.style.display=FJ_REGLAGES?'block':'none';
+  var b=document.getElementById('fj-reglages-b');
+  if(b) b.textContent=FJ_REGLAGES?'✕ Fermer les réglages':'⚙ Réglages de la fiche';
+}
+
 function renderFicheCoach(){
   var idx=parseInt(document.getElementById('fiche-sel').value)||0;
-  var j=JOUEURS[idx];var s=STATS[idx];var am=ATTRS_MANUELS[idx];
+  var j=JOUEURS[idx]; var s=STATS[idx]; var am=ATTRS_MANUELS[idx];
   if(!j || !s || !am) return;
   var reactCt=document.getElementById('fiche-obj-reaction-ct');
   if(reactCt) reactCt.innerHTML='<div style="font-size:11px;color:var(--gris2)">Clique sur "Charger" pour voir si le joueur a réagi à ses objectifs.</div>';
@@ -5568,107 +5790,412 @@ function renderFicheCoach(){
   document.getElementById('attr-phys').value=am.phys;
   document.getElementById('attr-ment').value=am.ment;
   var photo=PHOTOS[idx];
-  document.getElementById('photo-preview').src=photo||'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="76" height="76"><rect width="76" height="76" fill="%23111"/></svg>';
-  var sorted=STATS.map(function(x,i){return {pts:x.pts||0,i:i};}).sort(function(a,b){return b.pts-a.pts;});
-  var rank=sorted.findIndex(function(x){return x.i===idx;})+1;
+  var prev=document.getElementById('photo-preview');
+  if(prev) prev.src=photo||'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="76" height="76"><rect width="76" height="76" fill="%23111"/></svg>';
+
   var c=calcAttrsJoueur(idx);
-  var attrs=c.attrs;var note=c.note;
+  var attrs=c.attrs, note=c.note;
+  var ms=fjMatchs(idx);
+  var notesM=ms.map(function(x){ return x.note; });
+  var tpsM=ms.map(function(x){ return x.tps; });
+  var formeVals=(FORME_HISTORIQUE[idx]||[]).map(function(e){ return e.valeur; });
+  var forme=fjFormeActuelle(idx);
+  var activeB=joueurBlessureActive(idx);
+  var presPct=(s.seances>0?Math.round(s.pres/s.seances*100):0);
+  var dernEnt=fjDernierEntretien(idx);
+  var obs=fjObservations(idx);
+
+  // ---------- Qui c'est ----------
+  var initiales=(j.nom||'').split(/\s+/).map(function(m){ return m.charAt(0); }).join('').slice(0,2).toUpperCase();
+  var html='<div class="fj-bandeau">'
+    +'<div class="fj-photo">'+(photo?'<img src="'+photo+'" alt="">':'<span>'+initiales+'</span>')+'</div>'
+    +'<div class="fj-ident">'
+      +'<div class="fj-nom"><span class="fj-num">'+j.num+'</span>'+esc2(j.nom)+medicalBadgeHTML(idx)+'</div>'
+      +'<div class="fj-sous">'+(am.gardien?'Gardien de but':'Joueur de champ')
+        +' · '+(s.matchsJoues||0)+' match'+((s.matchsJoues||0)>1?'s':'')+' joué'+((s.matchsJoues||0)>1?'s':'')
+        +' · '+(dernEnt?('dernier entretien le '+esc2(dernEnt.date)):'aucun entretien')+'</div>'
+      +'<div class="fj-actions">'
+        +'<button class="acc-b or" onclick="genererFeuilleEntretien('+idx+')">📄 Feuille d\'entretien</button>'
+        +'<button class="acc-b" onclick="goNav(\'entretien\')">🗣️ Écran entretien</button>'
+        +'<button class="acc-b" onclick="fjObserver('+idx+')">👤 Fiche d\'observation</button>'
+      +'</div>'
+    +'</div>'
+    +'<div class="fj-note"><div class="fj-note-v">'+note+'</div><div class="fj-note-l">note globale</div></div>'
+    +'<div class="fj-cles">'
+      +'<div class="fj-cle"><b style="color:var(--gold)">'+(s.noteMoy?s.noteMoy.toFixed(1):'—')+'</b><span>note moyenne /6</span></div>'
+      +'<div class="fj-cle"><b style="color:var(--or)">'+(s.tpsMoy||0)+'\''+'</b><span>par match</span></div>'
+      +'<div class="fj-cle"><b style="color:'+(presPct>=75?'var(--green)':(presPct>=50?'var(--gold)':'var(--red)'))+'">'+presPct+'%</b><span>présence</span></div>'
+      +'<div class="fj-cle"><b style="color:'+(forme==null?'var(--gris2)':(forme>=4?'var(--green)':(forme<=2?'var(--red)':'var(--gold)')))+'">'
+        +(forme==null?'—':fjMotForme(forme))+'</b><span>forme du moment</span></div>'
+    +'</div>'
+  +'</div>';
+
+  // ---------- Où il en est ----------
+  html+='<div class="blk plein fj-blk"><div class="bh"><span class="bt p">📈 Où il en est</span>'
+    +'<span class="bc">'+(ms.length?ms.length+' match'+(ms.length>1?'s':'')+' noté'+(ms.length>1?'s':''):'aucun match noté')+'</span></div>'
+    +'<div class="fj-traj">'
+    +fjColonne('Note en match', (notesM.length?notesM[notesM.length-1].toFixed(1):'—'), notesM.length?' /6':'',
+        notesM, 6, 'var(--gold)', 0.3,
+        notesM.length?('moyenne '+(s.noteMoy?s.noteMoy.toFixed(1):'—')+' sur la saison'):'note-le après le match')
+    +fjColonne('Forme', (forme==null?'—':fjMotForme(forme)), '',
+        formeVals, 5, 'var(--blue)', 0.3,
+        formeVals.length?(formeVals.length+' relevé'+(formeVals.length>1?'s':'')):'aucun point du jour enregistré')
+    +fjColonne('Temps de jeu', (tpsM.length?tpsM[tpsM.length-1]:'—'), tpsM.length?' min':'',
+        tpsM, 90, 'var(--or)', 8,
+        (s.titu||0)+' fois titulaire · '+(s.rempl||0)+' fois remplaçant')
+    +'</div>'
+    +'<div class="fj-forme-saisie">'
+      +'<span>Son état ce soir :</span>'
+      +'<select class="fi" id="forme-sel">'
+        +'<option value="5">5 — Excellente forme</option><option value="4">4 — Bonne forme</option>'
+        +'<option value="3" selected>3 — Forme normale</option><option value="2">2 — Fatigue visible</option>'
+        +'<option value="1">1 — Grosse fatigue</option></select>'
+      +'<button class="acc-b or" onclick="enregistrerPointDuJour('+idx+')">Enregistrer le point du jour</button>'
+    +'</div>'
+    +(ms.length?'<div class="fj-derniers-t">Ses '+Math.min(6,ms.length)+' derniers matchs, du plus ancien au plus r\u00e9cent \u2014 dans le m\u00eame sens que les courbes</div>'+'<div class="fj-derniers">'+ms.slice(-6).map(function(m){
+        var col=m.note>=4.5?'var(--green)':(m.note<=2.5?'var(--red)':'var(--gold)');
+        return '<div class="fj-m" style="--mc:'+col+'">'
+          +'<div class="fj-m-h"><b>'+esc2(m.adv||'?')+'</b><span>'+esc2(m.date||'')+(m.lieu==='E'?' · ext.':'')+'</span></div>'
+          +'<div class="fj-m-b"><span class="fj-m-n" style="color:'+col+'">'+m.note+'<i>/6</i></span>'
+          +'<span class="fj-m-t">'+m.tps+'\''+'</span>'
+          +'<span class="fj-m-e">'+(m.buts?('⚽'+m.buts+' '):'')+(m.pd?('🅰️'+m.pd+' '):'')
+            +(m.cj?'🟨':'')+(m.cr?'🟥':'')+'</span></div>'
+        +'</div>';
+      }).join('')+'</div>':'')
+  +'</div>';
+
+  // ---------- Ses attributs ----------
   var moyEffectif={};
   JOUEURS.forEach(function(jj,ii){
-    var cc=calcAttrsJoueur(ii);
-    cc.attrs.forEach(function(a){
+    calcAttrsJoueur(ii).attrs.forEach(function(a){
       if(!moyEffectif[a.label]) moyEffectif[a.label]={sum:0,n:0};
       moyEffectif[a.label].sum+=a.val; moyEffectif[a.label].n++;
     });
   });
-  function starsH(val,col){var s='';for(var k=0;k<10;k++)s+='<div class="fa-star'+(k<val?' on':'')+'" style="'+(k<val?'background:'+col:'')+'"></div>';return s;}
-  var photoBadge=photo?'<img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);position:absolute;top:12px;right:12px;z-index:2">':'';
-  document.getElementById('fiche-coach-ct').innerHTML=
-    '<div class="fifa-card">'+photoBadge+'<div class="fifa-num-bg">'+j.num+'</div>'
-    +'<div class="fifa-left"><div class="fifa-note">'+note+'</div><div class="fifa-pos">'+(am.gardien?'GK':'R2')+'</div>'
-    +'<div style="font-size:9px;color:var(--gris2);margin-top:4px">9 attributs<br>× '+c.poids+'% chacun</div>'
-    +'<div style="margin-top:8px"><div style="font-size:9px;color:var(--gris2)">Rang</div>'
-    +'<div style="font-family:Inter,sans-serif;font-size:20px;font-weight:700;color:var(--gold)">'+rank+'<span style="font-size:12px"> / '+JOUEURS.length+'</span></div></div></div>'
-    +'<div style="flex:1;min-width:0"><div class="fifa-nom">'+j.nom+medicalBadgeHTML(idx)+'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px 18px">'
+  html+='<div class="blk plein fj-blk"><div class="bh"><span class="bt go">🧬 Ses attributs</span>'
+    +'<span class="bc" style="cursor:pointer" onclick="fjBasculerDetail()">'
+    +(FJ_DETAIL?'✕ Masquer le calcul':'D\'où viennent ces chiffres ?')+'</span></div>'
+    +'<div class="fj-attrs">'
     +attrs.map(function(a){
-      var deltaHTML='';
-      var moyA=moyEffectif[a.label];
-      if(moyA&&moyA.n>1){
-        var moyVal=moyA.sum/moyA.n;
-        var delta=Math.round((a.val-moyVal)*10)/10;
-        var deltaCol=delta>0.3?'var(--green)':(delta<-0.3?'var(--red)':'var(--gris2)');
-        var deltaSigne=delta>0?'+':'';
-        deltaHTML=' <span style="color:'+deltaCol+'">('+deltaSigne+delta+' vs moy. effectif)</span>';
+      var mo=moyEffectif[a.label], ecart='';
+      if(mo && mo.n>1){
+        var d=Math.round((a.val-(mo.sum/mo.n))*10)/10;
+        if(d!==0){
+          var col=d>0.3?'var(--green)':(d<-0.3?'var(--red)':'var(--gris2)');
+          ecart='<span class="fj-ecart" style="color:'+col+'" title="\u00e9cart \u00e0 la moyenne de l\'effectif">'
+            +(d>0?'+':'')+d+'</span>';
+        }
       }
-      return '<div class="fa-item"><div class="fa-row"><div class="fa-label">'+a.label+'</div><div class="fa-val" style="color:'+a.col+'">'+a.val+'</div></div><div class="fa-stars">'+starsH(a.val,a.col)+'</div><div class="fa-detail">'+(a.detail||'')+' <span style="color:var(--gris2)">→ '+a.contrib+' pt(s)</span>'+deltaHTML+'</div></div>';
+      return '<div class="fj-a">'
+        +'<div class="fj-a-h"><span class="fj-a-l">'+a.label+'</span>'+ecart
+          +'<span class="fj-a-v" style="color:'+a.col+'">'+a.val+'</span></div>'
+        +'<div class="fj-a-j"><i style="width:'+(a.val*10)+'%;background:'+a.col+'"></i></div>'
+        +(FJ_DETAIL?'<div class="fj-a-d">'+esc2(a.detail||'')+' → '+a.contrib+' pt(s)</div>':'')
+      +'</div>';
     }).join('')
-    +'</div></div>'
     +'</div>'
-    +'<div class="blk"><div class="bh"><span class="bt go">Stats saison</span></div>'
-    +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:rgba(249,115,22,.15)">'
-    +(am.gardien?[['CS',s.cs||0,'var(--green)'],['Buts enc.',s.butsEnc||0,'var(--red)'],['Matchs',s.matchsA||0,'var(--or)'],['CJ',s.cj||0,'var(--gold)'],['CR',s.cr||0,'var(--red)'],['Note',s.noteMoy?(s.noteMoy.toFixed(1)+'/6'):'N/A','var(--gold)']]:
-    [['Matchs A',s.matchsA||0,'var(--or)'],['Buts',s.buts||0,'var(--gold)'],['Passes D',s.pd||0,'var(--purple)'],['CJ',s.cj||0,'var(--gold)'],['CR',s.cr||0,'var(--red)'],['Note',s.noteMoy?(s.noteMoy.toFixed(1)+'/6'):'N/A','var(--gold)']])
-    .map(function(x){return '<div style="text-align:center;padding:12px 6px;background:rgba(6,6,6,.92)"><div style="font-size:9px;color:var(--gris2);font-weight:700;text-transform:uppercase;margin-bottom:4px">'+x[0]+'</div><div style="font-family:Inter,sans-serif;font-size:20px;font-weight:700;color:'+x[2]+'">'+x[1]+'</div></div>';}).join('')
-    +'</div></div>';
-  var critMoy=calcCriteresMoyens(idx);
-  if(critMoy){
-    document.getElementById('fiche-coach-ct').innerHTML+=
-      '<div class="blk"><div class="bh"><span class="bt go">⭐ Notation détaillée (coach)</span><span class="bc">'+critMoy.count+' match(s) noté(s)</span></div>'
-      +'<div style="padding:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'
-      +CRITERES_NOTE.map(function(c){
-        return '<div style="text-align:center;background:var(--carte);border-radius:5px;padding:10px"><div style="font-size:9px;color:var(--gris2);text-transform:uppercase;font-weight:700;margin-bottom:4px">'+c.ic+' '+c.lab+'</div>'
-          +'<div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:var(--gold)">'+critMoy[c.k]+'<span style="font-size:11px;color:var(--gris2)">/6</span></div></div>';
-      }).join('')
-      +'</div></div>';
-  }
+    +(FJ_DETAIL?'<div class="fj-a-note">La note globale est la somme des 9 attributs, chacun pesant '
+      +c.poids+' % du total. L\'écart en couleur compare le joueur à la moyenne de l\'effectif.</div>':'')
+  +'</div>';
+
+  // ---------- Stats de saison ----------
+  var cases = am.gardien
+    ? [['Clean sheets',s.cs||0,'var(--green)'],['Buts encaissés',s.butsEnc||0,'var(--red)'],
+       ['Matchs A',s.matchsA||0,'var(--or)'],['Jaunes',s.cj||0,'var(--gold)'],
+       ['Rouges',s.cr||0,'var(--red)'],['Note',s.noteMoy?(s.noteMoy.toFixed(1)+'/6'):'—','var(--gold)']]
+    : [['Matchs A',s.matchsA||0,'var(--or)'],['Buts',s.buts||0,'var(--gold)'],
+       ['Passes D.',s.pd||0,'var(--purple)'],['Jaunes',s.cj||0,'var(--gold)'],
+       ['Rouges',s.cr||0,'var(--red)'],['Minutes',s.tpsTotal||0,'var(--or)']];
+  html+='<div class="blk plein fj-blk"><div class="bh"><span class="bt go">📊 Sa saison</span></div>'
+    +'<div class="fj-stats">'+cases.map(function(x){
+      return '<div class="fj-s"><span class="fj-s-l">'+x[0]+'</span>'
+        +'<span class="fj-s-v" style="color:'+x[2]+'">'+x[1]+'</span></div>';
+    }).join('')+'</div></div>';
+
+  // ---------- Médical, seulement s'il y a quelque chose à dire ----------
   var cumulJ=cumulJoursBlessureJoueur(idx);
-  var activeB=joueurBlessureActive(idx);
   if(cumulJ>0 || activeB){
-    var cumulSemaines=(cumulJ/7).toFixed(1).replace('.0','');
-    document.getElementById('fiche-coach-ct').innerHTML+=
-      '<div class="blk"><div class="bh"><span class="bt r">🏥 Suivi médical</span></div><div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-      +'<div style="text-align:center;background:var(--carte);border-radius:5px;padding:10px"><div style="font-size:9px;color:var(--gris2);text-transform:uppercase;font-weight:700;margin-bottom:4px">Incapacité en cours</div>'
-      +'<div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:'+(activeB?'var(--red)':'var(--green)')+'">'+(activeB?joursBlessure(activeB)+' j':'Aucune')+'</div></div>'
-      +'<div style="text-align:center;background:var(--carte);border-radius:5px;padding:10px"><div style="font-size:9px;color:var(--gris2);text-transform:uppercase;font-weight:700;margin-bottom:4px">Cumul saison</div>'
-      +'<div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:var(--gold)">'+cumulSemaines+' sem.</div></div>'
+    var sem=(cumulJ/7).toFixed(1).replace('.0','');
+    html+='<div class="blk plein fj-blk"><div class="bh"><span class="bt r">🏥 Suivi médical</span>'
+      +'<span class="bc" style="cursor:pointer" onclick="goNav(\'medical\')">Ouvrir le suivi ›</span></div>'
+      +'<div class="fj-stats">'
+      +'<div class="fj-s"><span class="fj-s-l">Indisponible depuis</span><span class="fj-s-v" style="color:'
+        +(activeB?'var(--red)':'var(--green)')+'">'+(activeB?joursBlessure(activeB)+' j':'—')+'</span></div>'
+      +'<div class="fj-s"><span class="fj-s-l">Cumul sur la saison</span><span class="fj-s-v" style="color:var(--gold)">'+sem+' sem.</span></div>'
+      +(activeB?'<div class="fj-s" style="grid-column:span 2"><span class="fj-s-l">Ce qu\'il a</span>'
+        +'<span class="fj-s-v" style="font-size:14px;color:var(--red)">'+esc2(activeB.zone||'?')
+        +(activeB.typeBlessure?' — '+esc2(activeB.typeBlessure):'')+'</span></div>':'')
       +'</div></div>';
   }
-  var hist=getNotesHistorique(j.num);
-  document.getElementById('fiche-coach-ct').innerHTML+=
-    '<div class="blk"><div class="bh"><span class="bt p">Évolution des notes</span><span class="bc">'+hist.length+' match(s) noté(s)</span></div>'
-    +'<div style="padding:14px">'+sparklineSVG(hist,{color:'var(--gold)',max:6})+'</div></div>';
-  var presSeances=(s.seances>0?Math.round(s.pres/s.seances*100):0);
-  var nomsNorm=fexNormaliserNom(j.nom);
-  var convocsOu=CONVOCATIONS_HISTORIQUE.filter(function(cv){
-    return [].concat(cv.a||[],cv.b||[]).map(fexNormaliserNom).indexOf(nomsNorm)!==-1;
-  }).length;
-  var totalConvocs=CONVOCATIONS_HISTORIQUE.length;
-  document.getElementById('fiche-coach-ct').innerHTML+=
-    '<div class="blk"><div class="bh"><span class="bt go">📋 Présence</span></div><div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    +'<div style="text-align:center;background:var(--carte);border-radius:5px;padding:10px"><div style="font-size:9px;color:var(--gris2);text-transform:uppercase;font-weight:700;margin-bottom:4px">Séances</div>'
-    +'<div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:var(--or)">'+(s.pres||0)+'/'+(s.seances||0)+'<span style="font-size:11px;color:var(--gris2)"> ('+presSeances+'%)</span></div></div>'
-    +'<div style="text-align:center;background:var(--carte);border-radius:5px;padding:10px"><div style="font-size:9px;color:var(--gris2);text-transform:uppercase;font-weight:700;margin-bottom:4px">Convocations matchs</div>'
-    +'<div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:var(--or)">'+convocsOu+'/'+totalConvocs+'</div></div>'
+
+  // ---------- Ce qu'on en fait ----------
+  html+='<div class="blk plein fj-blk"><div class="bh"><span class="bt">🗣️ Ce qu\'on s\'est dit</span>'
+    +'<span class="bc">'+fjNbEntretiens(idx)+' entretien'+(fjNbEntretiens(idx)>1?'s':'')+'</span></div>'
+    +'<div class="fj-dit">'
+    +(dernEnt
+      ? '<div class="fj-ent"><div class="fj-ent-d">Le '+esc2(dernEnt.date||'')+'</div>'
+        +(dernEnt.positif?'<div class="fj-ent-l"><b style="color:var(--green)">Ce qui va</b> '+esc2(dernEnt.positif)+'</div>':'')
+        +(dernEnt.travailler?'<div class="fj-ent-l"><b style="color:var(--red)">À travailler</b> '+esc2(dernEnt.travailler)+'</div>':'')
+        +(dernEnt.ressenti?'<div class="fj-ent-l"><b style="color:var(--blue)">Ce qu\'il dit</b> '+esc2(dernEnt.ressenti)+'</div>':'')
+        +(dernEnt.actions?'<div class="fj-ent-l"><b style="color:var(--gold)">Ce qu\'on a décidé</b> '+esc2(dernEnt.actions)+'</div>':'')
+        +'</div>'
+      : '<div class="fj-vide">Aucun entretien avec lui pour l\'instant.<br>'
+        +'<span>La feuille d\'entretien arrive déjà remplie de ce que l\'appli sait — '
+        +'tu n\'écris que ce qui se dit, et ce qui se décide revient ici.</span></div>')
+    +(obs.length
+      ? '<div class="fj-obs"><div class="fj-obs-t">Fiches d\'observation archivées</div>'
+        +obs.slice(0,4).map(function(f){
+          return '<div class="fj-o" onclick="ficheRouvrir(\''+f.id+'\')">'
+            +'<b>'+esc2(f.titre||'Observation')+'</b>'
+            +'<span>'+esc2(f.maj||f.creee||'')+' · '+(f.champs||0)+' champ(s) remplis</span></div>';
+        }).join('')+'</div>'
+      : '')
     +'</div></div>';
-  var formeVals=(FORME_HISTORIQUE[idx]||[]).map(function(e){return e.valeur;});
-  var noteVals=(NOTE_HISTORIQUE[idx]||[]).map(function(e){return e.valeur;});
-  document.getElementById('fiche-coach-ct').innerHTML+=
-    '<div class="blk"><div class="bh"><span class="bt p">🔋 Forme & progression de la carte</span><span class="bc" style="color:var(--gris2)">coach uniquement</span></div>'
-    +'<div style="padding:14px">'
-    +'<div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">'
-    +'<select class="fi" id="forme-sel" style="width:auto">'
-    +'<option value="5">5 — Excellente forme</option><option value="4">4 — Bonne forme</option><option value="3" selected>3 — Forme normale</option><option value="2">2 — Fatigue visible</option><option value="1">1 — Grosse fatigue</option>'
-    +'</select>'
-    +'<button class="gen-btn2" style="width:auto" onclick="enregistrerPointDuJour('+idx+')">💾 Enregistrer un point du jour</button>'
-    +'</div>'
-    +'<div style="font-size:9.5px;color:var(--gris2);margin-bottom:4px">Évolution de la forme</div>'
-    +sparklineSVG(formeVals,{color:'var(--blue)',max:5})
-    +'<div style="font-size:9.5px;color:var(--gris2);margin:14px 0 4px">Évolution de la carte (note globale)</div>'
-    +sparklineSVG(noteVals,{color:'var(--gold)',max:99})
-    +'</div></div>';
+
+  document.getElementById('fiche-coach-ct').innerHTML=html;
   renderObjectifsFor(idx);
 }
+
+// ===== La feuille d'entretien =====
+// Même charte que les fiches d'observation. Elle arrive déjà remplie de ce que
+// l'appli sait — sa saison, sa tendance, ses objectifs, ce qu'on avait décidé la
+// dernière fois — pour qu'on n'écrive que ce qui se dit. Et ce qui se décide
+// repart dans l'appli.
+// Ce qui a été écrit sur la feuille redevient un entretien dans l'appli.
+// Les champs sont retrouvés par leur libellé, pas par leur position : la feuille
+// peut évoluer sans que ça se dérègle.
+function entretienDepuisFiche(idx, d){
+  if(idx==null || !d || !d.c) return;
+  function lu(vide){
+    var pre=vide+'§';
+    for(var k in d.c) if(k.indexOf(pre)===0 && (d.c[k]||'').trim()) return d.c[k].trim();
+    return '';
+  }
+  var date=lu('jj/mm/aaaa')||new Date().toLocaleDateString('fr-FR');
+  var e={
+    joueurIdx:idx, date:date,
+    positif:lu("ce qu'il fait bien, pr\u00e9cis\u00e9ment"),
+    travailler:lu('un seul point, pas cinq'),
+    ressenti:lu("on \u00e9coute d'abord, on note ensuite"),
+    actions:lu("l'action concr\u00e8te, et pour quand")
+  };
+  var proch=lu('prochain point : jj/mm/aaaa');
+  if(proch) e.actions=(e.actions?e.actions+' ':'')+'\u2014 point le '+proch;
+  if(!e.positif && !e.travailler && !e.ressenti && !e.actions) return;
+  // même joueur, même date : on met à jour au lieu d'empiler
+  var deja=-1;
+  for(var i=0;i<ENTRETIENS.length;i++)
+    if(ENTRETIENS[i].joueurIdx===idx && ENTRETIENS[i].date===date){ deja=i; break; }
+  if(deja>=0) ENTRETIENS[deja]=e; else ENTRETIENS.unshift(e);
+  if(typeof renderEntretien==='function'){ try{ renderEntretien(); }catch(err){} }
+  var ecr=document.getElementById('scr-effectif');
+  if(ecr && ecr.classList.contains('on')){ try{ renderFicheCoach(); }catch(err){} }
+  sauvegardeAuto();
+  notif('\u2713 Entretien de '+(((JOUEURS[idx]||{}).nom)||'')+' enregistr\u00e9 dans l\'appli');
+}
+
+function genererFeuilleEntretien(idx){
+  var j=JOUEURS[idx]; if(!j){ notif('⚠ Joueur introuvable'); return; }
+  var s=STATS[idx]||{}, am=ATTRS_MANUELS[idx]||{};
+  var logo=docLogoClub();
+  var ms=fjMatchs(idx);
+  var notesM=ms.map(function(x){ return x.note; });
+  var tpsM=ms.map(function(x){ return x.tps; });
+  var formeVals=(FORME_HISTORIQUE[idx]||[]).map(function(e){ return e.valeur; });
+  var tN=fjTendance(notesM,0.3), tT=fjTendance(tpsM,8), tF=fjTendance(formeVals,0.3);
+  var presPct=(s.seances>0?Math.round(s.pres/s.seances*100):0);
+  var prec=fjDernierEntretien(idx);
+  var c=calcAttrsJoueur(idx);
+  var activeB=joueurBlessureActive(idx);
+
+  function mot(t){ return t ? (t.sens==='hausse'?'▲ en progression':(t.sens==='baisse'?'▼ en baisse':'= stable')) : 'pas assez de relevés'; }
+  function coulT(t){ return t ? (t.sens==='hausse'?'#15803d':(t.sens==='baisse'?'#b91c1c':'#6b7480')) : '#98a2ad'; }
+
+  function champ(lab, vide, large){
+    return '<div class="ch'+(large?' large':'')+'"><span class="ch-l">'+docEsc(lab)+'</span>'
+      +'<span class="ch-v" contenteditable data-vide="'+docEsc(vide)+'"></span></div>';
+  }
+  function bloc(titre, coul, corps){
+    return '<div class="bl" style="--c:'+coul+'"><div class="bl-t">'+docEsc(titre)+'</div>'+corps+'</div>';
+  }
+  function kpi(lab, val, coul){
+    return '<div class="kp"><div class="kp-v" style="color:'+(coul||'#11161c')+'">'+docEsc(String(val))+'</div>'
+      +'<div class="kp-l">'+docEsc(lab)+'</div></div>';
+  }
+  // Une note à entourer au stylo, comme sur les fiches d'observation
+  function pastilles(){
+    var o=''; for(var i=1;i<=5;i++) o+='<span class="pt">'+i+'</span>';
+    return '<span class="notes">'+o+'</span>';
+  }
+
+  // Ce que l'appli sait déjà : le coach n'a pas à le réécrire
+  var lignesSaison=
+     kpi('matchs joués', s.matchsJoues||0)
+    +kpi('note moyenne', s.noteMoy?s.noteMoy.toFixed(1)+'/6':'—', '#b45309')
+    +kpi('min. par match', (s.tpsMoy||0)+"'")
+    +kpi('présence', presPct+' %', presPct>=75?'#15803d':(presPct>=50?'#b45309':'#b91c1c'))
+    +kpi('titulaire', s.titu||0)
+    +kpi(am.gardien?'clean sheets':'buts', am.gardien?(s.cs||0):(s.buts||0))
+    +kpi(am.gardien?'buts encaissés':'passes D.', am.gardien?(s.butsEnc||0):(s.pd||0))
+    +kpi('note de la carte', c.note, '#b45309');
+
+  var tendances='<div class="tend">'
+    +'<div><span class="tend-l">Note en match</span><span class="tend-v" style="color:'+coulT(tN)+'">'+mot(tN)+'</span></div>'
+    +'<div><span class="tend-l">Temps de jeu</span><span class="tend-v" style="color:'+coulT(tT)+'">'+mot(tT)+'</span></div>'
+    +'<div><span class="tend-l">Forme</span><span class="tend-v" style="color:'+coulT(tF)+'">'+mot(tF)+'</span></div>'
+    +'</div>';
+
+  var derniers = ms.length
+    ? '<table class="tm"><tr><th>Date</th><th>Adversaire</th><th>Note</th><th>Min.</th><th></th></tr>'
+      +ms.slice(-6).reverse().map(function(m){
+        return '<tr><td>'+docEsc(m.date||'')+'</td><td>'+docEsc(m.adv||'')+(m.lieu==='E'?' (ext.)':'')+'</td>'
+          +'<td><b>'+m.note+'</b>/6</td><td>'+m.tps+"'</td>"
+          +'<td>'+(m.buts?m.buts+' but'+(m.buts>1?'s':'')+' ':'')+(m.pd?m.pd+' PD ':'')
+          +(m.cj?'CJ ':'')+(m.cr?'CR':'')+'</td></tr>';
+      }).join('')+'</table>'
+    : '<div class="rien">Aucun match noté pour lui cette saison.</div>';
+
+  var objectifs=(OBJECTIFS[idx]||[]).filter(function(o){ return o && o.label; });
+  var blocObjectifs = objectifs.length
+    ? objectifs.map(function(o){
+        var act=(typeof getStatVal==='function')?getStatVal(o.type,idx,o):null;
+        return '<div class="obj"><span class="obj-l">'+docEsc(o.label)+'</span>'
+          +'<span class="obj-c">cible '+docEsc(String(o.cible))+'</span>'
+          +'<span class="obj-a">'+(act==null?'—':'actuel '+docEsc(String(act)))+'</span>'
+          +'<span class="obj-v" contenteditable data-vide="tenu ? à revoir ?"></span></div>';
+      }).join('')
+    : '<div class="rien">Aucun objectif fixé pour lui. C\'est peut-être ce qui sortira de cet entretien.</div>';
+
+  var blocPrecedent = prec
+    ? '<div class="prec">'
+      +'<div class="prec-d">Entretien du '+docEsc(prec.date||'')+'</div>'
+      +(prec.travailler?'<div class="prec-l"><b>À travailler :</b> '+docEsc(prec.travailler)+'</div>':'')
+      +(prec.actions?'<div class="prec-l"><b>Décidé :</b> '+docEsc(prec.actions)+'</div>':'')
+      +'<div class="prec-q">Où on en est là-dessus ? <span contenteditable data-vide="…"></span></div>'
+      +'</div>'
+    : '<div class="rien">Premier entretien avec lui.</div>';
+
+  var style='<style>'
+    +'@page{size:A4 portrait;margin:6mm}'
+    +'.feuille{width:764px;min-height:1060px;padding:16px 18px 12px;display:flex;flex-direction:column;gap:9px}'
+    +'.bandeau{display:flex;align-items:center;gap:11px;border-bottom:3px solid #d97706;padding-bottom:7px}'
+    +'.bandeau img{width:36px;height:36px;object-fit:contain}'
+    +'.bandeau .club{font-family:Anton,sans-serif;font-size:19px;line-height:1}'
+    +'.bandeau .sous{font-size:10px;color:#6b7480;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}'
+    +'.bandeau .droite{margin-left:auto;text-align:right;font-size:9.5px;color:#6b7480;line-height:1.7}'
+    +'.bandeau .droite span[contenteditable]{display:inline-block;min-width:96px;border-bottom:1.2px dotted #b4bcc4;color:#11161c;font-weight:600;text-align:left;padding:0 3px}'
+    +'.joueur{display:flex;align-items:center;gap:13px;background:#f7f9fb;border:1.5px solid #e2e6ea;border-radius:9px;padding:9px 12px}'
+    +'.joueur .ph{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #d97706;flex:0 0 46px}'
+    +'.joueur .ini{width:46px;height:46px;border-radius:50%;background:#d97706;color:#fff;flex:0 0 46px;'
+      +'display:flex;align-items:center;justify-content:center;font-family:Anton,sans-serif;font-size:17px}'
+    +'.joueur .n{font-family:Anton,sans-serif;font-size:19px;line-height:1.1}'
+    +'.joueur .r{font-size:9.5px;color:#6b7480;margin-top:2px}'
+    +'.joueur .bl-med{margin-left:auto;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+      +'color:#b91c1c;border:1.4px solid #b91c1c;border-radius:9px;padding:2px 8px}'
+    +'.rang{display:grid;gap:9px}.r2{grid-template-columns:1fr 1fr}'
+    +'.bl{border:1.5px solid #e2e6ea;border-left:4px solid var(--c);border-radius:8px;padding:7px 10px 8px;background:#fff}'
+    +'.bl-t{font-family:Anton,sans-serif;font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--c);margin-bottom:5px}'
+    +'.ch{display:flex;flex-direction:column;margin-bottom:5px}'
+    +'.ch-l{font-size:7.4px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad}'
+    +'.ch-v{font-size:11px;font-weight:600;min-height:14px;border-bottom:1.2px dotted #c3cbd3;padding-bottom:1px}'
+    +'.ch.large .ch-v{min-height:46px}'
+    +'.kps{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}'
+    +'.kp{text-align:center;background:#f7f9fb;border:1px solid #e9edf1;border-radius:6px;padding:5px 3px}'
+    +'.kp-v{font-family:Anton,sans-serif;font-size:15px;line-height:1}'
+    +'.kp-l{font-size:7.2px;color:#98a2ad;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}'
+    +'.tend{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}'
+    +'.tend>div{background:#fff;border:1px solid #e9edf1;border-radius:6px;padding:4px 7px}'
+    +'.tend-l{display:block;font-size:7.2px;color:#98a2ad;text-transform:uppercase;letter-spacing:.06em}'
+    +'.tend-v{font-size:10px;font-weight:700}'
+    +'.tm{width:100%;border-collapse:collapse;font-size:9.4px}'
+    +'.tm th{text-align:left;font-size:7.2px;text-transform:uppercase;letter-spacing:.06em;color:#98a2ad;padding:2px 4px;border-bottom:1px solid #e2e6ea}'
+    +'.tm td{padding:2.5px 4px;border-bottom:1px dotted #eceff2}'
+    +'.obj{display:grid;grid-template-columns:1.3fr .6fr .6fr 1.5fr;gap:6px;align-items:end;'
+      +'padding:3px 0;border-bottom:1px dotted #eceff2}'
+    +'.obj:last-child{border-bottom:none}'
+    +'.obj-l{font-size:10px;font-weight:700}'
+    +'.obj-c,.obj-a{font-size:9px;color:#6b7480}'
+    +'.obj-v{font-size:10px;min-height:13px;border-bottom:1.2px dotted #c3cbd3}'
+    +'.prec{font-size:9.6px;line-height:1.5}'
+    +'.prec-d{font-size:7.4px;text-transform:uppercase;letter-spacing:.08em;color:#98a2ad;margin-bottom:3px}'
+    +'.prec-l{margin-bottom:2px}'
+    +'.prec-q{margin-top:5px;font-size:9.4px;color:#6b7480}'
+    +'.prec-q span{display:inline-block;min-width:60%;border-bottom:1.2px dotted #c3cbd3;color:#11161c;font-weight:600}'
+    +'.rien{font-size:9.4px;color:#98a2ad;font-style:italic}'
+    +'.crit{display:flex;align-items:center;gap:8px;padding:2.5px 0;border-bottom:1px dotted #eceff2}'
+    +'.crit:last-child{border-bottom:none}'
+    +'.crit-l{flex:1;font-size:10px;font-weight:600}'
+    +'.notes{display:flex;gap:4px;flex-shrink:0}'
+    +'.pt{width:15px;height:15px;border:1.2px solid #c3cbd3;border-radius:50%;display:flex;align-items:center;'
+      +'justify-content:center;font-size:8.4px;font-weight:700;color:#6b7480}'
+    +'.pied{margin-top:auto;display:flex;justify-content:space-between;font-size:8.4px;color:#98a2ad;'
+      +'border-top:1px solid #e2e6ea;padding-top:6px}'
+    +'@media print{.bl,.tm tr,.obj{break-inside:avoid;page-break-inside:avoid}}'
+    +'</style>';
+
+  var photo=PHOTOS[idx];
+  var initiales=(j.nom||'').split(/\s+/).map(function(m){ return m.charAt(0); }).join('').slice(0,2).toUpperCase();
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Entretien — '+docEsc(j.nom)+'</title>'
+    +docStylesCommuns()+style
+    +'</head><body>'
+    +docBarre(true)
+    +'<div class="feuille">'
+
+    +'<div class="bandeau">'+(logo?'<img src="'+logo+'" alt="">':'')
+      +'<div><div class="club">'+docEsc(NOM_CLUB)+'</div><div class="sous">Entretien individuel</div></div>'
+      +'<div class="droite">Le : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
+      +'Mené par : <span contenteditable data-vide="nom">'+docEsc(NOM_COACH||'')+'</span></div>'
+    +'</div>'
+
+    +'<div class="joueur">'
+      +(photo?'<img class="ph" src="'+photo+'" alt="">':'<div class="ini">'+docEsc(initiales)+'</div>')
+      +'<div><div class="n">'+docEsc((j.num?j.num+'. ':'')+j.nom)+'</div>'
+      +'<div class="r">'+(am.gardien?'Gardien de but':'Joueur de champ')
+        +' · saison '+docEsc(String(new Date().getFullYear()-1)+'/'+String(new Date().getFullYear()).slice(2))+'</div></div>'
+      +(activeB?'<div class="bl-med">Indisponible · '+docEsc(activeB.zone||'')+'</div>':'')
+    +'</div>'
+
+    +bloc('Sa saison, telle que l\'appli la voit', '#2563eb',
+        '<div class="kps">'+lignesSaison+'</div>'+tendances)
+
+    +bloc('Ses six derniers matchs', '#0f766e', derniers)
+
+    +'<div class="rang r2">'
+      +bloc('Ses objectifs', '#d97706', blocObjectifs)
+      +bloc('La dernière fois', '#7c3aed', blocPrecedent)
+    +'</div>'
+
+    +bloc('Comment je le vois — à entourer', '#b45309',
+        ['Investissement à l\'entraînement','Application des consignes','Impact dans le jeu',
+         'Attitude dans le groupe','Régularité','Progression depuis le début de saison']
+        .map(function(l){ return '<div class="crit"><span class="crit-l">'+docEsc(l)+'</span>'+pastilles()+'</div>'; }).join(''))
+
+    +'<div class="rang r2">'
+      +bloc('Ce qui va', '#15803d', champ('Ce que je lui dis en premier','ce qu\'il fait bien, précisément',true))
+      +bloc('Ce qu\'on doit travailler', '#b91c1c', champ('Le point sur lequel je ne lâche pas','un seul point, pas cinq',true))
+    +'</div>'
+
+    +bloc('Ce que lui en dit', '#2563eb',
+        champ('Comment il se voit, ce qu\'il attend, ce qui le gêne','on écoute d\'abord, on note ensuite',true))
+
+    +bloc('Ce qu\'on décide', '#d97706',
+        champ('L\'action concrète, pour quand','l\'action concrète, et pour quand',true)
+        +'<div class="ch"><span class="ch-l">Prochain point le</span>'
+        +'<span class="ch-v" contenteditable data-vide="prochain point : jj/mm/aaaa"></span></div>')
+
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — entretien individuel · '+docEsc(j.nom)+'</span>'
+      +'<span>Ce qui est écrit ici revient dans l\'appli</span></div>'
+    +'</div>'
+    +docMemoire('entretien_'+idx, {type:'entretien', titre:'Entretien — '+j.nom,
+        sujet:j.nom, joueurIdx:idx})
+    +'</body></html>';
+
+  docOuvrir(html, 'Entretien — '+j.nom);
+}
+
 function enregistrerPointDuJour(idx){
   var forme=parseInt(document.getElementById('forme-sel').value)||3;
   var dateJour=new Date().toLocaleDateString('fr-FR');
@@ -10674,6 +11201,28 @@ var AIDE=[
  ],
  astuce:'C\'est le patrimoine du club, pas ton dossier personnel. Range par catégorie dès le dépôt — « Arbitrage & règlement », « Préparation physique », « Formation & diplômes » — et un éducateur qui arrive en septembre trouve tout seul ce qu\'il cherche.'
 },
+{f:'joueur', t:'Lire la fiche d\'un joueur', ou:'Écran Effectif', ecran:'effectif',
+ etapes:[
+  'La fiche répond à trois questions, dans cet ordre : <b>qui c\'est</b>, <b>où il en est</b>, <b>ce qu\'on en fait</b>.',
+  'En haut : sa photo, son numéro, son statut médical, et quatre chiffres — note moyenne, minutes par match, présence, forme du moment.',
+  '<b>Où il en est</b> est le cœur : trois courbes sur la saison (note en match, forme, temps de jeu). '
+  +'Chacune porte une <b>tendance</b> — en progression, stable, en baisse — calculée en comparant ses derniers relevés aux précédents.',
+  'En dessous, ses six derniers matchs, dans le même sens que les courbes : le plus ancien à gauche, le plus récent à droite.',
+  'Ses attributs sont là, sans le calcul : <code>D\'où viennent ces chiffres ?</code> l\'affiche si tu veux le détail. Le petit nombre coloré est son écart à la moyenne de l\'effectif.',
+  'Tout en bas : <b>ce qu\'on s\'est dit</b> au dernier entretien, et les fiches d\'observation archivées sur lui.'
+ ],
+ astuce:'La <b>tendance</b> vaut mieux que la note. Un joueur à 4/6 en progression depuis trois matchs et un joueur à 4/6 en chute n\'appellent pas le même discours — et c\'est invisible sur une moyenne de saison. En dessous de quatre relèvés, l\'appli ne dit rien plutôt que de raconter n\'importe quoi.'
+},
+{f:'joueur', t:'Mener un entretien individuel', ou:'Écran Effectif · bouton Feuille d\'entretien', ecran:'effectif',
+ etapes:[
+  'Depuis la fiche du joueur, bouton <code>📄 Feuille d\'entretien</code>. La feuille s\'ouvre <b>déjà remplie</b> de ce que l\'appli sait.',
+  'Elle contient sa saison chiffrée, ses trois tendances, ses six derniers matchs, ses objectifs avec leur valeur actuelle, et <b>ce qu\'on avait décidé la dernière fois</b> — avec la question « où on en est là-dessus ? ».',
+  'Tu n\'écris que ce qui se dit : ce qui va, le point à travailler, ce que lui en dit, ce qu\'on décide. Six critères se notent en entourant de 1 à 5, au doigt ou au stylo.',
+  'Elle s\'imprime, ou se remplit à l\'écran — téléphone compris. Ce que tu tapes est retenu tout seul, même si tu fermes l\'onglet.',
+  '<code>📥 Archiver dans l\'appli</code> : la feuille rejoint tes fiches remplies, <b>et l\'entretien apparaît sur la fiche du joueur</b>. La prochaine feuille repartira de là.'
+ ],
+ astuce:'Ne remplis pas « ce qu\'on doit travailler » avant d\'avoir écouté. La feuille est rangée dans cet ordre exprès : ce qui va, ce qu\'on travaille, <b>ce que lui en dit</b>, puis seulement ce qu\'on décide. Un entretien où le coach parle en premier et décide en dernier ne ressemble pas à celui où c\'est l\'inverse.'
+},
 {f:'entr', t:'Ajouter un exercice qui n\'est pas dessiné', ou:'Écran Mes exercices', ecran:'mes-exos',
  etapes:[
   'Un exercice n\'a pas besoin d\'être dessiné dans l\'appli pour compter. Une feuille griffonnée au bord du terrain que tu photographies, un PDF récupéré en formation, une vidéo vue ailleurs : tout entre.',
@@ -14773,7 +15322,8 @@ var FICHE_TYPES={
   obs_joueur: {ic:'👤', nom:'Observation joueur',          gen:function(f){ genererFicheObservation(f.sujet||''); }},
   reunion_staff:{ic:'🧑‍🏫', nom:'Réunion staff',             gen:function(f){ genererReunionStaff(); }},
   reunion_club: {ic:'🏛', nom:'Réunion technique club',     gen:function(f){ genererReunionClub(); }},
-  cahier_questions:{ic:'📓', nom:'Cahier des questions',    gen:function(f){ genererCahierQuestions(); }}
+  cahier_questions:{ic:'📓', nom:'Cahier des questions',    gen:function(f){ genererCahierQuestions(); }},
+  entretien:  {ic:'🗣️', nom:'Entretien individuel',    gen:function(f){ genererFeuilleEntretien(f.joueurIdx!=null?f.joueurIdx:0); }}
 };
 function ficheHorodatage(){
   var d=new Date(), z=function(n){ return (n<10?'0':'')+n; };
@@ -14798,6 +15348,7 @@ function ficheArchiver(meta, donnees, remplacer){
       // deux fiches sur le même sujet : la seconde prend une clé à elle pour ne pas écraser la première
       cle:(deja? meta.cle+'~'+Date.now() : meta.cle),
       type:meta.type||'autre', titre:meta.titre||'Fiche', sujet:meta.sujet||'',
+      joueurIdx:(meta.joueurIdx==null?null:meta.joueurIdx),
       champs:nb, creee:ficheHorodatage(), maj:ficheHorodatage(), donnees:donnees
     });
   }
@@ -14861,7 +15412,8 @@ var DOC_CHARGE=null; // fiche archivée à réinjecter dans le prochain document
 function docMemoire(cle, meta){
   var charge=DOC_CHARGE; DOC_CHARGE=null;
   if(charge && charge.cle) cle=charge.cle;
-  var m=meta?{type:meta.type, titre:meta.titre, sujet:meta.sujet||'', cle:cle}:null;
+  var m=meta?{type:meta.type, titre:meta.titre, sujet:meta.sujet||'', cle:cle,
+    joueurIdx:(meta.joueurIdx==null?null:meta.joueurIdx)}:null;
   function json(o){ return JSON.stringify(o===undefined?null:o).replace(/</g,'\\u003c'); }
   return '<script>(function(){'
     +'var CLE="ast_fiche_'+cle+'";'
@@ -14914,6 +15466,8 @@ function docMemoire(cle, meta){
         +'if(deja) remplacer=confirm("Une fiche est déjà archivée pour « "+(deja.sujet||deja.titre)+" », remplie le "+deja.maj+".\\n\\nOK = remplacer celle-là\\nAnnuler = garder les deux"); }catch(e){}'
       +'try{ app.ficheArchiver(META, d, remplacer); }catch(e){ alert("Archivage impossible : "+e.message); return; }'
       // Une feuille de réunion renvoie aussi ses décisions, pour qu'elles vivent dans l'appli
+      +'try{ if(app.entretienDepuisFiche && META.type==="entretien" && META.joueurIdx!=null){'
+        +'app.entretienDepuisFiche(META.joueurIdx, d); } }catch(e){}'
       +'try{ if(app.reunionDecisions && META.type && META.type.indexOf("reunion_")===0){'
         +'app.reunionDecisions(META.type==="reunion_club"?"club":"staff", decisions()); } }catch(e){}'
       +'var b=document.getElementById("b-archive");'
@@ -15036,12 +15590,14 @@ function renderDocsImprimer(){
       }).join('');
   }
   });
-  var selJ=document.getElementById('doc-bilan-joueur');
+  ['doc-bilan-joueur','doc-entretien-joueur'].forEach(function(idJ){
+  var selJ=document.getElementById(idJ);
   if(selJ){
     selJ.innerHTML=JOUEURS.length
       ? JOUEURS.map(function(j,i){ return '<option value="'+i+'">'+esc2(j.num+'. '+j.nom)+'</option>'; }).join('')
       : '<option value="">Aucun joueur dans l\'effectif</option>';
   }
+  });
   var selM=document.getElementById('doc-bilan-match');
   if(selM){
     selM.innerHTML=MATCHS.length
@@ -15050,6 +15606,11 @@ function renderDocsImprimer(){
         }).reverse().join('')
       : '<option value="">Aucun match enregistré</option>';
   }
+}
+function docFeuilleEntretien(){
+  var e=document.getElementById('doc-entretien-joueur');
+  if(!e || e.value===''){ notif('⚠ Aucun joueur dans l\'effectif'); return; }
+  genererFeuilleEntretien(parseInt(e.value));
 }
 function docBilanJoueur(){
   var v=document.getElementById('doc-bilan-joueur').value;
