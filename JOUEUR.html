@@ -177,7 +177,12 @@ input[type=range]{accent-color:var(--or)}
 .pt-nom{flex:1;color:var(--ink)}
 .pt-val{color:var(--gold);font-weight:700;font-family:'Roboto Condensed',sans-serif;min-width:52px;text-align:right}
 .effectif-card{background:rgba(255,255,255,.03);border:1px solid var(--hair);border-radius:6px;padding:12px 13px;margin-bottom:8px}
-.effectif-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.effectif-hdr{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.effectif-nom{flex:1;min-width:0}
+.eff-ph{width:40px;height:40px;flex:0 0 40px;border-radius:50%;overflow:hidden;background:#12161c;
+  border:1.5px solid var(--hair);display:flex;align-items:center;justify-content:center;
+  font-family:'Roboto Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--or)}
+.eff-ph img{width:100%;height:100%;object-fit:cover}
 .effectif-nom{font-size:14.5px;font-weight:600;color:var(--ink)}
 .effectif-note{font-family:Roboto Condensed,sans-serif;font-weight:700;color:var(--or);font-size:14px}
 .effectif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 6px}
@@ -203,6 +208,74 @@ input[type=range]{accent-color:var(--or)}
 .onb-dot.on{background:var(--or);width:20px;border-radius:4px;transition:width .2s}
 .onb-nav{display:flex;gap:10px;padding:16px 24px calc(24px + env(safe-area-inset-bottom,0px))}
 .onb-nav .btn-or{margin-top:0}
+/* ===== Ma carte ===== */
+.mc-tete{background:linear-gradient(165deg,rgba(217,119,6,.20),rgba(217,119,6,.02) 68%);
+  border:1px solid rgba(217,119,6,.32);border-radius:16px;padding:22px 18px 18px;margin-bottom:14px;
+  text-align:center;box-shadow:0 10px 30px -14px rgba(217,119,6,.35)}
+.mc-photo{width:132px;height:132px;margin:0 auto 12px;border-radius:50%;overflow:hidden;
+  border:3px solid var(--or);background:#12161c;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 5px rgba(217,119,6,.13),0 10px 28px rgba(0,0,0,.6)}
+.mc-photo img{width:100%;height:100%;object-fit:cover}
+.mc-photo span{font-family:'Roboto Condensed',sans-serif;font-size:44px;font-weight:800;color:var(--or)}
+.mc-nom{font-family:'Roboto Condensed',sans-serif;font-size:27px;font-weight:800;color:#fff;line-height:1.1}
+.mc-num{display:inline-block;background:var(--or);color:#160d02;font-size:15px;font-weight:800;
+  border-radius:7px;padding:1px 9px;margin-right:9px;vertical-align:4px}
+.mc-poste{font-size:13px;color:var(--mute);margin-top:5px}
+.mc-note{margin:14px 0 4px}
+.mc-note .v{display:block;font-family:'Roboto Condensed',sans-serif;font-size:60px;font-weight:800;
+  color:var(--gold);line-height:1}
+.mc-note .l{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.11em;margin-top:2px}
+.mc-cles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:16px}
+.mc-cle{background:rgba(8,9,10,.5);border:1px solid var(--hair);border-radius:9px;padding:9px 4px}
+.mc-cle b{display:block;font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800;line-height:1.1}
+.mc-cle span{display:block;font-size:9px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;line-height:1.25}
+.mc-badges{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:14px}
+.mc-badge{background:rgba(234,181,63,.12);border:1px solid var(--gold);border-radius:20px;
+  padding:6px 12px;font-size:12.5px;color:var(--gold);font-weight:700}
+.mc-traj{display:grid;gap:12px}
+.mc-col{background:rgba(8,9,10,.4);border:1px solid var(--hair);border-radius:10px;padding:13px}
+.mc-col.vide{opacity:.85}
+.mc-col-t{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
+.mc-col-v{font-family:'Roboto Condensed',sans-serif;font-size:32px;font-weight:800;line-height:1.15;margin:3px 0 7px}
+.mc-col-v span{font-size:15px;color:var(--mute);font-weight:600}
+.mc-col-p{font-size:11.5px;color:var(--mute);margin-top:8px;line-height:1.45}
+.mc-tend{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.03em;border-radius:10px;
+  padding:3px 10px;border:1px solid var(--hair);color:var(--mute)}
+.mc-tend.hausse{color:var(--green);border-color:rgba(34,160,107,.5)}
+.mc-tend.baisse{color:#f87171;border-color:rgba(220,68,68,.5)}
+.mc-tend.stable{color:var(--gold);border-color:rgba(224,165,48,.45)}
+.mc-graph{position:relative;height:62px;margin-top:11px}
+.mc-graph svg{width:100%;height:100%;display:block}
+.mc-pt{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+.mc-vide{font-size:12.5px;color:var(--mute);line-height:1.5;padding:6px 0}
+.mc-vide span{font-size:11.5px}
+.mc-derniers-t{font-size:11.5px;color:var(--mute);margin:16px 0 8px}
+.mc-derniers{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.mc-m{background:rgba(8,9,10,.4);border:1px solid var(--hair);border-left:3px solid var(--mc);
+  border-radius:9px;padding:9px 11px}
+.mc-m-h b{display:block;font-size:12.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-m-h span{font-size:10px;color:var(--mute)}
+.mc-m-b{display:flex;align-items:baseline;gap:8px;margin-top:5px;flex-wrap:wrap}
+.mc-m-n{font-family:'Roboto Condensed',sans-serif;font-size:21px;font-weight:800}
+.mc-m-n i{font-size:11px;color:var(--mute);font-style:normal}
+.mc-m-t{font-size:12px;color:var(--mute)}
+.mc-m-e{font-size:11px;margin-left:auto}
+.mc-attrs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.mc-a-h{display:flex;align-items:baseline;gap:6px}
+.mc-a-l{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}
+.mc-ecart{font-size:10.5px;font-weight:700}
+.mc-a-v{font-family:'Roboto Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--gold);margin-left:auto}
+.mc-a-v i{font-size:10px;color:var(--mute);font-style:normal}
+.mc-a-e{font-size:15px;letter-spacing:1px;margin-top:2px}
+.mc-note-bas{font-size:11.5px;color:var(--mute);margin-top:12px;line-height:1.5}
+.mc-ent{background:rgba(8,9,10,.4);border:1px solid var(--hair);border-left:3px solid var(--or);
+  border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.mc-ent:last-child{margin-bottom:0}
+.mc-ent-d{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--mute);font-weight:800;margin-bottom:8px}
+.mc-ent-l{font-size:13px;color:var(--ink);line-height:1.55;margin-bottom:7px}
+.mc-ent-l b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1px}
+@media(min-width:460px){ .mc-traj{grid-template-columns:1fr} .mc-derniers{grid-template-columns:repeat(3,1fr)} }
+@media(max-width:360px){ .mc-cles{grid-template-columns:repeat(2,1fr)} .mc-attrs{grid-template-columns:1fr} }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
@@ -1440,8 +1513,8 @@ function renderHub(){
   }).join('');
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v29</b> · 22/09/2026<br>'
-    +'<span style="opacity:.8">Mes clips · Projet de jeu</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v30</b> · 24/09/2026<br>'
+    +'<span style="opacity:.8">Ma carte : photo, courbes, entretiens</span></div>';
   ct.innerHTML=htmlHub;
   jvBrancher();
 }
@@ -1960,27 +2033,155 @@ function renderTrombinoscope(){
     +joueurs.map(function(j,i){
       var col=TROMBI_COULEURS[i%TROMBI_COULEURS.length];
       var estMoi=j.num===MON_NUM;
+      var ph=photoLocale(j.num);
       return '<div style="text-align:center">'
-        +'<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(160deg,'+col+',rgba(0,0,0,.4));margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:20px;color:#fff'+(estMoi?';box-shadow:0 0 0 3px var(--or)':'')+'">'+esc(initialesJoueur(j.nom))+'</div>'
+        +'<div class="trombi-ph" data-num="'+esc(String(j.num))+'" style="width:72px;height:72px;border-radius:50%;'
+        +(ph?'background:#12161c;':'background:linear-gradient(160deg,'+col+',rgba(0,0,0,.4));')
+        +'overflow:hidden;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;'
+        +'font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:22px;color:#fff'
+        +(estMoi?';box-shadow:0 0 0 3px var(--or)':'')+'">'
+        +(ph?'<img src="'+ph+'" alt="" style="width:100%;height:100%;object-fit:cover">':esc(initialesJoueur(j.nom)))+'</div>'
         +'<div style="font-size:12.5px;color:var(--ink);font-weight:600;line-height:1.2">'+esc(j.nom)+(estMoi?' <span style="color:var(--or)">(toi)</span>':'')+'</div>'
         +'<div style="font-size:10.5px;color:var(--mute)">N°'+esc(j.num)+'</div>'
         +'</div>';
     }).join('')
     +'</div>'
-    +'<div style="font-size:11px;color:var(--mute);text-align:center;margin-top:16px">Les vraies photos ne sont pas encore synchronisées dans l\'appli — avatars générés à partir des initiales.</div>'
+    +'<div style="font-size:11px;color:var(--mute);text-align:center;margin-top:16px">Les joueurs sans photo gardent un avatar à leurs initiales.</div>'
     +'</div></div>';
   ct.innerHTML=html;
+  // les photos manquantes arrivent une par une, sans bloquer l'affichage
+  var ref=SAISON.PHOTOS_REF||{};
+  [].slice.call(ct.querySelectorAll('.trombi-ph')).forEach(function(el){
+    var num=parseInt(el.getAttribute('data-num'));
+    if(ref[num]==null) return;
+    var loc=photoLocale(num);
+    if(loc && String(loc.length)===String(ref[num])) return;
+    photoChercher(num).then(function(d){
+      if(!d) return;
+      el.style.background='#12161c';
+      el.innerHTML='<img src="'+d+'" alt="" style="width:100%;height:100%;object-fit:cover">';
+    });
+  });
 }
+// ===== Ma carte =====
+// Même lecture que la fiche du coach : qui je suis, où j'en suis, ce qu'on en fait.
+// Pas de classement : on peut chuter au classement parce qu'on s'est blessé, ça ne
+// dit rien du joueur qu'on est.
+
+// --- Ma photo : elle vit dans son propre document, on la garde sur le téléphone --
+var MA_PHOTO=null;
+function clePhoto(num){ return 'ast_photo_'+num; }
+function photoLocale(num){
+  try{ return localStorage.getItem(clePhoto(num))||null; }catch(e){ return null; }
+}
+function photoRetenir(num, data){
+  try{ localStorage.setItem(clePhoto(num), data); }catch(e){}
+}
+async function photoChercher(num){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/photo_'+num);
+    if(!res.ok) return null;
+    var j=await res.json();
+    var d=(j.fields&&j.fields.data)?j.fields.data.stringValue:null;
+    if(d) photoRetenir(num, d);
+    return d;
+  }catch(e){ return null; }
+}
+// Sur la carte : on affiche ce qu'on a tout de suite, on va chercher le reste après
+function photoCharger(num, quandPrete){
+  var local=photoLocale(num);
+  if(local && quandPrete) quandPrete(local);
+  var ref=(SAISON.PHOTOS_REF||{})[num];
+  if(ref==null) return local;                       // le coach n'a pas de photo de lui
+  if(local && String(local.length)===String(ref)) return local;  // déjà la bonne version
+  photoChercher(num).then(function(d){ if(d && quandPrete) quandPrete(d); });
+  return local;
+}
+
+// --- Les mêmes calculs que côté coach ---------------------------------------
+function mcMatchs(){
+  var out=[];
+  (SAISON.MATCHS||[]).slice().reverse().forEach(function(m){
+    if(!m || !m.notes) return;
+    var n=null;
+    for(var i=0;i<m.notes.length;i++) if(m.notes[i].num===MON_NUM){ n=m.notes[i]; break; }
+    if(!n) return;
+    out.push({date:m.date||'', adv:m.adversaire||'', lieu:m.lieu||'',
+      note:n.note||0, tps:n.tps||0, buts:n.buts||0, pd:n.pd||0, cj:n.cj||0, cr:n.cr||0});
+  });
+  return out;
+}
+// Ma forme, telle que je l'ai déclarée moi-même (sur 10), du plus ancien au plus récent
+function mcMaForme(){
+  var l=lireMaForme();
+  if(!l.length) return [];
+  var moy=function(e){
+    var t=CRITERES_FORME.map(function(c){ return e[c.k]; }).filter(function(v){ return typeof v==='number'; });
+    return t.length ? (t.reduce(function(a,b){return a+b;},0)/t.length) : null;
+  };
+  return l.slice(0,10).map(moy).filter(function(v){ return v!=null; }).reverse();
+}
+function mcTendance(vals, seuil){
+  if(!vals || vals.length<4) return null;
+  var n=Math.min(3, Math.floor(vals.length/2));
+  var recents=vals.slice(-n), avant=vals.slice(0, vals.length-n);
+  var moy=function(a){ var t=0; a.forEach(function(v){ t+=v; }); return t/a.length; };
+  var d=moy(recents)-moy(avant);
+  var s=(seuil==null?0.35:seuil);
+  if(d>=s)  return {sens:'hausse', txt:'En progression'};
+  if(d<=-s) return {sens:'baisse', txt:'En baisse'};
+  return {sens:'stable', txt:'Stable'};
+}
+function mcPuce(t){
+  if(!t) return '<span class="mc-tend neutre">Pas assez de relevés</span>';
+  var fl={hausse:'▲', baisse:'▼', stable:'='}[t.sens];
+  return '<span class="mc-tend '+t.sens+'">'+fl+' '+t.txt+'</span>';
+}
+function mcCourbe(vals, max, coul){
+  if(!vals.length) return '<div class="mc-vide">Rien d\'enregistré pour l\'instant</div>';
+  var n=vals.length;
+  var haut=function(v){ return 100-Math.max(0,Math.min(100,(v/max)*100)); };
+  var pts=vals.map(function(v,i){ return (n>1?(i/(n-1))*100:50)+','+haut(v); }).join(' ');
+  var dots=vals.map(function(v,i){
+    return '<span class="mc-pt" style="left:'+(n>1?(i/(n-1))*100:50)+'%;top:'+haut(v)+'%;background:'+coul+'"></span>';
+  }).join('');
+  return '<div class="mc-graph">'
+    +'<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'
+      +'<polygon points="0,100 '+pts+' 100,100" fill="'+coul+'" opacity=".14"/>'
+      +'<polyline points="'+pts+'" fill="none" stroke="'+coul+'" stroke-width="2" '
+        +'vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>'
+    +'</svg>'+dots+'</div>';
+}
+function mcColonne(titre, valeur, unite, vals, max, coul, seuil, pied){
+  if(!vals.length){
+    return '<div class="mc-col vide"><div class="mc-col-t">'+titre+'</div>'
+      +'<div class="mc-vide">Rien d\'enregistré pour l\'instant.<br><span>'+(pied||'')+'</span></div></div>';
+  }
+  return '<div class="mc-col"><div class="mc-col-t">'+titre+'</div>'
+    +'<div class="mc-col-v" style="color:'+coul+'">'+valeur+'<span>'+(unite||'')+'</span></div>'
+    +mcPuce(mcTendance(vals, seuil))
+    +mcCourbe(vals, max, coul)
+    +'<div class="mc-col-p">'+(pied||'')+'</div></div>';
+}
+function mcMesEntretiens(){
+  var m=(SAISON.ENTRETIENS_JOUEURS||{})[MON_NUM];
+  return m && m.length ? m : [];
+}
+
 function renderMaCarte(){
   var ct=document.getElementById('scr-macarte');
   if(!ct) return;
   var joueurs=SAISON.JOUEURS||[];
   var idx=joueurs.findIndex(function(j){return j.num===MON_NUM;});
   if(idx===-1){ ct.innerHTML='<div class="blk"><div class="blk-body"><div class="empty-txt">Profil introuvable</div></div></div>'; return; }
+  var s=SAISON.STATS[idx]||{}, am=(SAISON.ATTRS_MANUELS||[])[idx]||{};
   var detail=calcAttrsJoueurDetail(idx);
-  var ranked=joueurs.map(function(j,i){return {i:i,note:calcNoteJoueur(i)};}).sort(function(a,b){return b.note-a.note;});
-  var rang=ranked.findIndex(function(r){return r.i===idx;})+1;
-  // Moyenne d'effectif par attribut
+  var ms=mcMatchs();
+  var notesM=ms.map(function(x){ return x.note; });
+  var tpsM=ms.map(function(x){ return x.tps; });
+  var formeM=mcMaForme();
+  var presPct=(s.seances>0?Math.round(s.pres/s.seances*100):0);
+
   var moyEffectif={};
   joueurs.forEach(function(j,i){
     calcAttrsJoueurDetail(i).attrs.forEach(function(a){
@@ -1988,60 +2189,138 @@ function renderMaCarte(){
       moyEffectif[a.label].sum+=a.val; moyEffectif[a.label].n++;
     });
   });
-  var html='<div class="hero-convoc" style="text-align:center;padding-top:24px">'
-    +'<div class="hero-eyebrow" style="text-align:center">🎴 '+esc(MON_NOM)+'</div>'
-    +'<div style="font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:52px;color:var(--gold);line-height:1">'+detail.note+'</div>'
-    +'<div style="font-size:13px;color:var(--mute);margin-top:4px">Note globale · '+rang+'<sup>'+(rang===1?'er':'e')+'</sup> de l\'effectif ('+joueurs.length+' joueurs)</div>'
-    +'</div>';
+
+  // ---------- Qui je suis ----------
+  var photo=photoLocale(MON_NUM);
+  var html='<div class="mc-tete">'
+    +'<div class="mc-photo" id="mc-photo">'
+      +(photo?'<img src="'+photo+'" alt="">':'<span>'+esc(initialesJoueur(MON_NOM))+'</span>')+'</div>'
+    +'<div class="mc-nom"><span class="mc-num">'+esc(String(MON_NUM))+'</span>'+esc(MON_NOM)+'</div>'
+    +'<div class="mc-poste">'+(am.gardien?'Gardien de but':'Joueur de champ')
+      +' · '+(s.matchsJoues||0)+' match'+((s.matchsJoues||0)>1?'s':'')+' joué'+((s.matchsJoues||0)>1?'s':'')+'</div>'
+    +'<div class="mc-note"><span class="v">'+detail.note+'</span><span class="l">note globale</span></div>'
+    +'<div class="mc-cles">'
+      +'<div class="mc-cle"><b style="color:var(--gold)">'+(s.noteMoy?s.noteMoy.toFixed(1):'—')+'</b><span>note moyenne /6</span></div>'
+      +'<div class="mc-cle"><b style="color:var(--or)">'+(s.tpsMoy||0)+'\'</b><span>par match</span></div>'
+      +'<div class="mc-cle"><b style="color:'+(presPct>=75?'var(--green)':(presPct>=50?'var(--gold)':'var(--red)'))+'">'+presPct+'%</b><span>présence</span></div>'
+      +'<div class="mc-cle"><b style="color:var(--purple)">'+(s.buts||0)+'</b><span>'+(am.gardien?'clean sheets':'but'+((s.buts||0)>1?'s':''))+'</span></div>'
+    +'</div>'
+  +'</div>';
+
   var badges=calculerBadges(idx);
   if(badges.length){
-    html+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">'
-      +badges.map(function(b){ return '<div style="background:rgba(234,181,63,.12);border:1px solid var(--gold);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--gold);font-weight:700">'+b.ic+' '+b.lab+'</div>'; }).join('')
+    html+='<div class="mc-badges">'
+      +badges.map(function(b){ return '<span class="mc-badge">'+b.ic+' '+b.lab+'</span>'; }).join('')
       +'</div>';
   }
-  html+='<div class="blk"><div class="blk-h"><span class="t">📊 Mes attributs</span></div><div class="blk-body">'
+
+  // ---------- Où j'en suis ----------
+  html+='<div class="blk"><div class="blk-h"><span class="t">📈 Où j\'en suis</span>'
+    +'<span class="bc">'+(ms.length?ms.length+' match'+(ms.length>1?'s':'')+' noté'+(ms.length>1?'s':''):'aucun match noté')+'</span></div>'
+    +'<div class="blk-body">'
+    +'<div class="mc-traj">'
+    +mcColonne('Ma note en match', (notesM.length?notesM[notesM.length-1].toFixed(1):'—'), notesM.length?' /6':'',
+        notesM, 6, 'var(--gold)', 0.3,
+        notesM.length?('moyenne '+(s.noteMoy?s.noteMoy.toFixed(1):'—')+' sur la saison'):'le coach note après chaque match')
+    +mcColonne('Mon temps de jeu', (tpsM.length?tpsM[tpsM.length-1]:'—'), tpsM.length?' min':'',
+        tpsM, 90, 'var(--or)', 8,
+        (s.titu||0)+' fois titulaire · '+(s.rempl||0)+' fois remplaçant')
+    +mcColonne('Ma forme', (formeM.length?(Math.round(formeM[formeM.length-1]*10)/10):'—'), formeM.length?' /10':'',
+        formeM, 10, 'var(--blue)', 0.5,
+        formeM.length?('telle que tu l\'as déclarée — '+formeM.length+' réponse'+(formeM.length>1?'s':'')):'remplis ta forme, la courbe se construira')
+    +'</div>'
+    +(ms.length?'<div class="mc-derniers-t">Tes '+Math.min(6,ms.length)+' derniers matchs, du plus ancien au plus récent</div>'
+      +'<div class="mc-derniers">'+ms.slice(-6).map(function(m){
+        var col=m.note>=4.5?'var(--green)':(m.note<=2.5?'var(--red)':'var(--gold)');
+        return '<div class="mc-m" style="--mc:'+col+'">'
+          +'<div class="mc-m-h"><b>'+esc(m.adv||'?')+'</b><span>'+esc(m.date||'')+(m.lieu==='E'?' · ext.':'')+'</span></div>'
+          +'<div class="mc-m-b"><span class="mc-m-n" style="color:'+col+'">'+m.note+'<i>/6</i></span>'
+          +'<span class="mc-m-t">'+m.tps+'\'</span>'
+          +'<span class="mc-m-e">'+(m.buts?('⚽'+m.buts+' '):'')+(m.pd?('🅰️'+m.pd+' '):'')
+            +(m.cj?'🟨':'')+(m.cr?'🟥':'')+'</span></div></div>';
+      }).join('')+'</div>':'')
+    +'</div></div>';
+
+  // ---------- Mes attributs ----------
+  html+='<div class="blk"><div class="blk-h"><span class="t">🧬 Mes attributs</span>'
+    +'<span class="bc">sur 6</span></div><div class="blk-body"><div class="mc-attrs">'
     +detail.attrs.map(function(a){
       var moy=moyEffectif[a.label];
-      var moyVal6=moy&&moy.n>1?Math.round((moy.sum/moy.n)/10*6*10)/10:null;
+      var moyVal6=(moy&&moy.n>1)?Math.round((moy.sum/moy.n)/10*6*10)/10:null;
       var val6=Math.round(a.val/10*6*10)/10;
       var delta=moyVal6!==null?Math.round((val6-moyVal6)*10)/10:null;
-      var deltaCol=delta>0.3?'var(--green)':(delta<-0.3?'var(--red)':'var(--mute)');
+      var ecart='';
+      if(delta!==null && delta!==0){
+        var dc=delta>0.3?'var(--green)':(delta<-0.3?'var(--red)':'var(--mute)');
+        ecart='<span class="mc-ecart" style="color:'+dc+'">'+(delta>0?'+':'')+delta+'</span>';
+      }
       var etoiles='';
-      for(var i=1;i<=6;i++){ etoiles+='<span style="font-size:16.5px;color:'+(i<=Math.round(val6)?'#fbbf24':'#3a3a3a')+'">★</span>'; }
-      return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px"><span style="color:var(--ink);font-weight:600">'+a.label+'</span><span style="color:var(--gold);font-weight:700">'+val6+'/6</span></div>'
-        +'<div>'+etoiles+'</div>'
-        +(delta!==null?'<div style="font-size:11px;color:'+deltaCol+';margin-top:2px">'+(delta>0?'+':'')+delta+' vs moyenne effectif</div>':'')
-        +'</div>';
+      for(var k=1;k<=6;k++) etoiles+='<span style="color:'+(k<=Math.round(val6)?'#fbbf24':'#3a3a3a')+'">★</span>';
+      return '<div class="mc-a"><div class="mc-a-h"><span class="mc-a-l">'+a.label+'</span>'+ecart
+        +'<span class="mc-a-v">'+val6+'<i>/6</i></span></div>'
+        +'<div class="mc-a-e">'+etoiles+'</div></div>';
     }).join('')
+    +'</div>'
+    +'<div class="mc-note-bas">Le petit chiffre coloré est ton écart à la moyenne de l\'effectif.</div>'
     +'</div></div>';
-  var hist=((SAISON.NOTE_HISTORIQUE||[])[idx]||[]);
-  html+='<div class="blk"><div class="blk-h"><span class="t">📈 Évolution de ma carte</span></div><div class="blk-body">';
-  if(hist.length){
-    html+=hist.slice(-8).map(function(h){
-      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--hair);font-size:14px"><span style="color:var(--mute)">'+esc(h.date||'')+'</span><span style="color:var(--gold);font-weight:700">'+h.valeur+'</span></div>';
-    }).join('');
-  }else{
-    html+='<div class="empty-txt">Pas encore d\'historique enregistré par le coach pour l\'instant</div>';
-  }
-  html+='</div></div>';
 
+  // ---------- Ce qu'on s'est dit ----------
+  var ents=mcMesEntretiens();
+  html+='<div class="blk"><div class="blk-h"><span class="t">🗣️ Ce qu\'on s\'est dit</span>'
+    +'<span class="bc">'+(ents.length?ents.length+' entretien'+(ents.length>1?'s':''):'aucun')+'</span></div>'
+    +'<div class="blk-body">'
+    +(ents.length
+      ? ents.slice(0,3).map(function(e){
+          return '<div class="mc-ent"><div class="mc-ent-d">Le '+esc(e.date||'')+'</div>'
+            +(e.positif?'<div class="mc-ent-l"><b style="color:var(--green)">Ce qui va</b>'+esc(e.positif)+'</div>':'')
+            +(e.travailler?'<div class="mc-ent-l"><b style="color:var(--red)">À travailler</b>'+esc(e.travailler)+'</div>':'')
+            +(e.ressenti?'<div class="mc-ent-l"><b style="color:var(--blue)">Ce que tu as dit</b>'+esc(e.ressenti)+'</div>':'')
+            +(e.actions?'<div class="mc-ent-l"><b style="color:var(--gold)">Ce qu\'on a décidé</b>'+esc(e.actions)+'</div>':'')
+            +'</div>';
+        }).join('')
+      : '<div class="empty-txt">Pas encore d\'entretien. Quand il y en aura un, ce qui s\'y sera dit sera écrit ici — et tu pourras y revenir.</div>')
+    +'</div></div>';
+
+  // ---------- Mes saisons précédentes ----------
   var archives=(SAISON.HISTORIQUE_SAISONS||[]).map(function(sa){
-    var moi=sa.joueurs.find(function(j){return j.nom===MON_NOM;});
+    var moi=(sa.joueurs||[]).find(function(j){return j.nom===MON_NOM;});
     return moi?{annee:sa.annee,moi:moi}:null;
   }).filter(Boolean);
-  html+='<div class="blk"><div class="blk-h"><span class="t">📚 Mes saisons précédentes</span></div><div class="blk-body">';
   if(archives.length){
-    html+=archives.map(function(a){
-      return '<div style="padding:10px 0;border-bottom:1px solid var(--hair)"><b style="font-size:14.5px;color:var(--ink)">'+esc(a.annee)+'</b>'
-        +'<div style="display:flex;gap:14px;margin-top:4px;font-size:13px;color:var(--mute)"><span>Note '+a.moi.note+'</span><span>'+a.moi.matchsJoues+' matchs</span><span>'+a.moi.buts+' buts</span><span>'+a.moi.pd+' passes D.</span></div></div>';
-    }).join('');
-  }else{
-    html+='<div class="empty-txt">Aucune saison archivée pour l\'instant</div>';
+    html+='<div class="blk"><div class="blk-h"><span class="t">📚 Mes saisons précédentes</span></div><div class="blk-body">'
+      +archives.map(function(a){
+        return '<div style="padding:10px 0;border-bottom:1px solid var(--hair)"><b style="font-size:14.5px;color:var(--ink)">'+esc(a.annee)+'</b>'
+          +'<div style="display:flex;gap:14px;margin-top:4px;font-size:13px;color:var(--mute)"><span>Note '+a.moi.note+'</span><span>'+a.moi.matchsJoues+' matchs</span><span>'+a.moi.buts+' buts</span><span>'+a.moi.pd+' passes D.</span></div></div>';
+      }).join('')
+      +'</div></div>';
   }
-  html+='</div></div>';
+
   ct.innerHTML=html;
+  // la photo arrive quand elle arrive : on ne fait pas attendre l'écran pour ça
+  photoCharger(MON_NUM, function(d){
+    var e=document.getElementById('mc-photo');
+    if(e) e.innerHTML='<img src="'+d+'" alt="">';
+  });
 }
 
+
+// Les visages qui manquent encore sur cet ecran : on va les chercher une fois,
+// puis ils restent sur le telephone.
+function photosRemplir(racine){
+  var ref=SAISON.PHOTOS_REF||{};
+  [].slice.call((racine||document).querySelectorAll('.trombi-ph')).forEach(function(el){
+    var num=parseInt(el.getAttribute('data-num'));
+    if(isNaN(num) || ref[num]==null) return;
+    var loc=photoLocale(num);
+    if(loc && String(loc.length)===String(ref[num])){
+      if(!el.querySelector('img')) el.innerHTML='<img src="'+loc+'" alt="">';
+      return;
+    }
+    photoChercher(num).then(function(d){
+      if(d) el.innerHTML='<img src="'+d+'" alt="">';
+    });
+  });
+}
 function renderEffectif(){
   var ct=document.getElementById('scr-effectif');
   var joueurs=SAISON.JOUEURS||[], stats=SAISON.STATS||[];
@@ -2065,7 +2344,11 @@ function renderEffectif(){
     var note=calcNoteJoueur(i);
     var ba=(s.buts||0)+(s.pd||0);
     var badgesJ=calculerBadges(i);
-    return '<div class="effectif-card"><div class="effectif-hdr"><div class="effectif-nom">'+esc(j.num)+'. '+esc(j.nom)+'</div><div class="effectif-note">'+note+'</div></div>'
+    var ph=photoLocale(j.num);
+    return '<div class="effectif-card"><div class="effectif-hdr">'
+      +'<div class="eff-ph trombi-ph" data-num="'+esc(String(j.num))+'">'
+        +(ph?'<img src="'+ph+'" alt="">':esc(initialesJoueur(j.nom)))+'</div>'
+      +'<div class="effectif-nom">'+esc(j.num)+'. '+esc(j.nom)+'</div><div class="effectif-note">'+note+'</div></div>'
       +(badgesJ.length?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+badgesJ.map(function(b){return '<span style="font-size:11px;background:rgba(234,181,63,.12);border:1px solid var(--gold);border-radius:12px;padding:2px 8px;color:var(--gold)">'+b.ic+' '+b.lab+'</span>';}).join('')+'</div>':'')
       +'<div class="effectif-grid">'
       +'<div class="effectif-chip"><div class="l">Présences</div><div class="v">'+(s.pres||0)+'/'+(s.seances||0)+'</div></div>'
@@ -2084,6 +2367,7 @@ function renderEffectif(){
     ctEnt.innerHTML='<div class="blk"><div class="blk-h"><span class="t">🏆 Classement points d\'entraînement</span></div><div class="blk-body">'
       +'<div class="podium-wrap">'+podium+'</div>'+listeComplete+'</div></div>';
   }
+  photosRemplir(ct);
 }
 
 function renderPlaceholders(){
