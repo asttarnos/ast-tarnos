@@ -827,6 +827,68 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .dm-vid-t{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3}
 .dm-vid-m{font-size:9.5px;color:var(--gris2);margin-top:3px}
 .dm-vid-n{font-size:11px;color:var(--gris2);margin-top:5px;line-height:1.4}
+/* ===== Le dossier d'avant-match : la barre de pilotage ===== */
+.dm-pilote{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:12px;
+  background:linear-gradient(120deg,rgba(249,115,22,.12),rgba(249,115,22,.02) 62%);
+  border:1px solid rgba(249,115,22,.3);border-radius:13px;padding:15px 17px}
+.dm-p-gauche{flex:1;min-width:260px}
+.dm-p-adv{width:100%;background:transparent;border:none;outline:none;color:#fff;
+  font-family:'Roboto Condensed',sans-serif;font-size:27px;font-weight:800;padding:0 0 4px;
+  border-bottom:2px solid rgba(255,255,255,.14)}
+.dm-p-adv:focus{border-bottom-color:var(--or)}
+.dm-p-adv::placeholder{color:rgba(255,255,255,.28)}
+.dm-p-l{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.dm-p-l .fi{font-size:12px;padding:7px 9px}
+.dm-p-droite{display:flex;flex-direction:column;gap:8px;min-width:230px}
+.dm-voir{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:.04em;
+  padding:13px 20px;border-radius:10px;border:none;background:var(--or);color:#160d02;cursor:pointer;
+  box-shadow:0 6px 20px -6px rgba(249,115,22,.7)}
+.dm-voir:hover{filter:brightness(1.08)}
+.dm-p-b{display:flex;gap:6px;flex-wrap:wrap}
+.dm-p-etat{font-size:11px;color:var(--gris2);line-height:1.55}
+.dm-p-etat b{color:#fff;font-size:13px}
+.dm-pub{color:var(--green);font-weight:700}
+.dm-nonpub{color:var(--gris2)}
+
+/* Les cinq étapes */
+.dm-etapes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.dm-et{font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:11px 8px;border-radius:11px;border:1px solid var(--line);background:var(--carte);
+  color:var(--gris2);cursor:pointer;transition:all .14s}
+.dm-et:hover{border-color:var(--or)}
+.dm-et.on{border-color:var(--or);background:rgba(249,115,22,.1);color:#fff}
+.dm-et-i{font-size:19px;line-height:1}
+.dm-et-n{font-size:11.5px;font-weight:700;text-align:center;line-height:1.2}
+.dm-et-b{font-size:9.5px;font-weight:800;letter-spacing:.05em;color:var(--gris2)}
+.dm-et.ok .dm-et-b{color:var(--green)}
+
+/* Les blocs de saisie */
+.dm-bloc{border-left:3px solid var(--bc);margin-bottom:12px}
+.dm-sous{font-size:11.5px;color:var(--gris2);line-height:1.6;margin-bottom:12px}
+.dm-q{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.dm-qi label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--gris2);margin-bottom:3px}
+.dm-qi .fi{font-size:13px;padding:9px 11px}
+.dm-duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dm-duo2{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:16px;align-items:start}
+.dm-mini{border-radius:10px;overflow:hidden}
+.dm-mini svg{width:100%;height:auto;display:block;border-radius:10px}
+.dm-suite{display:flex;justify-content:flex-end;margin:4px 0 16px}
+.dm-suite .btn{width:auto;padding:11px 22px}
+
+/* Le plateau, dans l'écran */
+.dm-pl-barre{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.dm-pl-barre .fi{flex:1;min-width:190px}
+.dm-pl-cadre{height:min(72vh,720px);min-height:460px;border-top:1px solid var(--line);
+  background:#0d0d0d;overflow:hidden}
+.dm-pl-cadre iframe{width:100%;height:100%;border:none;display:block;background:#0d0d0d}
+
+@media(max-width:860px){
+  .dm-etapes{grid-template-columns:repeat(3,1fr)}
+  .dm-duo,.dm-duo2{grid-template-columns:1fr}
+  .dm-p-l{grid-template-columns:1fr}
+  .dm-pl-cadre{height:78vh;min-height:520px}
+}
 .dm-etat-b{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;
   padding:11px 13px;margin-bottom:12px}
 .dm-etat-t{font-size:11px;color:var(--gris2);margin-bottom:9px;line-height:1.5}
@@ -1221,8 +1283,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v41</b> · 24/09/2026<br>
-      <span style="opacity:.7">Le dossier se regarde avant de partir</span>
+      AST COACH <b style="color:var(--or)">v42</b> · 24/09/2026<br>
+      <span style="opacity:.7">Le plateau dans le dossier · cinq étapes</span>
     </div>
   </div>
 </div>
@@ -2182,49 +2244,32 @@ Repli défensif après perte"></textarea>
 </div>
 
 <!-- PLATEAU TACTIQUE 4-2-2-2 -->
-<div class="scr-grille scr" id="scr-avant-match">
-  <div class="ph"><div><div class="ph-title">📣 Dossier d'avant-match</div><div class="ph-sub">Ce qu'on donne aux joueurs : les têtes de chapitre, le terrain qui bouge, et la vidéo — sur leur téléphone</div></div></div>
+<div class="scr" id="scr-avant-match">
+  <div class="ph"><div><div class="ph-title">📣 Dossier d'avant-match</div><div class="ph-sub">Tu remplis, tu regardes, tu envoies — sans quitter cet écran</div></div></div>
 
-  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">L'affiche</span>
-    <span class="bc" id="dm-etat">—</span></div>
-    <div style="padding:12px 14px 14px">
-      <div class="exi-grille4">
-        <div class="fg"><label class="fl">Adversaire</label>
-          <input class="fi" id="dm-adv" oninput="dmChampSimple('adv',this.value)" placeholder="Agenais SU"></div>
-        <div class="fg"><label class="fl">Date</label>
-          <input class="fi" id="dm-date" oninput="dmChampSimple('date',this.value)" placeholder="Sam 27/09 - 20h00"></div>
-        <div class="fg"><label class="fl">Lieu</label>
-          <input class="fi" id="dm-lieu" oninput="dmChampSimple('lieu',this.value)" placeholder="À domicile"></div>
-        <div class="fg"><label class="fl">Compétition</label>
-          <input class="fi" id="dm-comp" oninput="dmChampSimple('comp',this.value)" placeholder="R2 · J6"></div>
-      </div>
-      <label class="fl" style="margin-top:12px">Les consignes collectives — ce qui vaut pour tout le monde</label>
-      <textarea class="fi" id="dm-collectif" rows="3" style="margin:6px 0 12px"
-        oninput="dmChampSimple('collectif',this.value)"
-        placeholder="Bloc médian, on ne sort pas avant le signal du 6. Sur leur relance courte, on déclenche à deux. À la perte : cinq secondes, puis on se replace."></textarea>
-      <div class="exi-grille4" style="margin-bottom:12px">
-        <div class="fg"><label class="fl">La compo à montrer</label>
-          <select class="fi" id="dm-compo" onchange="dmChoisirCompo(this.value)"></select></div>
-        <div class="fg"><label class="fl">Leur système</label>
-          <select class="fi" id="dm-advform" onchange="dmChoisirAdvForm(this.value)"></select></div>
-      </div>
-      <div id="dm-apercu-mini"></div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap">
-        <button class="btn" style="flex:1;min-width:250px" onclick="genererDossierPresentation()">👁 VOIR LE DOSSIER — plein écran</button>
-      </div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:9px">
-        <button class="acc-b or" onclick="dmPublier()">📲 Envoyer aux joueurs</button>
-        <button class="acc-b" onclick="dmRetirer()">🚫 Retirer de leur appli</button>
-        <button class="acc-b" onclick="dmNouveau()">🆕 Nouveau dossier</button>
-      </div>
-      <div style="font-size:10.5px;color:var(--gris2);margin-top:9px;line-height:1.5">
-        <b>Regarde-le avant de l'envoyer.</b> Le dossier s'ouvre page par page, prêt pour le vidéoprojecteur —
-        flèches pour naviguer, <code>F</code> pour le plein écran. Les joueurs ne voient rien tant que
-        tu n'as pas cliqué sur « Envoyer ».<br>
-        Le discours et l'après-match restent sur ta carte mentale : ce sont tes notes à toi, pas les leurs.
+  <!-- La barre de pilotage : toujours visible, toujours à jour -->
+  <div class="dm-pilote">
+    <div class="dm-p-gauche">
+      <input class="dm-p-adv" id="dm-adv" placeholder="Adversaire" oninput="dmChampSimple('adv',this.value)">
+      <div class="dm-p-l">
+        <input class="fi" id="dm-date" placeholder="Sam 27/09 - 20h00" oninput="dmChampSimple('date',this.value)">
+        <input class="fi" id="dm-lieu" placeholder="À domicile" oninput="dmChampSimple('lieu',this.value)">
+        <input class="fi" id="dm-comp" placeholder="R2 · J6" oninput="dmChampSimple('comp',this.value)">
       </div>
     </div>
+    <div class="dm-p-droite">
+      <button class="dm-voir" onclick="genererDossierPresentation()">👁 VOIR LE DOSSIER</button>
+      <div class="dm-p-b">
+        <button class="acc-b or" onclick="dmPublier()">📲 Envoyer aux joueurs</button>
+        <button class="acc-b" onclick="dmRetirer()">🚫 Retirer</button>
+        <button class="acc-b" onclick="dmNouveau()">🆕 Nouveau</button>
+      </div>
+      <div class="dm-p-etat" id="dm-etat">—</div>
+    </div>
   </div>
+
+  <!-- Les cinq étapes : on sait où on est, et ce qui reste -->
+  <div class="dm-etapes" id="dm-etapes"></div>
 
   <div id="dm-ct" class="plein"></div>
 </div>
@@ -11407,7 +11452,9 @@ var AIDE=[
  etapes:[
   'C\'est la carte mentale, mais pour eux : les mêmes têtes de chapitre, <b>sans ton discours ni l\'après-match</b> — ça, ce sont tes notes à toi.',
   'L\'affiche et deux bulles se remplissent toutes seules : le prochain match, le système de l\'adversaire, le joueur à tenir, ta dernière compo, tes absents.',
-  'Les <b>situations</b> se prennent au <b>Plateau tactique</b> : tu places, tu affiches les adversaires, tu écris les bulles de consigne, tu enregistres jusqu\'à <b>8 étapes</b> de mouvement, puis <code>➕ Ajouter au dossier</code>. Cinq maximum.',
+  'L\'écran avance en <b>cinq étapes</b> — le match, l\'adversaire, notre équipe, le plateau, les vidéos. La barre du haut dit toujours combien de pages sont prêtes.',
+  'Le <b>plateau tactique est dans l\'écran</b>, étape 4 : tu places, tu affiches les adversaires, tu écris les bulles, tu enregistres jusqu\'à <b>8 étapes</b> de mouvement, puis <code>➕ Ajouter au dossier</code>. Cinq situations maximum. Tu ne quittes jamais l\'écran.',
+  'Les terrains de l\'adversaire et de ta compo se <b>redessinent pendant que tu remplis</b> : tu vois ce que ça donne avant même d\'ouvrir le dossier.',
   'Les <b>vidéos</b> : YouTube se débrouille tout seul (miniature et départ à la minute). Veo donne le départ dans son lien mais pas de miniature — dépose ta capture d\'écran, elle fera l\'image.',
   '<code>👁 Voir le dossier</code> : il s\'ouvre <b>page par page, plein écran</b>, prêt pour le vidéoprojecteur — flèches pour naviguer, <code>F</code> pour le plein écran. C\'est là que tu juges, et que tu corriges.',
   'Seulement ensuite : <code>📲 Envoyer aux joueurs</code>. Tant que tu n\'as pas cliqué, ils ne voient rien.',
@@ -15869,11 +15916,20 @@ function dmChampSimple(quoi, val){ DOSSIER[quoi]=val; sauvegardeAuto(); }
 
 // --- Les situations : on les prend au plateau, telles qu'il est ----------------
 // Le plateau vit dans un cadre à part : c'est lui qui sait tout. On lui demande.
+// Deux plateaux peuvent être ouverts : celui du dossier et celui de l'écran
+// Plateau tactique. On lit celui qu'on a sous les yeux.
 function dmLirePlateau(){
-  var iframe=document.getElementById('iframe-plateau');
-  var w=iframe?iframe.contentWindow:null;
-  if(!w || typeof w.exporterPourJoueurs!=='function') return null;
-  try{ return w.exporterPourJoueurs(); }catch(e){ return null; }
+  var ids=(DM_ETAPE==='situations')
+    ? ['iframe-dm-plateau','iframe-plateau']
+    : ['iframe-plateau','iframe-dm-plateau'];
+  for(var i=0;i<ids.length;i++){
+    var f=document.getElementById(ids[i]);
+    var w=f?f.contentWindow:null;
+    if(w && typeof w.exporterPourJoueurs==='function'){
+      try{ return w.exporterPourJoueurs(); }catch(e){}
+    }
+  }
+  return null;
 }
 function dmAjouterSituation(){
   var sit=dmLirePlateau();
@@ -15881,7 +15937,8 @@ function dmAjouterSituation(){
   if(DOSSIER.situations.length>=5){
     notif('⚠ Cinq situations, c\'est déjà beaucoup — retire-en une avant d\'en ajouter'); return;
   }
-  var champ=document.getElementById('plateau-titre');
+  var champ=document.getElementById(DM_ETAPE==='situations'?'dm-pl-titre':'plateau-titre')
+    || document.getElementById('plateau-titre');
   var titre=(champ?champ.value:'').trim() || (sit.systeme+' — '+sit.espaceLabel);
   DOSSIER.situations.push({
     id:dmId(), titre:titre, sous:sit.espaceLabel||'',
@@ -16055,7 +16112,9 @@ function dpVal(cle, lab){ return (((DOSSIER.bulles||{})[cle])||{})[lab]||''; }
 // La compo choisie, ou la dernière enregistrée
 function dpCompo(){
   if(DOSSIER.compoIdx!=null && COMPOSITIONS[DOSSIER.compoIdx]) return COMPOSITIONS[DOSSIER.compoIdx];
-  return (COMPOSITIONS||[])[0]||null;
+  // Une seule compo enregistr\u00e9e, ou la derni\u00e8re : on la prend sans rien demander.
+  if((COMPOSITIONS||[]).length){ DOSSIER.compoIdx=0; return COMPOSITIONS[0]; }
+  return null;
 }
 
 // --- Un terrain, dessiné en SVG : c'est lui qui porte tout le visuel ---------
@@ -16567,7 +16626,6 @@ function dpScript(donneesSit){
   +'})();<\/script>';
 }
 
-// --- Le rendu de l'écran ------------------------------------------------------
 // Un terrain miniature : on doit reconnaître la situation sans l'ouvrir.
 function dmMiniTerrain(plateau, hauteur){
   if(!plateau) return '';
@@ -16576,152 +16634,290 @@ function dmMiniTerrain(plateau, hauteur){
   var pts='';
   (plateau.joueurs||[]).forEach(function(j){
     var c=coul[j.groupe]||'#F97316';
-    pts+='<span class="dm-j" style="left:'+j.x+'%;top:'+j.y+'%;background:'+c+'"'
+    pts+='<span class="dm-j" style="left:'+j.x+'%;top:'+(100-j.y*100/130)+'%;background:'+c+'"'
       +(j.note?' data-note="1"':'')+'></span>';
   });
   (plateau.adversaire||[]).forEach(function(o){
-    pts+='<span class="dm-o" style="left:'+o.x+'%;top:'+o.y+'%"></span>';
+    pts+='<span class="dm-o" style="left:'+o.x+'%;top:'+(100-o.y*100/130)+'%"></span>';
   });
   if(plateau.ballon)
-    pts+='<span class="dm-b" style="left:'+plateau.ballon[0]+'%;top:'+plateau.ballon[1]+'%"></span>';
+    pts+='<span class="dm-b" style="left:'+plateau.ballon[0]+'%;top:'+(100-plateau.ballon[1]*100/130)+'%"></span>';
   return '<div class="dm-terrain" style="height:'+h+'px">'+pts+'</div>';
 }
 function dmVignetteVideo(v){
   if(v.vignetteUrl)
     return '<div class="dm-vig" style="background:#0c1116 url('+JSON.stringify(v.vignetteUrl)+') center/cover no-repeat"></div>';
-  if(v.apercuId) return '<div class="dm-vig" data-apercu="'+v.apercuId+'">🎬</div>';
-  return '<div class="dm-vig vide">'+(v.source==='veo'?'📹':'🎬')+'</div>';
+  if(v.apercuId) return '<div class="dm-vig" data-apercu="'+v.apercuId+'">\ud83c\udfac</div>';
+  return '<div class="dm-vig vide">'+(v.source==='veo'?'\ud83d\udcf9':'\ud83c\udfac')+'</div>';
 }
 function dmNomSource(s){ return s==='youtube'?'YouTube':(s==='veo'?'Veo':'Lien'); }
+
+// --- Le rendu de l'écran : cinq étapes, une seule à la fois ------------------
+// Un écran qui montre tout à la fois ne se remplit pas : on avance par étapes,
+// chacune tient sur une hauteur d'écran, et la barre du haut dit toujours où on en est.
+var DM_ETAPE='match';
+var DM_ETAPES=[
+  {cle:'match',      ic:'📣', nom:'Le match'},
+  {cle:'adversaire', ic:'🔍', nom:"L'adversaire"},
+  {cle:'equipe',     ic:'👥', nom:'Notre équipe'},
+  {cle:'situations', ic:'⚽', nom:'Le plateau'},
+  {cle:'videos',     ic:'🎬', nom:'Vidéos'}
+];
+function dmAller(cle){
+  DM_ETAPE=cle;
+  renderAvantMatch();
+  var e=document.getElementById('dm-etapes');
+  if(e) e.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function dmEtapeSuivante(){
+  var i=0;
+  for(var k=0;k<DM_ETAPES.length;k++) if(DM_ETAPES[k].cle===DM_ETAPE) i=k;
+  if(i<DM_ETAPES.length-1) dmAller(DM_ETAPES[i+1].cle);
+}
+// Combien de pages sortiront, étape par étape
+function dmPret(cle){
+  if(cle==='match') return (DOSSIER.adv&&DOSSIER.date)?1:0;
+  if(cle==='adversaire') return dpRempli('adv').length?1:0;
+  if(cle==='equipe') return (dpCompo()?1:0)+(dpRempli('grp').length?0:0);
+  if(cle==='situations') return (DOSSIER.situations||[]).length;
+  if(cle==='videos') return ((DOSSIER.videos||[]).length?1:0);
+  return 0;
+}
+function dmNbPages(){
+  var n=1;                                       // l'affiche
+  if(dpRempli('adv').length) n++;
+  if(dpCompo()||dpRempli('grp').length) n++;
+  if(dpRempli('plan').length) n++;
+  n+=(DOSSIER.situations||[]).length;
+  if(dpRempli('cpa').length) n++;
+  if(dpRempli('obj').length) n++;
+  if(dpRempli('verif').length) n++;
+  if((DOSSIER.collectif||'').trim()) n++;
+  if((DOSSIER.videos||[]).length) n++;
+  return n;
+}
+// La barre du haut : elle bouge à chaque frappe, sans tout redessiner
+function dmMajEtat(){
+  var e=document.getElementById('dm-etat');
+  if(e){
+    var n=dmNbPages();
+    e.innerHTML='<b>'+n+' page'+(n>1?'s':'')+'</b> dans le dossier'
+      +(DOSSIER.publie
+        ? '<br><span class="dm-pub">● envoyé le '+esc2(DOSSIER.publie)+'</span>'
+        : '<br><span class="dm-nonpub">○ pas encore envoyé</span>');
+  }
+  var ct=document.getElementById('dm-etapes');
+  if(ct){
+    ct.innerHTML=DM_ETAPES.map(function(et){
+      var n=dmPret(et.cle);
+      return '<button class="dm-et'+(DM_ETAPE===et.cle?' on':'')+(n?' ok':'')+'" '
+        +'onclick="dmAller(\''+et.cle+'\')">'
+        +'<span class="dm-et-i">'+et.ic+'</span>'
+        +'<span class="dm-et-n">'+et.nom+'</span>'
+        +'<span class="dm-et-b">'+(n?(et.cle==='situations'?n+' prise'+(n>1?'s':''):'✓'):'—')+'</span>'
+      +'</button>';
+    }).join('');
+  }
+}
+// Un bloc de champs, comme les questionnaires : un libellé, une ligne, rien de plus
+function dmLignes(cle){
+  var b=dmBranche(cle); if(!b) return '';
+  return '<div class="dm-q">'+b.lignes.map(function(l){
+    var val=((DOSSIER.bulles[cle]||{})[l.lab])||'';
+    return '<div class="dm-qi"><label>'+esc2(l.lab)+'</label>'
+      +'<input class="fi" value="'+esc2(val)+'" placeholder="'+esc2(l.vide)+'" '
+      +'oninput="dmChamp(\''+cle+'\',\''+l.lab.replace(/'/g,"\\'")+'\',this.value);dmMajEtat()"></div>';
+  }).join('')+'</div>';
+}
+function dmBloc(titre, sous, corps, coul){
+  return '<div class="blk plein dm-bloc" style="--bc:'+(coul||'var(--or)')+'">'
+    +'<div class="bh"><span class="bt go">'+titre+'</span></div>'
+    +'<div style="padding:13px 15px 15px">'
+    +(sous?'<div class="dm-sous">'+sous+'</div>':'')
+    +corps+'</div></div>';
+}
+function dmSuivant(txt){
+  return '<div class="dm-suite"><button class="btn" onclick="dmEtapeSuivante()">'+txt+' ›</button></div>';
+}
 
 function renderAvantMatch(){
   var ct=document.getElementById('dm-ct'); if(!ct) return;
   dmPreremplir(false);
-
-  // l'affiche
   ['adv','date','lieu','comp'].forEach(function(k){
     var e=document.getElementById('dm-'+k);
-    if(e && e.value!==DOSSIER[k]) e.value=DOSSIER[k]||'';
+    if(e && document.activeElement!==e && e.value!==DOSSIER[k]) e.value=DOSSIER[k]||'';
   });
-  var col=document.getElementById('dm-collectif');
-  if(col && col.value!==DOSSIER.collectif) col.value=DOSSIER.collectif||'';
+  dmMajEtat();
 
-  // les deux menus : la compo enregistrée, et leur système
+  var html='';
+
+  // ---------- 1. Le match ----------
+  if(DM_ETAPE==='match'){
+    html+=dmBloc('📢 Les consignes pour tout le monde',
+      'Trois lignes suffisent. Elles s\'affichent en grand, seules sur une page — c\'est celle qu\'on laisse au mur.',
+      '<textarea class="fi" id="dm-collectif" rows="4" placeholder="Bloc médian, on ne sort pas avant le signal du 6.&#10;À la perte : cinq secondes, puis on se replace.&#10;On parle. Tout le temps."'
+      +' oninput="dmChampSimple(\'collectif\',this.value);dmMajEtat()">'+esc2(DOSSIER.collectif||'')+'</textarea>');
+    html+=dmBloc('🧠 Notre plan', 'Les quatre moments du jeu. Une phrase chacun, pas un paragraphe.',
+      dmLignes('plan'), '#d97706');
+    html+=dmBloc('⚡ Coups de pied arrêtés', '', dmLignes('cpa'), '#7c3aed');
+    html+=dmBloc('🎯 Les objectifs · ✅ À vérifier', '',
+      '<div class="dm-duo">'+dmLignes('obj')+dmLignes('verif')+'</div>', '#0f8a5f');
+    html+=dmSuivant('Passer à l\'adversaire');
+  }
+
+  // ---------- 2. L'adversaire ----------
+  if(DM_ETAPE==='adversaire'){
+    html+=dmBloc('🔍 Ce qu\'on sait d\'eux',
+      'Le système se dessine sur un terrain dans le dossier. Le joueur à tenir apparaît dessus.',
+      '<div class="fg" style="margin-bottom:12px"><label class="fl">Leur système</label>'
+      +'<select class="fi" id="dm-advform" onchange="dmChoisirAdvForm(this.value)"></select></div>'
+      +'<div class="dm-duo2">'
+        +'<div id="dm-apercu-adv" class="dm-mini"></div>'
+        +'<div>'+dmLignes('adv')+'</div>'
+      +'</div>', '#c0392b');
+    html+=dmSuivant('Passer à notre équipe');
+  }
+
+  // ---------- 3. Notre équipe ----------
+  if(DM_ETAPE==='equipe'){
+    html+=dmBloc('👥 La compo qu\'on montre',
+      'Choisis une compo enregistrée : elle apparaît dessinée sur un terrain, avec les noms. '
+      +'<b style="color:var(--or);cursor:pointer" onclick="goNav(\'compos\')">Créer une compo ›</b>',
+      '<div class="fg" style="margin-bottom:12px"><label class="fl">La composition</label>'
+      +'<select class="fi" id="dm-compo" onchange="dmChoisirCompo(this.value)"></select></div>'
+      +'<div class="dm-duo2">'
+        +'<div id="dm-apercu-compo" class="dm-mini"></div>'
+        +'<div>'+dmLignes('grp')+'</div>'
+      +'</div>', '#2563eb');
+    html+=dmSuivant('Passer au plateau');
+  }
+
+  // ---------- 4. Le plateau, ici même ----------
+  if(DM_ETAPE==='situations'){
+    html+='<div class="blk plein dm-bloc" style="--bc:#0f8a5f;margin-bottom:12px">'
+      +'<div class="bh"><span class="bt go">⚽ Le plateau tactique</span>'
+      +'<span class="bc">'+(DOSSIER.situations||[]).length+' situation'
+        +((DOSSIER.situations||[]).length>1?'s':'')+' sur 5</span></div>'
+      +'<div style="padding:13px 15px 0">'
+      +'<div class="dm-sous">Place tes joueurs, affiche les adversaires, écris les bulles de consigne. '
+        +'Pour une phase qui bouge : mode <b>Séquence</b>, tu enregistres jusqu\'à <b>8 étapes</b>. '
+        +'Puis tu la nommes et tu l\'ajoutes — elle reste ici, sous le terrain.</div>'
+      +'<div class="dm-pl-barre">'
+        +'<select class="fi" id="dm-pl-sys" onchange="dmChargerPlateau(true)" style="width:auto">'
+          +'<option value="4222">4-2-2-2</option><option value="4231">4-2-3-1</option>'
+          +'<option value="352">3-5-2</option><option value="433">4-3-3</option></select>'
+        +'<input class="fi" id="dm-pl-titre" placeholder="Nomme la situation : sortie de balle face au 4-2-3-1">'
+        +'<button class="btn" style="width:auto;white-space:nowrap" onclick="dmAjouterSituation()">➕ Ajouter au dossier</button>'
+      +'</div></div>'
+      +'<div class="dm-pl-cadre"><iframe id="iframe-dm-plateau" title="Plateau tactique"></iframe></div>'
+      +'</div>';
+
+    html+='<div class="blk plein dm-bloc" style="--bc:var(--or)"><div class="bh">'
+      +'<span class="bt go">Les situations du dossier</span></div>'
+      +'<div style="padding:13px 15px 15px">'
+      +((DOSSIER.situations||[]).length
+        ? '<div class="dm-sits">'+DOSSIER.situations.map(function(s,i){
+            var n=(s.plateau&&s.plateau.sequence?s.plateau.sequence.length:0);
+            var bulles=(s.plateau&&s.plateau.joueurs?s.plateau.joueurs.filter(function(j){return j.note;}).length:0);
+            var adv=(s.plateau&&s.plateau.adversaire?s.plateau.adversaire.length:0);
+            return '<div class="dm-sit">'
+              +dmMiniTerrain(s.plateau,118)
+              +'<input class="fi dm-sit-t" value="'+esc2(s.titre)+'" '
+                +'oninput="dmRenommerSituation(\''+s.id+'\',this.value)">'
+              +'<div class="dm-sit-m">'+(n>1?'<b style="color:var(--green)">'+n+' étapes</b>':'image fixe')
+                +(adv?' · '+adv+' adversaires':'')
+                +(bulles?' · '+bulles+' consigne'+(bulles>1?'s':''):'')+'</div>'
+              +'<div class="dm-sit-b">'
+                +'<button class="fa-o" onclick="dmDeplacerSituation(\''+s.id+'\',-1)"'+(i===0?' disabled':'')+'>↑</button>'
+                +'<button class="fa-o" onclick="dmDeplacerSituation(\''+s.id+'\',1)"'+(i===DOSSIER.situations.length-1?' disabled':'')+'>↓</button>'
+                +'<button class="fa-o sup" onclick="dmSupprimerSituation(\''+s.id+'\')">🗑</button>'
+              +'</div></div>';
+          }).join('')+'</div>'
+        : '<div class="fa-vide">Rien pour l\'instant.<br><span>Arrange le terrain au-dessus, donne un nom, et clique sur <b>Ajouter au dossier</b>.</span></div>')
+      +'</div></div>';
+    html+=dmSuivant('Passer aux vidéos');
+  }
+
+  // ---------- 5. Les vidéos ----------
+  if(DM_ETAPE==='videos'){
+    html+=dmBloc('🎬 Ce qu\'ils doivent regarder',
+      '<b>YouTube</b> : colle le lien, la miniature et le départ à la minute se font tout seuls. '
+      +'<b>Veo</b> : « Copier le lien » en cochant « démarrer à cet instant » — tes joueurs n\'ont pas besoin de compte. '
+      +'Veo ne fournit pas de miniature : dépose ta capture, elle fera l\'image.',
+      '<div class="dm-vform">'
+        +'<input class="fi" id="dm-v-titre" placeholder="Ce qu\'on regarde : leur sortie de balle">'
+        +'<input class="fi" id="dm-v-url" placeholder="https://youtu.be/… ou https://app.veo.co/…">'
+        +'<input class="fi" id="dm-v-minute" placeholder="Départ : 12:30">'
+        +'<input class="fi" id="dm-v-note" placeholder="Ce qu\'il faut voir (facultatif)">'
+        +'<input class="fi" id="dm-v-file" type="file" accept="image/*" onchange="dmChoisirVignette(this)">'
+        +'<button class="acc-b or" onclick="dmAjouterVideo()">Ajouter</button>'
+      +'</div>'
+      +'<div id="dm-v-apercu" style="margin:8px 0"></div>'
+      +((DOSSIER.videos||[]).length
+        ? '<div class="dm-vids">'+DOSSIER.videos.map(function(v){
+            return '<div class="dm-vid">'+dmVignetteVideo(v)
+              +'<div class="dm-vid-c"><div class="dm-vid-t">'+esc2(v.titre)+'</div>'
+              +'<div class="dm-vid-m">'+dmNomSource(v.source)
+                +(v.minute?' · départ '+esc2(v.minute):'')
+                +(v.source==='veo'&&!v.apercuId?' · <span style="color:var(--or)">sans capture</span>':'')+'</div>'
+              +(v.note?'<div class="dm-vid-n">'+esc2(v.note)+'</div>':'')
+              +'<div class="dm-sit-b">'
+                +'<button class="fa-o" onclick="window.open(\''+dmLienAvecMinute(v).replace(/'/g,"\\'")+'\',\'_blank\')">Voir</button>'
+                +'<button class="fa-o sup" onclick="dmSupprimerVideo(\''+v.id+'\')">🗑</button>'
+              +'</div></div></div>';
+          }).join('')+'</div>'
+        : ''), '#dc4444');
+    html+='<div class="dm-suite"><button class="btn" onclick="genererDossierPresentation()">👁 Voir le dossier en entier</button></div>';
+  }
+
+  ct.innerHTML=html;
+
+  // les menus et les aperçus de l'étape courante
+  var selF=document.getElementById('dm-advform');
+  if(selF){
+    selF.innerHTML=Object.keys(FORMATIONS).map(function(f){ return '<option value="'+f+'">'+f+'</option>'; }).join('');
+    selF.value=DOSSIER.advFormation||'4-4-2';
+  }
   var selC=document.getElementById('dm-compo');
   if(selC){
-    selC.innerHTML='<option value="">Aucune compo — la page ne sortira pas</option>'
+    selC.innerHTML='<option value="">Aucune — la page ne sortira pas</option>'
       +(COMPOSITIONS||[]).map(function(c,i){
         return '<option value="'+i+'">'+esc2((c.formation||'')+(c.nom?' — '+c.nom:'')
           +(c.adversaire?' (vs '+c.adversaire+')':''))+'</option>'; }).join('');
     selC.value=(DOSSIER.compoIdx==null?'':String(DOSSIER.compoIdx));
   }
-  var selF=document.getElementById('dm-advform');
-  if(selF){
-    selF.innerHTML=Object.keys(FORMATIONS).map(function(f){
-      return '<option value="'+f+'">'+f+'</option>'; }).join('');
-    selF.value=DOSSIER.advFormation||'4-4-2';
+  var mA=document.getElementById('dm-apercu-adv');
+  if(mA){
+    var af=FORMATIONS[DOSSIER.advFormation]||FORMATIONS['4-4-2'];
+    var surv=dpVal('adv','Le joueur à tenir');
+    mA.innerHTML=dpTerrainCompo(af.map(function(p,i){
+      return {x:p.x,y:p.y,num:p.pos,pos:p.pos,etiquette:(i===9&&surv)?surv:''}; }), '#c0392b', false);
   }
-  var mini=document.getElementById('dm-apercu-mini');
-  if(mini) mini.innerHTML=dmEtatHtml();
-
-  var etat=document.getElementById('dm-etat');
-  if(etat){
-    etat.innerHTML = DOSSIER.publie
-      ? '<span class="dm-pub">\u25cf Publi\u00e9 le '+esc2(DOSSIER.publie)+'</span>'
-      : '<span class="dm-nonpub">\u25cb Pas encore envoy\u00e9 aux joueurs</span>';
+  var mC=document.getElementById('dm-apercu-compo');
+  if(mC){
+    var co=dpCompo();
+    var titus=co?co.slots.filter(function(x){ return !x.bench; }):[];
+    mC.innerHTML=titus.length
+      ? dpTerrainCompo(titus,'#d97706',true)
+      : '<div class="fa-vide" style="height:100%;display:flex;align-items:center;justify-content:center">Aucune compo choisie</div>';
   }
-
-  var html='';
-
-  // ---------- les six bulles ----------
-  html+='<div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">🗯\ufe0f Ce qu\'ils doivent savoir</span>'
-    +'<span class="bc">six bulles, comme la carte mentale</span></div>'
-    +'<div class="dm-bulles">'
-    +DM_BRANCHES.map(function(cle){
-      var b=dmBranche(cle); if(!b) return '';
-      return '<div class="dm-bulle" style="--bc:'+b.coul+'">'
-        +'<div class="dm-bulle-t">'+b.ic+' '+esc2(b.titre)+'</div>'
-        +b.lignes.map(function(l){
-          var val=((DOSSIER.bulles[cle]||{})[l.lab])||'';
-          return '<div class="dm-l"><label>'+esc2(l.lab)+'</label>'
-            +'<input class="fi" value="'+esc2(val)+'" placeholder="'+esc2(l.vide)+'" '
-            +'oninput="dmChamp(\''+cle+'\',\''+l.lab.replace(/'/g,"\\'")+'\',this.value)"></div>';
-        }).join('')
-      +'</div>';
-    }).join('')
-    +'</div></div>';
-
-  // ---------- les situations ----------
-  html+='<div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">\u26bd Les situations</span>'
-    +'<span class="bc">'+DOSSIER.situations.length+' sur 5</span></div>'
-    +'<div style="padding:12px 14px 14px">'
-    +'<div class="dm-aide">Les situations se prennent au <b>Plateau tactique</b> : tu places tes joueurs, '
-      +'tu affiches les adversaires, tu \u00e9cris les bulles de consigne, tu enregistres jusqu\'\u00e0 '
-      +'<b>8 \u00e9tapes</b> de mouvement \u2014 puis <code>\u2795 Ajouter au dossier</code>. '
-      +'<b style="color:var(--or);cursor:pointer" onclick="goNav(\'plateau\')">Ouvrir le plateau \u203a</b></div>'
-    +(DOSSIER.situations.length
-      ? '<div class="dm-sits">'+DOSSIER.situations.map(function(s,i){
-          var n=(s.plateau&&s.plateau.sequence?s.plateau.sequence.length:0);
-          var bulles=(s.plateau&&s.plateau.joueurs?s.plateau.joueurs.filter(function(j){return j.note;}).length:0);
-          var adv=(s.plateau&&s.plateau.adversaire?s.plateau.adversaire.length:0);
-          return '<div class="dm-sit">'
-            +dmMiniTerrain(s.plateau,118)
-            +'<input class="fi dm-sit-t" value="'+esc2(s.titre)+'" '
-              +'oninput="dmRenommerSituation(\''+s.id+'\',this.value)">'
-            +'<div class="dm-sit-m">'+esc2(s.sous||'')
-              +(n>1?' \u00b7 <b style="color:var(--green)">'+n+' \u00e9tapes</b>':' \u00b7 image fixe')
-              +(adv?' \u00b7 '+adv+' adversaires':'')
-              +(bulles?' \u00b7 '+bulles+' consigne'+(bulles>1?'s':''):'')+'</div>'
-            +(s.principes&&s.principes.length
-              ? '<div class="dm-sit-p">'+s.principes.map(function(c){
-                  var pr=pjParCode(c);
-                  return '<span class="mx-pr" style="--pc:'+(pr?pr.phase.coul:'#7b848d')+'">'+esc2(c)+'</span>';
-                }).join('')+'</div>' : '')
-            +'<div class="dm-sit-b">'
-              +'<button class="fa-o" onclick="dmDeplacerSituation(\''+s.id+'\',-1)"'+(i===0?' disabled':'')+'>\u2191</button>'
-              +'<button class="fa-o" onclick="dmDeplacerSituation(\''+s.id+'\',1)"'+(i===DOSSIER.situations.length-1?' disabled':'')+'>\u2193</button>'
-              +'<button class="fa-o sup" onclick="dmSupprimerSituation(\''+s.id+'\')">🗑</button>'
-            +'</div></div>';
-        }).join('')+'</div>'
-      : '<div class="fa-vide">Aucune situation pour l\'instant.<br><span>Une phase qui bouge vaut dix phrases : '
-        +'place tes joueurs, enregistre tes \u00e9tapes, et elle s\'animera sur leur t\u00e9l\u00e9phone.</span></div>')
-    +'</div></div>';
-
-  // ---------- les vidéos ----------
-  html+='<div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">🎬 Les vid\u00e9os</span>'
-    +'<span class="bc">'+DOSSIER.videos.length+'</span></div>'
-    +'<div style="padding:12px 14px 14px">'
-    +'<div class="dm-aide"><b>YouTube</b> : colle le lien, la miniature et le d\u00e9part \u00e0 la minute se font tout seuls. '
-      +'<b>Veo</b> : dans Veo, \u00ab Copier le lien \u00bb en cochant \u00ab d\u00e9marrer \u00e0 cet instant \u00bb \u2014 tes joueurs n\'ont pas besoin de compte. '
-      +'Veo ne fournit pas de miniature : d\u00e9pose ta capture d\'\u00e9cran, elle fera l\'image.</div>'
-    +'<div class="dm-vform">'
-      +'<input class="fi" id="dm-v-titre" placeholder="Ce qu\'on regarde : leur sortie de balle">'
-      +'<input class="fi" id="dm-v-url" placeholder="https://youtu.be/\u2026 ou https://app.veo.co/\u2026">'
-      +'<input class="fi" id="dm-v-minute" placeholder="D\u00e9part : 12:30">'
-      +'<input class="fi" id="dm-v-note" placeholder="Ce qu\'il faut voir (facultatif)">'
-      +'<input class="fi" id="dm-v-file" type="file" accept="image/*" onchange="dmChoisirVignette(this)">'
-      +'<button class="acc-b or" onclick="dmAjouterVideo()">Ajouter</button>'
-    +'</div>'
-    +'<div id="dm-v-apercu" style="margin:8px 0"></div>'
-    +(DOSSIER.videos.length
-      ? '<div class="dm-vids">'+DOSSIER.videos.map(function(v){
-          return '<div class="dm-vid">'+dmVignetteVideo(v)
-            +'<div class="dm-vid-c"><div class="dm-vid-t">'+esc2(v.titre)+'</div>'
-            +'<div class="dm-vid-m">'+dmNomSource(v.source)
-              +(v.minute?' \u00b7 d\u00e9part '+esc2(v.minute):'')
-              +(v.source==='veo'&&!v.apercuId?' \u00b7 <span style="color:var(--or)">sans capture</span>':'')+'</div>'
-            +(v.note?'<div class="dm-vid-n">'+esc2(v.note)+'</div>':'')
-            +'<div class="dm-sit-b">'
-              +'<button class="fa-o" onclick="window.open(\''+dmLienAvecMinute(v).replace(/'/g,"\\'")+'\',\'_blank\')">Voir</button>'
-              +'<button class="fa-o sup" onclick="dmSupprimerVideo(\''+v.id+'\')">🗑</button>'
-            +'</div></div></div>';
-        }).join('')+'</div>'
-      : '')
-    +'</div></div>';
-
-  ct.innerHTML=html;
+  if(DM_ETAPE==='situations') dmChargerPlateau(false);
   if(typeof fichPeuplerApercus==='function') fichPeuplerApercus(ct);
 }
+
+// Le plateau, chargé dans l'écran du dossier — pas ailleurs.
+var _dmPlateauSysteme=null;
+function dmChargerPlateau(forcer){
+  var sel=document.getElementById('dm-pl-sys');
+  var iframe=document.getElementById('iframe-dm-plateau');
+  if(!iframe) return;
+  var systeme=sel?sel.value:'4222';
+  if(_dmPlateauSysteme===systeme && !forcer && iframe.srcdoc) return;
+  var b64=systeme==='4231'?PLATEAU_4231_B64:(systeme==='352'?PLATEAU_352_B64:(systeme==='433'?PLATEAU_433_B64:PLATEAU_TACTIQUE_B64));
+  iframe.srcdoc=decodeURIComponent(escape(atob(b64)));
+  _dmPlateauSysteme=systeme;
+}
+
 
 // ===== L'écran « Docs à imprimer » =====
 function renderDocsImprimer(){
