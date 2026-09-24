@@ -316,6 +316,8 @@ input[type=range]{accent-color:var(--or)}
 .dmj-vid-m{font-size:11px;color:var(--mute);margin-top:3px}
 .dmj-vid-n{font-size:12px;color:var(--mute);margin-top:5px;line-height:1.4}
 .dmj-go{font-size:22px;color:var(--or);flex-shrink:0}
+.dmj-banc{margin-top:11px;font-size:13px;color:var(--ink);line-height:1.5}
+.dmj-banc span{display:block;font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:3px}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
@@ -1553,8 +1555,8 @@ function renderHub(){
   }).join('');
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:9.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v31</b> · 24/09/2026<br>'
-    +'<span style="opacity:.8">Le dossier d\'avant-match</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v32</b> · 24/09/2026<br>'
+    +'<span style="opacity:.8">Le dossier d\'avant-match · la compo</span></div>';
   ct.innerHTML=htmlHub;
   jvBrancher();
 }
@@ -3333,6 +3335,24 @@ var DMJ_BRANCHES=[
   {cle:'verif',ic:'✅', titre:'À vérifier',            coul:'#0e7490'}
 ];
 
+// La compo du coach, dessinée : un 4-4-2 se lit sur un terrain, pas dans une phrase.
+function dmjTerrainCompo(slots){
+  var W=100,H=130,C='rgba(255,255,255,.62)';
+  var s='<rect width="'+W+'" height="'+H+'" fill="#176b3c"/>';
+  for(var b=0;b<10;b++) if(b%2===0)
+    s+='<rect x="0" y="'+(b*H/10)+'" width="'+W+'" height="'+(H/10)+'" fill="rgba(255,255,255,.028)"/>';
+  s+='<rect x="2" y="2" width="'+(W-4)+'" height="'+(H-4)+'" fill="none" stroke="'+C+'" stroke-width="0.55"/>';
+  s+='<line x1="2" y1="'+(H/2)+'" x2="'+(W-2)+'" y2="'+(H/2)+'" stroke="'+C+'" stroke-width="0.45"/>';
+  s+='<circle cx="'+(W/2)+'" cy="'+(H/2)+'" r="9.15" fill="none" stroke="'+C+'" stroke-width="0.45"/>';
+  slots.forEach(function(p){
+    var x=8+(p.x/100)*84, y=6+(p.y/100)*118;
+    var moi=(p.nom && typeof fexNomsCorrespondent==='function' && fexNomsCorrespondent(p.nom, MON_NOM));
+    s+='<circle cx="'+x+'" cy="'+y+'" r="'+(moi?4.2:3.6)+'" fill="'+(moi?'#22c55e':'#d97706')+'" stroke="#fff" stroke-width="'+(moi?0.9:0.55)+'"/>';
+    s+='<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="2.6" font-weight="700" fill="#fff">'+esc(p.num||p.pos||'')+'</text>';
+    if(p.nom) s+='<text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" font-size="2.5" font-weight="700" fill="#fff" stroke="#0b0f14" stroke-width="0.7" paint-order="stroke">'+esc(p.nom)+'</text>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;border-radius:10px">'+s+'</svg>';
+}
 function renderDossierMatchHtml(){
   var d=DOSSIER_MATCH;
   if(!d) return '';
@@ -3354,6 +3374,22 @@ function renderDossierMatchHtml(){
       +'<div class="blk-body"><div class="dmj-bulles">'+bulles+'</div></div></div>';
   }
 
+  var compo=(d.compoIdx!=null)?((SAISON.COMPOSITIONS||[])[d.compoIdx]||null):null;
+  if(compo && compo.slots){
+    var titus=compo.slots.filter(function(x){ return !x.bench; });
+    var banc=compo.slots.filter(function(x){ return x.bench && (x.nom||x.num); });
+    if(titus.length){
+      var jeJoue=titus.some(function(x){ return x.nom && typeof fexNomsCorrespondent==='function'
+        && fexNomsCorrespondent(x.nom, MON_NOM); });
+      html+='<div class="blk"><div class="blk-h"><span class="t">\ud83d\udc65 La compo</span>'
+        +'<span class="bc">'+esc(compo.formation||'')+'</span></div><div class="blk-body">'
+        +(jeJoue?'<div class="dmj-moi"><b>Tu es dedans</b>Tu apparais en vert sur le terrain.</div>':'')
+        +'<div class="dmj-terrain">'+dmjTerrainCompo(titus)+'</div>'
+        +(banc.length?'<div class="dmj-banc"><span>Sur le banc</span>'
+          +banc.map(function(x){ return esc((x.num?x.num+'. ':'')+(x.nom||x.pos)); }).join(' \u00b7 ')+'</div>':'')
+        +'</div></div>';
+    }
+  }
   (d.situations||[]).forEach(function(s,i){
     var pleines=dmjEtapesPleines(s.plateau);
     var maConsigne='';

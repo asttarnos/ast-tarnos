@@ -827,6 +827,14 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .dm-vid-t{font-size:12.5px;font-weight:700;color:#fff;line-height:1.3}
 .dm-vid-m{font-size:9.5px;color:var(--gris2);margin-top:3px}
 .dm-vid-n{font-size:11px;color:var(--gris2);margin-top:5px;line-height:1.4}
+.dm-etat-b{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;
+  padding:11px 13px;margin-bottom:12px}
+.dm-etat-t{font-size:11px;color:var(--gris2);margin-bottom:9px;line-height:1.5}
+.dm-etat-g{display:flex;gap:6px;flex-wrap:wrap}
+.dm-e{font-size:10.5px;font-weight:700;border:1px solid var(--line);border-radius:14px;
+  padding:4px 10px;color:var(--gris2);background:var(--bg3)}
+.dm-e.ok{border-color:rgba(34,197,94,.45);color:var(--green)}
+.dm-e b{color:inherit}
 .bg-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:11px}
 .bg-c{display:flex;gap:11px;background:var(--carte);border:1px solid var(--line);
   border-left:3px solid var(--or);border-radius:9px;padding:11px 12px}
@@ -1213,8 +1221,8 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:9px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v40</b> · 24/09/2026<br>
-      <span style="opacity:.7">Dossier d'avant-match · phases animées</span>
+      AST COACH <b style="color:var(--or)">v41</b> · 24/09/2026<br>
+      <span style="opacity:.7">Le dossier se regarde avant de partir</span>
     </div>
   </div>
 </div>
@@ -2194,12 +2202,25 @@ Repli défensif après perte"></textarea>
       <textarea class="fi" id="dm-collectif" rows="3" style="margin:6px 0 12px"
         oninput="dmChampSimple('collectif',this.value)"
         placeholder="Bloc médian, on ne sort pas avant le signal du 6. Sur leur relance courte, on déclenche à deux. À la perte : cinq secondes, puis on se replace."></textarea>
+      <div class="exi-grille4" style="margin-bottom:12px">
+        <div class="fg"><label class="fl">La compo à montrer</label>
+          <select class="fi" id="dm-compo" onchange="dmChoisirCompo(this.value)"></select></div>
+        <div class="fg"><label class="fl">Leur système</label>
+          <select class="fi" id="dm-advform" onchange="dmChoisirAdvForm(this.value)"></select></div>
+      </div>
+      <div id="dm-apercu-mini"></div>
       <div style="display:flex;gap:9px;flex-wrap:wrap">
-        <button class="btn" onclick="dmPublier()">📲 ENVOYER AUX JOUEURS</button>
+        <button class="btn" style="flex:1;min-width:250px" onclick="genererDossierPresentation()">👁 VOIR LE DOSSIER — plein écran</button>
+      </div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:9px">
+        <button class="acc-b or" onclick="dmPublier()">📲 Envoyer aux joueurs</button>
         <button class="acc-b" onclick="dmRetirer()">🚫 Retirer de leur appli</button>
         <button class="acc-b" onclick="dmNouveau()">🆕 Nouveau dossier</button>
       </div>
       <div style="font-size:10.5px;color:var(--gris2);margin-top:9px;line-height:1.5">
+        <b>Regarde-le avant de l'envoyer.</b> Le dossier s'ouvre page par page, prêt pour le vidéoprojecteur —
+        flèches pour naviguer, <code>F</code> pour le plein écran. Les joueurs ne voient rien tant que
+        tu n'as pas cliqué sur « Envoyer ».<br>
         Le discours et l'après-match restent sur ta carte mentale : ce sont tes notes à toi, pas les leurs.
       </div>
     </div>
@@ -11388,7 +11409,9 @@ var AIDE=[
   'L\'affiche et deux bulles se remplissent toutes seules : le prochain match, le système de l\'adversaire, le joueur à tenir, ta dernière compo, tes absents.',
   'Les <b>situations</b> se prennent au <b>Plateau tactique</b> : tu places, tu affiches les adversaires, tu écris les bulles de consigne, tu enregistres jusqu\'à <b>8 étapes</b> de mouvement, puis <code>➕ Ajouter au dossier</code>. Cinq maximum.',
   'Les <b>vidéos</b> : YouTube se débrouille tout seul (miniature et départ à la minute). Veo donne le départ dans son lien mais pas de miniature — dépose ta capture d\'écran, elle fera l\'image.',
-  '<code>📲 Envoyer aux joueurs</code> : chacun le retrouve dans <b>Prépa adversaire</b>, avec les phases qui s\'animent et <b>sa</b> consigne en orange.'
+  '<code>👁 Voir le dossier</code> : il s\'ouvre <b>page par page, plein écran</b>, prêt pour le vidéoprojecteur — flèches pour naviguer, <code>F</code> pour le plein écran. C\'est là que tu juges, et que tu corriges.',
+  'Seulement ensuite : <code>📲 Envoyer aux joueurs</code>. Tant que tu n\'as pas cliqué, ils ne voient rien.',
+  'Chacun le retrouve alors dans <b>Prépa adversaire</b>, avec la compo, les phases qui s\'animent et <b>sa</b> consigne en orange.'
  ],
  astuce:'Une phase qui bouge vaut dix phrases. Deux étapes suffisent déjà pour qu\'elle s\'anime — mais c\'est à cinq ou six qu\'un joueur comprend un déplacement qu\'on lui expliquerait mal debout dans un vestiaire.'
 },
@@ -15785,6 +15808,7 @@ var DM_VIG=null;        // la capture d'écran choisie pour une vidéo
 
 function dmVide(){
   return {adv:'', date:'', lieu:'', comp:'', bulles:{}, collectif:'',
+    compoIdx:null, advFormation:'4-4-2',
     situations:[], videos:[], publie:'', auteur:''};
 }
 function dmBranche(cle){
@@ -15810,6 +15834,31 @@ function dmPreremplir(forcer){
   poser('adv','Le joueur à tenir', v.advSurveiller);
   poser('grp','Compo de départ', v.compo);
   poser('grp','Absents', v.absents);
+}
+function dmChoisirCompo(v){ DOSSIER.compoIdx=(v===''?null:parseInt(v)); renderAvantMatch(); sauvegardeAuto(); }
+function dmChoisirAdvForm(v){ DOSSIER.advFormation=v; renderAvantMatch(); sauvegardeAuto(); }
+
+// Ce que le dossier contient déjà, vu d'en haut : on sait tout de suite ce qui manque
+function dmEtatHtml(){
+  var compo=dpCompo();
+  var lignes=[
+    {ic:'🎯', l:'L\'affiche', ok:!!(DOSSIER.adv&&DOSSIER.date)},
+    {ic:'🔍', l:'L\'adversaire', ok:dpRempli('adv').length>0},
+    {ic:'👥', l:'Notre équipe', ok:!!compo},
+    {ic:'🧠', l:'Notre plan', ok:dpRempli('plan').length>0},
+    {ic:'⚽', l:'Les situations', ok:(DOSSIER.situations||[]).length>0,
+      n:(DOSSIER.situations||[]).length},
+    {ic:'⚡', l:'Coups de pied arrêtés', ok:dpRempli('cpa').length>0},
+    {ic:'📢', l:'Consignes collectives', ok:!!(DOSSIER.collectif||'').trim()},
+    {ic:'🎬', l:'Les vidéos', ok:(DOSSIER.videos||[]).length>0, n:(DOSSIER.videos||[]).length}
+  ];
+  var pretes=lignes.filter(function(x){ return x.ok; }).length;
+  return '<div class="dm-etat-b"><div class="dm-etat-t">'+pretes+' page'+(pretes>1?'s':'')+' sur '+lignes.length
+    +' — seules les pages remplies apparaissent dans le dossier</div>'
+    +'<div class="dm-etat-g">'+lignes.map(function(x){
+      return '<span class="dm-e'+(x.ok?' ok':'')+'">'+x.ic+' '+esc2(x.l)
+        +(x.n?' <b>'+x.n+'</b>':'')+'</span>';
+    }).join('')+'</div></div>';
 }
 function dmChamp(cle, lab, val){
   if(!DOSSIER.bulles[cle]) DOSSIER.bulles[cle]={};
@@ -15990,6 +16039,534 @@ function dmPoids(){
   try{ return poidsLisible(poidsOctets(JSON.stringify(DOSSIER))); }catch(e){ return '—'; }
 }
 
+// ===== Le dossier d'avant-match, en présentation =====
+// Un dossier qu'on ne voit qu'une fois envoyé ne sert à rien. Celui-ci s'ouvre
+// en grand, page par page, prêt pour le vidéoprojecteur — le coach le regarde,
+// le corrige, et ensuite seulement il l'envoie.
+// Rien à remplir deux fois : tout vient des cases du dossier et du plateau.
+
+function dpEsc(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
+function dpRempli(cle){
+  var v=(DOSSIER.bulles||{})[cle]||{};
+  return Object.keys(v).filter(function(k){ return (v[k]||'').trim(); });
+}
+function dpVal(cle, lab){ return (((DOSSIER.bulles||{})[cle])||{})[lab]||''; }
+
+// La compo choisie, ou la dernière enregistrée
+function dpCompo(){
+  if(DOSSIER.compoIdx!=null && COMPOSITIONS[DOSSIER.compoIdx]) return COMPOSITIONS[DOSSIER.compoIdx];
+  return (COMPOSITIONS||[])[0]||null;
+}
+
+// --- Un terrain, dessiné en SVG : c'est lui qui porte tout le visuel ---------
+function dpTerrainVierge(W,H){
+  // Pas de d\u00e9grad\u00e9 : une couleur pleine. Un gradient d\u00e9fini dans un SVG masqu\u00e9
+  // (les pages non affich\u00e9es le sont) ne s'applique pas, et le terrain sort noir.
+  var C='rgba(255,255,255,.62)', s='';
+  s+='<rect width="'+W+'" height="'+H+'" fill="#176b3c"/>';
+  for(var b=0;b<10;b++) if(b%2===0)
+    s+='<rect x="0" y="'+(b*H/10)+'" width="'+W+'" height="'+(H/10)+'" fill="rgba(255,255,255,.028)"/>';
+  s+='<rect x="2" y="2" width="'+(W-4)+'" height="'+(H-4)+'" fill="none" stroke="'+C+'" stroke-width="0.55"/>';
+  s+='<line x1="2" y1="'+(H/2)+'" x2="'+(W-2)+'" y2="'+(H/2)+'" stroke="'+C+'" stroke-width="0.45"/>';
+  s+='<circle cx="'+(W/2)+'" cy="'+(H/2)+'" r="9.15" fill="none" stroke="'+C+'" stroke-width="0.45"/>';
+  s+='<circle cx="'+(W/2)+'" cy="'+(H/2)+'" r="0.8" fill="'+C+'"/>';
+  [[2,'top'],[H-18,'bot']].forEach(function(p){
+    s+='<rect x="'+(W/2-20.15)+'" y="'+p[0]+'" width="40.3" height="16.5" fill="none" stroke="'+C+'" stroke-width="0.45"/>';
+    s+='<rect x="'+(W/2-9.16)+'" y="'+(p[1]==='top'?2:H-7.5)+'" width="18.32" height="5.5" fill="none" stroke="'+C+'" stroke-width="0.45"/>';
+  });
+  return s;
+}
+// Une étape d'une séquence, résolue en positions
+function dpResoudre(plateau, etape){
+  if(etape==null || !plateau.sequence || !plateau.sequence[etape]) return plateau;
+  var st=plateau.sequence[etape];
+  var sit=Object.assign({},plateau);
+  sit.joueurs=(plateau.joueurs||[]).map(function(j){
+    var p=st.own&&st.own[j.cle]; return p?Object.assign({},j,{x:p[0],y:p[1]}):j; });
+  sit.adversaire=(st.oppVisible===false)?[]:(plateau.adversaire||[]).map(function(o){
+    var p=st.opp&&st.opp[o.cle]; return p?Object.assign({},o,{x:p[0],y:p[1]}):o; });
+  return sit;
+}
+// Le dessin pur : il ne connaît que des positions. C'est lui qu'on embarque
+// dans le document, pour qu'il redessine à chaque image de l'animation.
+function dpDessine(sit, sansBulles){
+  var W=100,H=130;
+  var coul=sit.couleurs||{}, s=dpTerrainVierge(W,H);
+  (sit.adversaire||[]).forEach(function(o){
+    var y=H-o.y;
+    s+='<circle cx="'+o.x+'" cy="'+y+'" r="2.8" fill="#11161c" stroke="#e8eaed" stroke-width="0.4"/>';
+    s+='<text x="'+o.x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="2.1" font-weight="700" fill="#e8eaed">'+dpEsc(o.label||'')+'</text>';
+  });
+  if(sit.ballon)
+    s+='<circle cx="'+sit.ballon[0]+'" cy="'+(H-sit.ballon[1])+'" r="2.1" fill="#fff" stroke="#111" stroke-width="0.4"/>';
+  (sit.joueurs||[]).forEach(function(j){
+    var y=H-j.y, c=coul[j.groupe]||'#d97706';
+    s+='<circle cx="'+j.x+'" cy="'+y+'" r="3.2" fill="'+c+'" stroke="#fff" stroke-width="0.5"/>';
+    s+='<text x="'+j.x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="2.3" font-weight="700" fill="#fff">'+dpEsc(j.label||'')+'</text>';
+    if(j.nom) s+='<text x="'+j.x+'" y="'+(y+5.4)+'" text-anchor="middle" font-size="2.2" font-weight="700" fill="#fff" stroke="#0b0f14" stroke-width="0.6" paint-order="stroke">'+dpEsc(j.nom)+'</text>';
+  });
+  if(!sansBulles){
+    (sit.joueurs||[]).forEach(function(j){
+      var txt=(j.note||'').trim(); if(!txt) return;
+      var mots=txt.split(/\s+/), lignes=[], cur='';
+      mots.forEach(function(m){ if((cur+' '+m).trim().length>18){ lignes.push(cur.trim()); cur=m; } else cur+=' '+m; });
+      if(cur.trim()) lignes.push(cur.trim());
+      lignes=lignes.slice(0,3);
+      var large=0; lignes.forEach(function(l){ if(l.length>large) large=l.length; });
+      var w=Math.max(17,Math.min(40,large*1.5+4)), h=lignes.length*3.5+3.4;
+      var x=j.x, y=H-j.y, bx=x-w/2, by=y-10-h, bas=true;
+      if(by<1.5){ by=y+9; bas=false; }
+      if(bx<1) bx=1; if(bx+w>W-1) bx=W-1-w;
+      var qx=Math.max(bx+3,Math.min(bx+w-3,x));
+      var yB=bas?(by+h):by, yP=bas?(y-4.2):(y+4.2);
+      s+='<rect x="'+bx+'" y="'+by+'" width="'+w+'" height="'+h+'" rx="1.8" fill="#fff7ec" stroke="#d97706" stroke-width="0.7"/>';
+      s+='<path d="M '+(qx-1.7)+' '+yB+' L '+qx+' '+yP+' L '+(qx+1.7)+' '+yB+' Z" fill="#fff7ec" stroke="#d97706" stroke-width="0.7"/>';
+      s+='<line x1="'+(qx-1.6)+'" y1="'+yB+'" x2="'+(qx+1.6)+'" y2="'+yB+'" stroke="#fff7ec" stroke-width="1"/>';
+      lignes.forEach(function(l,i){
+        s+='<text x="'+(bx+w/2)+'" y="'+(by+3.2+i*3.5)+'" text-anchor="middle" font-size="2.6" font-weight="700" fill="#11161c">'+dpEsc(l)+'</text>';
+      });
+    });
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" class="terrain">'+s+'</svg>';
+}
+function dpTerrainSituation(plateau, etape, sansBulles){
+  return dpDessine(dpResoudre(plateau, etape), sansBulles);
+}
+// Une composition (la nôtre) ou une formation (la leur), dessinée
+function dpTerrainCompo(slots, coul, avecNoms){
+  var W=100,H=130, s=dpTerrainVierge(W,H);
+  slots.forEach(function(p){
+    var x=8+(p.x/100)*84, y=H-(6+((100-p.y)/100)*118);
+    y=6+(p.y/100)*118;
+    s+='<circle cx="'+x+'" cy="'+y+'" r="3.6" fill="'+coul+'" stroke="#fff" stroke-width="0.55"/>';
+    s+='<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="2.6" font-weight="700" fill="#fff">'+dpEsc(p.num||p.pos||'')+'</text>';
+    if(avecNoms && p.nom)
+      s+='<text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" font-size="2.5" font-weight="700" fill="#fff" stroke="#0b0f14" stroke-width="0.7" paint-order="stroke">'+dpEsc(p.nom)+'</text>';
+    if(!avecNoms && p.etiquette)
+      s+='<text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" font-size="2.5" font-weight="700" fill="#fca5a5" stroke="#0b0f14" stroke-width="0.7" paint-order="stroke">'+dpEsc(p.etiquette)+'</text>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" class="terrain">'+s+'</svg>';
+}
+
+// --- Les pages ---------------------------------------------------------------
+function dpPage(cle, titre, corps, classe){
+  return '<section class="pg'+(classe?' '+classe:'')+'" data-cle="'+cle+'">'
+    +(titre?'<h2 class="pg-t">'+titre+'</h2>':'')+corps+'</section>';
+}
+function dpCartes(cle, labels){
+  var out=labels.map(function(l){
+    var v=dpVal(cle,l);
+    if(!v) return '';
+    return '<div class="carte"><div class="carte-l">'+dpEsc(l)+'</div><div class="carte-v">'+dpEsc(v)+'</div></div>';
+  }).filter(Boolean).join('');
+  return out?'<div class="cartes">'+out+'</div>':'';
+}
+
+function genererDossierPresentation(){
+  var pages=[], logo=docLogoClub();
+
+  // 1. L'affiche
+  pages.push(dpPage('affiche','',
+    '<div class="affiche">'
+    +(logo?'<img class="crest" src="'+logo+'" alt="">':'')
+    +'<div class="af-eq">'+dpEsc(NOM_CLUB)+'</div>'
+    +'<div class="af-vs">reçoit</div>'
+    +'<div class="af-adv">'+dpEsc(DOSSIER.adv||'—')+'</div>'
+    +'<div class="af-meta">'+dpEsc([DOSSIER.date,DOSSIER.lieu,DOSSIER.comp].filter(Boolean).join('  ·  '))+'</div>'
+    +'</div>','affiche-pg'));
+
+  // 2. L'adversaire
+  if(dpRempli('adv').length){
+    var advForm=FORMATIONS[DOSSIER.advFormation]||null;
+    var surv=dpVal('adv','Le joueur à tenir');
+    var slotsAdv=advForm?advForm.map(function(p,i){
+      return {x:p.x,y:p.y,num:p.pos,pos:p.pos,etiquette:(i===9&&surv)?surv:''};
+    }):null;
+    pages.push(dpPage('adv','🔍 L\'adversaire',
+      '<div class="duo">'
+      +(slotsAdv?'<div class="col-t">'+dpTerrainCompo(slotsAdv,'#c0392b',false)
+        +'<div class="sous-t">'+dpEsc(dpVal('adv','Son système')||DOSSIER.advFormation||'')+'</div></div>':'')
+      +'<div class="col-c">'+dpCartes('adv',['Son système','Ce qui fait mal','Sa faille','Le joueur à tenir'])+'</div>'
+      +'</div>'));
+  }
+
+  // 3. Notre équipe
+  var compo=dpCompo();
+  if(compo || dpRempli('grp').length){
+    var titus=compo?compo.slots.filter(function(s){ return !s.bench; }):[];
+    var banc=compo?compo.slots.filter(function(s){ return s.bench && (s.nom||s.num); }):[];
+    pages.push(dpPage('grp','👥 Notre équipe',
+      '<div class="duo">'
+      +(titus.length?'<div class="col-t">'+dpTerrainCompo(titus,'#d97706',true)
+        +'<div class="sous-t">'+dpEsc((compo&&compo.formation)||'')+(compo&&compo.nom?' · '+dpEsc(compo.nom):'')+'</div></div>':'')
+      +'<div class="col-c">'
+        +(banc.length?'<div class="carte"><div class="carte-l">Sur le banc</div><div class="carte-v">'
+          +banc.map(function(s){ return dpEsc((s.num?s.num+'. ':'')+(s.nom||s.pos)); }).join(' · ')+'</div></div>':'')
+        +dpCartes('grp', titus.length
+            ? ['Absents','État de forme']
+            : ['Compo de départ','Sur le banc','Absents','État de forme'])
+      +'</div></div>'));
+  }
+
+  // 4. Notre plan
+  if(dpRempli('plan').length){
+    pages.push(dpPage('plan','🧠 Notre plan',
+      '<div class="quatre">'
+      +['Avec le ballon','Sans le ballon','À la perte','À la récupération'].map(function(l){
+        var v=dpVal('plan',l); if(!v) return '';
+        return '<div class="quart"><div class="q-l">'+dpEsc(l)+'</div><div class="q-v">'+dpEsc(v)+'</div></div>';
+      }).filter(Boolean).join('')
+      +'</div>'));
+  }
+
+  // 5. Les situations — une page chacune
+  (DOSSIER.situations||[]).forEach(function(s,i){
+    var pleines=[]; (s.plateau.sequence||[]).forEach(function(st,k){ if(st) pleines.push(k); });
+    pages.push(dpPage('sit'+i,'⚽ '+dpEsc(s.titre||('Situation '+(i+1))),
+      '<div class="sit" data-sit="'+i+'">'
+      +'<div class="sit-t" id="sit-t-'+i+'">'+dpTerrainSituation(s.plateau, pleines.length?pleines[0]:null, false)+'</div>'
+      +'<div class="sit-c">'
+        +(s.sous?'<div class="sit-sous">'+dpEsc(s.sous)+'</div>':'')
+        +(pleines.length>1
+          ? '<div class="sit-cmd">'
+            +'<button class="pb" onclick="sitPas('+i+',-1)">‹</button>'
+            +'<button class="pb play" id="sit-b-'+i+'" onclick="sitLire('+i+')">▶ Lire la phase</button>'
+            +'<button class="pb" onclick="sitPas('+i+',1)">›</button>'
+            +'<div class="sit-e" id="sit-e-'+i+'">Étape 1 sur '+pleines.length+'</div></div>'
+          : '<div class="sit-fixe">Image fixe — enregistre des étapes sur le plateau pour l\'animer</div>')
+        +(s.principes&&s.principes.length
+          ? '<div class="sit-pr">'+s.principes.map(function(c){
+              var pr=pjParCode(c);
+              return '<span class="pr" style="--pc:'+(pr?pr.phase.coul:'#7b848d')+'">'+dpEsc(c)
+                +(pr?' — '+dpEsc(pr.titre):'')+'</span>'; }).join('')+'</div>'
+          : '')
+        +(function(){
+            var cons=(s.plateau.joueurs||[]).filter(function(j){ return (j.note||'').trim(); });
+            if(!cons.length) return '';
+            return '<div class="sit-cons"><div class="carte-l">Les consignes individuelles</div>'
+              +cons.map(function(j){
+                return '<div class="cons-l"><b>'+dpEsc(j.nom||j.label)+'</b>'+dpEsc(j.note)+'</div>'; }).join('')
+            +'</div>';
+          })()
+      +'</div></div>','sit-pg'));
+  });
+
+  // 6. Les coups de pied arrêtés
+  if(dpRempli('cpa').length){
+    pages.push(dpPage('cpa','⚡ Coups de pied arrêtés',
+      '<div class="quatre">'
+      +['Corners offensifs','Corners défensifs','Coups francs','Penalty'].map(function(l){
+        var v=dpVal('cpa',l); if(!v) return '';
+        return '<div class="quart"><div class="q-l">'+dpEsc(l)+'</div><div class="q-v">'+dpEsc(v)+'</div></div>';
+      }).filter(Boolean).join('')+'</div>'));
+  }
+
+  // 7. Les objectifs
+  if(dpRempli('obj').length){
+    pages.push(dpPage('obj','🎯 Les objectifs', dpCartes('obj',(dmBranche('obj')||{lignes:[]}).lignes.map(function(l){ return l.lab; }))));
+  }
+
+  // 8. Ce qu'on vérifie
+  if(dpRempli('verif').length){
+    pages.push(dpPage('verif','✅ À vérifier', dpCartes('verif',(dmBranche('verif')||{lignes:[]}).lignes.map(function(l){ return l.lab; }))));
+  }
+
+  // 9. Les consignes collectives — la page qui doit rester à l'écran
+  if((DOSSIER.collectif||'').trim()){
+    pages.push(dpPage('collectif','📢 Pour tout le monde',
+      '<div class="collectif">'+DOSSIER.collectif.split('\n').filter(function(l){ return l.trim(); })
+        .map(function(l){ return '<div class="cl">'+dpEsc(l.trim())+'</div>'; }).join('')+'</div>','collectif-pg'));
+  }
+
+  // 10. À regarder
+  if((DOSSIER.videos||[]).length){
+    pages.push(dpPage('videos','🎬 À regarder',
+      '<div class="vids">'+DOSSIER.videos.map(function(v){
+        var fond=v.vignetteUrl?('background:#0c1116 url('+JSON.stringify(v.vignetteUrl)+') center/cover no-repeat')
+          :(v.apercuId?'':'background:#12161c');
+        return '<a class="vid" href="'+dpEsc(dmLienAvecMinute(v))+'" target="_blank" rel="noopener">'
+          +'<span class="vid-v" style="'+fond+'"'+(v.apercuId?(' data-apercu="'+v.apercuId+'"'):'')+'>'
+            +(v.vignetteUrl||v.apercuId?'':'🎬')+'<span class="play-o">▶</span></span>'
+          +'<span class="vid-t">'+dpEsc(v.titre)+'</span>'
+          +'<span class="vid-m">'+(v.source==='veo'?'Veo':(v.source==='youtube'?'YouTube':'Vidéo'))
+            +(v.minute?' · démarre à '+dpEsc(v.minute):'')+'</span>'
+          +(v.note?'<span class="vid-n">'+dpEsc(v.note)+'</span>':'')
+        +'</a>';
+      }).join('')+'</div>'));
+  }
+
+  var donneesSit=JSON.stringify((DOSSIER.situations||[]).map(function(s){ return s.plateau; }))
+    .replace(/</g,'\\u003c');
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Avant-match — '+dpEsc(DOSSIER.adv||NOM_CLUB)+'</title>'
+    +docStylesCommuns()
+    +dpStyles()
+    +'</head><body>'
+    +'<div class="pres" id="pres">'+pages.join('')+'</div>'
+    +'<div class="barre">'
+      +'<button class="nb" onclick="aller(-1)">‹</button>'
+      +'<div class="points" id="points"></div>'
+      +'<button class="nb" onclick="aller(1)">›</button>'
+      +'<span class="cpt" id="cpt"></span>'
+      +'<button class="nb pl" onclick="pleinEcran()">⛶ Plein écran</button>'
+    +'</div>'
+    +dpScript(donneesSit)
+    +'</body></html>';
+
+  docOuvrir(html, 'Avant-match — '+(DOSSIER.adv||''));
+}
+
+// Le style de la présentation : sombre, énorme, fait pour un mur blanc à cinq mètres.
+function dpStyles(){
+  return '<style>'
+  +'*{box-sizing:border-box}'
+  +'html,body{margin:0;padding:0;height:100%;background:#07090c;color:#f2f4f7;'
+    +'font-family:"Roboto Condensed",Inter,sans-serif;overflow:hidden}'
+  +'.pres{height:100vh;width:100vw;position:relative}'
+  +'.pg{position:absolute;inset:0;padding:4vh 5vw 11vh;display:none;flex-direction:column;'
+    +'animation:ent .32s ease}'
+  +'.pg.on{display:flex}'
+  +'@keyframes ent{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}'
+  +'.pg-t{font-family:Anton,sans-serif;font-size:clamp(26px,4.2vw,58px);letter-spacing:.012em;'
+    +'margin:0 0 2.4vh;color:#fff;text-transform:uppercase;line-height:1}'
+  +'.pg-t:after{content:"";display:block;width:88px;height:5px;background:#f97316;margin-top:12px;border-radius:3px}'
+
+  // L'affiche
+  +'.affiche-pg{align-items:center;justify-content:center;text-align:center;padding-bottom:11vh}'
+  +'.affiche .crest{width:clamp(76px,10vw,132px);margin-bottom:2.4vh}'
+  +'.af-eq{font-family:Anton,sans-serif;font-size:clamp(34px,6.4vw,92px);line-height:1;color:#f97316}'
+  +'.af-vs{font-size:clamp(14px,1.7vw,22px);letter-spacing:.42em;text-transform:uppercase;'
+    +'color:#8b949e;margin:1.6vh 0}'
+  +'.af-adv{font-family:Anton,sans-serif;font-size:clamp(34px,6.4vw,92px);line-height:1;color:#fff}'
+  +'.af-meta{font-size:clamp(15px,2vw,27px);color:#c2c8d0;margin-top:3.2vh;letter-spacing:.05em}'
+
+  // Deux colonnes : le terrain, et ce qu'il faut en dire
+  +'.duo{flex:1;display:grid;grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);gap:3vw;min-height:0}'
+  +'.col-t{display:flex;flex-direction:column;min-height:0;align-items:center}'
+  +'.col-c{display:flex;flex-direction:column;justify-content:center;gap:1.6vh;min-height:0;overflow:auto}'
+  +'.terrain{height:100%;width:auto;max-width:100%;border-radius:14px;'
+    +'box-shadow:0 18px 50px rgba(0,0,0,.6)}'
+  +'.sous-t{font-size:clamp(12px,1.4vw,18px);color:#8b949e;margin-top:1.2vh;text-align:center;'
+    +'text-transform:uppercase;letter-spacing:.14em}'
+
+  // Les encadrés
+  +'.cartes{display:flex;flex-direction:column;gap:1.5vh}'
+  +'.carte{background:#11161d;border:1px solid #232a33;border-left:5px solid #f97316;'
+    +'border-radius:12px;padding:1.7vh 1.6vw}'
+  +'.carte-l{font-size:clamp(10px,1.05vw,14px);font-weight:700;letter-spacing:.17em;'
+    +'text-transform:uppercase;color:#8b949e;margin-bottom:.6vh}'
+  +'.carte-v{font-size:clamp(17px,2.3vw,34px);font-weight:700;color:#fff;line-height:1.3}'
+
+  // Quatre quadrants
+  +'.quatre{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:2vh 2vw;min-height:0}'
+  +'.quart{background:#11161d;border:1px solid #232a33;border-top:5px solid #f97316;border-radius:14px;'
+    +'padding:2.4vh 2vw;display:flex;flex-direction:column;justify-content:center;min-height:0}'
+  +'.q-l{font-size:clamp(11px,1.15vw,16px);font-weight:700;letter-spacing:.17em;text-transform:uppercase;'
+    +'color:#f97316;margin-bottom:1vh}'
+  +'.q-v{font-size:clamp(18px,2.5vw,38px);font-weight:700;color:#fff;line-height:1.28}'
+
+  // Une situation
+  +'.sit{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,0.85fr);gap:3vw;min-height:0}'
+  +'.sit-t{display:flex;align-items:center;justify-content:center;min-height:0}'
+  +'.sit-c{display:flex;flex-direction:column;justify-content:center;gap:1.8vh;min-height:0;overflow:auto}'
+  +'.sit-sous{font-size:clamp(12px,1.4vw,18px);color:#8b949e;text-transform:uppercase;letter-spacing:.14em}'
+  +'.sit-cmd{display:flex;align-items:center;gap:.8vw;flex-wrap:wrap}'
+  +'.pb{font-family:inherit;font-size:clamp(14px,1.5vw,20px);font-weight:700;padding:1.3vh 1.4vw;'
+    +'border-radius:11px;border:1px solid #2b323c;background:#151b23;color:#f2f4f7;cursor:pointer}'
+  +'.pb.play{background:#f97316;border-color:#f97316;color:#170c02;flex:1;min-width:160px}'
+  +'.pb:hover{border-color:#f97316}'
+  +'.sit-e{flex:0 0 100%;font-size:clamp(11px,1.15vw,15px);color:#8b949e;letter-spacing:.1em;text-transform:uppercase}'
+  +'.sit-fixe{font-size:clamp(12px,1.25vw,16px);color:#8b949e;font-style:italic}'
+  +'.sit-pr{display:flex;gap:.6vw;flex-wrap:wrap}'
+  +'.pr{font-size:clamp(11px,1.15vw,15px);font-weight:700;border:1px solid var(--pc);color:var(--pc);'
+    +'border-radius:20px;padding:.5vh .9vw}'
+  +'.sit-cons{background:#11161d;border:1px solid #232a33;border-left:5px solid #d97706;'
+    +'border-radius:12px;padding:1.7vh 1.6vw}'
+  +'.cons-l{font-size:clamp(14px,1.55vw,22px);color:#e6e9ee;line-height:1.45;margin-top:.8vh}'
+  +'.cons-l b{display:block;color:#f97316;font-size:clamp(11px,1.1vw,15px);letter-spacing:.09em;text-transform:uppercase}'
+
+  // Les consignes collectives : la page qu'on laisse au mur
+  +'.collectif-pg{justify-content:center}'
+  +'.collectif{display:flex;flex-direction:column;gap:2.6vh}'
+  +'.cl{font-size:clamp(22px,3.6vw,56px);font-weight:700;color:#fff;line-height:1.24;'
+    +'padding-left:2.4vw;border-left:6px solid #f97316}'
+
+  // Les vidéos
+  +'.vids{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));'
+    +'gap:2vh 2vw;align-content:center;min-height:0;overflow:auto}'
+  +'.vid{display:flex;flex-direction:column;background:#11161d;border:1px solid #232a33;'
+    +'border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s}'
+  +'.vid:hover{border-color:#f97316;transform:translateY(-3px)}'
+  +'.vid-v{position:relative;aspect-ratio:16/9;background:#0c1116;display:flex;align-items:center;'
+    +'justify-content:center;font-size:40px}'
+  +'.play-o{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
+    +'font-size:clamp(28px,3.4vw,50px);color:#fff;text-shadow:0 3px 16px rgba(0,0,0,.8)}'
+  +'.vid-t{font-size:clamp(15px,1.75vw,25px);font-weight:700;color:#fff;padding:1.5vh 1.3vw .5vh;line-height:1.3}'
+  +'.vid-m{font-size:clamp(11px,1.1vw,15px);color:#8b949e;padding:0 1.3vw}'
+  +'.vid-n{font-size:clamp(12px,1.25vw,17px);color:#c2c8d0;padding:.8vh 1.3vw 1.5vh;line-height:1.4}'
+
+  // La barre du bas
+  +'.barre{position:fixed;left:0;right:0;bottom:0;height:9vh;min-height:58px;display:flex;'
+    +'align-items:center;gap:14px;padding:0 3vw;background:linear-gradient(0deg,#07090c 62%,rgba(7,9,12,0));'
+    +'z-index:20}'
+  +'.nb{font-family:inherit;font-size:20px;font-weight:700;width:48px;height:48px;border-radius:12px;'
+    +'border:1px solid #2b323c;background:#11161d;color:#f2f4f7;cursor:pointer;flex-shrink:0}'
+  +'.nb:hover{border-color:#f97316;color:#f97316}'
+  +'.nb.pl{width:auto;padding:0 18px;font-size:14px;margin-left:auto}'
+  +'.points{display:flex;gap:8px;flex-wrap:wrap;flex:1;justify-content:center}'
+  +'.pt-d{width:11px;height:11px;border-radius:50%;background:#2b323c;cursor:pointer;transition:all .15s}'
+  +'.pt-d.on{background:#f97316;transform:scale(1.32)}'
+  +'.cpt{font-size:14px;color:#8b949e;letter-spacing:.1em;flex-shrink:0}'
+
+  +'@media(max-width:900px){'
+    +'.duo,.sit{grid-template-columns:1fr;grid-template-rows:minmax(0,1.1fr) auto;gap:1.6vh}'
+    +'.quatre{grid-template-columns:1fr}'
+    +'.pg{padding:3vh 5vw 12vh}'
+    +'.terrain{height:auto;width:100%;max-height:46vh}'
+  +'}'
+  +'@media print{html,body{overflow:visible;background:#fff;color:#111}'
+    +'.pg{position:static;display:flex!important;break-after:page;min-height:96vh}'
+    +'.barre{display:none}}'
+  +'</style>';
+}
+
+// Le script embarqué dans la présentation : navigation et animation des phases.
+function dpScript(donneesSit){
+  // On embarque les fonctions de dessin telles quelles : le document redessine
+  // le terrain à chaque image sans rien redemander à l'appli.
+  var outils='var dpEsc='+dpEsc.toString()+';'
+    +'var dpTerrainVierge='+dpTerrainVierge.toString()+';'
+    +'var dpDessine='+dpDessine.toString()+';'
+    +'window.__terrainBrut=function(sit){ return dpDessine(sit,true); };';
+  return '<script>(function(){'
+  +outils
+  +'var PLATEAUX='+donneesSit+';'
+  +'window.__terrain=function(p,e,sb){ return dpDessine(etapeDe2(p,e),sb); };'
+  +'function etapeDe2(p,i){'
+    +'var st=(p.sequence||[])[i]; if(!st) return p;'
+    +'var c=Object.assign({},p);'
+    +'c.joueurs=(p.joueurs||[]).map(function(j){ var q=st.own&&st.own[j.cle];'
+      +'return q?Object.assign({},j,{x:q[0],y:q[1]}):j; });'
+    +'c.adversaire=(st.oppVisible===false)?[]:(p.adversaire||[]).map(function(o){'
+      +'var q=st.opp&&st.opp[o.cle]; return q?Object.assign({},o,{x:q[0],y:q[1]}):o; });'
+    +'return c;'
+  +'}'
+  +'var pages=[].slice.call(document.querySelectorAll(".pg"));'
+  +'var idx=0;'
+  +'var pts=document.getElementById("points");'
+  +'pages.forEach(function(p,i){'
+    +'var d=document.createElement("span"); d.className="pt-d";'
+    +'d.title=(p.querySelector(".pg-t")?p.querySelector(".pg-t").textContent:"Affiche");'
+    +'d.onclick=function(){ montrer(i); }; pts.appendChild(d);'
+  +'});'
+  +'function montrer(i){'
+    +'if(i<0||i>=pages.length) return;'
+    +'stopTout();'
+    +'pages.forEach(function(p){ p.classList.remove("on"); });'
+    +'pages[i].classList.add("on"); idx=i;'
+    +'[].slice.call(pts.children).forEach(function(d,k){ d.classList.toggle("on", k===i); });'
+    +'document.getElementById("cpt").textContent=(i+1)+" / "+pages.length;'
+  +'}'
+  +'window.aller=function(sens){ montrer(idx+sens); };'
+  +'document.addEventListener("keydown",function(e){'
+    +'if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "){ e.preventDefault(); aller(1); }'
+    +'else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); aller(-1); }'
+    +'else if(e.key==="Home"){ montrer(0); }'
+    +'else if(e.key==="End"){ montrer(pages.length-1); }'
+    +'else if(e.key==="f"||e.key==="F"){ pleinEcran(); }'
+  +'});'
+  // au doigt : on balaie
+  +'var x0=null;'
+  +'document.addEventListener("touchstart",function(e){ x0=e.touches[0].clientX; },{passive:true});'
+  +'document.addEventListener("touchend",function(e){'
+    +'if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; x0=null;'
+    +'if(Math.abs(dx)>60) aller(dx<0?1:-1);'
+  +'},{passive:true});'
+  +'window.pleinEcran=function(){'
+    +'try{ if(!document.fullscreenElement) document.documentElement.requestFullscreen();'
+    +'else document.exitFullscreen(); }catch(e){}'
+  +'};'
+
+  // --- L'animation des phases -------------------------------------------------
+  +'var ANIM={};'
+  +'function pleines(p){ var o=[]; (p.sequence||[]).forEach(function(st,i){ if(st) o.push(i); }); return o; }'
+  +'function etapeDe(p,i){'
+    +'var st=(p.sequence||[])[i]; if(!st) return p;'
+    +'var c=Object.assign({},p);'
+    +'c.joueurs=(p.joueurs||[]).map(function(j){ var q=st.own&&st.own[j.cle];'
+      +'return q?Object.assign({},j,{x:q[0],y:q[1]}):j; });'
+    +'c.adversaire=(st.oppVisible===false)?[]:(p.adversaire||[]).map(function(o){'
+      +'var q=st.opp&&st.opp[o.cle]; return q?Object.assign({},o,{x:q[0],y:q[1]}):o; });'
+    +'return c;'
+  +'}'
+  +'function entre(p,a,b,t){'
+    +'var A=etapeDe(p,a), B=etapeDe(p,b), m={}, mo={};'
+    +'(B.joueurs||[]).forEach(function(j){ m[j.cle]=j; });'
+    +'(B.adversaire||[]).forEach(function(o){ mo[o.cle]=o; });'
+    +'var c=Object.assign({},p);'
+    +'c.joueurs=(A.joueurs||[]).map(function(j){ var d=m[j.cle]||j;'
+      +'return Object.assign({},j,{x:j.x+(d.x-j.x)*t, y:j.y+(d.y-j.y)*t, note:""}); });'
+    +'c.adversaire=(A.adversaire||[]).map(function(o){ var d=mo[o.cle]||o;'
+      +'return Object.assign({},o,{x:o.x+(d.x-o.x)*t, y:o.y+(d.y-o.y)*t}); });'
+    +'return c;'
+  +'}'
+  +'function peindre(i,p,e,sansBulles){'
+    +'var el=document.getElementById("sit-t-"+i); if(!el) return;'
+    +'el.innerHTML=window.__terrain(p,e,sansBulles);'
+  +'}'
+  +'function majEtat(i,p){'
+    +'var e=document.getElementById("sit-e-"+i); if(!e) return;'
+    +'var pl=pleines(p), a=ANIM[i]||{};'
+    +'var k=pl.indexOf(a.etape!=null?a.etape:pl[0]);'
+    +'e.textContent="Étape "+(k+1)+" sur "+pl.length;'
+  +'}'
+  +'window.sitPas=function(i,sens){'
+    +'var p=PLATEAUX[i]; if(!p) return; sitStop(i);'
+    +'var pl=pleines(p); if(!pl.length) return;'
+    +'var a=ANIM[i]=ANIM[i]||{etape:pl[0]};'
+    +'var k=pl.indexOf(a.etape); if(k<0) k=0;'
+    +'k=(k+sens+pl.length)%pl.length; a.etape=pl[k];'
+    +'peindre(i,p,a.etape,false); majEtat(i,p);'
+  +'};'
+  +'window.sitStop=function(i){'
+    +'var a=ANIM[i]; if(!a) return; a.joue=false;'
+    +'if(a.t){ try{ cancelAnimationFrame(a.t); }catch(e){} try{ clearTimeout(a.t); }catch(e){} }'
+    +'var b=document.getElementById("sit-b-"+i); if(b) b.textContent="\\u25b6 Lire la phase";'
+    +'var p=PLATEAUX[i]; if(p) peindre(i,p,a.etape,false);'
+  +'};'
+  +'function stopTout(){ Object.keys(ANIM).forEach(function(k){ if(ANIM[k].joue) sitStop(parseInt(k)); }); }'
+  +'window.sitLire=function(i){'
+    +'var p=PLATEAUX[i]; if(!p) return;'
+    +'var pl=pleines(p); if(pl.length<2) return;'
+    +'var a=ANIM[i]=ANIM[i]||{etape:pl[0],joue:false};'
+    +'if(a.joue){ sitStop(i); return; }'
+    +'a.joue=true;'
+    +'var b=document.getElementById("sit-b-"+i); if(b) b.textContent="\\u23f8 Pause";'
+    +'var k=pl.indexOf(a.etape); if(k<0||k>=pl.length-1) k=0;'
+    +'function suite(){'
+      +'if(!a.joue) return;'
+      +'var de=pl[k], vers=pl[(k+1)%pl.length], t0=performance.now();'
+      +'(function cadre(t){'
+        +'if(!a.joue) return;'
+        +'var u=Math.min(1,(t-t0)/1100);'
+        +'var d=u<0.5?2*u*u:1-Math.pow(-2*u+2,2)/2;'
+        +'var el=document.getElementById("sit-t-"+i);'
+        +'if(el) el.innerHTML=window.__terrainBrut(entre(p,de,vers,d));'
+        +'if(u<1){ a.t=requestAnimationFrame(cadre); return; }'
+        +'a.etape=vers; peindre(i,p,vers,false); majEtat(i,p);'
+        +'k=(k+1)%pl.length;'
+        +'if(k===0){ sitStop(i); return; }'
+        +'a.t=setTimeout(suite,500);'
+      +'})(performance.now());'
+    +'}'
+    +'suite();'
+  +'};'
+  +'montrer(0);'
+  +'})();<\/script>';
+}
+
 // --- Le rendu de l'écran ------------------------------------------------------
 // Un terrain miniature : on doit reconnaître la situation sans l'ouvrir.
 function dmMiniTerrain(plateau, hauteur){
@@ -16028,6 +16605,24 @@ function renderAvantMatch(){
   });
   var col=document.getElementById('dm-collectif');
   if(col && col.value!==DOSSIER.collectif) col.value=DOSSIER.collectif||'';
+
+  // les deux menus : la compo enregistrée, et leur système
+  var selC=document.getElementById('dm-compo');
+  if(selC){
+    selC.innerHTML='<option value="">Aucune compo — la page ne sortira pas</option>'
+      +(COMPOSITIONS||[]).map(function(c,i){
+        return '<option value="'+i+'">'+esc2((c.formation||'')+(c.nom?' — '+c.nom:'')
+          +(c.adversaire?' (vs '+c.adversaire+')':''))+'</option>'; }).join('');
+    selC.value=(DOSSIER.compoIdx==null?'':String(DOSSIER.compoIdx));
+  }
+  var selF=document.getElementById('dm-advform');
+  if(selF){
+    selF.innerHTML=Object.keys(FORMATIONS).map(function(f){
+      return '<option value="'+f+'">'+f+'</option>'; }).join('');
+    selF.value=DOSSIER.advFormation||'4-4-2';
+  }
+  var mini=document.getElementById('dm-apercu-mini');
+  if(mini) mini.innerHTML=dmEtatHtml();
 
   var etat=document.getElementById('dm-etat');
   if(etat){
