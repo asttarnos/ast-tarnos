@@ -1371,6 +1371,104 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .el-player:hover .obj-pivot,.el-goal:hover .obj-pivot,.el-cone:hover .obj-pivot{display:flex}
 /* Sur un écran tactile il n'y a pas de survol : les buts gardent leurs pastilles visibles */
 @media (hover:none){.el-goal .obj-pivot,.el-goal .del-x,.el-goal .obj-rotate{display:flex}}
+@media (orientation:landscape) and (max-height:620px){
+  #bdt .bdt-corps{display:flex;gap:10px;align-items:stretch}
+  #bdt #bdt-terrain{display:flex!important;gap:10px;flex:1;min-width:0}
+  #bdt .bdt-ter{flex:0 0 auto}
+  #bdt .bdt-banc-t{display:none}
+  #bdt .bdt-banc{flex-direction:column;overflow-y:auto;overflow-x:hidden;flex:0 0 auto;padding:0 2px}
+  #bdt .bdt-journal{display:none}
+  #bdt .bdt-bas{padding:6px 10px}
+}
+/* Un en-tete repliable : au bord du terrain, ce qui compte c'est le terrain. */
+.bdt-tete-groupe{display:contents}
+#bdt.compact .bdt-tete-groupe{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:4px 12px 6px;flex-wrap:wrap}
+#bdt.compact .bdt-score{padding:0;gap:12px;flex:0 1 auto}
+#bdt.compact .bdt-eq{display:flex;align-items:center;gap:7px}
+#bdt.compact .bdt-eq-nom{font-size:10px;letter-spacing:.1em}
+#bdt.compact .bdt-eq-pts{font-size:30px}
+#bdt.compact .bdt-pm{gap:4px}
+#bdt.compact .bdt-pm button{width:32px;height:32px;font-size:17px;padding:0}
+#bdt.compact .bdt-chrono{padding:0;flex:0 0 auto;display:flex;align-items:center;gap:8px}
+#bdt.compact .bdt-chrono-val{font-size:22px}
+#bdt.compact .bdt-chrono-btns{gap:4px}
+#bdt.compact .bdt-chrono-btns button{padding:5px 8px;font-size:11px}
+#bdt.compact .bdt-compteurs{display:none}
+#bdt.compact .bdt-haut{padding:6px 12px}
+#bdt.compact .bdt-adv{font-size:13px}
+/* Sur un telephone tenu en main, l'en-tete doit laisser la place au terrain. */
+@media (max-height:900px){
+  .bdt-eq-pts{font-size:40px}
+  .bdt-chrono{padding:2px 0 6px}
+  .bdt-chrono-val{font-size:30px}
+  .bdt-cpt{padding:4px 3px}
+  .bdt-cpt-val{font-size:17px;margin:1px 0 2px}
+  .bdt-cpt-lab{font-size:9.5px;min-height:0}
+}
+@media (max-height:740px){
+  .bdt-eq-pts{font-size:32px}
+  .bdt-chrono-val{font-size:25px}
+}
+/* Le terrain du bord de touche : on trouve un joueur a sa place, pas dans une liste. */
+#bdt-terrain{display:none}
+.bdt-ter{position:relative;height:60vh;aspect-ratio:68/100;width:auto;max-width:100%;margin:0 auto;
+  background:repeating-linear-gradient(0deg,#1f6b3e 0 6%,#1b5f37 6% 12%);
+  border:2px solid rgba(255,255,255,.5);border-radius:10px;overflow:hidden}
+.bdt-ter-l{position:absolute;background:rgba(255,255,255,.55)}
+.bdt-ter-mid{left:0;right:0;top:50%;height:2px}
+.bdt-ter-c{position:absolute;left:50%;top:50%;width:26%;aspect-ratio:1;border:2px solid rgba(255,255,255,.5);
+  border-radius:50%;transform:translate(-50%,-50%)}
+.bdt-ter-s{position:absolute;left:22%;width:56%;height:15%;border:2px solid rgba(255,255,255,.5)}
+.bdt-ter-s.haut{top:0;border-top:none}
+.bdt-ter-s.bas{bottom:0;border-bottom:none}
+.bdt-ter-vide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;
+  font-size:13px;text-align:center;padding:0 24px;line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.bdt-p{position:absolute;transform:translate(-50%,-50%);width:62px;min-height:62px;padding:5px 3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:#11161c;border:2px solid #f8f9fa;border-radius:12px;cursor:pointer;
+  box-shadow:0 3px 8px rgba(0,0,0,.45);z-index:3;-webkit-tap-highlight-color:transparent}
+.bdt-p.titu{border-color:var(--or)}
+.bdt-p.gb{border-color:#22c55e}
+.bdt-p.ecarte{opacity:.42;border-style:dashed}
+.bdt-p:active{transform:translate(-50%,-50%) scale(.94)}
+.bdt-p-num{font-family:'Roboto Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--or);line-height:1}
+.bdt-p-nom{font-size:10px;font-weight:700;color:#fff;line-height:1.05;text-align:center;
+  max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bdt-p-b{font-size:10px;line-height:1.1;text-align:center}
+.bdt-p-t{font-size:9px;color:#9aa0a8;line-height:1}
+.bdt-p-x{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
+  background:var(--red);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;z-index:4}
+.bdt-banc-t{margin:12px 0 7px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  color:#9aa0a8;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bdt-banc-c{font-weight:600;letter-spacing:0;text-transform:none;color:var(--or)}
+.bdt-banc{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch}
+.bdt-banc .bdt-p{position:static;transform:none;flex:0 0 auto}
+.bdt-banc .bdt-p:active{transform:scale(.94)}
+@media (max-width:520px){
+  .bdt-p{width:56px;min-height:56px}
+  .bdt-p-num{font-size:15px}
+  .bdt-p-nom{font-size:9.5px;max-width:52px}
+}
+.anc-alerte{background:var(--orfond);border:1px solid var(--or);border-radius:8px;padding:9px 12px;
+  font-size:12.5px;color:var(--or);font-weight:700;margin-bottom:10px;line-height:1.45}
+.anc-ok{font-size:12.5px;color:var(--green);font-weight:700;margin-bottom:10px}
+.anc-l{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.anc-l b{font-size:13.5px}
+.anc-ou{font-size:11.5px;color:var(--gris2);margin-top:2px;line-height:1.4}
+.anc-b{padding:7px 12px;background:var(--voile);color:var(--or);border:1px solid var(--or);
+  border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.anc-b.rouge{color:var(--red);border-color:var(--red)}
+.anc-sec{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gris2);
+  margin:16px 0 7px;padding-top:12px;border-top:1px solid var(--line)}
+.anc-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.anc-form .fi{flex:1;min-width:180px}
+.anc-aide{font-size:12px;color:var(--gris2);line-height:1.5;margin-top:8px}
+.anc-puces{display:flex;flex-wrap:wrap;gap:6px}
+.anc-puce{display:inline-flex;align-items:center;gap:7px;background:var(--voile);border:1px solid var(--line);
+  border-radius:20px;padding:5px 10px;font-size:12.5px}
+.anc-puce b{cursor:pointer;color:var(--red);font-size:13px}
 .fex-retourner{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .fex-retourner .fex-ret-lab{font-size:12px;color:var(--gris2);font-weight:800;letter-spacing:.02em}
 .fex-retourner .gen-btn2{width:auto;padding:5px 10px;font-size:12px;margin:0}
@@ -1440,7 +1538,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
   .scr{padding-top:48px}
 }
 </style>
-<script>try{if(localStorage.getItem('ast-theme')==='clair')document.documentElement.classList.add('clair');}catch(e){}</script>
+<script>try{if(localStorage.getItem('ast-theme')!=='sombre')document.documentElement.classList.add('clair');}catch(e){}</script>
 </head><body>
 <div class="bg"></div>
 
@@ -1451,6 +1549,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
     <div class="bdt-adv" id="bdt-adv">Match</div>
     <button class="bdt-sortie" onclick="bdtFermer()">✕</button>
   </div>
+  <div class="bdt-tete-groupe">
   <div class="bdt-score">
     <div class="bdt-eq">
       <div class="bdt-eq-nom" id="bdt-nous">AST</div>
@@ -1471,6 +1570,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
       <button onclick="bdtChronoReset()">↺</button>
     </div>
   </div>
+  </div>
   <div class="bdt-compteurs">
     <div class="bdt-cpt"><div class="bdt-cpt-lab">Situations créées</div><div class="bdt-cpt-val" id="bdt-sit-nous">0</div>
       <div class="bdt-cpt-btns"><button onclick="bdtCompteurEquipe('sitNous',-1)">−</button><button class="plus" onclick="bdtCompteurEquipe('sitNous',1)">+</button></div></div>
@@ -1480,7 +1580,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
       <div class="bdt-cpt-btns"><button onclick="bdtCompteurEquipe('sitAdv',-1)">−</button><button class="plus" onclick="bdtCompteurEquipe('sitAdv',1)">+</button></div></div>
   </div>
   <div class="bdt-bandeau" id="bdt-bandeau"></div>
-  <div class="bdt-corps"><div class="bdt-grille" id="bdt-grille"></div></div>
+  <div class="bdt-corps"><div id="bdt-terrain"></div><div class="bdt-grille" id="bdt-grille"></div></div>
   <div class="bdt-journal" id="bdt-journal"></div>
   <div class="bdt-bas">
     <button class="bdt-annuler" onclick="bdtAnnulerDernier()">↩ Annuler</button>
@@ -1537,8 +1637,8 @@ body.cv-plein #scr-convos.on{padding-top:0}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v63</b> · 29/09/2026<br>
-      <span style="opacity:.7">Le plateau tactique suit le thème</span>
+      AST COACH <b style="color:var(--or)">v65</b> · 29/09/2026<br>
+      <span style="opacity:.7">Bord de touche : la compo sur le terrain</span>
     </div>
   </div>
 </div>
@@ -2188,6 +2288,10 @@ body.cv-plein #scr-convos.on{padding-top:0}
         <button class="acc-b" onclick="photosPublierManuel()">📸 Renvoyer toutes les photos maintenant</button>
       </div>
     </div>
+  </div>
+  <div class="blk"><div class="bh"><span class="bt">🧹 Anciens joueurs — sortir quelqu'un pour de bon</span>
+    <span class="bc">noms fantômes, purge, réintégration</span></div>
+    <div id="anciens-ct" style="padding:14px"></div>
   </div>
   <div id="fiche-coach-ct" class="plein"></div>
   <div id="fiche-obj-ct" class="plein"></div>
@@ -4444,6 +4548,219 @@ function retirerJoueurDesListes(){
   notif('✓ '+nom+' retiré de '+trouve.length+' listing'+(trouve.length>1?'s':'')+' — sa fiche est intacte');
   sauvegarder();
 }
+// ===== Sortir un joueur pour de bon =====
+// Le probleme vu en vrai : un joueur efface de l'effectif restait dans les convocations,
+// le tableau de repartition, les compos... et revenait a chaque synchronisation.
+// Deux reponses : une purge qui travaille par NOM (donc meme si la fiche n'existe plus),
+// et une liste de bannis rejouee a chaque chargement, pour que ca ne revienne jamais.
+var JOUEURS_BANNIS=[];
+
+function nomsDeToutesLesListes(){
+  // Tous les endroits ou un nom de joueur peut trainer, avec ou sans fiche.
+  var vus={};
+  function ajoute(liste, ou){
+    (liste||[]).forEach(function(x){
+      var n=(typeof x==='string')?x:(x&&x.nom?x.nom:'');
+      n=String(n||'').trim();
+      if(!n) return;
+      var cle=normaliserTexte(n);
+      if(!vus[cle]) vus[cle]={nom:n, ou:[]};
+      if(vus[cle].ou.indexOf(ou)<0) vus[cle].ou.push(ou);
+    });
+  }
+  if(CONVOS){
+    var et={a:'Convocation A', b:'Convocation B', bl:'Blesses', su:'Suspendus'};
+    ['a','b','bl','su'].forEach(function(k){ ajoute(CONVOS[k], et[k]); });
+  }
+  ajoute(CONVOC_MARDI,'Entrainement mardi');
+  ajoute(CONVOC_JEUDI,'Entrainement jeudi');
+  (CONVOCATIONS_HISTORIQUE||[]).forEach(function(c){
+    ['a','b','bl','su'].forEach(function(k){ ajoute(c[k],'Historique des convocations'); });
+  });
+  if(AFFECTATIONS_CONVOC) ajoute(Object.keys(AFFECTATIONS_CONVOC).filter(function(k){ return isNaN(parseInt(k,10)); }),
+                                 'Tableau de repartition');
+  (COMPOSITIONS||[]).forEach(function(c){ ajoute((c.slots||[]).map(function(sl){ return sl&&sl.nom; }), 'Compositions'); });
+  (MATCHS||[]).forEach(function(m){ ajoute((m.notes||[]).map(function(n){ return n.nom; }), 'Feuilles de match'); });
+  (BLESSURES||[]).forEach(function(b){ ajoute([b.nom], 'Suivi medical'); });
+  return vus;
+}
+
+// Les noms qui trainent alors que le joueur n'est plus dans l'effectif.
+function fantomesDetectes(){
+  var vus=nomsDeToutesLesListes(), out=[];
+  Object.keys(vus).forEach(function(cle){
+    var e=vus[cle];
+    var connu=(JOUEURS||[]).some(function(j){ return memeJoueur(j.nom, e.nom); });
+    if(!connu) out.push(e);
+  });
+  out.sort(function(a,b){ return b.ou.length-a.ou.length; });
+  return out;
+}
+
+// Le balai : on retire ce nom (et ce numero s'il est connu) de partout.
+// Renvoie le nombre d'endroits nettoyes.
+function purgerNomPartout(nom, num){
+  var n=0;
+  function filtrer(liste){
+    if(!Array.isArray(liste)) return liste;
+    var avant=liste.length;
+    var res=liste.filter(function(x){ return !memeJoueur(String(x||''), nom); });
+    n+=avant-res.length;
+    return res;
+  }
+  if(CONVOS) ['a','b','bl','su'].forEach(function(k){ CONVOS[k]=filtrer(CONVOS[k]); });
+  CONVOC_MARDI=filtrer(CONVOC_MARDI);
+  CONVOC_JEUDI=filtrer(CONVOC_JEUDI);
+  (CONVOCATIONS_HISTORIQUE||[]).forEach(function(c){
+    ['a','b','bl','su'].forEach(function(k){ c[k]=filtrer(c[k]); });
+  });
+  if(AFFECTATIONS_CONVOC){
+    Object.keys(AFFECTATIONS_CONVOC).forEach(function(k){
+      var parNum=(num!=null && String(k)===String(num));
+      if(parNum || memeJoueur(k, nom)){ delete AFFECTATIONS_CONVOC[k]; n++; }
+    });
+  }
+  (COMPOSITIONS||[]).forEach(function(c){
+    (c.slots||[]).forEach(function(sl){
+      if(sl && ((num!=null && sl.num===num) || (sl.nom && memeJoueur(sl.nom, nom)))){ sl.num=null; sl.nom=''; n++; }
+    });
+  });
+  (SCHEMAS_CPA||[]).forEach(function(sch){
+    if(!sch.roles) return;
+    Object.keys(sch.roles).forEach(function(k){
+      var r=sch.roles[k];
+      if(r && ((num!=null && r.num===num) || (r.nom && memeJoueur(r.nom, nom)))){ delete sch.roles[k]; n++; }
+    });
+  });
+  if(typeof CPA_COURANT!=='undefined' && CPA_COURANT){
+    Object.keys(CPA_COURANT).forEach(function(k){
+      var r=CPA_COURANT[k];
+      if(r && ((num!=null && r.num===num) || (r.nom && memeJoueur(r.nom, nom)))){ delete CPA_COURANT[k]; n++; }
+    });
+  }
+  if(typeof FEUILLE_MATCH!=='undefined' && FEUILLE_MATCH && FEUILLE_MATCH.consignesIndiv && num!=null
+     && FEUILLE_MATCH.consignesIndiv[num]!=null){ delete FEUILLE_MATCH.consignesIndiv[num]; n++; }
+  (MATCHS||[]).forEach(function(m){
+    if(m.notes){
+      var av=m.notes.length;
+      m.notes=m.notes.filter(function(x){ return !(x.nom && memeJoueur(x.nom, nom)); });
+      n+=av-m.notes.length;
+    }
+  });
+  (BLESSURES||[]).forEach(function(b,i){ if(b && b.nom && memeJoueur(b.nom, nom)){ BLESSURES.splice(i,1); n++; } });
+  if(typeof CLIP_JOUEURS!=='undefined' && Array.isArray(CLIP_JOUEURS) && num!=null){
+    var a2=CLIP_JOUEURS.length;
+    CLIP_JOUEURS=CLIP_JOUEURS.filter(function(x){ return x!==num; });
+    n+=a2-CLIP_JOUEURS.length;
+  }
+  return n;
+}
+
+function estBanni(nom){
+  return (JOUEURS_BANNIS||[]).some(function(b){ return memeJoueur(b, nom); });
+}
+
+// Rejoue a chaque chargement : une vieille sauvegarde ne peut plus les ramener.
+function nettoyerBannis(){
+  if(!JOUEURS_BANNIS || !JOUEURS_BANNIS.length) return 0;
+  var total=0;
+  JOUEURS_BANNIS.forEach(function(nom){
+    var j=(JOUEURS||[]).filter(function(x){ return memeJoueur(x.nom, nom); })[0];
+    if(j){
+      var idx=JOUEURS.indexOf(j), taille=JOUEURS.length;
+      // On ne decale que les tableaux vraiment alignes sur l'effectif : si une
+      // synchronisation partielle les a desynchronises, on ne l'aggrave pas.
+      [STATS,ATTRS_MANUELS,OBJECTIFS,PHOTOS,SEANCE_SAISIE,FORME_HISTORIQUE,NOTE_HISTORIQUE,NOTES_MATCH]
+        .forEach(function(arr){ if(Array.isArray(arr) && arr.length===taille) arr.splice(idx,1); });
+      JOUEURS.splice(idx,1);
+      if(typeof decalerIndexApresSuppression==='function'){
+        decalerIndexApresSuppression(BLESSURES,'joueurIdx',idx);
+        decalerIndexApresSuppression(ENTRETIENS,'joueurIdx',idx);
+      }
+      total++;
+      total+=purgerNomPartout(nom, j.num);
+    }else{
+      total+=purgerNomPartout(nom, null);
+    }
+  });
+  return total;
+}
+
+function bannirJoueur(nom, num){
+  nom=String(nom||'').trim();
+  if(!nom) return;
+  if(!estBanni(nom)) JOUEURS_BANNIS.push(nom);
+  var n=nettoyerBannis();
+  rafraichirApresPurge();
+  notif('✓ '+nom+' sorti de l\'appli — '+n+' trace(s) effacée(s)');
+  sauvegarder();
+  if(typeof FIREBASE_PROJECT_ID!=='undefined' && FIREBASE_PROJECT_ID!=='VOTRE-PROJECT-ID-ICI'
+     && typeof purgerJoueurCloud==='function'){
+    purgerJoueurCloud(nom, num==null?-1:num).then(function(k){
+      if(k) notif('✓ '+k+' donnée(s) de '+nom+' effacée(s) dans le cloud');
+    }).catch(function(){ notif('⚠ Nettoyage du cloud impossible — réessaie en ligne'); });
+  }
+}
+
+function reintegrerJoueur(nom){
+  JOUEURS_BANNIS=(JOUEURS_BANNIS||[]).filter(function(b){ return !memeJoueur(b, nom); });
+  renderAnciensJoueurs();
+  notif('✓ '+nom+' n\'est plus banni — tu peux le réinscrire dans l\'effectif');
+  sauvegarder();
+}
+
+function rafraichirApresPurge(){
+  ['renderFicheSel','renderPresList','renderNotifList','renderRecap','renderPointsEntrainement',
+   'renderConvosFields','renderRepartitionJoueurs','renderCompoList','renderMedical','renderMatchs',
+   'renderCPA','renderAnciensJoueurs','updateDash'].forEach(function(f){
+    if(typeof window[f]==='function'){ try{ window[f](); }catch(e){} }
+  });
+  if(JOUEURS.length && typeof renderFicheCoach==='function'){ try{ renderFicheCoach(); }catch(e){} }
+}
+
+function renderAnciensJoueurs(){
+  var ct=document.getElementById('anciens-ct');
+  if(!ct) return;
+  var f=fantomesDetectes();
+  var h='';
+  if(f.length){
+    h+='<div class="anc-alerte">⚠ '+f.length+' nom'+(f.length>1?'s':'')+' apparaît'+(f.length>1?'ssent':'')
+      +' encore dans des listes alors qu\'il'+(f.length>1?'s ne sont plus':' n\'est plus')+' dans l\'effectif.</div>';
+    h+=f.map(function(e){
+      return '<div class="anc-l"><div><b>'+esc2(e.nom)+'</b>'
+        +'<div class="anc-ou">'+e.ou.map(esc2).join(' · ')+'</div></div>'
+        +'<button class="anc-b" onclick="bannirJoueur('+JSON.stringify(e.nom).replace(/"/g,'&quot;')+',null)">🧹 Le sortir partout</button></div>';
+    }).join('');
+  }else{
+    h+='<div class="anc-ok">✓ Aucun nom fantôme : toutes les listes ne contiennent que des joueurs de l\'effectif.</div>';
+  }
+  h+='<div class="anc-sec">Sortir un joueur de l\'effectif</div>'
+    +'<div class="anc-form">'
+    +'<select class="fi" id="anc-sel">'+(JOUEURS||[]).map(function(j,i){
+        return '<option value="'+i+'">'+esc2((j.num!=null?j.num+'. ':'')+j.nom)+'</option>'; }).join('')
+    +'</select>'
+    +'<button class="anc-b rouge" onclick="bannirDepuisSelect()">🗑 Le sortir pour de bon</button></div>'
+    +'<div class="anc-aide">Il disparaît de l\'effectif et de toutes les listes, et il est ajouté à la liste ci-dessous : '
+    +'même une vieille sauvegarde ou une synchronisation ne pourra plus le faire revenir.</div>';
+  var b=JOUEURS_BANNIS||[];
+  h+='<div class="anc-sec">Joueurs sortis ('+b.length+')</div>';
+  h+=b.length
+    ? '<div class="anc-puces">'+b.map(function(nom){
+        return '<span class="anc-puce">'+esc2(nom)
+          +'<b onclick="reintegrerJoueur('+JSON.stringify(nom).replace(/"/g,'&quot;')+')" title="Le réautoriser">✕</b></span>'; }).join('')+'</div>'
+    : '<div class="anc-aide">Personne pour l\'instant.</div>';
+  ct.innerHTML=h;
+}
+
+function bannirDepuisSelect(){
+  var sel=document.getElementById('anc-sel');
+  var j=JOUEURS[parseInt(sel?sel.value:'-1')];
+  if(!j){ notif('⚠ Aucun joueur sélectionné'); return; }
+  if(!confirm('Sortir '+j.nom+' pour de bon ?\n\n'
+    +'Il quitte l\'effectif et toutes les listes, et il ne pourra plus revenir\n'
+    +'par une synchronisation. Tu pourras le réautoriser depuis la liste juste en dessous.')) return;
+  bannirJoueur(j.nom, j.num);
+}
 function toggleGroup(hdr){
   var wasClosed=hdr.classList.contains('closed');
   document.querySelectorAll('.side-sec').forEach(function(h){
@@ -4699,7 +5016,7 @@ function goNav(elOrS){
   if(s==='projet-jeu') renderProjetJeuCoach();
   if(s==='aide') renderAide();
   if(s==='seances-cal') renderCalSeances();
-  if(s==='effectif') renderFicheCoach();
+  if(s==='effectif'){ renderFicheCoach(); renderAnciensJoueurs(); }
   if(s==='recap') renderRecap();
   if(s==='points') renderPointsEntrainement();
   if(s==='rotation') renderRotation();
@@ -9687,6 +10004,10 @@ function appliquerDonnees(p,silencieux){
   if(p.SONDAGES)SONDAGES=p.SONDAGES;
   if(p.PROJET_JEU)PROJET_JEU=p.PROJET_JEU;
   if(p.CLIPS)CLIPS=p.CLIPS;
+  if(p.JOUEURS_BANNIS)JOUEURS_BANNIS=p.JOUEURS_BANNIS;
+  // Une vieille sauvegarde peut ramener un joueur sorti : on repasse le balai.
+  if(typeof nettoyerBannis==='function') nettoyerBannis();
+  if(typeof renderAnciensJoueurs==='function') renderAnciensJoueurs();
   renderFicheSel();renderPresList();renderNotifList();renderRecap();renderPointsEntrainement();
   renderMatchs();renderVideos();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();
   renderConvosFields();
@@ -9741,7 +10062,7 @@ function donneesSaisonSansPhotos(){
     return copie;
   });
   return {PHOTOS_REF, ENTRETIENS_JOUEURS:entretiensParJoueur(),
-  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB};
+  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS};
 }
 // ===== Les photos des joueurs, jusqu'à leur téléphone =====
 // Elles vivaient uniquement sur l'ordinateur du coach : l'appli joueur affichait
@@ -19847,7 +20168,201 @@ function bdtEcarter(idx, ev){
   bdtRender();
 }
 
+// ===== Bord de touche : le groupe pose sur le terrain =====
+// Retrouver un joueur dans une liste de vingt tuiles, en plein match, ne marche pas.
+// Sur le terrain on le trouve a sa place, du premier coup d'oeil.
+var BDT_VUE='terrain';
+var BDT_COMPO_IDX=null;
+
+function bdtFamillePoste(p){
+  p=String(p||'').toUpperCase();
+  if(/^(GB|G|GARD)/.test(p)) return 'G';
+  if(/^(DD|DC|DG|DEF|D)$|^(DD|DC|DG|DEF)/.test(p)) return 'D';
+  if(/^(MD|MC|MG|MO|MIL|M)$|^(MD|MC|MG|MO|MIL)/.test(p)) return 'M';
+  if(/^(AT|BU|AG|AD|ATT|A)$|^(AT|BU|AG|AD|ATT)/.test(p)) return 'A';
+  return '';
+}
+
+// La compo a utiliser : celle que le coach a choisie, sinon celle de cet adversaire,
+// sinon la plus recente.
+function bdtCompoDuMatch(){
+  if(!COMPOSITIONS || !COMPOSITIONS.length) return null;
+  if(BDT_COMPO_IDX!=null && COMPOSITIONS[BDT_COMPO_IDX]) return COMPOSITIONS[BDT_COMPO_IDX];
+  var adv=normaliserTexte(BDT.adversaire||'');
+  if(adv){
+    for(var i=0;i<COMPOSITIONS.length;i++){
+      var a=normaliserTexte(COMPOSITIONS[i].adversaire||'');
+      if(a && (a===adv || a.indexOf(adv)>=0 || adv.indexOf(a)>=0)) return COMPOSITIONS[i];
+    }
+  }
+  return COMPOSITIONS[0];
+}
+
+// Ou poser chaque joueur present sur le terrain.
+function bdtPlacements(){
+  var surT=bdtJoueursAffiches().filter(function(i){ return bdtSurTerrain(i); });
+  var compo=bdtCompoDuMatch();
+  var places={}, pris={};
+  if(compo && compo.slots){
+    compo.slots.forEach(function(sl){
+      if(!sl || sl.bench || sl.num==null || sl.x==null) return;
+      for(var i=0;i<JOUEURS.length;i++){
+        if(JOUEURS[i] && JOUEURS[i].num===sl.num && surT.indexOf(i)>=0 && !places[i]){
+          places[i]={x:sl.x, y:sl.y, pos:sl.pos};
+          pris[sl.pos+'|'+sl.x+'|'+sl.y]=true;
+          break;
+        }
+      }
+    });
+  }
+  var grille=(compo && FORMATIONS[compo.formation]) ? FORMATIONS[compo.formation] : FORMATIONS['4-4-2'];
+  var libres=grille.filter(function(sl){ return !pris[sl.pos+'|'+sl.x+'|'+sl.y]; }).slice();
+  var restants=surT.filter(function(i){ return !places[i]; });
+  restants.sort(function(a,b){ return (bdtEstGardien(b)?1:0)-(bdtEstGardien(a)?1:0); });
+  restants.forEach(function(i){
+    var k=-1, fam=bdtFamillePoste(JOUEURS[i]?JOUEURS[i].poste:'');
+    if(bdtEstGardien(i)){
+      for(var a=0;a<libres.length;a++) if(libres[a].pos==='GB'){ k=a; break; }
+    }
+    if(k<0 && fam){
+      for(var b=0;b<libres.length;b++) if(bdtFamillePoste(libres[b].pos)===fam){ k=b; break; }
+    }
+    if(k<0 && libres.length) k=0;
+    if(k>=0){ var sl=libres.splice(k,1)[0]; places[i]={x:sl.x, y:sl.y, pos:sl.pos}; }
+    else{ places[i]={x:50, y:50, pos:''}; }
+  });
+  return places;
+}
+
+function bdtNomCourt(idx){
+  var j=JOUEURS[idx]; if(!j) return '';
+  var mots=String(j.nom||'').trim().split(/\s+/);
+  var maj=mots.filter(function(m){ return m===m.toUpperCase() && m.length>1; });
+  return (maj.length?maj[maj.length-1]:mots[mots.length-1]||j.nom);
+}
+
+function bdtBadgesJoueur(idx){
+  var badges=[];
+  [['but','⚽'],['arret','🧤'],['pd','🅰️'],['frappeCad','🎯'],
+   ['cj','🟨'],['cr','🟥']].forEach(function(pair){
+    var n=bdtCompteur(idx,pair[0]);
+    if(n) badges.push(pair[1]+(n>1?'×'+n:''));
+  });
+  return badges;
+}
+
+function bdtPionHtml(idx, style, surT){
+  var j=JOUEURS[idx]; if(!j) return '';
+  var ecarte=!!BDT.ecartes[idx];
+  var badges=bdtBadgesJoueur(idx);
+  var tps=bdtTempsDeJeu(idx);
+  var cls='bdt-p'+(ecarte?' ecarte':(surT?' sur':' banc'))+(bdtEstGardien(idx)?' gb':'');
+  if(BDT.titulaires[idx]) cls+=' titu';
+  return '<div class="'+cls+'"'+(style?(' style="'+style+'"'):'')
+    +' onclick="'+(ecarte?('bdtEcarter('+idx+',event)'):('bdtChoisirJoueur('+idx+')'))+'">'
+    +(BDT.modeCompo?'<span class="bdt-p-x" onclick="bdtEcarter('+idx+',event)" title="'
+       +(ecarte?'Réintégrer':'Écarter de ce match')+'">'+(ecarte?'↩':'✕')+'</span>':'')
+    +'<span class="bdt-p-num">'+(j.num!=null?j.num:'•')+'</span>'
+    +'<span class="bdt-p-nom">'+echapForme(bdtNomCourt(idx))+'</span>'
+    +(badges.length?'<span class="bdt-p-b">'+badges.join(' ')+'</span>':'')
+    +(tps&&!ecarte?'<span class="bdt-p-t">'+tps+"'"+'</span>':'')
+    +'</div>';
+}
+
+function bdtRenderTerrain(){
+  var ct=document.getElementById('bdt-terrain');
+  if(!ct) return;
+  var places=bdtPlacements();
+  var surIdx=Object.keys(places).map(Number);
+  var banc=bdtJoueursAffiches().filter(function(i){ return !bdtSurTerrain(i); });
+  var compo=bdtCompoDuMatch();
+
+  var h='<div class="bdt-ter">'
+    + '<div class="bdt-ter-l bdt-ter-mid"></div><div class="bdt-ter-c"></div>'
+    + '<div class="bdt-ter-s haut"></div><div class="bdt-ter-s bas"></div>'
+    + surIdx.map(function(i){
+        return bdtPionHtml(i, 'left:'+places[i].x+'%;top:'+places[i].y+'%', true);
+      }).join('')
+    + (surIdx.length?'':'<div class="bdt-ter-vide">Touche un joueur du banc pour le poser sur le terrain.</div>')
+    + '</div>';
+
+  h+='<div class="bdt-banc-t">🪑 Sur le banc · '+banc.length
+    +(compo?(' <span class="bdt-banc-c">compo : '+echapForme(compo.nom||compo.formation||'—')+'</span>'):'')
+    +'</div>';
+  h+='<div class="bdt-banc">'+(banc.length
+      ? banc.map(function(i){ return bdtPionHtml(i,'',false); }).join('')
+      : '<div class="bdt-ter-vide" style="position:static">Tout le monde est sur le terrain.</div>')
+    +'</div>';
+  ct.innerHTML=h;
+  bdtMajTailleTerrain();
+}
+
+// Sur un telephone, l'en-tete mange l'ecran : on donne au terrain exactement
+// ce qui reste, pour qu'il tienne en entier sans faire defiler.
+function bdtMajTailleTerrain(){
+  var corps=document.querySelector('.bdt-corps');
+  var ter=document.querySelector('#bdt-terrain .bdt-ter');
+  if(!corps||!ter) return;
+  var bas=0;
+  // flexDirection vaut « row » meme sur un bloc : il faut verifier le display.
+  var cs=getComputedStyle(corps);
+  var cote=(cs.display==='flex' && cs.flexDirection==='row');
+  if(!cote){
+    var t=document.querySelector('.bdt-banc-t'), bc=document.querySelector('.bdt-banc');
+    if(t) bas+=t.getBoundingClientRect().height+12;
+    if(bc) bas+=bc.getBoundingClientRect().height+8;
+  }
+  var dispo=corps.clientHeight-bas-8;
+  ter.style.height=Math.max(230, Math.min(760, Math.round(dispo)))+'px';
+}
+if(typeof window!=='undefined'){
+  window.addEventListener('resize', function(){ if(BDT && BDT.ouvert) bdtMajTailleTerrain(); });
+  window.addEventListener('orientationchange', function(){
+    setTimeout(function(){ if(BDT && BDT.ouvert) bdtMajTailleTerrain(); },250); });
+}
+
+function bdtBasculerVue(){
+  BDT_VUE=(BDT_VUE==='terrain')?'liste':'terrain';
+  bdtRender();
+}
+function bdtChoisirCompo(v){
+  BDT_COMPO_IDX=(v===''?null:parseInt(v,10));
+  bdtRender();
+}
+// Replie l'en-tete (score, chrono, compteurs) pour laisser le terrain respirer.
+var BDT_COMPACT=null;
+function bdtCompactAuto(){
+  if(BDT_COMPACT!=null) return BDT_COMPACT;
+  return (BDT_VUE==='terrain');
+}
+function bdtAppliquerCompact(){
+  var el=document.getElementById('bdt');
+  if(el) el.classList.toggle('compact', !!bdtCompactAuto());
+}
+function bdtBasculerCompact(){
+  BDT_COMPACT=!bdtCompactAuto();
+  bdtRender();
+}
+function bdtBoutonCompact(){
+  return '<button onclick="bdtBasculerCompact()" title="Replier ou d\u00e9plier le score et les compteurs">'
+    +(bdtCompactAuto()?'\u25bc Score':'\u25b2 Replier')+'</button>';
+}
+function bdtBoutonVue(){
+  return '<button onclick="bdtBasculerVue()" title="Passer du terrain à la liste">'
+    +(BDT_VUE==='terrain'?'☰ Liste':'⚽ Terrain')+'</button>';
+}
+function bdtSelectCompo(){
+  if(!COMPOSITIONS || !COMPOSITIONS.length) return '';
+  var actuelle=bdtCompoDuMatch();
+  var iAct=COMPOSITIONS.indexOf(actuelle);
+  return '<select onchange="bdtChoisirCompo(this.value)" title="La compo qui place les joueurs sur le terrain">'
+    +COMPOSITIONS.map(function(c,i){
+      return '<option value="'+i+'"'+(i===iAct?' selected':'')+'>'
+        +echapForme(c.nom||c.formation||('Compo '+(i+1)))+'</option>';
+    }).join('')+'</select>';
+}
 function bdtRender(){
+
   bdtSauver();
   document.getElementById('bdt-score-nous').textContent=BDT.nous;
   document.getElementById('bdt-score-eux').textContent=BDT.eux;
@@ -19863,14 +20378,22 @@ function bdtRender(){
     bandeau.innerHTML='<span>👥 <b>'+bdtLibelleGroupe()+'</b> · '+nbGroupe+' retenu'+(nbGroupe>1?'s':'')
       +(nbEcartes?(' <span style="color:#6b7280">('+nbEcartes+' écarté'+(nbEcartes>1?'s':'')+')</span>'):'')
       +' — touche tes titulaires (<b>'+nbTerrain+'</b> sur le terrain), ✕ pour écarter du match</span>'
-      +'<span style="display:flex;gap:6px"><button onclick="bdtChangerGroupe()">Changer de groupe</button>'
+      +'<span style="display:flex;gap:6px;flex-wrap:wrap">'+bdtBoutonVue()+bdtBoutonCompact()+bdtSelectCompo()
+      +'<button onclick="bdtChangerGroupe()">Changer de groupe</button>'
       +'<button onclick="bdtToutLeMondeSurLeBanc()">Effacer</button>'
       +'<button onclick="bdtBasculerCompo()">Terminé</button></span>';
   }else{
     bandeau.innerHTML='<span>⚽ <b>'+nbTerrain+' sur le terrain</b> · '+Math.max(0,nbGroupe-nbTerrain)+' sur le banc ('+bdtLibelleGroupe()+')</span>'
-      +'<button onclick="bdtBasculerCompo()">👥 Compo</button>';
+      +'<span style="display:flex;gap:6px;flex-wrap:wrap">'+bdtBoutonVue()+bdtBoutonCompact()
+      +'<button onclick="bdtBasculerCompo()">👥 Compo</button></span>';
   }
-  document.getElementById('bdt-grille').innerHTML=affiches.map(function(idx){
+  var zoneT=document.getElementById('bdt-terrain'), zoneL=document.getElementById('bdt-grille');
+  var surTerrainVue=(BDT_VUE==='terrain');
+  zoneT.style.display=surTerrainVue?'block':'none';
+  zoneL.style.display=surTerrainVue?'none':'grid';
+  bdtAppliquerCompact();
+  if(surTerrainVue){ bdtRenderTerrain(); }
+  else document.getElementById('bdt-grille').innerHTML=affiches.map(function(idx){
     var j=JOUEURS[idx]; if(!j) return '';
     var badges=[];
     [['but','⚽'],['arret','🧤'],['pd','🅰️'],['frappeCad','🎯'],['frappeHors','↗️'],
@@ -20632,7 +21155,7 @@ function renderAccesJoueurs(){
 }
 
 function notif(txt){var el=document.getElementById('notif');el.textContent=txt;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
-window.addEventListener('load',function(){appliquerTheme(themeClair()?'clair':'sombre');appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
+window.addEventListener('load',function(){appliquerTheme(themeClair()?'clair':'sombre');appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();renderAnciensJoueurs();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
