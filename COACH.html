@@ -1410,6 +1410,41 @@ body.cv-plein #scr-convos.on{padding-top:0}
   .bdt-eq-pts{font-size:32px}
   .bdt-chrono-val{font-size:25px}
 }
+/* La barre du jour : quatre raccourcis qui savent quel jour on est. */
+#barre-jour{display:none;position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:var(--fond2);border-top:1px solid var(--line);
+  padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -4px 16px rgba(0,0,0,.18);align-items:stretch;gap:4px;flex-wrap:wrap}
+.bj-b{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;background:none;border:none;border-radius:9px;padding:7px 2px;cursor:pointer;
+  color:var(--gris2);-webkit-tap-highlight-color:transparent}
+.bj-b .ic{font-size:19px;line-height:1}
+.bj-b .lb{font-size:10.5px;font-weight:700;line-height:1;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.bj-b.on{color:var(--or);background:var(--orfond)}
+.bj-b:active{background:var(--voile)}
+.bj-t{flex:1 1 100%;text-align:center;font-size:9.5px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--gris2);opacity:.75;padding:1px 0 2px;order:-1}
+body.avec-barre .scr{padding-bottom:104px}
+body.cv-plein #barre-jour{display:none!important}
+#bdt.on ~ #barre-jour{display:none!important}
+/* « Et apres ? » : la suite logique du travail, en bas de l'ecran. */
+.etapes{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:22px 0 4px;padding-top:15px;
+  border-top:1px solid var(--line)}
+.scr-grille .etapes{grid-column:1/-1}
+.etapes-t{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--gris2);
+  margin-right:2px}
+.etapes-b{display:inline-flex;align-items:center;gap:7px;background:var(--carte);color:var(--gris);
+  border:1.5px solid var(--line);border-radius:9px;padding:9px 14px;font-family:'Roboto Condensed',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;transition:border-color .13s,color .13s}
+.etapes-b:hover{border-color:var(--or);color:var(--or)}
+.etapes-b .ic{font-size:15px}
+.etapes-b b{color:var(--or);font-size:15px;line-height:1}
+@media(max-width:760px){
+  .etapes{gap:7px;margin-top:18px}
+  .etapes-b{flex:1 1 calc(50% - 4px);justify-content:center;padding:11px 8px;font-size:12.5px;text-align:center}
+  .etapes-t{flex:1 1 100%;margin-bottom:2px}
+}
 /* Le terrain du bord de touche : on trouve un joueur a sa place, pas dans une liste. */
 #bdt-terrain{display:none}
 .bdt-ter{position:relative;height:60vh;aspect-ratio:68/100;width:auto;max-width:100%;margin:0 auto;
@@ -1588,6 +1623,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
     <button class="bdt-fin" onclick="bdtTerminer()">✓ Terminer</button>
   </div>
 </div>
+<div id="barre-jour"></div>
 <div class="bdt-notes" id="bdt-notes">
   <div class="bdt-notes-haut">
     <div style="flex:1;font-size:15px;font-weight:700">⭐ Bilan à chaud</div>
@@ -1637,8 +1673,8 @@ body.cv-plein #scr-convos.on{padding-top:0}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v65</b> · 29/09/2026<br>
-      <span style="opacity:.7">Bord de touche : la compo sur le terrain</span>
+      AST COACH <b style="color:var(--or)">v66</b> · 30/09/2026<br>
+      <span style="opacity:.7">Retour, mémoire d'écran, enchaînements</span>
     </div>
   </div>
 </div>
@@ -5054,6 +5090,214 @@ function goNav(elOrS){
   if(s==='chrono') renderChrono();
   if(s==='planning') renderPlanning();
   if(s==='convos') renderConvoCalSelect();
+  // L'historique : on n'empile pas quand c'est le retour lui-meme qui navigue,
+  // et on n'empile pas deux fois le meme ecran d'affilee.
+  if(!NAV_SANS_HISTO && s){
+    if(NAV_HISTO[NAV_HISTO.length-1]!==s){
+      NAV_HISTO.push(s);
+      if(NAV_HISTO.length>40) NAV_HISTO.shift();
+      try{ history.pushState({ast:1, s:s}, ''); }catch(e){}
+    }
+    navMemoriser(s);
+  }
+  if(typeof majEtapes==='function') majEtapes(s);
+  if(typeof renderBarreDuJour==='function') renderBarreDuJour();
+}
+// ===== Le bouton retour, et la memoire de l'ecran =====
+// Sur un telephone, appuyer sur retour sortait de l'appli. Desormais il ferme ce qui
+// est ouvert par-dessus, puis remonte d'un ecran, puis revient aux poles.
+var NAV_HISTO=[];          // les ecrans traverses, dans l'ordre
+var NAV_SANS_HISTO=false;  // vrai quand c'est le bouton retour qui pilote
+
+function navMemoriser(s){
+  try{ localStorage.setItem('ast-dernier-ecran', s); }catch(e){}
+}
+function navDernierEcran(){
+  try{ return localStorage.getItem('ast-dernier-ecran')||''; }catch(e){ return ''; }
+}
+
+// Ce qui est ouvert par-dessus l'ecran, du plus superficiel au plus profond.
+function navFermerCouche(){
+  var bdtA=document.getElementById('bdt-actions');
+  if(bdtA && bdtA.classList.contains('on')){ bdtFermerActions(); return true; }
+  var bdtN=document.getElementById('bdt-notes');
+  if(bdtN && bdtN.classList.contains('on')){ bdtFermerNotes(); return true; }
+  var lb=document.querySelector('.bp-lightbox');
+  if(lb){ lb.remove(); return true; }
+  var mdl=document.querySelector('.mdl-fond.on, .mdl-fond[style*="flex"]');
+  if(mdl && getComputedStyle(mdl).display!=='none'){ if(typeof mdlFermer==='function'){ mdlFermer(); return true; } }
+  var side=document.getElementById('side');
+  if(side && side.classList.contains('side-ouvert')){ toggleSideMobile(false); return true; }
+  if(TAB_ACTIF==='recherche'){ switchTab('terrain'); return true; }
+  return false;
+}
+
+function navRetour(){
+  // 1. ce qui est pose par-dessus
+  if(navFermerCouche()) return;
+  // 2. le mode bord de touche : il se ferme, mais en demandant
+  var bdt=document.getElementById('bdt');
+  if(bdt && bdt.classList.contains('on')){ bdtFermer(); return; }
+  // 3. l'ecran precedent
+  if(NAV_HISTO.length>1){
+    NAV_HISTO.pop();
+    var prec=NAV_HISTO[NAV_HISTO.length-1];
+    NAV_SANS_HISTO=true;
+    goNav(prec);
+    NAV_SANS_HISTO=false;
+    return;
+  }
+  // 4. sinon, le menu des poles
+  if(POLE_ACTIF){ retourHub(); if(estModeTiroir()) toggleSideMobile(true); return; }
+  if(estModeTiroir()){ toggleSideMobile(true); return; }
+}
+
+if(typeof window!=='undefined'){
+  window.addEventListener('popstate', function(){
+    navRetour();
+    // on remet un cran dans la pile : le prochain retour aura de quoi manger
+    try{ history.pushState({ast:1}, ''); }catch(e){}
+  });
+  // Echap fait la meme chose au clavier
+  window.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target||{}).tagName||'')){
+      if(document.querySelector('#fex-aide-zone-libre')) return; // le constructeur gere son Echap
+      navRetour();
+    }
+  });
+}
+// ===== Et apres ? =====
+// Trente-trois ecrans sur quarante-huit n'etaient atteignables que par le menu.
+// Le travail d'un coach suit pourtant des suites : la semaine de match, la seance,
+// le debriefing. Chaque ecran propose donc la suite logique, sans repasser par le menu.
+var ETAPES_SUIVANTES={
+  // --- la semaine de match ---
+  'convos':        [{s:'compos',   t:'Poser la compo'},      {s:'feuille-match', t:'La feuille de match'}],
+  'compos':        [{s:'cpa',      t:'Les coups de pied arrêtés'}, {s:'avant-match', t:"Le dossier d'avant-match"}],
+  'cpa':           [{s:'avant-match', t:"Le dossier d'avant-match"}, {s:'feuille-match', t:'La feuille de match'}],
+  'avant-match':   [{s:'feuille-match', t:'La feuille de match'}, {s:'projet-jeu', t:'Le projet de jeu'}],
+  'feuille-match': [{s:'compos',   t:'Revoir la compo'},     {s:'matchs', t:'Saisir le résultat'}],
+  // --- preparer l'adversaire ---
+  'adversaires':   [{s:'avant-match', t:"Le dossier d'avant-match"}, {s:'plateau', t:'Le plateau tactique'}],
+  'plateau':       [{s:'avant-match', t:"Le dossier d'avant-match"}, {s:'projet-jeu', t:'Le projet de jeu'}],
+  'projet-jeu':    [{s:'couverture', t:'On le travaille ?'}, {s:'seance', t:'La séance du jour'}],
+  'couverture':    [{s:'seance',   t:'La séance du jour'},  {s:'constructeur', t:'Construire un exercice'}],
+  // --- l'entrainement ---
+  'seance':        [{s:'pres',     t:'Les présences'},      {s:'constructeur', t:'Construire un exercice'}],
+  'generateur':    [{s:'seance',   t:'La séance du jour'},  {s:'constructeur', t:'Construire un exercice'}],
+  'constructeur':  [{s:'mes-exos', t:'Mes exercices'},       {s:'seance', t:'La séance du jour'}],
+  'mes-exos':      [{s:'constructeur', t:'Construire un exercice'}, {s:'biblio', t:'La bibliothèque'}],
+  'biblio':        [{s:'seance',   t:'La séance du jour'},  {s:'biblio-generale', t:'La bibliothèque générale'}],
+  'pres':          [{s:'points',   t:"Les points d'entraînement"}, {s:'chrono', t:'Chrono & fractionné'}],
+  'seances-cal':   [{s:'seance',   t:'La séance du jour'},  {s:'generateur', t:'Générer une séance'}],
+  'planning':      [{s:'calendrier-annuel', t:'Le calendrier annuel'}, {s:'seances-cal', t:'Le calendrier des séances'}],
+  // --- apres le match ---
+  'matchs':        [{s:'recap',    t:'Le récap global'},    {s:'videos', t:'Les vidéos'}],
+  'recap':         [{s:'constats', t:'Ce que disent tes chiffres'}, {s:'classement', t:'Le classement'}],
+  'constats':      [{s:'effectif', t:"L'effectif"},          {s:'projet-jeu', t:'Le projet de jeu'}],
+  'classement':    [{s:'calendrier', t:'Le calendrier'},     {s:'bilan', t:'Le bilan de saison'}],
+  'calendrier':    [{s:'adversaires', t:'Les adversaires'},  {s:'convos', t:'Les convocations'}],
+  // --- l'effectif ---
+  'effectif':      [{s:'medical',  t:'Le suivi médical'},   {s:'entretien', t:'Un entretien joueur'}],
+  'medical':       [{s:'effectif', t:"L'effectif"},          {s:'forme-coach', t:'La forme des joueurs'}],
+  'entretien':     [{s:'suivi-objectifs', t:'Le suivi des objectifs'}, {s:'effectif', t:"L'effectif"}],
+  'suivi-objectifs':[{s:'obj-coll', t:'Les objectifs collectifs'}, {s:'effectif', t:"L'effectif"}],
+  'points':        [{s:'recap',    t:'Le récap global'},    {s:'rotation', t:'La rotation'}],
+  'forme-coach':   [{s:'medical',  t:'Le suivi médical'},   {s:'convos', t:'Les convocations'}],
+  'rotation':      [{s:'compos',   t:'Poser la compo'},      {s:'convos', t:'Les convocations'}],
+  // --- la vie du club ---
+  'reunions':      [{s:'a-creuser', t:'À creuser'}, {s:'infos-club', t:'Docs & contacts du club'}],
+  'sondage':       [{s:'message',  t:"Le fil d'actualités"}, {s:'chat', t:'La messagerie'}],
+  'message':       [{s:'notifs-push', t:'Les notifications'}, {s:'sondage', t:'Un sondage'}],
+  'infos-club':    [{s:'imprimer', t:'Les docs à imprimer'}, {s:'reunions', t:'Les réunions'}],
+  'calendrier-annuel':[{s:'planning', t:'Le planning du mois'}, {s:'calendrier', t:'Le calendrier'}],
+  'videos':        [{s:'matchs',   t:'Les matchs'},          {s:'biblio', t:'La bibliothèque'}],
+  'bilan':         [{s:'recap',    t:'Le récap global'},    {s:'classement', t:'Le classement'}]
+};
+
+function majEtapes(s){
+  var scr=document.getElementById('scr-'+s);
+  if(!scr) return;
+  var anc=scr.querySelector(':scope > .etapes');
+  if(anc) anc.remove();
+  var suites=(ETAPES_SUIVANTES[s]||[]).filter(function(e){
+    return e.s && e.t && document.getElementById('scr-'+e.s);
+  });
+  if(!suites.length) return;
+  var d=document.createElement('div');
+  d.className='etapes';
+  d.innerHTML='<span class="etapes-t">Et après ?</span>'
+    +suites.map(function(e){
+      var info=(typeof ECRANS_INFO!=='undefined' && ECRANS_INFO[e.s])?ECRANS_INFO[e.s]:{ic:''};
+      return '<button class="etapes-b" onclick="goNav(\''+e.s+'\')">'
+        +(info.ic?('<span class="ic">'+info.ic+'</span>'):'')+e.t+' <b>›</b></button>';
+    }).join('');
+  scr.appendChild(d);
+}
+// ===== La barre du jour =====
+// Une barre de raccourcis fixe de plus n'aurait rien resolu. Celle-ci regarde
+// le calendrier et le jour de la semaine, et propose ce qu'on fait ce jour-la.
+function barreDuJourItems(){
+  var pm=(typeof dvProchainMatch==='function')?dvProchainMatch():null;
+  var dm=(typeof dvDernierMatch==='function')?dvDernierMatch():null;
+  var j=pm?dvEcartJours(pm.d):null;
+  var jour=new Date().getDay(); // 0 dimanche ... 2 mardi ... 4 jeudi
+  var lendemain=(dm && dvEcartJours(dm.d)===-1);
+
+  if(j===0) return {titre:'Jour de match', items:[
+    {s:'__bdt', ic:'📣', t:'Bord de touche'},
+    {s:'feuille-match', ic:'🖨️', t:'Feuille'},
+    {s:'compos', ic:'🎯', t:'Compo'},
+    {s:'avant-match', ic:'📚', t:'Dossier'}]};
+
+  if(lendemain) return {titre:'Au lendemain du match', items:[
+    {s:'matchs', ic:'⚽', t:'Saisir'},
+    {s:'recap', ic:'📈', t:'Récap'},
+    {s:'effectif', ic:'👥', t:'Effectif'},
+    {s:'classement', ic:'📊', t:'Classement'}]};
+
+  if(j===1 || j===2) return {titre:(j===1?'Le match est demain':'Le match est après-demain'), items:[
+    {s:'convos', ic:'📋', t:'Convocs'},
+    {s:'compos', ic:'🎯', t:'Compo'},
+    {s:'avant-match', ic:'📚', t:'Dossier'},
+    {s:'feuille-match', ic:'🖨️', t:'Feuille'}]};
+
+  if(jour===2 || jour===4) return {titre:(jour===2?"Mardi — entraînement":"Jeudi — entraînement"), items:[
+    {s:'seance', ic:'📝', t:'Séance'},
+    {s:'pres', ic:'✅', t:'Présences'},
+    {s:'constructeur', ic:'🎨', t:'Exercice'},
+    {s:'convos', ic:'📋', t:'Convocs'}]};
+
+  if(j!=null && j<=5) return {titre:'J-'+j+' avant le match', items:[
+    {s:'seance', ic:'📝', t:'Séance'},
+    {s:'adversaires', ic:'🔍', t:'Adversaire'},
+    {s:'convos', ic:'📋', t:'Convocs'},
+    {s:'avant-match', ic:'📚', t:'Dossier'}]};
+
+  return {titre:'', items:[
+    {s:'dash', ic:'📊', t:'Dashboard'},
+    {s:'seance', ic:'📝', t:'Séance'},
+    {s:'convos', ic:'📋', t:'Convocs'},
+    {s:'effectif', ic:'👥', t:'Effectif'}]};
+}
+
+function renderBarreDuJour(){
+  var bar=document.getElementById('barre-jour');
+  if(!bar) return;
+  if(!estModeTiroir()){ bar.style.display='none'; document.body.classList.remove('avec-barre'); return; }
+  var d=barreDuJourItems();
+  var actif=(document.querySelector('.scr.on')||{id:''}).id.replace('scr-','');
+  bar.innerHTML=d.items.map(function(it){
+    var onclick=(it.s==='__bdt')?'bdtOuvrir()':('goNav(\''+it.s+'\')');
+    return '<button class="bj-b'+(it.s===actif?' on':'')+'" onclick="'+onclick+'" title="'+it.t+'">'
+      +'<span class="ic">'+it.ic+'</span><span class="lb">'+it.t+'</span></button>';
+  }).join('')
+  +(d.titre?'<span class="bj-t">'+d.titre+'</span>':'');
+  bar.style.display='flex';
+  document.body.classList.add('avec-barre');
+}
+if(typeof window!=='undefined'){
+  window.addEventListener('resize', function(){ if(typeof renderBarreDuJour==='function') renderBarreDuJour(); });
 }
 function trouverPoleDeEcran(s){
   for(var i=0;i<POLES.length;i++){
@@ -21155,7 +21399,16 @@ function renderAccesJoueurs(){
 }
 
 function notif(txt){var el=document.getElementById('notif');el.textContent=txt;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
-window.addEventListener('load',function(){appliquerTheme(themeClair()?'clair':'sombre');appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();renderAnciensJoueurs();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
+window.addEventListener('load',function(){
+  appliquerTheme(themeClair()?'clair':'sombre');
+  // Un cran de rabiot dans la pile : le premier retour a de quoi se poser.
+  try{ history.pushState({ast:1}, ''); }catch(e){}
+  // On rouvre la ou le coach s'est arrete, sauf s'il n'a encore rien ouvert.
+  var dernier=navDernierEcran();
+  if(dernier && document.getElementById('scr-'+dernier)){
+    setTimeout(function(){ goNav(dernier); }, 40);
+  }
+  appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();renderAnciensJoueurs();renderBarreDuJour();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
