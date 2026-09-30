@@ -1490,6 +1490,41 @@ body.cv-plein #barre-jour{display:none!important}
   .pl-b{font-size:12px;padding:9px 8px}
   .pl-lab{flex:1 1 100%}
 }
+/* L'evolution des places : la place en ordonnee, 1re en haut. */
+.evo-lg{font-size:12px;color:var(--gris2);line-height:1.5;margin-bottom:10px}
+.evo-vide{font-size:12.5px;color:var(--gris2);line-height:1.6}
+.evo-svg{width:100%;height:auto;display:block;overflow:visible;margin:2px 0 4px}
+.evo-grille{stroke:var(--line);stroke-width:1;shape-rendering:crispEdges}
+.evo-grille-v{opacity:.55}
+.evo-lab{fill:var(--gris2);font-family:Inter,system-ui,sans-serif;font-size:9px}
+.evo-lab-y{text-anchor:end}
+.evo-lab-x{text-anchor:middle}
+.evo-axe{fill:var(--gris2);font-family:'Roboto Condensed',sans-serif;font-size:9px;
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.evo-autre{fill:none;stroke:var(--gris2);stroke-width:1.4;opacity:.28;
+  stroke-linejoin:round;stroke-linecap:round}
+.evo-autre:hover{opacity:.7;stroke-width:2}
+.evo-nous{fill:none;stroke:var(--or);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.evo-point{fill:var(--or);stroke:var(--carte);stroke-width:1.6}
+.evo-nom{fill:var(--or);font-family:'Roboto Condensed',sans-serif;font-size:10.5px;font-weight:700}
+.evo-nom2{fill:var(--gris2);font-weight:400;font-size:9.5px}
+.evo-chiffres{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.evo-ch{background:var(--voile);border:1px solid var(--line);border-radius:8px;
+  padding:7px 4px;text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
+.evo-ch-v{font-family:Inter,sans-serif;font-size:17px;font-weight:700;color:var(--gris);
+  line-height:1;white-space:nowrap}
+.evo-ch-v sup{font-size:9px}
+.evo-ch-l{font-size:9.5px;color:var(--gris2);line-height:1.2}
+.evo-det{margin-top:8px}
+.evo-det summary{font-size:12px;color:var(--gris2);cursor:pointer;padding:4px 0}
+.evo-det summary:hover{color:var(--or)}
+.evo-tab{margin-top:4px;max-height:210px;overflow-y:auto}
+.evo-tl{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:6px;font-size:12px;
+  padding:5px 2px;border-bottom:1px solid var(--line);color:var(--gris)}
+.evo-tl-tete{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gris2)}
+@media (max-width:420px){
+  .evo-chiffres{grid-template-columns:repeat(2,1fr)}
+}
 /* L'ecran classement : les tableaux a gauche, la saisie a droite. */
 #scr-classement .ph{padding:6px 0 8px 13px}
 #scr-classement .ph-title{font-size:22px}
@@ -1852,8 +1887,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v72</b> · 30/09/2026<br>
-      <span style="opacity:.7">Le classement en deux colonnes</span>
+      AST COACH <b style="color:var(--or)">v73</b> · 30/09/2026<br>
+      <span style="opacity:.7">L'évolution des places, enfin lisible</span>
     </div>
   </div>
 </div>
@@ -2126,12 +2161,8 @@ body.doc-ouvert{overflow:hidden}
       <div class="cls-col">
         <div class="blk" style="margin:0" id="prochain-match-blk"></div>
 
-        <div class="blk" style="margin:0"><div class="bh"><span class="bt">Évolution des places</span><span class="bc" id="classement-hist-nb">0 instantané</span></div>
-          <div id="classement-evolution" style="padding:14px"></div>
-          <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:6px">
-            <button class="gen-btn2" onclick="enregistrerInstantaneClassement()">📸 Enregistrer un instantané</button>
-            <span style="cursor:pointer;font-size:12px;color:var(--red);text-decoration:underline" onclick="viderHistoriqueClassement()">🗑 Vider l'historique (si noms mélangés / doublons)</span>
-          </div>
+        <div class="blk" style="margin:0"><div class="bh"><span class="bt">📈 Évolution des places</span><span class="bc" id="classement-hist-nb">—</span></div>
+          <div id="classement-evolution" style="padding:12px 14px 14px"></div>
         </div>
 
         <div class="blk" style="margin:0"><div class="bh"><span class="bt go">➕ Résultat entre 2 autres équipes</span><span class="bc" style="font-size:11px;color:var(--gris2)">génère tout le classement</span></div>
@@ -10742,35 +10773,188 @@ function enregistrerInstantaneClassement(){
   notif('✓ Instantané enregistré ('+CLASSEMENT_HISTORIQUE.length+' au total)');
   sauvegardeAuto();
 }
+// ===== L'evolution des places =====
+// On rejoue le championnat match apres match : a chaque journee, on reclasse
+// tout le monde. Aucune saisie en plus, aucun instantane a penser a prendre.
+function evolutionDesPlaces(){
+  var parEquipe={}, etiquette={};
+  // « AST Tarnos » et « AST TARNOS » sont la meme equipe : on regroupe sur un
+  // nom normalise, sinon on obtient deux courbes pour un seul club.
+  function cle(n){
+    var t=(typeof fexNormaliserNom==='function') ? fexNormaliserNom(n)
+      : String(n||'').toLowerCase().trim();
+    return t.replace(/\s+/g,' ');
+  }
+  function ajouter(a,b,sa,sb){
+    if(!a||!b||sa==null||sb==null) return;
+    var ka=cle(a), kb=cle(b);
+    if(!etiquette[ka]) etiquette[ka]=a;
+    if(!etiquette[kb]) etiquette[kb]=b;
+    (parEquipe[ka]=parEquipe[ka]||[]).push({bp:+sa,bc:+sb});
+    (parEquipe[kb]=parEquipe[kb]||[]).push({bp:+sb,bc:+sa});
+  }
+  // MATCHS est range du plus recent au plus ancien : on le remet dans l'ordre.
+  MATCHS.filter(function(m){ return m.comp==='R2'; }).slice().reverse()
+    .forEach(function(m){ ajouter(NOM_CLUB, m.adversaire, m.ast, m.adv); });
+  (AUTRES_RESULTATS||[]).forEach(function(r){ ajouter(r.eq1, r.eq2, r.s1, r.s2); });
+
+  var cles=Object.keys(parEquipe);
+  if(!cles.length) return {journees:[], noms:[], nb:0};
+  var noms=cles.map(function(k){ return etiquette[k]; });
+  var maxJ=0;
+  cles.forEach(function(k){ if(parEquipe[k].length>maxJ) maxJ=parEquipe[k].length; });
+
+  var journees=[];
+  for(var j=1;j<=maxJ;j++){
+    var lignes=cles.map(function(k){
+      var l={equipe:etiquette[k],j:0,pts:0,bp:0,bc:0};
+      parEquipe[k].slice(0,j).forEach(function(m){
+        l.j++; l.bp+=m.bp; l.bc+=m.bc;
+        l.pts += (m.bp>m.bc) ? 3 : (m.bp===m.bc ? 1 : 0);
+      });
+      return l;
+    }).sort(function(a,b){
+      return (b.pts-a.pts) || ((b.bp-b.bc)-(a.bp-a.bc)) || (b.bp-a.bp) || a.equipe.localeCompare(b.equipe);
+    });
+    journees.push(lignes.map(function(l,i){
+      return {equipe:l.equipe, place:i+1, pts:l.pts, joues:l.j};
+    }));
+  }
+  return {journees:journees, noms:noms, nb:noms.length};
+}
+function evoEstNous(nom){
+  return nom===NOM_CLUB || /tarnos/i.test(nom||'');
+}
+function evoPlaceDe(etape, nom){
+  for(var i=0;i<etape.length;i++) if(etape[i].equipe===nom) return etape[i];
+  return null;
+}
 function renderEvolutionClassement(){
-  document.getElementById('classement-hist-nb').textContent=CLASSEMENT_HISTORIQUE.length+' instantané'+(CLASSEMENT_HISTORIQUE.length>1?'s':'');
   var ct=document.getElementById('classement-evolution');
-  if(CLASSEMENT_HISTORIQUE.length<2){
-    ct.innerHTML='<div style="font-size:12.5px;color:var(--gris2)">Enregistre au moins 2 instantanés (à des dates différentes) pour voir le graphique d\'évolution.</div>';
+  if(!ct) return;
+  var ev=evolutionDesPlaces();
+  var cpt=document.getElementById('classement-hist-nb');
+  var J=ev.journees.length;
+  if(cpt) cpt.textContent = J ? (J+' journee'+(J>1?'s':'')).replace('journee','journée') : '—';
+
+  if(J<2){
+    ct.innerHTML='<div class="evo-vide">Le graphique apparaît dès que <b>deux journées</b> sont connues. '
+      +'Saisis tes résultats dans « Résultat du jour » et ceux des autres équipes juste à côté : '
+      +'il se construit tout seul, sans rien enregistrer.</div>';
     return;
   }
-  var equipes={};
-  CLASSEMENT_HISTORIQUE.forEach(function(snap){snap.data.forEach(function(e){equipes[e.equipe]=true;});});
-  var noms=Object.keys(equipes);
-  var w=560,h=220,pad=30;
-  var maxPts=1;
-  CLASSEMENT_HISTORIQUE.forEach(function(snap){snap.data.forEach(function(e){if((e.pts||0)>maxPts)maxPts=e.pts;});});
-  var stepX=noms.length>0&&CLASSEMENT_HISTORIQUE.length>1?(w-2*pad)/(CLASSEMENT_HISTORIQUE.length-1):0;
-  var svg='<svg width="100%" height="'+h+'" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="overflow:visible;display:block">';
-  noms.forEach(function(nom,ni){
-    var isTarnos=/tarnos/i.test(nom);
-    var col=isTarnos?'#F97316':CLASSEMENT_COULEURS[(ni+1)%CLASSEMENT_COULEURS.length];
-    var pts=CLASSEMENT_HISTORIQUE.map(function(snap){var e=snap.data.find(function(x){return x.equipe===nom;});return e?(e.pts||0):null;});
-    var ptsStr=pts.map(function(v,i){if(v===null)return null;var x=pad+i*stepX;var y=h-pad-(v/maxPts)*(h-2*pad);return x+','+y;}).filter(Boolean).join(' ');
-    svg+='<polyline points="'+ptsStr+'" fill="none" style="stroke:'+col+';stroke-width:'+(isTarnos?3:1.5)+';opacity:'+(isTarnos?1:.55)+'"></polyline>';
+
+  var N=ev.nb;                       // nombre d'equipes = nombre de places
+  var nous=null;
+  ev.noms.forEach(function(n){ if(!nous && evoEstNous(n)) nous=n; });
+
+  // --- geometrie : on dessine dans un repere fixe, l'affichage s'adapte
+  var gX=42, dX=64, hY=16, bY=30;    // marges gauche/droite/haut/bas
+  var W=520, H=Math.max(190, 34+N*15);
+  var traceL=W-gX-dX, traceH=H-hY-bY;
+  var px=function(j){ return gX + (J===1?traceL/2:(j)*traceL/(J-1)); };   // j : 0..J-1
+  var py=function(place){ return hY + (N===1?traceH/2:(place-1)*traceH/(N-1)); };
+
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" class="evo-svg" role="img" '
+    +'aria-label="Évolution de la place au classement, journée par journée">';
+
+  // --- la grille : une ligne par place, discrete
+  for(var pl=1; pl<=N; pl++){
+    var y=py(pl);
+    svg+='<line x1="'+gX+'" y1="'+y.toFixed(1)+'" x2="'+(W-dX)+'" y2="'+y.toFixed(1)+'" class="evo-grille"/>';
+    if(pl===1 || pl===N || pl%2===0){
+      svg+='<text x="'+(gX-8)+'" y="'+(y+3.2).toFixed(1)+'" class="evo-lab evo-lab-y">'+pl+'</text>';
+    }
+  }
+  // --- l'abscisse : une graduation par journee
+  var pasX = J>14 ? Math.ceil(J/10) : 1;
+  for(var j=0;j<J;j++){
+    var x=px(j);
+    svg+='<line x1="'+x.toFixed(1)+'" y1="'+hY+'" x2="'+x.toFixed(1)+'" y2="'+(H-bY)+'" class="evo-grille evo-grille-v"/>';
+    if(j===0 || j===J-1 || (j+1)%pasX===0){
+      svg+='<text x="'+x.toFixed(1)+'" y="'+(H-bY+14)+'" class="evo-lab evo-lab-x">J'+(j+1)+'</text>';
+    }
+  }
+  // --- les titres d'axes
+  svg+='<text x="'+(gX-8)+'" y="'+(hY-5)+'" class="evo-axe" text-anchor="end">Place</text>';
+  svg+='<text x="'+((gX+W-dX)/2)+'" y="'+(H-3)+'" class="evo-axe" text-anchor="middle">Journée (matchs joués)</text>';
+
+  // --- les autres equipes, en retrait : elles donnent le relief, pas le propos
+  ev.noms.forEach(function(nom){
+    if(nom===nous) return;
+    var pts=[];
+    for(var j=0;j<J;j++){
+      var e=evoPlaceDe(ev.journees[j], nom);
+      // joues < j+1 : l'equipe n'a pas encore joue cette journee-la.
+      if(e && e.joues===j+1) pts.push(px(j).toFixed(1)+','+py(e.place).toFixed(1));
+    }
+    if(pts.length<2) return;
+    svg+='<polyline points="'+pts.join(' ')+'" class="evo-autre"><title>'+esc2(nom)+'</title></polyline>';
   });
+
+  // --- notre equipe, par-dessus tout
+  if(nous){
+    var mes=[], places=[];
+    for(var j2=0;j2<J;j2++){
+      var e2=evoPlaceDe(ev.journees[j2], nous);
+      if(!e2 || e2.joues!==j2+1) continue;   // on n'invente pas une journee non jouee
+      mes.push({x:px(j2), y:py(e2.place), place:e2.place, pts:e2.pts, j:j2+1});
+      places.push(e2.place);
+    }
+    if(mes.length>1){
+      svg+='<polyline points="'+mes.map(function(m){ return m.x.toFixed(1)+','+m.y.toFixed(1); }).join(' ')+'" class="evo-nous"/>';
+      mes.forEach(function(m){
+        svg+='<circle cx="'+m.x.toFixed(1)+'" cy="'+m.y.toFixed(1)+'" r="3.6" class="evo-point">'
+          +'<title>J'+m.j+' : '+m.place+'e place, '+m.pts+' pt'+(m.pts>1?'s':'')+'</title></circle>';
+      });
+      var der=mes[mes.length-1];
+      var court = nous.length>15 ? (nous.slice(0,14)+'\u2026') : nous;
+      svg+='<text x="'+(der.x+9)+'" y="'+(der.y+4)+'" class="evo-nom">'+esc2(court)
+        +'<title>'+esc2(nous)+'</title></text>';
+      svg+='<text x="'+(der.x+9)+'" y="'+(der.y+16)+'" class="evo-nom evo-nom2">'+der.place+'e · '+der.pts+' pt'+(der.pts>1?'s':'')+'</text>';
+    }
+  }
   svg+='</svg>';
-  var legende=noms.map(function(nom,ni){
-    var isTarnos=/tarnos/i.test(nom);
-    var col=isTarnos?'#F97316':CLASSEMENT_COULEURS[(ni+1)%CLASSEMENT_COULEURS.length];
-    return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;color:'+(isTarnos?'#fff':'var(--gris2)')+';font-weight:'+(isTarnos?'700':'400')+'"><span style="width:9px;height:9px;border-radius:50%;background:'+col+';display:inline-block"></span>'+nom+'</span>';
-  }).join('');
-  ct.innerHTML=svg+'<div style="margin-top:10px">'+legende+'</div>';
+
+  // --- le resume chiffre : ce que le graphique raconte, en trois nombres
+  var resume='';
+  if(nous){
+    var suite=[], derJ=0;
+    for(var j3=0;j3<J;j3++){
+      var x3=evoPlaceDe(ev.journees[j3], nous);
+      if(x3 && x3.joues===j3+1){ suite.push(x3.place); derJ=j3+1; }
+    }
+    if(suite.length){
+      var actuelle=suite[suite.length-1];
+      var meilleure=Math.min.apply(null,suite), pire=Math.max.apply(null,suite);
+      var bouge=suite.length>1 ? (suite[suite.length-2]-actuelle) : 0;
+      var fleche = bouge>0 ? ('↑ +'+bouge) : (bouge<0 ? ('↓ '+bouge) : '→ stable');
+      var coul = bouge>0 ? 'var(--green)' : (bouge<0 ? 'var(--red)' : 'var(--gris2)');
+      resume='<div class="evo-chiffres">'
+        +'<div class="evo-ch"><span class="evo-ch-v">'+actuelle+'<sup>e</sup></span><span class="evo-ch-l">Aujourd\'hui</span></div>'
+        +'<div class="evo-ch"><span class="evo-ch-v" style="color:'+coul+'">'+fleche+'</span><span class="evo-ch-l">'
+          +(suite.length>1?('Depuis J'+(derJ-1)):'\u2014')+'</span></div>'
+        +'<div class="evo-ch"><span class="evo-ch-v">'+meilleure+'<sup>e</sup></span><span class="evo-ch-l">Meilleure place</span></div>'
+        +'<div class="evo-ch"><span class="evo-ch-v">'+pire+'<sup>e</sup></span><span class="evo-ch-l">Pire place</span></div>'
+        +'</div>';
+    }
+  }
+
+  // --- les chiffres bruts, pour qui prefere lire
+  var tableau='<details class="evo-det"><summary>Voir les chiffres journée par journée</summary><div class="evo-tab">';
+  if(nous){
+    tableau+='<div class="evo-tl evo-tl-tete"><span>Journée</span><span>Place</span><span>Points</span></div>';
+    for(var j4=0;j4<J;j4++){
+      var x4=evoPlaceDe(ev.journees[j4], nous);
+      if(!x4 || x4.joues!==j4+1) continue;
+      tableau+='<div class="evo-tl"><span>J'+(j4+1)+'</span><span><b>'+x4.place+'<sup>e</sup></b> sur '+N+'</span><span>'+x4.pts+' pts</span></div>';
+    }
+  }
+  tableau+='</div></details>';
+
+  ct.innerHTML='<div class="evo-lg">Ta place au classement après chaque journée — <b>1<sup>re</sup> en haut</b>. '
+    +'Les traits gris sont les autres équipes de la poule.</div>'
+    + resume + svg + tableau;
 }
 
 function appliquerDonnees(p,silencieux){
