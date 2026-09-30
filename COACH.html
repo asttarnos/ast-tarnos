@@ -22,7 +22,12 @@
   --line:rgba(255,255,255,.22);
   --voile:rgba(255,255,255,.035); --voile2:rgba(255,255,255,.07); --voile3:rgba(255,255,255,.18);
   --accent-r:#fca5a5; --accent-v:#a9e0c6; --accent-o:#ffd9a8;
-  --surcouleur:#1a0f02;   /* le texte pose sur une pastille orange, verte, rouge… */
+  --surcouleur:#1a0f02;
+  /* Les six teintes des equipes de la poule, fond sombre. Sur ce fond la
+     plage de clarte est etroite : le trait plein ou pointille fait le
+     gros du travail, la couleur vient en renfort. */
+  --eq1:#3987e5; --eq2:#00897b; --eq3:#7a9e00;
+  --eq4:#c98500; --eq5:#cf5555; --eq6:#9085e9;   /* le texte pose sur une pastille orange, verte, rouge… */
   --teinte:rgba(15,15,15,.5); --teinte2:rgba(15,15,15,.7); --teinteb:rgba(20,20,20,.5);
   --modal:rgba(10,10,10,.97); --scrim:rgba(0,0,0,.86); --bandeau:rgba(8,8,8,.6);
 }
@@ -38,6 +43,10 @@ html.clair{
   --voile:rgba(24,26,30,.04); --voile2:rgba(24,26,30,.07); --voile3:rgba(24,26,30,.17);
   --accent-r:#b91c1c; --accent-v:#0f6e46; --accent-o:#92400e;
   --surcouleur:#20150a;
+  /* Les memes six familles, recalees pour le fond clair. Ce jeu-la passe
+     le controle de lisibilite sur toutes les paires. */
+  --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
+  --eq4:#eda100; --eq5:#e34948; --eq6:#a21caf;
   --teinte:rgba(24,26,30,.05); --teinte2:rgba(24,26,30,.08); --teinteb:rgba(24,26,30,.015);
   --modal:#ffffff; --scrim:rgba(24,26,30,.5); --bandeau:rgba(24,26,30,.06);
 }
@@ -1491,7 +1500,7 @@ body.cv-plein #barre-jour{display:none!important}
   .pl-lab{flex:1 1 100%}
 }
 /* L'evolution des places : la place en ordonnee, 1re en haut. */
-.evo-lg{font-size:12px;color:var(--gris2);line-height:1.5;margin-bottom:10px}
+.evo-lg-t2{font-size:12px;color:var(--gris2);line-height:1.5;margin-bottom:10px}
 .evo-vide{font-size:12.5px;color:var(--gris2);line-height:1.6}
 .evo-svg{width:100%;height:auto;display:block;overflow:visible;margin:2px 0 4px}
 .evo-grille{stroke:var(--line);stroke-width:1;shape-rendering:crispEdges}
@@ -1501,13 +1510,25 @@ body.cv-plein #barre-jour{display:none!important}
 .evo-lab-x{text-anchor:middle}
 .evo-axe{fill:var(--gris2);font-family:'Roboto Condensed',sans-serif;font-size:9px;
   font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
-.evo-autre{fill:none;stroke:var(--gris2);stroke-width:1.4;opacity:.28;
-  stroke-linejoin:round;stroke-linecap:round}
-.evo-autre:hover{opacity:.7;stroke-width:2}
-.evo-nous{fill:none;stroke:var(--or);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
-.evo-point{fill:var(--or);stroke:var(--carte);stroke-width:1.6}
-.evo-nom{fill:var(--or);font-family:'Roboto Condensed',sans-serif;font-size:10.5px;font-weight:700}
-.evo-nom2{fill:var(--gris2);font-weight:400;font-size:9.5px}
+.evo-tr{fill:none;stroke-width:1.9;opacity:.72;stroke-linejoin:round;stroke-linecap:round;
+  transition:opacity .12s,stroke-width .12s}
+.evo-tr:hover{opacity:1;stroke-width:2.6}
+.evo-tr.evo-avant{opacity:1;stroke-width:3;stroke-dasharray:none!important}
+.evo-point{stroke:var(--carte);stroke-width:1.5}
+.evo-nom{font-family:'Roboto Condensed',sans-serif;font-size:10.5px;font-weight:700;
+  paint-order:stroke;stroke:var(--carte);stroke-width:3px;stroke-linejoin:round}
+/* La legende : chaque equipe avec son trait exact, et on clique pour la suivre. */
+.evo-leg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:3px;margin-top:10px}
+.evo-lg-b{display:flex;align-items:center;gap:6px;background:none;border:1px solid transparent;
+  border-radius:7px;padding:4px 6px;cursor:pointer;text-align:left;min-width:0;
+  font-family:inherit;color:var(--gris2);font-size:11.5px}
+.evo-lg-b:hover{background:var(--voile);border-color:var(--line)}
+.evo-lg-b.on{background:var(--voile2);border-color:var(--line);color:var(--gris)}
+.evo-lg-b.moi{font-weight:700;color:var(--or)}
+.evo-lg-t{width:22px;height:8px;flex:0 0 22px}
+.evo-lg-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evo-lg-p{font-family:Inter,sans-serif;font-size:11px;color:var(--gris2);flex:0 0 auto}
+.evo-lg-p sup{font-size:8px}
 .evo-chiffres{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
 .evo-ch{background:var(--voile);border:1px solid var(--line);border-radius:8px;
   padding:7px 4px;text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1553,6 +1574,9 @@ body.cv-plein #barre-jour{display:none!important}
 .cl-ligne .rang{width:20px;text-align:center;font-family:Inter,sans-serif;font-weight:700;
   color:var(--gris2);font-size:13px;flex-shrink:0}
 .cl-ligne.cl-court{padding:6px}
+.cl-ligne .jeton{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.cl-ligne.vide{opacity:.55}
+.cl-ligne.vide .pts{font-size:10.5px;font-weight:400;color:var(--gris2);font-family:'Roboto Condensed',sans-serif}
 .cl-ligne.cl-tete{padding:4px 6px 6px;border-bottom:1px solid var(--line2, var(--line))}
 .cl-ligne.cl-tete span{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   color:var(--gris2);white-space:nowrap}
@@ -1887,8 +1911,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v73</b> · 30/09/2026<br>
-      <span style="opacity:.7">L'évolution des places, enfin lisible</span>
+      AST COACH <b style="color:var(--or)">v74</b> · 30/09/2026<br>
+      <span style="opacity:.7">Une couleur par équipe, la poule au complet</span>
     </div>
   </div>
 </div>
@@ -10424,6 +10448,41 @@ async function chargerReponsesSondageDetail(idx){
 
 // CLASSEMENT
 var CLASSEMENT_COULEURS=['#F97316','#38bdf8','#a855f7','#22c55e','#f5c842','#ef4444','#9ca3af','#14b8a6','#f472b6','#818cf8','#fb923c','#84cc16','#e879f9','#60a5fa'];
+// ===== L'identite visuelle d'une equipe =====
+// La couleur suit l'EQUIPE, jamais sa place : sinon un club change de
+// couleur des qu'il monte ou descend, et on ne suit plus personne.
+function poulesCle(n){
+  var t=(typeof fexNormaliserNom==='function') ? fexNormaliserNom(n)
+    : String(n||'').toLowerCase().trim();
+  return t.replace(/\s+/g,' ');
+}
+function equipesDeLaPoule(){
+  var vues={}, out=[];
+  function ajout(n){
+    if(!n) return;
+    var k=poulesCle(n);
+    if(!k || vues[k]) return;
+    vues[k]=1; out.push({cle:k, nom:n});
+  }
+  ajout(NOM_CLUB);
+  MATCHS.filter(function(m){ return m.comp==='R2'; }).forEach(function(m){ ajout(m.adversaire); });
+  (typeof AUTRES_RESULTATS!=='undefined'?AUTRES_RESULTATS:[]).forEach(function(r){ ajout(r.eq1); ajout(r.eq2); });
+  (typeof CLASSEMENT!=='undefined'?CLASSEMENT:[]).forEach(function(e){ ajout(e.equipe); });
+  out.sort(function(a,b){ return a.cle.localeCompare(b.cle); });
+  return out;
+}
+function estNotreEquipe(nom){
+  return poulesCle(nom)===poulesCle(NOM_CLUB) || /tarnos/i.test(nom||'');
+}
+// Sept teintes et deux types de trait : douze equipes se distinguent,
+// ce que la couleur seule ne permet pas.
+function styleEquipe(nom){
+  if(estNotreEquipe(nom)) return {couleur:'var(--or)', tirets:'', nous:true};
+  var liste=equipesDeLaPoule().filter(function(x){ return !estNotreEquipe(x.nom); });
+  var k=poulesCle(nom), i=0;
+  for(var z=0;z<liste.length;z++) if(liste[z].cle===k){ i=z; break; }
+  return {couleur:'var(--eq'+((i%6)+1)+')', tirets:(i>=6?'5 3.5':''), nous:false};
+}
 function initialesEquipe(nom){
   var mots=nom.trim().split(/\s+/).filter(Boolean);
   if(mots.length===1) return mots[0].substring(0,3).toUpperCase();
@@ -10509,7 +10568,7 @@ function renderClassement(){
     return '<div class="cl-ligne'+(isTarnos?' moi':'')+'" title="'+esc2(e.equipe)+' — '+e.j+' joués, '
         +e.v+'V '+e.n+'N '+e.d+'D, '+e.bp+' buts pour, '+e.bc+' contre">'
       +'<span class="rang">'+(rang+1)+'</span>'
-      +'<span class="ecu" style="background:'+CLASSEMENT_COULEURS[rang%CLASSEMENT_COULEURS.length]+'">'+initialesEquipe(e.equipe||'?')+'</span>'
+      +'<span class="ecu" style="background:'+styleEquipe(e.equipe).couleur+'">'+initialesEquipe(e.equipe||'?')+'</span>'
       +'<span class="nom">'+e.equipe+'</span>'
       +'<span class="chif" style="color:var(--gris2);width:22px">'+e.j+'</span>'
       +'<span class="chif" style="color:var(--green);width:17px">'+e.v+'</span>'
@@ -10653,7 +10712,14 @@ function calculerClassementAuto(){
 }
 function calculerClassementParLieu(filtreLieu){
   var stats={};
-  function ligne(nom){ if(!stats[nom]) stats[nom]={equipe:nom,j:0,v:0,n:0,d:0,bp:0,bc:0,pts:0}; return stats[nom]; }
+  function ligne(nom){
+    var k=poulesCle(nom);
+    if(!stats[k]) stats[k]={equipe:nom,j:0,v:0,n:0,d:0,bp:0,bc:0,pts:0};
+    return stats[k];
+  }
+  // Toute la poule figure au tableau, meme celles qui n'ont pas encore joue
+  // a cet endroit : sinon on croit qu'il manque des equipes.
+  equipesDeLaPoule().forEach(function(e){ ligne(e.nom); });
   function crediter(nom,scorePour,scoreContre){
     var l=ligne(nom);
     l.j++; l.bp+=scorePour; l.bc+=scoreContre;
@@ -10669,7 +10735,9 @@ function calculerClassementParLieu(filtreLieu){
     if(filtreLieu==='E') crediter(r.eq2,r.s2,r.s1);
   });
   return Object.keys(stats).map(function(k){return stats[k];}).sort(function(a,b){
-    return (b.pts-a.pts)||((b.bp-b.bc)-(a.bp-a.bc))||(b.bp-a.bp);
+    // celles qui n'ont pas encore joue ici passent en fin de liste
+    return ((b.j>0)-(a.j>0)) || (b.pts-a.pts) || ((b.bp-b.bc)-(a.bp-a.bc)) || (b.bp-a.bp)
+      || a.equipe.localeCompare(b.equipe);
   });
 }
 function renderMiniClassementLieu(elId,filtreLieu){
@@ -10678,11 +10746,17 @@ function renderMiniClassementLieu(elId,filtreLieu){
   var sorted=calculerClassementParLieu(filtreLieu);
   ct.innerHTML=sorted.length?sorted.map(function(e,rang){
     var isTarnos=e.equipe===NOM_CLUB||/tarnos/i.test(e.equipe);
-    return '<div class="cl-ligne cl-court'+(isTarnos?' moi':'')+'">'
-      +'<span class="rang" style="width:16px;font-size:12px">'+(rang+1)+'</span>'
+    var st=styleEquipe(e.equipe);
+    return '<div class="cl-ligne cl-court'+(isTarnos?' moi':'')+(e.j?'':' vide')+'" '
+      +'title="'+esc2(e.equipe)+' \u2014 '+e.j+' match'+(e.j>1?'s':'')+' ici">'
+      +'<span class="rang" style="width:16px;font-size:12px">'+(e.j?(rang+1):'\u00b7')+'</span>'
+      +'<span class="jeton" style="background:'+st.couleur+'"></span>'
       +'<span class="nom" style="font-size:12.5px">'+e.equipe+'</span>'
-      +'<span class="chif" style="color:var(--gris2)">'+e.bp+'-'+e.bc+'</span>'
-      +'<span class="pts">'+e.pts+' pts</span></div>';
+      +(e.j
+        ? ('<span class="chif" style="color:var(--gris2)">'+e.bp+'-'+e.bc+'</span>'
+           +'<span class="pts">'+e.pts+' pt'+(e.pts>1?'s':'')+'</span>')
+        : '<span class="chif" style="color:var(--gris2)">\u2014</span><span class="pts">pas jou\u00e9</span>')
+      +'</div>';
   }).join(''):'<div style="text-align:center;padding:10px;color:var(--gris2);font-size:12.5px">Aucun résultat pour l\'instant</div>';
 }
 // ===== Import du classement par copier-coller =====
@@ -10829,94 +10903,101 @@ function evoPlaceDe(etape, nom){
   for(var i=0;i<etape.length;i++) if(etape[i].equipe===nom) return etape[i];
   return null;
 }
+// L'equipe qu'on suit en plus de la notre (clic dans la legende).
+var EVO_SUIVIE='';
+function evoSuivre(cle){
+  EVO_SUIVIE = (EVO_SUIVIE===cle) ? '' : cle;
+  renderEvolutionClassement();
+}
 function renderEvolutionClassement(){
   var ct=document.getElementById('classement-evolution');
   if(!ct) return;
   var ev=evolutionDesPlaces();
   var cpt=document.getElementById('classement-hist-nb');
   var J=ev.journees.length;
-  if(cpt) cpt.textContent = J ? (J+' journee'+(J>1?'s':'')).replace('journee','journée') : '—';
+  if(cpt) cpt.textContent = J ? (J+' journ\u00e9e'+(J>1?'s':'')) : '\u2014';
 
   if(J<2){
-    ct.innerHTML='<div class="evo-vide">Le graphique apparaît dès que <b>deux journées</b> sont connues. '
-      +'Saisis tes résultats dans « Résultat du jour » et ceux des autres équipes juste à côté : '
+    ct.innerHTML='<div class="evo-vide">Le graphique appara\u00eet d\u00e8s que <b>deux journ\u00e9es</b> sont connues. '
+      +'Saisis tes r\u00e9sultats dans \u00ab R\u00e9sultat du jour \u00bb et ceux des autres \u00e9quipes juste \u00e0 c\u00f4t\u00e9 : '
       +'il se construit tout seul, sans rien enregistrer.</div>';
     return;
   }
 
-  var N=ev.nb;                       // nombre d'equipes = nombre de places
+  var N=ev.nb;
   var nous=null;
-  ev.noms.forEach(function(n){ if(!nous && evoEstNous(n)) nous=n; });
+  ev.noms.forEach(function(n){ if(!nous && estNotreEquipe(n)) nous=n; });
 
-  // --- geometrie : on dessine dans un repere fixe, l'affichage s'adapte
-  var gX=42, dX=64, hY=16, bY=30;    // marges gauche/droite/haut/bas
-  var W=520, H=Math.max(190, 34+N*15);
+  var gX=42, dX=58, hY=16, bY=30;
+  var W=520, H=Math.max(200, 40+N*15);
   var traceL=W-gX-dX, traceH=H-hY-bY;
-  var px=function(j){ return gX + (J===1?traceL/2:(j)*traceL/(J-1)); };   // j : 0..J-1
+  var px=function(j){ return gX + (J===1?traceL/2:(j)*traceL/(J-1)); };
   var py=function(place){ return hY + (N===1?traceH/2:(place-1)*traceH/(N-1)); };
 
   var svg='<svg viewBox="0 0 '+W+' '+H+'" class="evo-svg" role="img" '
-    +'aria-label="Évolution de la place au classement, journée par journée">';
+    +'aria-label="\u00c9volution de la place au classement, journ\u00e9e par journ\u00e9e">';
 
-  // --- la grille : une ligne par place, discrete
   for(var pl=1; pl<=N; pl++){
     var y=py(pl);
     svg+='<line x1="'+gX+'" y1="'+y.toFixed(1)+'" x2="'+(W-dX)+'" y2="'+y.toFixed(1)+'" class="evo-grille"/>';
-    if(pl===1 || pl===N || pl%2===0){
+    if(pl===1 || pl===N || pl%2===0)
       svg+='<text x="'+(gX-8)+'" y="'+(y+3.2).toFixed(1)+'" class="evo-lab evo-lab-y">'+pl+'</text>';
-    }
   }
-  // --- l'abscisse : une graduation par journee
   var pasX = J>14 ? Math.ceil(J/10) : 1;
   for(var j=0;j<J;j++){
     var x=px(j);
     svg+='<line x1="'+x.toFixed(1)+'" y1="'+hY+'" x2="'+x.toFixed(1)+'" y2="'+(H-bY)+'" class="evo-grille evo-grille-v"/>';
-    if(j===0 || j===J-1 || (j+1)%pasX===0){
+    if(j===0 || j===J-1 || (j+1)%pasX===0)
       svg+='<text x="'+x.toFixed(1)+'" y="'+(H-bY+14)+'" class="evo-lab evo-lab-x">J'+(j+1)+'</text>';
-    }
   }
-  // --- les titres d'axes
   svg+='<text x="'+(gX-8)+'" y="'+(hY-5)+'" class="evo-axe" text-anchor="end">Place</text>';
-  svg+='<text x="'+((gX+W-dX)/2)+'" y="'+(H-3)+'" class="evo-axe" text-anchor="middle">Journée (matchs joués)</text>';
+  svg+='<text x="'+((gX+W-dX)/2)+'" y="'+(H-3)+'" class="evo-axe" text-anchor="middle">Journ\u00e9e (matchs jou\u00e9s)</text>';
 
-  // --- les autres equipes, en retrait : elles donnent le relief, pas le propos
-  ev.noms.forEach(function(nom){
-    if(nom===nous) return;
+  // Les points de chaque equipe, journee par journee
+  function courbeDe(nom){
     var pts=[];
-    for(var j=0;j<J;j++){
-      var e=evoPlaceDe(ev.journees[j], nom);
-      // joues < j+1 : l'equipe n'a pas encore joue cette journee-la.
-      if(e && e.joues===j+1) pts.push(px(j).toFixed(1)+','+py(e.place).toFixed(1));
+    for(var q=0;q<J;q++){
+      var e=evoPlaceDe(ev.journees[q], nom);
+      if(e && e.joues===q+1) pts.push({x:px(q), y:py(e.place), place:e.place, pts:e.pts, j:q+1});
     }
-    if(pts.length<2) return;
-    svg+='<polyline points="'+pts.join(' ')+'" class="evo-autre"><title>'+esc2(nom)+'</title></polyline>';
-  });
-
-  // --- notre equipe, par-dessus tout
-  if(nous){
-    var mes=[], places=[];
-    for(var j2=0;j2<J;j2++){
-      var e2=evoPlaceDe(ev.journees[j2], nous);
-      if(!e2 || e2.joues!==j2+1) continue;   // on n'invente pas une journee non jouee
-      mes.push({x:px(j2), y:py(e2.place), place:e2.place, pts:e2.pts, j:j2+1});
-      places.push(e2.place);
-    }
-    if(mes.length>1){
-      svg+='<polyline points="'+mes.map(function(m){ return m.x.toFixed(1)+','+m.y.toFixed(1); }).join(' ')+'" class="evo-nous"/>';
-      mes.forEach(function(m){
-        svg+='<circle cx="'+m.x.toFixed(1)+'" cy="'+m.y.toFixed(1)+'" r="3.6" class="evo-point">'
-          +'<title>J'+m.j+' : '+m.place+'e place, '+m.pts+' pt'+(m.pts>1?'s':'')+'</title></circle>';
-      });
-      var der=mes[mes.length-1];
-      var court = nous.length>15 ? (nous.slice(0,14)+'\u2026') : nous;
-      svg+='<text x="'+(der.x+9)+'" y="'+(der.y+4)+'" class="evo-nom">'+esc2(court)
-        +'<title>'+esc2(nous)+'</title></text>';
-      svg+='<text x="'+(der.x+9)+'" y="'+(der.y+16)+'" class="evo-nom evo-nom2">'+der.place+'e · '+der.pts+' pt'+(der.pts>1?'s':'')+'</text>';
-    }
+    return pts;
   }
+  function tracer(nom, avant){
+    var st=styleEquipe(nom);
+    var c=courbeDe(nom);
+    if(c.length<2) return '';
+    var d='<polyline points="'+c.map(function(m){ return m.x.toFixed(1)+','+m.y.toFixed(1); }).join(' ')+'"'
+      +' class="evo-tr'+(avant?' evo-avant':'')+'" style="stroke:'+st.couleur
+      +(st.tirets?(';stroke-dasharray:'+st.tirets):'')+'">'
+      +'<title>'+esc2(nom)+'</title></polyline>';
+    if(avant){
+      c.forEach(function(m){
+        d+='<circle cx="'+m.x.toFixed(1)+'" cy="'+m.y.toFixed(1)+'" r="3.4" class="evo-point" '
+          +'style="fill:'+st.couleur+'"><title>'+esc2(nom)+' \u2014 J'+m.j+' : '+m.place+'e, '
+          +m.pts+' pt'+(m.pts>1?'s':'')+'</title></circle>';
+      });
+      var der=c[c.length-1];
+      var court = nom.length>13 ? (nom.slice(0,12)+'\u2026') : nom;
+      d+='<text x="'+(der.x+8)+'" y="'+(der.y+3.5)+'" class="evo-nom" style="fill:'+st.couleur+'">'
+        +esc2(court)+'<title>'+esc2(nom)+'</title></text>';
+    }
+    return d;
+  }
+
+  // D'abord les autres, puis celles qu'on met en avant : l'ordre fait le relief.
+  var suivie=null;
+  ev.noms.forEach(function(nom){
+    if(EVO_SUIVIE && poulesCle(nom)===EVO_SUIVIE && !estNotreEquipe(nom)) suivie=nom;
+  });
+  ev.noms.forEach(function(nom){
+    if(nom===nous || nom===suivie) return;
+    svg+=tracer(nom, false);
+  });
+  if(suivie) svg+=tracer(suivie, true);
+  if(nous) svg+=tracer(nous, true);
   svg+='</svg>';
 
-  // --- le resume chiffre : ce que le graphique raconte, en trois nombres
+  // --- le resume chiffre
   var resume='';
   if(nous){
     var suite=[], derJ=0;
@@ -10928,7 +11009,7 @@ function renderEvolutionClassement(){
       var actuelle=suite[suite.length-1];
       var meilleure=Math.min.apply(null,suite), pire=Math.max.apply(null,suite);
       var bouge=suite.length>1 ? (suite[suite.length-2]-actuelle) : 0;
-      var fleche = bouge>0 ? ('↑ +'+bouge) : (bouge<0 ? ('↓ '+bouge) : '→ stable');
+      var fleche = bouge>0 ? ('\u2191 +'+bouge) : (bouge<0 ? ('\u2193 '+bouge) : '\u2192 stable');
       var coul = bouge>0 ? 'var(--green)' : (bouge<0 ? 'var(--red)' : 'var(--gris2)');
       resume='<div class="evo-chiffres">'
         +'<div class="evo-ch"><span class="evo-ch-v">'+actuelle+'<sup>e</sup></span><span class="evo-ch-l">Aujourd\'hui</span></div>'
@@ -10940,21 +11021,39 @@ function renderEvolutionClassement(){
     }
   }
 
-  // --- les chiffres bruts, pour qui prefere lire
-  var tableau='<details class="evo-det"><summary>Voir les chiffres journée par journée</summary><div class="evo-tab">';
+  // --- la legende : chaque equipe avec sa couleur et son trait, cliquable
+  var derniere=ev.journees[J-1];
+  var ordre=derniere.slice().sort(function(a,b){ return a.place-b.place; });
+  var legende='<div class="evo-leg">'+ordre.map(function(e){
+    var st=styleEquipe(e.equipe);
+    var cle=poulesCle(e.equipe);
+    var actif = st.nous || (EVO_SUIVIE===cle);
+    return '<button class="evo-lg-b'+(actif?' on':'')+(st.nous?' moi':'')+'" '
+      +'onclick="evoSuivre(\''+cle.replace(/'/g,"\\'")+'\')" '
+      +'title="'+esc2(e.equipe)+' \u2014 '+e.place+'e, '+e.pts+' pt'+(e.pts>1?'s':'')
+      +(st.nous?'':' \u00b7 clique pour la suivre')+'">'
+      +'<svg class="evo-lg-t" viewBox="0 0 22 8" aria-hidden="true"><line x1="1" y1="4" x2="21" y2="4" '
+        +'style="stroke:'+st.couleur+';stroke-width:'+(actif?3.2:2.4)
+        +';opacity:'+(actif?1:.72)+(st.tirets&&!actif?(';stroke-dasharray:'+st.tirets):'')+'"/></svg>'
+      +'<span class="evo-lg-n">'+esc2(e.equipe)+'</span>'
+      +'<span class="evo-lg-p">'+e.place+'<sup>e</sup></span></button>';
+  }).join('')+'</div>';
+
+  // --- les chiffres bruts
+  var tableau='<details class="evo-det"><summary>Voir les chiffres journ\u00e9e par journ\u00e9e</summary><div class="evo-tab">';
   if(nous){
-    tableau+='<div class="evo-tl evo-tl-tete"><span>Journée</span><span>Place</span><span>Points</span></div>';
+    tableau+='<div class="evo-tl evo-tl-tete"><span>Journ\u00e9e</span><span>Place</span><span>Points</span></div>';
     for(var j4=0;j4<J;j4++){
       var x4=evoPlaceDe(ev.journees[j4], nous);
       if(!x4 || x4.joues!==j4+1) continue;
-      tableau+='<div class="evo-tl"><span>J'+(j4+1)+'</span><span><b>'+x4.place+'<sup>e</sup></b> sur '+N+'</span><span>'+x4.pts+' pts</span></div>';
+      tableau+='<div class="evo-tl"><span>J'+(j4+1)+'</span><span><b>'+x4.place+'<sup>e</sup></b> sur '+N+'</span><span>'+x4.pts+' pt'+(x4.pts>1?'s':'')+'</span></div>';
     }
   }
   tableau+='</div></details>';
 
-  ct.innerHTML='<div class="evo-lg">Ta place au classement après chaque journée — <b>1<sup>re</sup> en haut</b>. '
-    +'Les traits gris sont les autres équipes de la poule.</div>'
-    + resume + svg + tableau;
+  ct.innerHTML='<div class="evo-lg-t2">Ta place apr\u00e8s chaque journ\u00e9e \u2014 <b>1<sup>re</sup> en haut</b>. '
+    +'Clique une \u00e9quipe dans la liste pour suivre sa courbe.</div>'
+    + resume + svg + legende + tableau;
 }
 
 function appliquerDonnees(p,silencieux){
