@@ -1428,6 +1428,32 @@ body.cv-plein #scr-convos.on{padding-top:0}
 body.avec-barre .scr{padding-bottom:104px}
 body.cv-plein #barre-jour{display:none!important}
 #bdt.on ~ #barre-jour{display:none!important}
+/* Les actions d'un match : de vrais boutons, pas quatre icones de 17 px. */
+.mc-act{display:flex;flex-direction:column;gap:5px;margin-left:8px;flex:0 0 auto}
+.mc-b{display:flex;align-items:center;gap:7px;background:var(--voile);color:var(--gris2);
+  border:1px solid var(--line);border-radius:8px;padding:8px 11px;cursor:pointer;
+  font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:700;white-space:nowrap;
+  min-height:38px;transition:border-color .13s,color .13s}
+.mc-b:hover{border-color:var(--or);color:var(--or)}
+.mc-b .ic{font-size:15px;line-height:1;position:relative}
+.mc-b .ic .pt{color:var(--or);font-size:11px;position:absolute;top:-3px;right:-7px}
+.mc-b.sup{color:var(--red)}
+.mc-b.sup:hover{border-color:var(--red);background:var(--voile2)}
+#matchs-annuler{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:var(--orfond);border:1px solid var(--or);border-radius:9px;padding:10px 14px;margin:0 0 10px;
+  font-size:13px;color:var(--gris)}
+#matchs-annuler button{background:var(--or);color:var(--surcouleur);border:none;border-radius:7px;
+  padding:9px 15px;font-family:'Roboto Condensed',sans-serif;font-size:12.5px;font-weight:800;cursor:pointer}
+@media(max-width:860px){
+  .mc{flex-wrap:wrap}
+  .mc-act{flex-direction:row;flex-wrap:wrap;margin:9px 0 0;width:100%;gap:6px}
+  .mc-b{flex:1 1 calc(50% - 3px);justify-content:center;min-height:42px}
+}
+@media(min-width:861px) and (max-width:1250px){
+  .mc-b .lb{display:none}
+  .mc-b{padding:9px 11px;justify-content:center}
+  .mc-act{flex-direction:row}
+}
 /* « Et apres ? » : la suite logique du travail, en bas de l'ecran. */
 .etapes{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:22px 0 4px;padding-top:15px;
   border-top:1px solid var(--line)}
@@ -1673,8 +1699,8 @@ body.cv-plein #barre-jour{display:none!important}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v67</b> · 30/09/2026<br>
-      <span style="opacity:.7">Les noms de la compo, remis en blanc</span>
+      AST COACH <b style="color:var(--or)">v68</b> · 30/09/2026<br>
+      <span style="opacity:.7">Supprimer un match saisi, et l'annuler</span>
     </div>
   </div>
 </div>
@@ -1825,7 +1851,7 @@ body.cv-plein #barre-jour{display:none!important}
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">📊 Bilan par catégorie</span><span class="bc" style="font-size:11.5px;color:var(--gris2)">R2 uniquement — calculé automatiquement</span></div>
     <div id="bilan-categorise" style="padding:10px"></div>
   </div>
-  <div class="blk plein"><div class="bh"><span class="bt">Historique</span><span class="bc" id="bilan-txt">-</span></div><div id="matchs-list" style="padding:12px"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:13px">Aucun match</div></div></div>
+  <div class="blk plein"><div class="bh"><span class="bt">Historique</span><span class="bc" id="bilan-txt">-</span></div><div id="matchs-annuler"></div><div id="matchs-list" style="padding:12px"><div style="text-align:center;padding:20px;color:var(--gris2);font-size:13px">Aucun match</div></div></div>
 </div>
 
 <!-- ADVERSAIRES -->
@@ -6044,17 +6070,30 @@ function renderBilanCategorise(){
 function renderMatchs(){
   var V=0,N=0,D=0;MATCHS.forEach(function(m){if(m.res==='V')V++;else if(m.res==='N')N++;else D++;});
   document.getElementById('bilan-txt').textContent=V+'V '+N+'N '+D+'D';
+  var rappel=document.getElementById('matchs-annuler');
+  if(rappel){
+    if(MATCH_SUPPRIME){
+      rappel.style.display='flex';
+      rappel.innerHTML='<span>🗑 <b>'+echapForme(MATCH_SUPPRIME.m.adversaire||'')+'</b> vient d\'etre supprime.</span>'
+        +'<button onclick="annulerSuppressionMatch()">\u21a9 Annuler la suppression</button>';
+    }else rappel.style.display='none';
+  }
   document.getElementById('matchs-list').innerHTML=MATCHS.length?MATCHS.map(function(m,mi){
     return '<div class="mc '+m.res+'">'
       +'<div class="mc-score" style="cursor:pointer" onclick="voirNotesMatch('+mi+')">'+m.ast+'-'+m.adv+'</div>'
       +'<div style="flex:1;cursor:pointer" onclick="voirNotesMatch('+mi+')"><div style="font-family:Inter,sans-serif;font-size:14px;font-weight:700">vs '+m.adversaire+' ('+m.lieu+')</div>'
       +'<div style="font-size:12.5px;color:var(--gris2);margin-top:2px">'+m.date+' · '+m.comp+(m.cs?' · ✅ CS':'')+(m.notes&&m.notes.length?' · 👁 Voir les notes':' · <span style="color:var(--red)">aucune note saisie</span>')+'</div></div>'
       +'<div class="mc-res">'+m.res+'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">'
-      +'<span style="font-size:14px;cursor:pointer" title="Modifier score/temps de jeu/stats" onclick="event.stopPropagation();ouvrirEditionMatch('+mi+')">✏️</span>'
-      +'<span style="font-size:14px;cursor:pointer" title="Compte-rendu de la semaine" onclick="event.stopPropagation();ouvrirCompteRendu('+mi+')">📝'+(m.compteRendu&&(m.compteRendu.positif||m.compteRendu.negatif||m.compteRendu.axes)?'<span style="color:var(--or)">●</span>':'')+'</span>'
-      +'<span style="font-size:14px;cursor:pointer" title="Fiche bilan du match (imprimer / PDF)" onclick="event.stopPropagation();genererFicheMatchPDF('+mi+')">🖨️</span>'
-      +'<span style="font-size:14px;cursor:pointer" title="Supprimer ce match" onclick="event.stopPropagation();supprimerMatch('+mi+')">🗑</span>'
+      +'<div class="mc-act">'
+      +'<button class="mc-b" title="Modifier score, temps de jeu et stats" onclick="event.stopPropagation();ouvrirEditionMatch('+mi+')">'
+        +'<span class="ic">✏️</span><span class="lb">Modifier</span></button>'
+      +'<button class="mc-b" title="Compte-rendu de la semaine" onclick="event.stopPropagation();ouvrirCompteRendu('+mi+')">'
+        +'<span class="ic">📝'+(m.compteRendu&&(m.compteRendu.positif||m.compteRendu.negatif||m.compteRendu.axes)?'<b class="pt">●</b>':'')+'</span>'
+        +'<span class="lb">Compte-rendu</span></button>'
+      +'<button class="mc-b" title="Fiche bilan du match (imprimer / PDF)" onclick="event.stopPropagation();genererFicheMatchPDF('+mi+')">'
+        +'<span class="ic">🖨️</span><span class="lb">Imprimer</span></button>'
+      +'<button class="mc-b sup" title="Supprimer ce match saisi" onclick="event.stopPropagation();supprimerMatch('+mi+')">'
+        +'<span class="ic">🗑</span><span class="lb">Supprimer</span></button>'
       +'</div></div>';
   }).join(''):'<div style="text-align:center;padding:20px;color:var(--gris2);font-size:13px">Aucun match</div>';
   renderBilanCategorise();
@@ -6080,15 +6119,39 @@ function annulerStatsMatch(m){
     s.tpsMoy = s.matchsJoues>0 ? Math.round(s.tpsTotal/s.matchsJoues) : 0;
   });
 }
+// Un match saisi en trop, ca arrive. On le retire, on refait les comptes depuis
+// les matchs restants, et on garde de quoi revenir en arriere.
+var MATCH_SUPPRIME=null;
 function supprimerMatch(mi){
   var m=MATCHS[mi];
   if(!m) return;
-  if(!confirm('Supprimer definitivement ce match (vs '+m.adversaire+') ? Les statistiques des joueurs seront recalculees.')) return;
-  annulerStatsMatch(m);
+  var nb=(m.notes||[]).length;
+  if(!confirm('Supprimer le match vs '+m.adversaire+' du '+(m.date||'?')+' ('+m.ast+'-'+m.adv+') ?\n\n'
+    +(nb?('Les notes de '+nb+' joueur'+(nb>1?'s':'')+' partent avec lui, et les statistiques\nde la saison sont refaites sans ce match.')
+        :'Les statistiques de la saison sont refaites sans ce match.')
+    +'\n\nTu pourras annuler juste apres si tu t\'es trompe de ligne.')) return;
+  MATCH_SUPPRIME={m:JSON.parse(JSON.stringify(m)), i:mi};
   MATCHS.splice(mi,1);
-  renderMatchs();renderRecap();renderPointsEntrainement();renderFicheCoach();updateDash();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();
-  notif('✓ Match supprime, statistiques recalculees');
+  recalculerStatsSilencieux();
+  rafraichirApresMatchs();
+  notif('\u2713 Match vs '+m.adversaire+' supprime \u2014 statistiques refaites');
   sauvegardeAuto();
+}
+function annulerSuppressionMatch(){
+  if(!MATCH_SUPPRIME) return;
+  var i=Math.min(MATCH_SUPPRIME.i, MATCHS.length);
+  var nom=MATCH_SUPPRIME.m.adversaire;
+  MATCHS.splice(i, 0, MATCH_SUPPRIME.m);
+  MATCH_SUPPRIME=null;
+  recalculerStatsSilencieux();
+  rafraichirApresMatchs();
+  notif('\u21a9 Match vs '+nom+' retabli');
+  sauvegardeAuto();
+}
+function rafraichirApresMatchs(){
+  ['renderMatchs','renderRecap','renderPointsEntrainement','renderFicheCoach','updateDash',
+   'renderCalendrier','renderMatchCalSelect','renderConvoCalSelect','renderConstats']
+   .forEach(function(f){ if(typeof window[f]==='function'){ try{ window[f](); }catch(e){} } });
 }
 function appliquerStatsMatch(m){
   if(!m.notes) return;
@@ -10261,6 +10324,32 @@ function appliquerDonnees(p,silencieux){
   renderAdversaires();
   renderRotation();
   renderCPA();
+}
+function recalculerStatsSilencieux(){
+  STATS.forEach(function(s){
+    s.buts=0;s.pd=0;s.cj=0;s.cr=0;s.tpsTotal=0;s.tpsMoy=0;s.notesCount=0;s.noteMoy=0;
+    s.matchsJoues=0;s.cs=0;s.titu=0;s.rempl=0;s.matchsA=0;s.matchsB=0;s.matchsConsecButs=0;
+  });
+  var ordre=MATCHS.slice().reverse();
+  ordre.forEach(function(m){
+    if(!m.notes) return;
+    m.notes.forEach(function(n){
+      var idx=JOUEURS.findIndex(function(j){return j.num===n.num;});
+      if(idx<0) return;
+      var s=STATS[idx];
+      s.buts+=n.buts||0;s.pd+=n.pd||0;s.cj+=n.cj||0;s.cr+=n.cr||0;
+      s.tpsTotal+=n.tps||0;s.notesCount++;
+      s.noteMoy=((s.noteMoy*(s.notesCount-1)+(n.note||0))/s.notesCount);
+      s.matchsJoues++;
+      if(m.cs) s.cs++;
+      if(n.statut==='TA'){s.titu++;s.matchsA++;}
+      else if(n.statut==='RA'){s.rempl++;s.matchsA++;}
+      else if(n.statut==='TB'){s.titu++;s.matchsB++;}
+      else if(n.statut==='RB'){s.rempl++;s.matchsB++;}
+      s.tpsMoy=s.matchsJoues>0?Math.round(s.tpsTotal/s.matchsJoues):0;
+      if((n.buts||0)>0) s.matchsConsecButs++; else s.matchsConsecButs=0;
+    });
+  });
 }
 function recalculerStats(){
   if(!confirm('Ceci va recalculer buts, passes, cartons, temps de jeu, titularisations et notes moyennes de TOUS les joueurs à partir de zéro, en ne se basant que sur l\'historique réel des matchs.\n\nLes points entraînement, présences et amendes ne sont PAS touchés.\n\nContinuer ?')) return;
