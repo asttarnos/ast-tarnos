@@ -1549,6 +1549,16 @@ body.terrain-plein #pl-plein-b{background:var(--or);border-color:var(--or);color
 .cl-ligne.moi{background:rgba(249,115,22,.08)}
 .cl-ligne.moi .nom{font-weight:700;color:var(--or)}
 /* L'ecran Compositions : le terrain a gauche, les deux encarts a droite. */
+/* Le choix du joueur se colle en bas de la carte : on clique un poste, on
+   voit tout de suite la liste, sans avoir a descendre. */
+#compo-picker:not(:empty){position:absolute;left:0;right:0;bottom:0;z-index:6;
+  background:var(--carte);border-top:2px solid var(--or);
+  box-shadow:0 -8px 22px rgba(0,0,0,.18);max-height:min(52vh,340px);overflow-y:auto}
+.cp-terrain{position:relative}
+#compo-picker .blk{margin:0!important;border:none;box-shadow:none;background:none}
+#compo-picker .bh{position:sticky;top:0;background:var(--carte);z-index:2}
+.cp-fermer{background:none;border:none;color:var(--gris2);font-size:16px;cursor:pointer;padding:0 6px}
+.cp-fermer:hover{color:var(--or)}
 .cp-grille{display:grid;gap:12px;grid-template-columns:1fr;align-items:start}
 .cp-col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .cp-terrain{display:flex;flex-direction:column;min-width:0;overflow:hidden}
@@ -1969,8 +1979,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v77</b> · 01/10/2026<br>
-      <span style="opacity:.7">Rail latéral, terrain réglable</span>
+      AST COACH <b style="color:var(--or)">v78</b> · 01/10/2026<br>
+      <span style="opacity:.7">Le choix du joueur revient à l'écran</span>
     </div>
   </div>
 </div>
@@ -10221,12 +10231,19 @@ function assignPlayer(idx){
   renderBench();
   document.getElementById('compo-picker').innerHTML='';
 }
+function fermerPickerCompo(){
+  SLOT_SEL=null;
+  try{ renderPitch(); renderBench(); }catch(e){}
+  var el=document.getElementById('compo-picker'); if(el) el.innerHTML='';
+}
 function renderPlayerPicker(){
   var el=document.getElementById('compo-picker');
   if(SLOT_SEL==null||!COMPO_COURANTE){el.innerHTML='';return;}
   var s=COMPO_COURANTE.slots[SLOT_SEL];
-  var titre=s.bench?'Choisir un remplacant':'Choisir un joueur — poste '+s.pos;
-  el.innerHTML='<div class="blk" style="margin:0 14px 14px"><div class="bh"><span class="bt">'+titre+'</span></div><div style="max-height:240px;overflow-y:auto">'
+  var titre=s.bench?'Choisir un remplaçant':'Choisir un joueur — poste '+s.pos;
+  el.innerHTML='<div class="blk" style="margin:0"><div class="bh"><span class="bt">'+titre+'</span>'
+    +'<span class="bc"><button class="cp-fermer" onclick="fermerPickerCompo()" title="Fermer">✕</button></span></div>'
+    +'<div style="max-height:240px;overflow-y:auto">'
     +JOUEURS.map(function(j,i){
       var ph=PHOTOS[i];
       var av=ph?'<img src="'+ph+'" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'<div class="jnum">'+j.num+'</div>';
