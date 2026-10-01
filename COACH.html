@@ -1561,6 +1561,8 @@ body.terrain-plein #pl-plein-b{background:var(--or);border-color:var(--or);color
 .cp-fermer:hover{color:var(--or)}
 .cp-grille{display:grid;gap:12px;grid-template-columns:1fr;align-items:start}
 .cp-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+/* Une carte ne retrecit jamais : c'est la colonne qui defile. */
+.cp-col>.blk,.pl-droite>.blk,.cls-col>.blk,.cls-col>.cls-duo{flex:0 0 auto}
 .cp-terrain{display:flex;flex-direction:column;min-width:0;overflow:hidden}
 .cp-aire{padding:14px;display:flex;justify-content:center;flex:0 0 auto}
 #compo-pitch{max-width:none;width:min(100%, calc((100vh - 268px) * 0.739));
@@ -1618,8 +1620,8 @@ body.terrain-plein #pl-plein-b{background:var(--or);border-color:var(--or);color
 .pl-dest{display:flex;flex-direction:column;gap:6px}
 .pl-dest .pl-b{width:100%;min-height:40px;padding:9px 11px}
 .pl-second{display:flex;gap:6px;margin-top:6px}
-.pl-envoi{margin:0;flex:0 0 auto}
-.pl-biblio{margin:0;flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.pl-envoi{margin:0;flex:0 0 auto!important}
+.pl-biblio{margin:0;flex:1 1 auto!important;display:flex;flex-direction:column;min-height:120px;overflow:hidden}
 .pl-biblio-c{padding:11px 12px 12px;overflow-y:auto;flex:1 1 auto;min-height:0}
 .pl-droite #situ-liste{grid-template-columns:1fr}
 
@@ -1979,8 +1981,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v78</b> · 01/10/2026<br>
-      <span style="opacity:.7">Le choix du joueur revient à l'écran</span>
+      AST COACH <b style="color:var(--or)">v79</b> · 01/10/2026<br>
+      <span style="opacity:.7">Les encarts ne sont plus écrasés</span>
     </div>
   </div>
 </div>
