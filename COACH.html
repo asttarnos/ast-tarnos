@@ -2397,8 +2397,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v94</b> · 06/10/2026<br>
-      <span style="opacity:.7">Bandeau « récupérer les photos » bien visible</span>
+      AST COACH <b style="color:var(--or)">v95</b> · 06/10/2026<br>
+      <span style="opacity:.7">Les photos et vignettes s'affichent enfin</span>
     </div>
   </div>
 </div>
@@ -4727,6 +4727,13 @@ function majBandeauCloud(auteur,quand){
   el.innerHTML='<span style="color:var(--gris2)">Dernière sauvegarde&nbsp;:</span> <b style="color:var(--or)">'+esc2(auteur||'Coach')+'</b> <span style="color:var(--gris2)">'+esc2(quand)+'</span>';
 }
 function esc2(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
+// Une image de fond ecrite dans un attribut style="..." : il lui faut des
+// guillemets SIMPLES. JSON.stringify en met des doubles, qui refermaient
+// l'attribut au milieu de l'adresse — la pastille restait vide.
+function cssUrl(u){
+  return "url('"+String(u==null?'':u)
+    .replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/[\r\n]/g,'')+"')";
+}
 
 function enregistrerNomCoach(){
   var v=document.getElementById('param-nom-coach').value.trim();
@@ -10445,7 +10452,7 @@ function fichPeuplerApercus(racine){
 function fichPoserApercu(el,data){
   // cadré en haut : sur une page A4 comme sur une feuille photographiée,
   // c'est le haut qui porte le titre et le schéma.
-  el.style.background='#0c1116 url('+JSON.stringify(data)+') center top / cover no-repeat';
+  el.style.background='#0c1116 '+cssUrl(data)+' center top / cover no-repeat';
   el.innerHTML='';
 }
 
@@ -10831,7 +10838,7 @@ function renderBibliothequeGenerale(){
   ct.innerHTML = liste.length ? '<div class="bg-grille">'+liste.map(function(r){
     var idAp=bgApercuId(r);
     var vign = r.vignetteUrl
-      ? '<div class="bg-vig" style="background:#0c1116 url('+JSON.stringify(r.vignetteUrl)+') center/cover no-repeat"></div>'
+      ? '<div class="bg-vig" style="background:#0c1116 '+cssUrl(r.vignetteUrl)+' center/cover no-repeat"></div>'
       : ((idAp && r.vignette)
         ? '<div class="bg-vig" data-apercu="'+idAp+'">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+'</div>'
         : '<div class="bg-vig t-'+(r.type||'autre')+'">'+(ICONES_TYPE_BIBLIO[r.type]||'📌')+'</div>');
@@ -13931,7 +13938,7 @@ function mxVignette(x){
   if(x.src==='dessin') return exoMiniature(x.pr,132);
   var e=x.ex||{};
   if(e.vignetteUrl)
-    return '<div class="mx-vig" style="background:#0c1116 url('+JSON.stringify(e.vignetteUrl)+') center/cover no-repeat"></div>';
+    return '<div class="mx-vig" style="background:#0c1116 '+cssUrl(e.vignetteUrl)+' center/cover no-repeat"></div>';
   var id=exiApercuId(e);
   if(id) return '<div class="mx-vig'+(e.support==='pdf'?' pdf':'')+'" data-apercu="'+id+'">'
     +(e.support==='pdf'?'📄':'🖼')+'</div>';
@@ -21515,7 +21522,7 @@ function genererDossierPresentation(){
   if((DOSSIER.videos||[]).length){
     pages.push(dpPage('videos','🎬 À regarder',
       '<div class="vids">'+DOSSIER.videos.map(function(v){
-        var fond=v.vignetteUrl?('background:#0c1116 url('+JSON.stringify(v.vignetteUrl)+') center/cover no-repeat')
+        var fond=v.vignetteUrl?('background:#0c1116 '+cssUrl(v.vignetteUrl)+' center/cover no-repeat')
           :(v.apercuId?'':'background:#12161c');
         return '<a class="vid" href="'+dpEsc(dmLienAvecMinute(v))+'" target="_blank" rel="noopener">'
           +'<span class="vid-v" style="'+fond+'"'+(v.apercuId?(' data-apercu="'+v.apercuId+'"'):'')+'>'
@@ -21998,7 +22005,7 @@ function dmMiniTerrain(plateau, hauteur){
 }
 function dmVignetteVideo(v){
   if(v.vignetteUrl)
-    return '<div class="dm-vig" style="background:#0c1116 url('+JSON.stringify(v.vignetteUrl)+') center/cover no-repeat"></div>';
+    return '<div class="dm-vig" style="background:#0c1116 '+cssUrl(v.vignetteUrl)+' center/cover no-repeat"></div>';
   if(v.apercuId) return '<div class="dm-vig" data-apercu="'+v.apercuId+'">\ud83c\udfac</div>';
   return '<div class="dm-vig vide">'+(v.source==='veo'?'\ud83d\udcf9':'\ud83c\udfac')+'</div>';
 }
@@ -24290,7 +24297,7 @@ function genererFeuilleMatchPDF(){
   function pastille(num, nom, grande){
     var ph=photoDuNum(num);
     var t=grande?'ph-g':'ph-p';
-    return ph ? '<span class="ph '+t+'" style="background-image:url('+JSON.stringify(ph)+')"></span>'
+    return ph ? '<span class="ph '+t+'" style="background-image:'+cssUrl(ph)+'"></span>'
               : '<span class="ph '+t+' vide">'+esc(initiales(nom))+'</span>';
   }
 
