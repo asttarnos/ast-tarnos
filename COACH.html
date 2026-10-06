@@ -2378,8 +2378,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v92</b> · 06/10/2026<br>
-      <span style="opacity:.7">Feuille de match refaite · 19 dispositifs · repères sur l'adversaire</span>
+      AST COACH <b style="color:var(--or)">v93</b> · 06/10/2026<br>
+      <span style="opacity:.7">Les photos redescendent enfin du cloud</span>
     </div>
   </div>
 </div>
@@ -2998,8 +2998,14 @@ body.doc-ouvert{overflow:hidden}
         <div style="font-size:12px;color:var(--gris2);line-height:1.5;margin-bottom:8px">
           Les photos partent dans le cloud à chaque enregistrement : chaque joueur voit la sienne
           sur sa carte, et le trombinoscope de l'appli joueur affiche les vrais visages.
+          Elles ne voyagent pas dans la sauvegarde de saison — trop lourdes — donc sur un
+          <b>nouvel appareil</b> ou après une restauration, il faut les redescendre une fois.
         </div>
-        <button class="acc-b" onclick="photosPublierManuel()">📸 Renvoyer toutes les photos maintenant</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="acc-b" onclick="photosPublierManuel()">📸 Renvoyer toutes les photos</button>
+          <button class="acc-b" onclick="photosRecuperer(false)">📥 Récupérer les photos du cloud</button>
+        </div>
+        <div id="photos-etat" style="font-size:11.5px;color:var(--gris2);margin-top:8px"></div>
       </div>
     </div>
   </div>
@@ -12684,6 +12690,8 @@ function appliquerDonnees(p,silencieux){
   renderAdversaires();
   renderRotation();
   renderCPA();
+  // Les visages ne sont pas dans la sauvegarde : on va les chercher si besoin.
+  if(typeof photosRattraperSiBesoin==='function') photosRattraperSiBesoin();
 }
 function recalculerStatsSilencieux(){
   STATS.forEach(function(s){
@@ -12813,6 +12821,93 @@ function photosPublierManuel(){
       +' — les joueurs les voient sur leur appli');
     sauvegardeAuto();
   }).catch(function(){ notif('⚠ Envoi impossible — vérifie la connexion'); });
+}
+
+// ---------- Redescendre les photos du cloud ----------
+// Elles ne voyagent pas dans le document de saison (trop lourdes) : chacune a
+// son propre document saison/photo_<numero>. On savait les y envoyer, pas les
+// reprendre. Resultat : sur un deuxieme appareil, ou apres une restauration,
+// l'effectif, les compositions et la feuille de match n'avaient que les
+// initiales. On va donc les rechercher.
+function photosManquantes(){
+  var out=[];
+  (JOUEURS||[]).forEach(function(j,i){
+    if(j && j.num!=null && !PHOTOS[i]) out.push({idx:i, num:j.num, nom:j.nom});
+  });
+  return out;
+}
+// La liste des photos en ligne, sans telecharger leur contenu.
+async function photosEnLigne(){
+  var noms=[];
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison?pageSize=300&mask.fieldPaths=__name__');
+    if(!res.ok) return null;
+    var data=await res.json();
+    (data.documents||[]).forEach(function(d){
+      var id=String(d.name||'').split('/').pop();
+      if(id.indexOf('photo_')===0) noms.push(parseInt(id.slice(6),10));
+    });
+  }catch(e){ return null; }
+  return noms.filter(function(n){ return !isNaN(n); });
+}
+async function photoTirer(num){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/'+photoCle(num));
+    if(!res.ok) return null;
+    var d=await res.json();
+    var v=((d.fields||{}).data||{}).stringValue||'';
+    return v.indexOf('data:image')===0 ? v : null;
+  }catch(e){ return null; }
+}
+// silencieux : au demarrage on ne derange pas le coach pour rien.
+async function photosRecuperer(silencieux){
+  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){
+    if(!silencieux) notif('⚠ Connexion cloud pas encore configurée');
+    return 0;
+  }
+  var manquantes=photosManquantes();
+  if(!manquantes.length){
+    if(!silencieux) notif('✓ Toutes les photos de l\'effectif sont déjà là');
+    return 0;
+  }
+  var enLigne=await photosEnLigne();
+  if(enLigne===null){
+    if(!silencieux) notif('⚠ Impossible de lire le cloud — vérifie la connexion');
+    return 0;
+  }
+  var aPrendre=manquantes.filter(function(m){ return enLigne.indexOf(m.num)>=0; });
+  if(!aPrendre.length){
+    if(!silencieux) notif('⚠ Aucune photo en ligne pour les '+manquantes.length
+      +' joueur'+(manquantes.length>1?'s qui n\'en ont':' qui n\'en a')+' pas ici');
+    return 0;
+  }
+  if(!silencieux) notif('Récupération de '+aPrendre.length+' photo'+(aPrendre.length>1?'s':'')+'…');
+  var n=0;
+  for(var i=0;i<aPrendre.length;i++){
+    var data=await photoTirer(aPrendre[i].num);
+    if(data){ PHOTOS[aPrendre[i].idx]=data; PHOTOS_PUBLIEES[aPrendre[i].num]=data.length; n++; }
+  }
+  if(n){
+    try{ localStorage.setItem('ast_photos_pub', JSON.stringify(PHOTOS_PUBLIEES)); }catch(e){}
+    if(typeof sauvegardeLocale==='function') sauvegardeLocale();
+    ['renderFicheSel','renderFicheCoach','renderCompoList','renderPitch','renderBench',
+     'renderPresList','renderRecap','updateDash'].forEach(function(f){
+      if(typeof window[f]==='function'){ try{ window[f](); }catch(e){} }
+    });
+    if(!silencieux) notif('✓ '+n+' photo'+(n>1?'s récupérées':' récupérée')
+      +' — elles reviennent sur les fiches, les compos et la feuille de match');
+  } else if(!silencieux) notif('⚠ Rien n\'a pu être récupéré');
+  return n;
+}
+// Apres une lecture du cloud : si l'effectif est la mais pas les visages, on
+// va les chercher tout seul, une fois, sans rien demander.
+var _photosTentees=false;
+function photosRattraperSiBesoin(){
+  if(_photosTentees) return;
+  if(!(JOUEURS||[]).length) return;
+  if(!photosManquantes().length) return;
+  _photosTentees=true;
+  setTimeout(function(){ try{ photosRecuperer(true); }catch(e){} }, 2500);
 }
 
 // Ce que chaque joueur doit retrouver de ses entretiens, rangé par numéro :
