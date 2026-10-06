@@ -1068,6 +1068,43 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .fm-colonnes textarea.fi{font-size:13.5px;line-height:1.45}
 .fm-colonnes .bh{padding:10px 12px}
 .fm-colonnes .bt{font-size:14px}
+/* ===== Les coups de pied arretes : un bloc par cas ===== */
+.fm-cpa{display:flex;flex-direction:column;gap:9px;padding:12px 13px 14px}
+.fm-cpa-l{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
+  background:var(--voile);padding:9px 11px 11px}
+.fm-cpa-h{font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:800;
+  color:var(--ct,var(--c));letter-spacing:.015em;margin-bottom:7px}
+.fm-cpa-g{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;align-items:center}
+.fm-cpa-g .fl{margin:0;font-size:10.5px;white-space:nowrap}
+.fm-cpa-g .fi{font-size:12.5px;padding:7px 9px}
+.fm-cpa-a{grid-column:1/-1;font-size:11px;color:var(--gris2);line-height:1.5;padding-top:2px}
+.fm-cpa-pen-g{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr)}
+@media(max-width:1300px){ .fm-cpa-pen-g{grid-template-columns:auto minmax(0,1fr)} }
+
+/* ===== Les reperes sur le terrain adverse ===== */
+.fm-adv{display:grid;gap:8px;padding:12px 13px 14px;
+  grid-template-columns:repeat(auto-fill,minmax(372px,1fr));align-items:start}
+.fm-adv-l{display:flex;align-items:center;gap:9px;min-width:0;padding:7px 9px;
+  border:1px solid var(--line);border-left:4px solid var(--line);border-radius:9px;
+  background:var(--voile)}
+.fm-adv-l.on{border-left-color:var(--c);background:color-mix(in srgb,var(--c) 7%,var(--voile))}
+.fm-adv-p{flex:0 0 46px;text-align:center;font-family:'Roboto Condensed',sans-serif;
+  font-size:12px;font-weight:800;letter-spacing:.03em;color:var(--gris2);
+  background:var(--champ);border:1px solid var(--line);border-radius:6px;padding:5px 0}
+.fm-adv-l.on .fm-adv-p{color:var(--c);border-color:var(--c)}
+.fm-adv-sg{flex:0 0 auto;display:flex;gap:3px}
+.fm-sg{width:25px;height:25px;border-radius:6px;border:1px solid var(--line);
+  background:var(--champ);color:var(--gris2);cursor:pointer;font-size:13px;font-weight:800;
+  line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.fm-sg:hover{border-color:var(--c);color:var(--c)}
+.fm-sg.on{background:var(--c);border-color:var(--c);color:#fff}
+.fm-adv-l .fi{flex:1 1 auto;min-width:0;font-size:12.5px;padding:6px 9px}
+@media(max-width:900px){
+  .fm-adv{grid-template-columns:1fr}
+  .fm-adv-l{flex-wrap:wrap}
+  .fm-adv-l .fi{flex:1 1 100%}
+}
+
 /* Les consignes individuelles : une carte par joueur, en grille.
    Onze joueurs empiles dans une colonne de 320 px, c'etait illisible. */
 /* ===== Le dossier : trois facons de poser une situation ===== */
@@ -2341,8 +2378,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v91</b> · 06/10/2026<br>
-      <span style="opacity:.7">Convocations et points dans Entraînement · tous les clubs nommés</span>
+      AST COACH <b style="color:var(--or)">v92</b> · 06/10/2026<br>
+      <span style="opacity:.7">Feuille de match refaite · 19 dispositifs · repères sur l'adversaire</span>
     </div>
   </div>
 </div>
@@ -3194,15 +3231,9 @@ body.doc-ouvert{overflow:hidden}
     </div>
 
     <!-- ② COUPS DE PIED ARRÊTÉS -->
-    <div class="blk"><div class="bh"><span class="bt">② Coups de pied arrêtés</span></div>
-      <div style="padding:12px">
-        <div class="fg"><label class="fl">Corner offensif</label><select class="fi" id="fm-corner-off"></select></div>
-        <div class="fg"><label class="fl">Corner défensif</label><select class="fi" id="fm-corner-def"></select></div>
-        <div class="fg"><label class="fl">Coup franc offensif</label><select class="fi" id="fm-cf-off"></select></div>
-        <div class="fg"><label class="fl">Coup franc défensif</label><select class="fi" id="fm-cf-def"></select></div>
-        <div class="fg"><label class="fl">Penalty — tireur 1</label><select class="fi" id="fm-pen1"></select></div>
-        <div class="fg"><label class="fl">Penalty — tireur 2</label><select class="fi" id="fm-pen2"></select></div>
-      </div>
+    <div class="blk"><div class="bh"><span class="bt">② Coups de pied arrêtés</span>
+      <span class="bc" style="font-weight:400">Qui s'en charge, et comment</span></div>
+      <div id="fm-cpa-ct" class="fm-cpa"></div>
     </div>
 
     <!-- ③ CONSIGNES GÉNÉRALES -->
@@ -3215,6 +3246,15 @@ body.doc-ouvert{overflow:hidden}
       </div>
     </div>
 
+  </div>
+
+  <!-- ⑤ LES REPÈRES SUR LEUR TERRAIN -->
+  <div class="blk fm-indiv-blk"><div class="bh"><span class="bt go">⑤ Ce qu'on marque sur leur terrain</span>
+    <span class="bc" style="font-weight:400">Un signe et un mot par poste — ils sortent en grand sur la feuille</span></div>
+    <div style="padding:12px 13px 0"><input class="fi" id="fm-adv-general"
+      placeholder="Le mot sur l'adversaire, en une ligne — ex. « Bloc bas, ils sortent en contre par leur droite »"
+      oninput="FEUILLE_MATCH.advGeneral=this.value;sauvegardeAuto()"></div>
+    <div id="fm-adv-ct" class="fm-adv"></div>
   </div>
 
   <!-- ④ CONSIGNES INDIVIDUELLES : pleine largeur, une carte par joueur -->
@@ -4616,7 +4656,21 @@ var FORMATIONS={
   '5-3-2':[{pos:'GB',x:50,y:92},{pos:'MD',x:88,y:68},{pos:'DC',x:68,y:76},{pos:'DC',x:50,y:79},{pos:'DC',x:32,y:76},{pos:'MG',x:12,y:68},{pos:'MC',x:35,y:48},{pos:'MC',x:50,y:42},{pos:'MC',x:65,y:48},{pos:'AT',x:38,y:16},{pos:'AT',x:62,y:16}],
   '3-4-3':[{pos:'GB',x:50,y:92},{pos:'DC',x:30,y:76},{pos:'DC',x:50,y:79},{pos:'DC',x:70,y:76},{pos:'MD',x:82,y:50},{pos:'MC',x:60,y:52},{pos:'MC',x:40,y:52},{pos:'MG',x:18,y:50},{pos:'AG',x:20,y:16},{pos:'BU',x:50,y:10},{pos:'AD',x:80,y:16}],
   '4-2-2-2':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:60,y:76},{pos:'DC',x:40,y:76},{pos:'DG',x:20,y:72},{pos:'MD',x:38,y:58},{pos:'MD',x:62,y:58},{pos:'MOG',x:25,y:34},{pos:'MOD',x:75,y:34},{pos:'AT',x:38,y:14},{pos:'AT',x:62,y:14}],
-  '3-6-1':[{pos:'GB',x:50,y:92},{pos:'DC',x:30,y:76},{pos:'DC',x:50,y:79},{pos:'DC',x:70,y:76},{pos:'MD',x:86,y:58},{pos:'MC',x:64,y:55},{pos:'MC',x:50,y:48},{pos:'MC',x:36,y:55},{pos:'MG',x:14,y:58},{pos:'MOC',x:50,y:34},{pos:'BU',x:50,y:12}]
+  '3-6-1':[{pos:'GB',x:50,y:92},{pos:'DC',x:30,y:76},{pos:'DC',x:50,y:79},{pos:'DC',x:70,y:76},{pos:'MD',x:86,y:58},{pos:'MC',x:64,y:55},{pos:'MC',x:50,y:48},{pos:'MC',x:36,y:55},{pos:'MG',x:14,y:58},{pos:'MOC',x:50,y:34},{pos:'BU',x:50,y:12}],
+
+  // Les variantes : le nombre de systemes ne dit rien, c'est le nombre de
+  // milieux defensifs qui change le match. On les nomme pour de bon.
+  '4-3-3 (1 pivot)':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MDF',x:50,y:60},{pos:'MC',x:32,y:46},{pos:'MC',x:68,y:46},{pos:'AG',x:18,y:18},{pos:'BU',x:50,y:10},{pos:'AD',x:82,y:18}],
+  '4-3-3 (2 pivots)':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MDF',x:36,y:60},{pos:'MDF',x:64,y:60},{pos:'MOC',x:50,y:42},{pos:'AG',x:18,y:18},{pos:'BU',x:50,y:10},{pos:'AD',x:82,y:18}],
+  '4-1-4-1':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MDF',x:50,y:62},{pos:'MD',x:82,y:44},{pos:'MC',x:62,y:46},{pos:'MC',x:38,y:46},{pos:'MG',x:18,y:44},{pos:'BU',x:50,y:14}],
+  '4-3-1-2':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MDF',x:50,y:60},{pos:'MC',x:28,y:50},{pos:'MC',x:72,y:50},{pos:'MOC',x:50,y:34},{pos:'AT',x:38,y:14},{pos:'AT',x:62,y:14}],
+  '4-4-2 (losange)':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MDF',x:50,y:60},{pos:'MD',x:78,y:46},{pos:'MG',x:22,y:46},{pos:'MOC',x:50,y:34},{pos:'AT',x:38,y:14},{pos:'AT',x:62,y:14}],
+  '4-4-1-1':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MD',x:80,y:48},{pos:'MC',x:60,y:50},{pos:'MC',x:40,y:50},{pos:'MG',x:20,y:48},{pos:'MOC',x:50,y:28},{pos:'BU',x:50,y:12}],
+  '4-5-1':[{pos:'GB',x:50,y:92},{pos:'DD',x:80,y:72},{pos:'DC',x:62,y:77},{pos:'DC',x:38,y:77},{pos:'DG',x:20,y:72},{pos:'MD',x:84,y:46},{pos:'MC',x:65,y:50},{pos:'MDF',x:50,y:58},{pos:'MC',x:35,y:50},{pos:'MG',x:16,y:46},{pos:'BU',x:50,y:14}],
+  '3-5-2 (1 pivot)':[{pos:'GB',x:50,y:92},{pos:'DC',x:30,y:77},{pos:'DC',x:50,y:80},{pos:'DC',x:70,y:77},{pos:'PD',x:88,y:50},{pos:'MC',x:64,y:48},{pos:'MDF',x:50,y:60},{pos:'MC',x:36,y:48},{pos:'PG',x:12,y:50},{pos:'AT',x:38,y:15},{pos:'AT',x:62,y:15}],
+  '3-5-2 (2 pivots)':[{pos:'GB',x:50,y:92},{pos:'DC',x:30,y:77},{pos:'DC',x:50,y:80},{pos:'DC',x:70,y:77},{pos:'PD',x:88,y:50},{pos:'MDF',x:62,y:58},{pos:'MDF',x:38,y:58},{pos:'MOC',x:50,y:38},{pos:'PG',x:12,y:50},{pos:'AT',x:38,y:15},{pos:'AT',x:62,y:15}],
+  '3-4-1-2':[{pos:'GB',x:50,y:92},{pos:'DC',x:30,y:77},{pos:'DC',x:50,y:80},{pos:'DC',x:70,y:77},{pos:'PD',x:84,y:50},{pos:'MC',x:60,y:52},{pos:'MC',x:40,y:52},{pos:'PG',x:16,y:50},{pos:'MOC',x:50,y:32},{pos:'AT',x:38,y:14},{pos:'AT',x:62,y:14}],
+  '5-4-1':[{pos:'GB',x:50,y:92},{pos:'PD',x:88,y:66},{pos:'DC',x:68,y:78},{pos:'DC',x:50,y:80},{pos:'DC',x:32,y:78},{pos:'PG',x:12,y:66},{pos:'MD',x:78,y:46},{pos:'MC',x:58,y:48},{pos:'MC',x:42,y:48},{pos:'MG',x:22,y:46},{pos:'BU',x:50,y:14}]
 };
 var COMPOSITIONS=[];
 var CALENDRIER_OFFICIEL_2627=[{"date": "Ven 07 Août 2026 - 20h00", "adversaire": "Boucalais Elan", "lieu": "D", "comp": "AM"}, {"date": "Dim 16 Août 2026 - 20h00", "adversaire": "Hasparren FC", "lieu": "D", "comp": "AM"}, {"date": "Ven 21 Août 2026 - 20h00", "adversaire": "Bayonne Aviron", "lieu": "D", "comp": "AM"}, {"date": "Lun 24 Août 2026 - 20h00", "adversaire": "Biarritz Jeanne Arc", "lieu": "D", "comp": "AM"}, {"date": "Sam 05 Septembre 2026 - 20h00", "adversaire": "Audenge ES", "lieu": "D", "comp": "R2"}, {"date": "Sam 19 Septembre 2026 - 20h00", "adversaire": "Pau Bleuets Notre D.", "lieu": "E", "comp": "R2"}, {"date": "Sam 03 Octobre 2026 - 20h00", "adversaire": "Agenais SU", "lieu": "D", "comp": "R2"}, {"date": "Sam 17 Octobre 2026 - 20h00", "adversaire": "Portes Entre 2 Mers", "lieu": "D", "comp": "R2"}, {"date": "Sam 24 Octobre 2026 - 20h00", "adversaire": "Graves FC", "lieu": "E", "comp": "R2"}, {"date": "Sam 31 Octobre 2026 - 20h00", "adversaire": "Merignacais SA", "lieu": "D", "comp": "R2"}, {"date": "Sam 07 Novembre 2026 - 20h00", "adversaire": "Montoise ES", "lieu": "E", "comp": "R2"}, {"date": "Sam 21 Novembre 2026 - 20h00", "adversaire": "Patronage Bazadais", "lieu": "D", "comp": "R2"}, {"date": "Dim 29 Novembre 2026 - 15h00", "adversaire": "AS", "lieu": "E", "comp": "R2"}, {"date": "Sam 05 Décembre 2026 - 20h00", "adversaire": "Biganos FC", "lieu": "D", "comp": "R2"}, {"date": "Sam 12 Décembre 2026 - 19h00", "adversaire": "Lescarien FC", "lieu": "E", "comp": "R2"}, {"date": "Sam 23 Janvier 2027 - 20h00", "adversaire": "Pau Bleuets Notre D.", "lieu": "D", "comp": "R2"}, {"date": "Sam 30 Janvier 2027 - 19h00", "adversaire": "Agenais SU", "lieu": "E", "comp": "R2"}, {"date": "Sam 06 Février 2027 - 19h00", "adversaire": "Portes Entre 2 Mers", "lieu": "E", "comp": "R2"}, {"date": "Sam 06 Mars 2027 - 20h00", "adversaire": "Graves FC", "lieu": "D", "comp": "R2"}, {"date": "Dim 14 Mars 2027 - 15h00", "adversaire": "Merignacais SA", "lieu": "E", "comp": "R2"}, {"date": "Sam 20 Mars 2027 - 20h00", "adversaire": "Montoise ES", "lieu": "D", "comp": "R2"}, {"date": "Sam 03 Avril 2027 - 19h00", "adversaire": "Patronage Bazadais", "lieu": "E", "comp": "R2"}, {"date": "Sam 10 Avril 2027 - 20h00", "adversaire": "AS", "lieu": "D", "comp": "R2"}, {"date": "Sam 01 Mai 2027 - 19h00", "adversaire": "Biganos FC", "lieu": "E", "comp": "R2"}, {"date": "Sam 15 Mai 2027 - 20h00", "adversaire": "Lescarien FC", "lieu": "D", "comp": "R2"}, {"date": "Dim 30 Mai 2027 - 15h00", "adversaire": "Audenge ES", "lieu": "E", "comp": "R2"}];
@@ -4734,7 +4788,7 @@ function reinitialiserPourNouveauClub(){
   ADVERSAIRES=[];
   SCHEMAS_CPA=[];
   SONDAGES=[];
-  FEUILLE_MATCH={compoIdx:null,adversaireNom:'',adversaireFormation:'4-4-2',dateMatch:'',lieuMatch:'',cornerOff:null,cornerDef:null,cfOff:null,cfDef:null,pen1:'',pen2:'',consignesOff:'',consignesDef:'',consignesIndiv:{}};
+  FEUILLE_MATCH={compoIdx:null,adversaireNom:'',adversaireFormation:'4-4-2',dateMatch:'',lieuMatch:'',cornerOff:null,cornerDef:null,cfOff:null,cfDef:null,pen1:'',pen2:'',pen3:'',cpaQui:{},cpaNote:{},advNotes:{},advGeneral:'',consignesOff:'',consignesDef:'',consignesIndiv:{}};
   FEX_PROCEDES=[fexNouveauProcede(1),fexNouveauProcede(2),fexNouveauProcede(3),fexNouveauProcede(4),fexNouveauProcede(5)];
   FICHES_EXERCICES=[]; fexFicheEnCoursId=null;
   EVENEMENTS_PERSO=[];
@@ -12207,19 +12261,19 @@ function calculerClassementParLieu(filtreLieu){
 function renderMiniClassementLieu(elId,filtreLieu){
   var ct=document.getElementById(elId);
   if(!ct) return;
-  var sorted=calculerClassementParLieu(filtreLieu);
+  // Une equipe qui n'a pas encore joue ici n'a pas de classement ici : la lister
+  // avec un tiret allongeait le tableau sans rien apprendre.
+  var sorted=calculerClassementParLieu(filtreLieu).filter(function(e){ return e.j>0; });
   ct.innerHTML=sorted.length?sorted.map(function(e,rang){
     var isTarnos=e.equipe===NOM_CLUB||/tarnos/i.test(e.equipe);
     var st=styleEquipe(e.equipe);
-    return '<div class="cl-ligne cl-court'+(isTarnos?' moi':'')+(e.j?'':' vide')+'" '
+    return '<div class="cl-ligne cl-court'+(isTarnos?' moi':'')+'" '
       +'title="'+esc2(e.equipe)+' \u2014 '+e.j+' match'+(e.j>1?'s':'')+' ici">'
-      +'<span class="rang" style="width:16px;font-size:12px">'+(e.j?(rang+1):'\u00b7')+'</span>'
+      +'<span class="rang" style="width:16px;font-size:12px">'+(rang+1)+'</span>'
       +'<span class="jeton" style="background:'+st.couleur+'"></span>'
       +'<span class="nom" style="font-size:12.5px">'+e.equipe+'</span>'
-      +(e.j
-        ? ('<span class="chif" style="color:var(--gris2)">'+e.bp+'-'+e.bc+'</span>'
-           +'<span class="pts">'+e.pts+' pt'+(e.pts>1?'s':'')+'</span>')
-        : '<span class="chif" style="color:var(--gris2)">\u2014</span><span class="pts">pas jou\u00e9</span>')
+      +'<span class="chif" style="color:var(--gris2)">'+e.bp+'-'+e.bc+'</span>'
+      +'<span class="pts">'+e.pts+' pt'+(e.pts>1?'s':'')+'</span>'
       +'</div>';
   }).join(''):'<div style="text-align:center;padding:10px;color:var(--gris2);font-size:12.5px">Aucun résultat pour l\'instant</div>';
 }
@@ -22810,7 +22864,116 @@ function cpaParCle(v){
 }
 
 // FEUILLE DE MATCH
-var FEUILLE_MATCH={compoIdx:null,adversaireNom:'',adversaireFormation:'4-4-2',dateMatch:'',lieuMatch:'',cornerOff:null,cornerDef:null,cfOff:null,cfDef:null,pen1:'',pen2:'',consignesOff:'',consignesDef:'',consignesIndiv:{}};
+var FEUILLE_MATCH={compoIdx:null,adversaireNom:'',adversaireFormation:'4-4-2',dateMatch:'',lieuMatch:'',cornerOff:null,cornerDef:null,cfOff:null,cfDef:null,pen1:'',pen2:'',pen3:'',cpaQui:{},cpaNote:{},advNotes:{},advGeneral:'',consignesOff:'',consignesDef:'',consignesIndiv:{}};
+// ---------- Les coups de pied arretes ----------
+// Les menus ne proposaient que des schemas enregistres : sans schema, ils
+// etaient vides et il n'y avait rien a choisir. Chaque coup de pied arrete a
+// maintenant un responsable pris dans l'effectif et une consigne en clair,
+// plus son schema quand il en existe un.
+var FM_CPA=[
+  {k:'cornerOff', t:'corner_off', ic:'🚩', lab:'Corner offensif',    qui:'Tireur',       c:'#F97316',
+   ex:'Premier poteau, bloc à trois'},
+  {k:'cornerDef', t:'corner_def', ic:'🛡️', lab:'Corner défensif', qui:'Responsable 1er poteau', c:'#2563eb',
+   ex:'Zone + 2 individuelles sur leurs grands'},
+  {k:'cfOff',     t:'cf_off',     ic:'🎯', lab:'Coup franc offensif', qui:'Tireur',      c:'#0f8a5f',
+   ex:'Direct si face au but, sinon second poteau'},
+  {k:'cfDef',     t:'cf_def',     ic:'🧱', lab:'Coup franc défensif', qui:'Chef du mur', c:'#a855f7',
+   ex:'Mur à 4, un homme au sol'}
+];
+function fmQuiSel(id, val, vide){
+  return '<select class="fi" id="'+id+'">'
+    +'<option value="">'+(vide||'— Choisir —')+'</option>'
+    +(JOUEURS||[]).map(function(j){
+      return '<option value="'+echapForme(j.nom).replace(/"/g,'&quot;')+'"'
+        +(val===j.nom?' selected':'')+'>'+j.num+'. '+echapForme(j.nom)+'</option>'; }).join('')
+    +'</select>';
+}
+function renderCpaFeuille(){
+  var ct=document.getElementById('fm-cpa-ct'); if(!ct) return;
+  if(!FEUILLE_MATCH.cpaQui) FEUILLE_MATCH.cpaQui={};
+  if(!FEUILLE_MATCH.cpaNote) FEUILLE_MATCH.cpaNote={};
+  var h=FM_CPA.map(function(c){
+    var schemas=cpaDuType(c.t);
+    var v=cpaCle(FEUILLE_MATCH[c.k]);
+    return '<div class="fm-cpa-l" style="--c:'+c.c+';--ct:'+couleurLisible(c.c)+'">'
+      +'<div class="fm-cpa-h">'+c.ic+' '+c.lab+'</div>'
+      +'<div class="fm-cpa-g">'
+        +'<label class="fl">'+c.qui+'</label>'
+        +fmQuiSel('fm-qui-'+c.k, FEUILLE_MATCH.cpaQui[c.k]||'')
+        +'<label class="fl">La consigne</label>'
+        +'<input class="fi" id="fm-note-'+c.k+'" placeholder="'+c.ex+'" value="'
+          +echapForme(FEUILLE_MATCH.cpaNote[c.k]||'').replace(/"/g,'&quot;')+'">'
+        +(schemas.length
+          ? ('<label class="fl">Le schéma du plateau</label>'
+             +'<select class="fi" id="fm-'+c.k+'-sch"><option value="">— Aucun —</option>'
+             +schemas.map(function(o){
+                 return '<option value="'+o.cle+'"'+(v===o.cle?' selected':'')+'>'
+                   +echapForme(o.nom)+'</option>'; }).join('')+'</select>')
+          : '<div class="fm-cpa-a">Aucun schéma enregistré pour ce cas — '
+            +'<b class="dm-lien" onclick="goNav(\'cpa\')">en poser un au plateau ›</b></div>')
+      +'</div></div>';
+  }).join('');
+  h+='<div class="fm-cpa-l fm-cpa-pen" style="--c:#d97706;--ct:'+couleurLisible('#d97706')+'">'
+    +'<div class="fm-cpa-h">⚽ Penaltys — dans l\'ordre</div>'
+    +'<div class="fm-cpa-g fm-cpa-pen-g">'
+      +'<label class="fl">1<sup>er</sup></label>'+fmQuiSel('fm-pen1', FEUILLE_MATCH.pen1||'')
+      +'<label class="fl">2<sup>e</sup></label>'+fmQuiSel('fm-pen2', FEUILLE_MATCH.pen2||'')
+      +'<label class="fl">3<sup>e</sup></label>'+fmQuiSel('fm-pen3', FEUILLE_MATCH.pen3||'')
+    +'</div></div>';
+  ct.innerHTML=h;
+}
+
+// ---------- Les reperes sur le terrain adverse ----------
+// Un nom ecrit en 8 px au milieu de leur terrain ne se voit pas. Chaque poste
+// adverse peut porter un signe et un mot, qui ressortent en grand a l'impression.
+var FM_SIGNES=[
+  {k:'',         ic:'—', lab:'Rien',          c:'#94a3b8'},
+  {k:'danger',   ic:'★', lab:'Danger',        c:'#dc2626'},
+  {k:'attention',ic:'⚠', lab:'Attention',     c:'#d97706'},
+  {k:'fort',     ic:'＋', lab:'Point fort',    c:'#0f8a5f'},
+  {k:'faible',   ic:'−', lab:'Point faible',  c:'#2563eb'},
+  {k:'monte',    ic:'↑', lab:'Il monte',      c:'#F97316'},
+  {k:'decroche', ic:'↓', lab:'Il décroche',  c:'#a855f7'},
+  {k:'permute',  ic:'⇄', lab:'Ils permutent', c:'#0ea5e9'}
+];
+function fmSigneInfo(k){
+  for(var i=0;i<FM_SIGNES.length;i++) if(FM_SIGNES[i].k===(k||'')) return FM_SIGNES[i];
+  return FM_SIGNES[0];
+}
+function fmPoserSigne(i, k){
+  if(!FEUILLE_MATCH.advNotes) FEUILLE_MATCH.advNotes={};
+  var n=FEUILLE_MATCH.advNotes[i]||(FEUILLE_MATCH.advNotes[i]={sg:'',t:''});
+  n.sg=(n.sg===k)?'':k;
+  sauvegardeAuto(); renderAdvFeuille();
+}
+function fmPoserNote(i, v){
+  if(!FEUILLE_MATCH.advNotes) FEUILLE_MATCH.advNotes={};
+  var n=FEUILLE_MATCH.advNotes[i]||(FEUILLE_MATCH.advNotes[i]={sg:'',t:''});
+  n.t=String(v||'').trim();
+  sauvegardeAuto();
+}
+function renderAdvFeuille(){
+  var ct=document.getElementById('fm-adv-ct'); if(!ct) return;
+  var g=document.getElementById('fm-adv-general');
+  if(g && document.activeElement!==g) g.value=FEUILLE_MATCH.advGeneral||'';
+  if(!FEUILLE_MATCH.advNotes) FEUILLE_MATCH.advNotes={};
+  var form=FORMATIONS[FEUILLE_MATCH.adversaireFormation]||FORMATIONS['4-4-2'];
+  ct.innerHTML=form.map(function(p,i){
+    var n=FEUILLE_MATCH.advNotes[i]||{sg:'',t:''};
+    var inf=fmSigneInfo(n.sg);
+    return '<div class="fm-adv-l'+(n.sg?' on':'')+'" style="--c:'+inf.c+'">'
+      +'<span class="fm-adv-p">'+echapForme(p.pos)+'</span>'
+      +'<div class="fm-adv-sg">'+FM_SIGNES.filter(function(x){ return x.k; }).map(function(x){
+          return '<button class="fm-sg'+(n.sg===x.k?' on':'')+'" style="--c:'+x.c+'" '
+            +'title="'+x.lab+'" onclick="fmPoserSigne('+i+',\''+x.k+'\')">'+x.ic+'</button>'; }).join('')
+        +'</div>'
+      +'<input class="fi" value="'+echapForme(n.t).replace(/"/g,'&quot;')+'" '
+        +'placeholder="Son nom, son numéro, ce qu\'il fait…" '
+        +'onchange="fmPoserNote('+i+',this.value)">'
+    +'</div>';
+  }).join('');
+}
+
 function renderFeuilleMatch(){
   var selCompo=document.getElementById('fm-compo');
   selCompo.innerHTML='<option value="">— Choisir une composition enregistrée —</option>'
@@ -22822,30 +22985,19 @@ function renderFeuilleMatch(){
 
   var selForm=document.getElementById('fm-adv-formation');
   selForm.innerHTML=Object.keys(FORMATIONS).map(function(f){return '<option value="'+f+'"'+(FEUILLE_MATCH.adversaireFormation===f?' selected':'')+'>'+f+'</option>';}).join('');
+  selForm.onchange=function(){
+    FEUILLE_MATCH.adversaireFormation=this.value;
+    FEUILLE_MATCH.advNotes={};      // les postes ne sont plus les memes
+    sauvegardeAuto(); renderAdvFeuille();
+  };
 
   document.getElementById('fm-date').value=FEUILLE_MATCH.dateMatch||'';
   document.getElementById('fm-lieu').value=FEUILLE_MATCH.lieuMatch||'';
   document.getElementById('fm-consignes-off').value=FEUILLE_MATCH.consignesOff||'';
   document.getElementById('fm-consignes-def').value=FEUILLE_MATCH.consignesDef||'';
 
-  var cpaSel=function(id,type,val){
-    var el=document.getElementById(id); if(!el) return;
-    var h='<option value="">— Aucun —</option>';
-    var v=cpaCle(val);
-    cpaDuType(type).forEach(function(o){
-      h+='<option value="'+o.cle+'"'+(v===o.cle?' selected':'')+'>'+echapForme(o.nom)+'</option>';
-    });
-    el.innerHTML=h;
-  };
-  cpaSel('fm-corner-off','corner_off',FEUILLE_MATCH.cornerOff);
-  cpaSel('fm-corner-def','corner_def',FEUILLE_MATCH.cornerDef);
-  cpaSel('fm-cf-off','cf_off',FEUILLE_MATCH.cfOff);
-  cpaSel('fm-cf-def','cf_def',FEUILLE_MATCH.cfDef);
-
-  var penOptions1='<option value="">— Choisir —</option>'+JOUEURS.map(function(j){return '<option value="'+j.nom.replace(/"/g,'&quot;')+'"'+(FEUILLE_MATCH.pen1===j.nom?' selected':'')+'>'+j.num+'. '+j.nom+'</option>';}).join('');
-  var penOptions2='<option value="">— Choisir —</option>'+JOUEURS.map(function(j){return '<option value="'+j.nom.replace(/"/g,'&quot;')+'"'+(FEUILLE_MATCH.pen2===j.nom?' selected':'')+'>'+j.num+'. '+j.nom+'</option>';}).join('');
-  document.getElementById('fm-pen1').innerHTML=penOptions1;
-  document.getElementById('fm-pen2').innerHTML=penOptions2;
+  renderCpaFeuille();
+  renderAdvFeuille();
 
   onAdversaireChangeFeuille();
   renderConsignesIndivFeuille();
@@ -22886,12 +23038,20 @@ function collecterFeuilleMatch(){
   FEUILLE_MATCH.adversaireFormation=document.getElementById('fm-adv-formation').value;
   FEUILLE_MATCH.dateMatch=document.getElementById('fm-date').value.trim();
   FEUILLE_MATCH.lieuMatch=document.getElementById('fm-lieu').value.trim();
-  FEUILLE_MATCH.cornerOff=document.getElementById('fm-corner-off').value||null;
-  FEUILLE_MATCH.cornerDef=document.getElementById('fm-corner-def').value||null;
-  FEUILLE_MATCH.cfOff=document.getElementById('fm-cf-off').value||null;
-  FEUILLE_MATCH.cfDef=document.getElementById('fm-cf-def').value||null;
-  FEUILLE_MATCH.pen1=document.getElementById('fm-pen1').value;
-  FEUILLE_MATCH.pen2=document.getElementById('fm-pen2').value;
+  if(!FEUILLE_MATCH.cpaQui) FEUILLE_MATCH.cpaQui={};
+  if(!FEUILLE_MATCH.cpaNote) FEUILLE_MATCH.cpaNote={};
+  FM_CPA.forEach(function(c){
+    var q=document.getElementById('fm-qui-'+c.k), n=document.getElementById('fm-note-'+c.k),
+        sc=document.getElementById('fm-'+c.k+'-sch');
+    if(q) FEUILLE_MATCH.cpaQui[c.k]=q.value||'';
+    if(n) FEUILLE_MATCH.cpaNote[c.k]=n.value.trim();
+    FEUILLE_MATCH[c.k]=sc?(sc.value||null):(FEUILLE_MATCH[c.k]||null);
+  });
+  ['pen1','pen2','pen3'].forEach(function(k){
+    var e=document.getElementById('fm-'+k); if(e) FEUILLE_MATCH[k]=e.value;
+  });
+  var gA=document.getElementById('fm-adv-general');
+  if(gA) FEUILLE_MATCH.advGeneral=gA.value.trim();
   FEUILLE_MATCH.consignesOff=document.getElementById('fm-consignes-off').value.trim();
   FEUILLE_MATCH.consignesDef=document.getElementById('fm-consignes-def').value.trim();
   var indiv={};
@@ -23935,110 +24095,377 @@ function genererFeuilleMatchPDF(){
   if(FEUILLE_MATCH.compoIdx==null){ notif('⚠ Choisis une composition d\'abord'); return; }
   var compo=COMPOSITIONS[FEUILLE_MATCH.compoIdx];
   var titulaires=compo.slots.map(function(s,i){return {s:s,i:i};}).filter(function(o){return !o.s.bench;});
+  var banc=compo.slots.map(function(s,i){return {s:s,i:i};})
+    .filter(function(o){return o.s.bench && (o.s.nom||o.s.num);});
 
-  function esc(t){ var d=document.createElement('div');d.textContent=t||'';return d.innerHTML; }
-  function compY(y){ return 6+(y/100)*82; }
-  function compX(x){ return 8+(x/100)*84; }
-
-  var joueursHtml=titulaires.map(function(o){
-    var s=o.s;
-    var cons=(FEUILLE_MATCH.consignesIndiv[o.i]||[]).map(function(c){return '<div>'+esc(c)+'</div>';}).join('');
-    return '<div class="pl" style="top:'+compY(s.y)+'%;left:'+compX(s.x)+'%">'
-      +'<div class="dot">'+(s.num||'?')+'</div>'
-      +'<div class="nm">'+esc(s.nom||s.pos)+'</div>'
-      +(cons?'<div class="cons">'+cons+'</div>':'')
-      +'</div>';
-  }).join('');
-
-  var advForm=FORMATIONS[FEUILLE_MATCH.adversaireFormation]||FORMATIONS['4-4-2'];
-  var a=ADVERSAIRES.find(function(x){return x.nom===FEUILLE_MATCH.adversaireNom;});
-  var fA=a&&a.fiches.length?a.fiches[0]:null;
-  var surveiller=(fA&&fA.joueursSurveiller)?fA.joueursSurveiller.split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean):[];
-  var advHtml=advForm.map(function(s,i){
-    var danger=surveiller[i];
-    return '<div class="pl opp" style="top:'+compY(s.y)+'%;left:'+compX(s.x)+'%">'
-      +'<div class="dot">'+s.pos+'</div>'
-      +'<div class="nm">'+(danger?esc(danger)+' ★':s.pos)+'</div>'
-      +'</div>';
-  }).join('');
-
-  function cpaTxt(v){
-    var o=cpaParCle(v);
-    if(!o) return '—';
-    if(o.ancien){
-      var roles=Object.keys(o.ancien.roles||{}).map(function(k){return (o.ancien.roles[k]||{}).nom;}).filter(Boolean);
-      return esc(o.nom)+(roles.length?' ('+roles.join(', ')+')':'');
-    }
-    var st=o.situ||{};
-    var noms=((st.data&&st.data.joueurs)||[]).map(function(j){return j.nom;}).filter(Boolean);
-    return esc(o.nom)+(st.etapes?(' · '+st.etapes+' étapes'):'')
-      +(noms.length?(' ('+esc(noms.slice(0,5).join(', '))+')'):'');
+  function esc(t){ var d=document.createElement('div');d.textContent=(t==null?'':String(t));return d.innerHTML; }
+  function compY(y){ return 5+(y/100)*88; }
+  function compX(x){ return 7+(x/100)*86; }
+  // La photo du joueur : on la retrouve par son numero, c'est le seul lien
+  // entre une composition et la fiche.
+  function photoDuNum(num){
+    if(num==null) return null;
+    for(var k=0;k<(JOUEURS||[]).length;k++) if(JOUEURS[k].num===num) return PHOTOS[k]||null;
+    return null;
+  }
+  // « Louis BACQUE » se lit BACQUE sur le terrain, L. BACQUE dans les encarts
+  // etroits, et en entier sur la page des consignes.
+  function nomFamille(nom){
+    var t=String(nom||'').trim(); if(!t) return '';
+    var maj=t.split(/\s+/).filter(function(m){ return m.length>1 && m===m.toUpperCase(); });
+    if(maj.length) return maj.join(' ');
+    var mots=t.split(/\s+/);
+    return mots[mots.length-1];
+  }
+  function nomCourt(nom){
+    var t=String(nom||'').trim(); if(!t) return '';
+    var fam=nomFamille(t);
+    var reste=t.replace(fam,'').trim();
+    return reste ? (reste.charAt(0).toUpperCase()+'. '+fam) : fam;
+  }
+  function initiales(nom){
+    return String(nom||'').split(/\s+/).filter(Boolean).slice(0,2)
+      .map(function(m){ return m.charAt(0).toUpperCase(); }).join('') || '?';
+  }
+  function pastille(num, nom, grande){
+    var ph=photoDuNum(num);
+    var t=grande?'ph-g':'ph-p';
+    return ph ? '<span class="ph '+t+'" style="background-image:url('+JSON.stringify(ph)+')"></span>'
+              : '<span class="ph '+t+' vide">'+esc(initiales(nom))+'</span>';
   }
 
-  var consignesOffLi=(FEUILLE_MATCH.consignesOff||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l){return '<li>'+esc(l)+'</li>';}).join('');
-  var consignesDefLi=(FEUILLE_MATCH.consignesDef||'').split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l){return '<li>'+esc(l)+'</li>';}).join('');
+  // ---------- Notre terrain : photo, numero, nom. Les consignes ont leur page.
+  // Une composition enregistree avant que les places soient memorisees n'a pas
+  // de coordonnees : on retombe sur le gabarit du systeme, place par place.
+  var gabarit=FORMATIONS[compo.formation]||FORMATIONS['4-4-2'];
+  function placeDe(s, k){
+    if(s && typeof s.x==='number' && typeof s.y==='number' && !isNaN(s.x) && !isNaN(s.y)) return s;
+    return gabarit[k] || {x:50, y:50};
+  }
+  var joueursHtml=titulaires.map(function(o, k){
+    var s=o.s, pl=placeDe(s, k);
+    return '<div class="pl" style="top:'+compY(pl.y)+'%;left:'+compX(pl.x)+'%">'
+      +'<span class="pl-h">'+pastille(s.num, s.nom)+'<span class="num">'+(s.num==null?'?':s.num)+'</span></span>'
+      +'<span class="nm">'+esc(nomFamille(s.nom)||s.pos)+'</span>'
+      +'<span class="po">'+esc(s.pos||'')+'</span>'
+    +'</div>';
+  }).join('');
 
-  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Feuille de match</title>'
-    +'<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">'
+  // ---------- Leur terrain : le poste, et le signe qu'on a pose dessus
+  var advForm=FORMATIONS[FEUILLE_MATCH.adversaireFormation]||FORMATIONS['4-4-2'];
+  var a=(ADVERSAIRES||[]).filter(function(x){return x.nom===FEUILLE_MATCH.adversaireNom;})[0];
+  var fA=a&&a.fiches&&a.fiches.length?a.fiches[0]:null;
+  var notesAdv=FEUILLE_MATCH.advNotes||{};
+  var reperes=[];
+  var advHtml=advForm.map(function(p,i){
+    var n=notesAdv[i]||{sg:'',t:''};
+    var inf=fmSigneInfo(n.sg);
+    var marque=!!(n.sg || (n.t||'').trim());
+    if(marque) reperes.push({ic:inf.ic, c:inf.c, lab:inf.lab, pos:p.pos, t:n.t, sg:n.sg});
+    return '<div class="pl opp'+(marque?' marque':'')+'" style="top:'+compY(p.y)+'%;left:'+compX(p.x)+'%">'
+      +'<span class="pl-h">'
+        +'<span class="dot">'+esc(p.pos)+'</span>'
+        +(n.sg?'<span class="sg" style="background:'+inf.c+'">'+inf.ic+'</span>':'')
+      +'</span>'
+      +((n.t||'').trim()?'<span class="nm opp-n">'+esc(n.t)+'</span>':'')
+    +'</div>';
+  }).join('');
+
+  // ---------- Les coups de pied arrêtés
+  function nomSchema(v){
+    var o=(typeof cpaParCle==='function')?cpaParCle(v):null;
+    return o?esc(o.nom):'';
+  }
+  var cpaHtml=FM_CPA.map(function(c){
+    var qui=(FEUILLE_MATCH.cpaQui||{})[c.k]||'';
+    var note=(FEUILLE_MATCH.cpaNote||{})[c.k]||'';
+    var sch=nomSchema(FEUILLE_MATCH[c.k]);
+    return '<div class="cpa" style="--c:'+c.c+'">'
+      +'<div class="cpa-h">'+c.ic+' '+esc(c.lab)+'</div>'
+      +(qui?'<div class="cpa-q">'+pastille(numDuNom(qui), qui)+'<b>'+esc(nomCourt(qui))+'</b></div>'
+          :'<div class="cpa-q vide">—</div>')
+      +(note?'<div class="cpa-n">'+esc(note)+'</div>':'')
+      +(sch?'<div class="cpa-s">🧠 '+sch+'</div>':'')
+    +'</div>';
+  }).join('');
+  var pens=['pen1','pen2','pen3'].map(function(k){ return FEUILLE_MATCH[k]||''; }).filter(Boolean);
+  cpaHtml+='<div class="cpa" style="--c:#d97706">'
+    +'<div class="cpa-h">⚽ Penaltys</div>'
+    +(pens.length
+      ? '<div class="cpa-pens">'+pens.map(function(n,k){
+          return '<span class="cpa-pen">'+pastille(numDuNom(n), n)+'<b>'+(k+1)+'. '+esc(nomCourt(n))+'</b></span>'; }).join('')+'</div>'
+      : '<div class="cpa-q vide">—</div>')
+  +'</div>';
+
+  // ---------- Les consignes : c'est la base de l'affichage, elles ont leur page
+  function lignes(t){
+    return String(t||'').split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  }
+  var offL=lignes(FEUILLE_MATCH.consignesOff), defL=lignes(FEUILLE_MATCH.consignesDef);
+  function bloc(titre, cls, L, vide){
+    return '<div class="col-bloc '+cls+'">'
+      +'<div class="col-h">'+titre+'</div>'
+      +(L.length
+        ? '<ul class="col-l">'+L.map(function(l){ return '<li>'+esc(l)+'</li>'; }).join('')+'</ul>'
+        : '<div class="col-v">'+vide+'</div>')
+    +'</div>';
+  }
+  var indivHtml=titulaires.map(function(o){
+    var s=o.s;
+    var cons=(FEUILLE_MATCH.consignesIndiv[o.i]||[]);
+    return '<div class="ind'+(cons.length?'':' ind-vide')+'">'
+      +'<div class="ind-h">'+pastille(s.num, s.nom, true)
+        +'<span class="ind-i"><span class="ind-n">'+esc(s.nom||s.pos)+'</span>'
+        +'<span class="ind-m"><b>'+(s.num==null?'?':s.num)+'</b> · '+esc(s.pos||'')+'</span></span></div>'
+      +(cons.length
+        ? '<ul class="ind-l">'+cons.map(function(c){ return '<li>'+esc(c)+'</li>'; }).join('')+'</ul>'
+        : '<div class="ind-v">Pas de consigne particulière</div>')
+    +'</div>';
+  }).join('');
+
+  var bancHtml=banc.length
+    ? '<div class="banc"><span class="banc-t">🪑 Sur le banc</span>'
+      +banc.map(function(o){
+        return '<span class="banc-j">'+pastille(o.s.num, o.s.nom)+'<b>'
+          +(o.s.num==null?'':o.s.num+'. ')+esc(nomCourt(o.s.nom)||o.s.pos)+'</b></span>'; }).join('')
+      +'</div>'
+    : '';
+
+  var reperesHtml=reperes.length
+    ? '<div class="rep">'+reperes.map(function(r){
+        return '<div class="rep-l" style="--c:'+r.c+'">'
+          +'<span class="rep-s">'+r.ic+'</span>'
+          +'<span class="rep-p">'+esc(r.pos)+'</span>'
+          +'<span class="rep-t">'+(r.t?esc(r.t):esc(r.lab))+'</span>'
+        +'</div>'; }).join('')+'</div>'
+    : '<div class="col-v">Rien de marqué sur leur terrain — encart ⑤ de la feuille.</div>';
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Feuille de match — '+esc(FEUILLE_MATCH.adversaireNom||NOM_CLUB)+'</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto+Condensed:wght@400;700;800&display=swap" rel="stylesheet">'
     +'<style>'
-    +':root{--or:#F97316;--dark:#111}*{box-sizing:border-box;margin:0;padding:0;font-family:\'Roboto Condensed\',sans-serif}'
-    +'body{background:#fff;color:var(--dark);padding:24px 30px}'
-    +'.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--or);padding-bottom:12px;margin-bottom:14px}'
-    +'.header .club{font-family:\'Anton\',sans-serif;font-size:22px}.header .sub{font-size:11px;color:#666;margin-top:2px}'
-    +'.header .vs{text-align:right}.header .vs .t{font-family:\'Anton\',sans-serif;font-size:20px;color:var(--or)}.header .vs .s{font-size:11px;color:#666}'
-    +'.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}'
-    +'.box{border:1.5px solid #ddd;border-radius:6px;padding:10px 12px}'
-    +'.box-h{font-family:\'Anton\',sans-serif;font-size:11px;text-transform:uppercase;color:var(--or);margin-bottom:6px}'
-    +'.box p{font-size:11px;line-height:1.5;color:#333}.box b{color:#000}'
-    +'.main-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}'
-    +'.pitch-col .pitch-title{font-family:\'Anton\',sans-serif;font-size:11px;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between}'
-    +'.pitch-title .sys{font-size:10px;color:#666;font-weight:400;font-family:\'Roboto Condensed\',sans-serif}'
-    +'.pitch-title.us{color:var(--or)}.pitch-title.them{color:#555}'
-    +'.pitch-zone{position:relative;background:repeating-linear-gradient(0deg,#e8f4ea 0 20px,#f2f9f3 20px 40px);border:2px solid #333;border-radius:4px;height:560px;overflow:hidden}'
-    +'.pitch-zone.them{background:repeating-linear-gradient(0deg,#f2f2f2 0 20px,#f8f8f8 20px 40px)}'
-    +'.pitch-zone::before{content:\'\';position:absolute;top:0;left:22%;width:56%;height:14%;border:2px solid #333;border-top:none}'
-    +'.pitch-zone::after{content:\'\';position:absolute;top:50%;left:50%;width:60px;height:60px;border:2px solid #333;border-radius:50%;transform:translate(-50%,-50%)}'
-    +'.pitch-goal-bas{position:absolute;bottom:0;left:22%;width:56%;height:14%;border:2px solid #333;border-bottom:none}'
-    +'.pl{position:absolute;left:50%;transform:translate(-50%,0);text-align:center;width:68px}'
-    +'.pl .dot{width:24px;height:24px;border-radius:50%;background:var(--or);color:#fff;font-family:\'Anton\',sans-serif;font-size:11px;display:flex;align-items:center;justify-content:center;margin:0 auto;border:1.5px solid #111}'
-    +'.pl .nm{font-size:9px;font-weight:800;margin-top:3px;color:#000;background:rgba(255,255,255,.85);border-radius:3px;padding:1px 2px;display:block;width:100%;word-wrap:break-word;line-height:1.15}'
-    +'.pl .cons{font-size:7.5px;color:#333;line-height:1.5;margin-top:3px;border-top:1px dotted #999;padding-top:3px;text-align:left}'
-    +'.pl .cons div{padding-left:6px;position:relative}.pl .cons div::before{content:\'–\';position:absolute;left:0}'
-    +'.pl.opp .dot{background:#555;width:24px;height:24px}.pl.opp .nm{font-size:8px;font-weight:700;color:#555;background:rgba(255,255,255,.85)}'
-    +'.cpa-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}'
-    +'.cpa-strip .box-h{font-size:8.5px}.cpa-strip p{font-size:9.5px}'
-    +'.instr{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}'
-    +'.box-h.off{color:#16a34a}.box-h.def{color:#dc2626}'
-    +'.instr ul{margin:4px 0 0 16px;font-size:10.5px;line-height:1.6;color:#333}'
-    +'@media print{body{padding:8mm}}'
+    +':root{--or:#F97316;--vert:#0f8a5f;--rouge:#dc2626;--bleu:#2563eb;--encre:#111418;--gris:#6b7480;--trait:#d8dde3}'
+    +'*{box-sizing:border-box;margin:0;padding:0;font-family:"Roboto Condensed",sans-serif}'
+    +'body{background:#f3f4f6;color:var(--encre);-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'.page{background:#fff;width:210mm;min-height:297mm;margin:0 auto 10px;padding:11mm 10mm 10mm;'
+      +'display:flex;flex-direction:column}'
+
+    // --- L'en-tete : on doit savoir en une seconde de quel match il s'agit
+    +'.tete{display:flex;align-items:stretch;gap:0;border-radius:10px;overflow:hidden;'
+      +'border:2px solid var(--encre);margin-bottom:12px}'
+    +'.tete-g{flex:1;padding:11px 14px;background:var(--encre);color:#fff}'
+    +'.tete-g .c{font-family:Anton,sans-serif;font-size:25px;letter-spacing:.01em;line-height:1.05}'
+    +'.tete-g .s{font-size:11.5px;color:#c7ccd3;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}'
+    +'.tete-d{flex:1.15;padding:11px 14px;background:var(--or);color:#2a1202;text-align:right}'
+    +'.tete-d .v{font-size:11.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75}'
+    +'.tete-d .a{font-family:Anton,sans-serif;font-size:25px;line-height:1.05}'
+    +'.tete-d .m{font-size:12px;font-weight:700;margin-top:3px}'
+
+    // --- Le mot sur l'adversaire : une bande, pas une note de bas de page
+    +'.mot{display:flex;align-items:center;gap:11px;margin-bottom:12px;padding:10px 14px;'
+      +'border:2px solid var(--rouge);border-radius:10px;background:#fef2f2}'
+    +'.mot-e{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.1em;color:var(--rouge);'
+      +'text-transform:uppercase;flex:0 0 auto}'
+    +'.mot-t{font-size:15px;font-weight:700;line-height:1.35}'
+
+    // --- Les deux terrains
+    +'.terrains{display:grid;grid-template-columns:1.3fr 1fr;gap:11px;margin-bottom:12px}'
+    +'.tcol{display:flex;flex-direction:column;min-width:0}'
+    +'.tcol-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;'
+      +'padding:7px 11px;border-radius:8px 8px 0 0;color:#fff}'
+    +'.tcol-h.nous{background:var(--or);color:#2a1202}'
+    +'.tcol-h.eux{background:var(--encre)}'
+    +'.tcol-h .n{font-family:Anton,sans-serif;font-size:15px;letter-spacing:.01em;'
+      +'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+    +'.tcol-h .y{font-size:12px;font-weight:800;letter-spacing:.05em;flex:0 0 auto}'
+    +'.pitch{position:relative;height:124mm;border:2px solid var(--encre);border-top:none;'
+      +'border-radius:0 0 8px 8px;overflow:hidden;'
+      +'background:repeating-linear-gradient(0deg,#e4f1e7 0 7%,#edf6ef 7% 14%)}'
+    +'.pitch.eux{background:repeating-linear-gradient(0deg,#eceef1 0 7%,#f5f6f8 7% 14%)}'
+    +'.pitch::before{content:"";position:absolute;top:0;left:24%;width:52%;height:13%;'
+      +'border:1.5px solid #9aa4ad;border-top:none;border-radius:0 0 3px 3px}'
+    +'.pitch::after{content:"";position:absolute;top:50%;left:50%;width:22%;aspect-ratio:1;'
+      +'border:1.5px solid #9aa4ad;border-radius:50%;transform:translate(-50%,-50%)}'
+    +'.surf{position:absolute;bottom:0;left:24%;width:52%;height:13%;'
+      +'border:1.5px solid #9aa4ad;border-bottom:none;border-radius:3px 3px 0 0}'
+    +'.median{position:absolute;top:50%;left:0;right:0;height:1.5px;background:#9aa4ad}'
+
+    // --- Un joueur sur le terrain
+    +'.pl{position:absolute;transform:translate(-50%,-50%);text-align:center;width:63px}'
+    +'.pl.opp{width:58px}'
+    +'.pl-h{position:relative;display:inline-block}'
+    +'.ph{display:block;width:32px;height:32px;border-radius:50%;background-size:cover;'
+      +'background-position:center;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}'
+    +'.ph.vide{display:flex;align-items:center;justify-content:center;background:#9aa4ad;'
+      +'color:#fff;font-family:Anton,sans-serif;font-size:13px;letter-spacing:.02em}'
+    +'.ph-g{width:50px;height:50px}.ph-g.vide{font-size:18px}'
+    +'.pl .num{position:absolute;right:-5px;bottom:-3px;min-width:18px;height:18px;padding:0 3px;'
+      +'border-radius:9px;background:var(--or);color:#2a1202;font-family:Anton,sans-serif;'
+      +'font-size:11px;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}'
+    +'.pl .nm{display:block;margin-top:2px;font-size:8.8px;font-weight:800;line-height:1.18;'
+      +'letter-spacing:-.016em;'
+      +'background:rgba(255,255,255,.94);border-radius:3px;padding:1px 3px;'
+      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    +'.pl .po{display:block;font-size:7.8px;font-weight:700;color:var(--gris);letter-spacing:.06em}'
+    +'.pl.opp .dot{display:flex;align-items:center;justify-content:center;width:29px;height:29px;'
+      +'border-radius:50%;background:var(--encre);color:#fff;font-family:Anton,sans-serif;font-size:11px;'
+      +'border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}'
+    +'.pl.opp .sg{position:absolute;right:-9px;top:-7px;width:21px;height:21px;border-radius:50%;'
+      +'color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;'
+      +'border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}'
+    +'.pl.opp .opp-n{font-size:9.5px;font-weight:800;color:#1b1f24;'
+      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    +'.pl.opp.marque .dot{background:#2a2f36}'
+
+    // --- Leurs reperes, en clair sous le terrain
+    +'.sous{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}'
+    +'.col-bloc{border:1.5px solid var(--trait);border-radius:9px;overflow:hidden;background:#fff}'
+    +'.col-h{font-family:Anton,sans-serif;font-size:12px;letter-spacing:.07em;text-transform:uppercase;'
+      +'padding:7px 11px;color:#fff;background:var(--encre)}'
+    +'.col-bloc.poss .col-h{background:var(--vert)}'
+    +'.col-bloc.def .col-h{background:var(--bleu)}'
+    +'.col-bloc.adv .col-h{background:var(--rouge)}'
+    +'.col-l{list-style:none;padding:8px 11px 10px}'
+    +'.col-l li{position:relative;padding:4px 0 4px 17px;font-size:14px;font-weight:700;line-height:1.4;'
+      +'border-bottom:1px dotted var(--trait)}'
+    +'.col-l li:last-child{border-bottom:none}'
+    +'.col-l li::before{content:"";position:absolute;left:3px;top:11px;width:7px;height:7px;'
+      +'border-radius:2px;background:var(--or)}'
+    +'.col-bloc.poss .col-l li::before{background:var(--vert)}'
+    +'.col-bloc.def .col-l li::before{background:var(--bleu)}'
+    +'.col-v{padding:10px 11px;font-size:12px;color:var(--gris);font-style:italic}'
+    +'.rep{display:flex;flex-direction:column;gap:5px;padding:8px 10px 10px}'
+    +'.rep-l{display:flex;align-items:center;gap:8px;min-width:0}'
+    +'.rep-s{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;'
+      +'font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}'
+    +'.rep-p{flex:0 0 40px;font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--gris);'
+      +'text-align:center;border:1px solid var(--trait);border-radius:4px;padding:2px 0}'
+    +'.rep-t{flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.3}'
+
+    // --- Les coups de pied arretes
+    +'.cpas{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:auto}'
+    +'.cpa{border:1.5px solid var(--trait);border-top:4px solid var(--c);border-radius:9px;'
+      +'padding:8px 9px 9px;min-width:0;background:#fff}'
+    +'.cpa-h{font-family:Anton,sans-serif;font-size:10.5px;letter-spacing:.04em;color:var(--c);'
+      +'text-transform:uppercase;margin-bottom:6px;line-height:1.15}'
+    +'.cpa-q{display:flex;align-items:center;gap:6px;font-size:12.5px;line-height:1.2}'
+    +'.cpa-q .ph{width:24px;height:24px;border-width:2px}'
+    +'.cpa-q.vide{color:var(--gris);font-size:15px}'
+    +'.cpa-n{margin-top:5px;font-size:11px;font-weight:700;color:#2a2f36;line-height:1.35}'
+    +'.cpa-s{margin-top:4px;font-size:10px;color:var(--gris)}'
+    +'.cpa-pens{display:flex;flex-direction:column;gap:4px}'
+    +'.cpa-pen{display:flex;align-items:center;gap:5px;font-size:11.5px}'
+    +'.cpa-pen .ph{width:20px;height:20px;border-width:1.5px}'
+
+    // --- Le banc
+    +'.banc{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:12px;'
+      +'padding:8px 11px;border:1.5px dashed var(--trait);border-radius:9px}'
+    +'.banc-t{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.07em;text-transform:uppercase;'
+      +'color:var(--gris)}'
+    +'.banc-j{display:flex;align-items:center;gap:5px;font-size:11.5px}'
+    +'.banc-j .ph{width:22px;height:22px;border-width:1.5px}'
+
+    // --- Page 2 : les consignes, en grand
+    +'.p2-tete{display:flex;align-items:baseline;gap:11px;border-bottom:3px solid var(--or);'
+      +'padding-bottom:8px;margin-bottom:12px}'
+    +'.p2-tete .t{font-family:Anton,sans-serif;font-size:24px}'
+    +'.p2-tete .s{font-size:12.5px;color:var(--gris);margin-left:auto}'
+    +'.inds{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}'
+    +'.ind{border:1.5px solid var(--trait);border-left:5px solid var(--or);border-radius:9px;'
+      +'padding:8px 11px 9px;break-inside:avoid;background:#fff}'
+    +'.ind.ind-vide{border-left-color:var(--trait);opacity:.72}'
+    +'.ind-h{display:flex;align-items:center;gap:10px;margin-bottom:7px}'
+    +'.ind-i{display:flex;flex-direction:column;min-width:0}'
+    +'.ind-n{font-family:Anton,sans-serif;font-size:16px;line-height:1.1;letter-spacing:.01em;'
+      +'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+    +'.ind-m{font-size:11px;font-weight:700;color:var(--gris);letter-spacing:.06em}'
+    +'.ind-m b{color:var(--or)}'
+    +'.ind-l{list-style:none}'
+    +'.ind-l li{position:relative;padding:4px 0 4px 18px;font-size:13.5px;font-weight:700;'
+      +'line-height:1.3;border-top:1px dotted var(--trait)}'
+    +'.ind-l li::before{content:"";position:absolute;left:4px;top:12px;width:7px;height:7px;'
+      +'border-radius:2px;background:var(--or)}'
+    +'.ind-v{font-size:12px;color:var(--gris);font-style:italic;padding-top:3px}'
+
+    +'@media print{body{background:#fff}'
+      +'.page{width:auto;min-height:auto;margin:0;padding:0;break-after:page}'
+      +'.page:last-child{break-after:auto}'
+      +'.ind,.cpa,.col-bloc{break-inside:avoid}}'
+    +'@page{size:A4 portrait;margin:9mm}'
     +'</style></head><body>'
-    +'<div class="header"><div><div class="club">'+esc(NOM_CLUB)+'</div><div class="sub">Séniors R2 · Feuille de match</div></div>'
-    +'<div class="vs"><div class="t">vs '+esc(FEUILLE_MATCH.adversaireNom||'?')+'</div><div class="s">'+esc(FEUILLE_MATCH.dateMatch)+(FEUILLE_MATCH.lieuMatch?' · '+esc(FEUILLE_MATCH.lieuMatch):'')+'</div></div></div>'
-    +'<div class="row2">'
-    +'<div class="box"><div class="box-h">🔍 Adversaire — dispositif</div><p>'+(fA?('<b>Possession :</b> '+esc(fA.dispoPoss||'?')+' &nbsp;·&nbsp; <b>À la perte :</b> '+esc(fA.dispoDef||'?')+'<br><b>Joueurs à surveiller :</b> '+esc(fA.joueursSurveiller||'—')):'Aucune fiche enregistrée')+'</p></div>'
-    +'<div class="box"><div class="box-h">📌 Infos diverses</div><p>'+(fA&&fA.infosParticulieres?esc(fA.infosParticulieres):'—')+'</p></div>'
+
+    // ===================== PAGE 1 =====================
+    +'<div class="page">'
+    +'<div class="tete">'
+      +'<div class="tete-g"><div class="c">'+esc(NOM_CLUB)+'</div>'
+        +'<div class="s">Séniors R2 · '+esc(compo.formation||'')+'</div></div>'
+      +'<div class="tete-d"><div class="v">Feuille de match — vs</div>'
+        +'<div class="a">'+esc(FEUILLE_MATCH.adversaireNom||'—')+'</div>'
+        +'<div class="m">'+esc(FEUILLE_MATCH.dateMatch||'')
+          +(FEUILLE_MATCH.lieuMatch?' · '+esc(FEUILLE_MATCH.lieuMatch):'')+'</div></div>'
     +'</div>'
-    +'<div class="main-layout">'
-    +'<div class="pitch-col"><div class="pitch-title us"><span>🟠 '+esc(NOM_CLUB)+'</span><span class="sys">'+esc(compo.formation)+'</span></div><div class="pitch-zone"><div class="pitch-goal-bas"></div>'+joueursHtml+'</div></div>'
-    +'<div class="pitch-col"><div class="pitch-title them"><span>⚫ '+esc(FEUILLE_MATCH.adversaireNom||'ADVERSAIRE')+'</span><span class="sys">'+esc(FEUILLE_MATCH.adversaireFormation)+'</span></div><div class="pitch-zone them"><div class="pitch-goal-bas"></div>'+advHtml+'</div></div>'
+    +((FEUILLE_MATCH.advGeneral||'').trim()
+      ? '<div class="mot"><span class="mot-e">🔍 Leur match</span>'
+        +'<span class="mot-t">'+esc(FEUILLE_MATCH.advGeneral)+'</span></div>'
+      : '')
+    +'<div class="terrains">'
+      +'<div class="tcol"><div class="tcol-h nous"><span class="n">'+esc(NOM_CLUB)+'</span>'
+        +'<span class="y">'+esc(compo.formation||'')+'</span></div>'
+        +'<div class="pitch"><div class="median"></div><div class="surf"></div>'+joueursHtml+'</div></div>'
+      +'<div class="tcol"><div class="tcol-h eux"><span class="n">'
+        +esc(FEUILLE_MATCH.adversaireNom||'ADVERSAIRE')+'</span>'
+        +'<span class="y">'+esc(FEUILLE_MATCH.adversaireFormation||'')+'</span></div>'
+        +'<div class="pitch eux"><div class="median"></div><div class="surf"></div>'+advHtml+'</div></div>'
     +'</div>'
-    +'<div class="cpa-strip">'
-    +'<div class="box"><div class="box-h">🚩 Corner OFF</div><p>'+cpaTxt(FEUILLE_MATCH.cornerOff)+'</p></div>'
-    +'<div class="box"><div class="box-h">🚩 Corner DEF</div><p>'+cpaTxt(FEUILLE_MATCH.cornerDef)+'</p></div>'
-    +'<div class="box"><div class="box-h">🎯 CF Offensif</div><p>'+cpaTxt(FEUILLE_MATCH.cfOff)+'</p></div>'
-    +'<div class="box"><div class="box-h">🛡️ CF Défensif</div><p>'+cpaTxt(FEUILLE_MATCH.cfDef)+'</p></div>'
-    +'<div class="box"><div class="box-h">⚽ Penalty</div><p><b>1:</b> '+esc(FEUILLE_MATCH.pen1||'—')+' <b>2:</b> '+esc(FEUILLE_MATCH.pen2||'—')+'</p></div>'
+    +bancHtml
+    +'<div class="sous">'
+      +'<div class="col-bloc adv"><div class="col-h">⚠ Leurs repères</div>'+reperesHtml+'</div>'
+      +'<div class="col-bloc"><div class="col-h">📌 Leur fiche</div>'
+        +(fA
+          ? '<div class="rep">'
+            +(fA.dispoPoss||fA.dispoDef
+              ? '<div class="rep-l" style="--c:#2a2f36"><span class="rep-s">▦</span>'
+                +'<span class="rep-t"><b>'+esc(fA.dispoPoss||'?')+'</b> en possession · '
+                +'<b>'+esc(fA.dispoDef||'?')+'</b> à la perte</span></div>' : '')
+            +(fA.joueursSurveiller
+              ? '<div class="rep-l" style="--c:#dc2626"><span class="rep-s">★</span>'
+                +'<span class="rep-t">'+esc(fA.joueursSurveiller)+'</span></div>' : '')
+            +(fA.infosParticulieres
+              ? '<div class="rep-l" style="--c:#6b7480"><span class="rep-s">ℹ</span>'
+                +'<span class="rep-t">'+esc(fA.infosParticulieres)+'</span></div>' : '')
+            +'</div>'
+          : '<div class="col-v">Aucune fiche enregistrée pour cet adversaire.</div>')
+      +'</div>'
     +'</div>'
-    +'<div class="instr">'
-    +'<div class="box"><div class="box-h off">✅ Consignes générales — Possession</div><ul>'+(consignesOffLi||'<li>—</li>')+'</ul></div>'
-    +'<div class="box"><div class="box-h def">🛡️ Consignes générales — Défense</div><ul>'+(consignesDefLi||'<li>—</li>')+'</ul></div>'
+    +'<div class="cpas">'+cpaHtml+'</div>'
     +'</div>'
+
+    // ===================== PAGE 2 =====================
+    +'<div class="page">'
+    +'<div class="p2-tete"><span class="t">Les consignes</span>'
+      +'<span class="s">'+esc(NOM_CLUB)+' vs '+esc(FEUILLE_MATCH.adversaireNom||'—')
+      +(FEUILLE_MATCH.dateMatch?' · '+esc(FEUILLE_MATCH.dateMatch):'')+'</span></div>'
+    +'<div class="sous">'
+      +bloc('✅ En possession','poss',offL,'À remplir dans l\'encart ③.')
+      +bloc('🛡 À la perte','def',defL,'À remplir dans l\'encart ③.')
+    +'</div>'
+    +'<div class="p2-tete" style="border-bottom-width:2px;margin-top:4px">'
+      +'<span class="t" style="font-size:19px">Joueur par joueur</span>'
+      +'<span class="s">'+titulaires.length+' titulaires</span></div>'
+    +'<div class="inds">'+indivHtml+'</div>'
+    +'</div>'
+
     +'</body></html>';
 
-  var w=window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(function(){ w.print(); },600);
+  docOuvrir(html, 'Feuille de match — '+(FEUILLE_MATCH.adversaireNom||''));
+}
+// Le numero d'un joueur a partir de son nom : les menus retiennent le nom.
+function numDuNom(nom){
+  if(!nom) return null;
+  for(var i=0;i<(JOUEURS||[]).length;i++)
+    if(JOUEURS[i].nom===nom || memeJoueur(JOUEURS[i].nom, nom)) return JOUEURS[i].num;
+  return null;
 }
 function assignerRoleCPA(key,num){
   if(!num){ delete CPA_COURANT[key]; renderCPA(); return; }
