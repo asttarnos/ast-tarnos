@@ -2397,8 +2397,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v93</b> · 06/10/2026<br>
-      <span style="opacity:.7">Les photos redescendent enfin du cloud</span>
+      AST COACH <b style="color:var(--or)">v94</b> · 06/10/2026<br>
+      <span style="opacity:.7">Bandeau « récupérer les photos » bien visible</span>
     </div>
   </div>
 </div>
@@ -12867,12 +12867,8 @@ function photosRecupererBandeau(){
   document.querySelectorAll('#pb-b').forEach(function(b){
     b.setAttribute('disabled','disabled'); b.textContent='… récupération';
   });
-  photosRecuperer(false).then(function(n){
+  photosRecuperer(false).then(function(){
     majBandeauPhotos();
-    if(!n){
-      // rien a prendre : inutile de reposer la question a chaque ecran
-      PHOTOS_BANDEAU_RANGE=true; majBandeauPhotos();
-    }
   }).catch(function(){ majBandeauPhotos(); });
 }
 
@@ -12903,6 +12899,7 @@ function photosManquantes(){
   return out;
 }
 // La liste des photos en ligne, sans telecharger leur contenu.
+var PHOTOS_EN_LIGNE=null;   // ce que le cloud contient vraiment, une fois regarde
 async function photosEnLigne(){
   var noms=[];
   try{
@@ -12914,7 +12911,9 @@ async function photosEnLigne(){
       if(id.indexOf('photo_')===0) noms.push(parseInt(id.slice(6),10));
     });
   }catch(e){ return null; }
-  return noms.filter(function(n){ return !isNaN(n); });
+  noms=noms.filter(function(n){ return !isNaN(n); });
+  PHOTOS_EN_LIGNE=noms;
+  return noms;
 }
 async function photoTirer(num){
   try{
