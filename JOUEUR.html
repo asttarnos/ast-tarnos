@@ -1434,9 +1434,10 @@ function jvSuisJeConvoque(adversaire){
   function dedans(liste){ return (liste||[]).some(function(n){ return memeJoueur(n, MON_NOM); }); }
   if(dedans(conv.a)) return 'a';
   if(dedans(conv.b)) return 'b';
+  if(dedans(conv.u18)) return 'u18';
   if(dedans(conv.bl)) return 'bl';
   if(dedans(conv.su)) return 'su';
-  if((conv.a||[]).length || (conv.b||[]).length) return 'non';
+  if((conv.a||[]).length || (conv.b||[]).length || (conv.u18||[]).length) return 'non';
   return null;
 }
 async function jvChargerMeteo(dateMatch){
@@ -1478,9 +1479,9 @@ function jvHtml(){
 
   var cat=jvSuisJeConvoque(c.adversaire||'');
   var statut, couleur, sous='';
-  if(cat==='a'||cat==='b'){
+  if(cat==='a'||cat==='b'||cat==='u18'){
     statut='Tu es dans le groupe'; couleur='var(--green)';
-    sous=(cat==='a'?'Équipe A':'Équipe B');
+    sous=(cat==='a'?'Équipe A':(cat==='b'?'Équipe B':'U18'));
   }else if(cat==='bl'){ statut='Tu es sur la liste des blessés'; couleur='var(--red)'; sous='Prends soin de toi, on se revoit vite.'; }
   else if(cat==='su'){ statut='Tu es suspendu pour ce match'; couleur='var(--red)'; sous='Tu seras de nouveau disponible ensuite.'; }
   else if(cat==='non'){ statut='Tu n\'es pas dans le groupe cette fois'; couleur='var(--mute)'; sous='Le coach peut encore changer la liste.'; }
@@ -1777,13 +1778,17 @@ async function renderMesMatchs(){
     html+='<div class="convoc-meta">'+esc(conv.date||'Date à confirmer')+(conv.lieu?' — '+esc(conv.lieu):'')+'</div>';
     var nomsA=(conv.a||[]).map(function(n){return (n||'').toLowerCase().trim();});
     var nomsB=(conv.b||[]).map(function(n){return (n||'').toLowerCase().trim();});
+    var nomsU=(conv.u18||[]).map(function(n){return (n||'').toLowerCase().trim();});
     var nomsBl=(conv.bl||[]).map(function(n){return (n||'').toLowerCase().trim();});
     var monNomLc=(MON_NOM||'').toLowerCase().trim();
-    var estConvoque=nomsA.indexOf(monNomLc)!==-1||nomsB.indexOf(monNomLc)!==-1;
+    var estConvoque=nomsA.indexOf(monNomLc)!==-1||nomsB.indexOf(monNomLc)!==-1
+      ||nomsU.indexOf(monNomLc)!==-1;
     if(nomsA.indexOf(monNomLc)!==-1){
       html+='<div class="statut-badge statut-a">✓ Convoqué — Équipe A</div>';
     }else if(nomsB.indexOf(monNomLc)!==-1){
       html+='<div class="statut-badge statut-b">✓ Convoqué — Équipe B</div>';
+    }else if(nomsU.indexOf(monNomLc)!==-1){
+      html+='<div class="statut-badge statut-b">✓ Convoqué — U18</div>';
     }else if(nomsBl.indexOf(monNomLc)!==-1){
       html+='<div class="statut-badge statut-bl">🏥 Signalé indisponible</div>';
     }else{
@@ -3107,7 +3112,7 @@ function renderEcranStatsLive(){
     return;
   }
   if(!STATSLIVE_JOUEUR){
-    var noms=[].concat(conv.a||[],conv.b||[]);
+    var noms=[].concat(conv.a||[],conv.b||[],conv.u18||[]);
     var joueurs=(SAISON.JOUEURS||[]).filter(function(j){ return j.num!==MON_NUM && noms.map(function(n){return (n||'').toLowerCase().trim();}).indexOf((j.nom||'').toLowerCase().trim())!==-1; });
     ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">🔢 Stats en direct</span><span class="bc" style="font-size:12.5px;color:var(--mute)">vs '+esc(conv.adv)+'</span></div><div class="blk-body">'
       +'<div style="font-size:14px;color:var(--mute);margin-bottom:12px">Choisis le coéquipier que tu vas suivre pendant le match.</div>'
@@ -3150,9 +3155,11 @@ function renderJourDeMatch(){
   html+='<div class="convoc-meta">'+esc(conv.date||'Date à confirmer')+' — '+esc(lieuTxt)+'</div>';
   var nomsA=(conv.a||[]).map(function(n){return (n||'').toLowerCase().trim();});
   var nomsB=(conv.b||[]).map(function(n){return (n||'').toLowerCase().trim();});
+  var nomsU=(conv.u18||[]).map(function(n){return (n||'').toLowerCase().trim();});
   var monNomLc=(MON_NOM||'').toLowerCase().trim();
   if(nomsA.indexOf(monNomLc)!==-1) html+='<div class="statut-badge statut-a">✓ Convoqué — Équipe A</div>';
   else if(nomsB.indexOf(monNomLc)!==-1) html+='<div class="statut-badge statut-b">✓ Convoqué — Équipe B</div>';
+  else if(nomsU.indexOf(monNomLc)!==-1) html+='<div class="statut-badge statut-b">✓ Convoqué — U18</div>';
   else html+='<div class="statut-badge statut-inconnu">Pas encore annoncé</div>';
   html+='</div>';
 
