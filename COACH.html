@@ -503,6 +503,9 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-vue-b[disabled]{opacity:.45;cursor:default}
 .cv-vide2{padding:14px;font-size:13px;color:var(--gris2)}
 .cv-aide{font-size:12px;color:var(--gris2);line-height:1.55}
+.cv-note{margin:11px 14px 0;padding:9px 12px;border-radius:8px;font-size:12.5px;
+  line-height:1.55;color:var(--gris2);background:var(--voile);border:1px solid var(--line)}
+.cv-note b{color:var(--gris)}
 
 /* --- Etape 1 : une ligne par joueur, deux colonnes quand la place le permet --- */
 .cv-lignes{display:grid;gap:8px;padding:12px 14px 14px;
@@ -527,25 +530,62 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-seg-i{font-size:12.5px;line-height:1}
 .cv-motif{margin-top:8px;font-size:12.5px;padding:7px 10px}
 
-/* --- Etape 2 : mardi et jeudi cote a cote --- */
-.cv-jours{display:grid;gap:11px;padding:12px 14px 14px;
-  grid-template-columns:repeat(auto-fit,minmax(380px,1fr));align-items:start}
-.cv-jour{border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;
-  background:var(--voile);min-width:0;overflow:hidden}
-.cv-jour-h{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-bottom:1px solid var(--line)}
-.cv-jour-t{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:800;
-  color:var(--c);letter-spacing:.02em;text-transform:uppercase}
-.cv-jour-t i{font-style:normal;font-size:11.5px;font-weight:700;color:var(--gris2);
-  margin-left:7px;letter-spacing:.04em}
-.cv-jour-c{font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:800;
-  color:var(--gris);background:var(--champ);border:1px solid var(--line);
-  border-radius:7px;padding:3px 11px}
-.cv-jour-b{margin-left:auto;display:flex;gap:5px}
-.cv-jour-b button{font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:700;
-  padding:5px 9px;border-radius:6px;border:1px solid var(--line);background:var(--champ);
-  color:var(--gris2);cursor:pointer;white-space:nowrap}
-.cv-jour-b button:hover{border-color:var(--or);color:var(--or)}
+/* --- Etape 2 : un tableau joueurs x seances --- */
+/* Quatre listes de quarante noms cote a cote obligeaient a chercher le meme
+   joueur quatre fois. Une ligne par joueur, une colonne par seance. */
+.cv-tab{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
+.cv-tab-h,.cv-tab-l{display:grid;align-items:stretch;gap:7px;min-width:0;
+  grid-template-columns:minmax(190px,1.45fr) repeat(var(--n),minmax(0,1fr))}
+.cv-tab-h{position:sticky;top:0;z-index:3;background:var(--carte);
+  padding:4px 0 8px;border-bottom:1px solid var(--line);align-items:end}
+.cv-tab-h .cv-tab-nom{font-family:'Roboto Condensed',sans-serif;font-size:11.5px;
+  font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gris2);
+  align-self:end;padding-bottom:5px}
+.cv-tab-c{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;
+  padding:6px 6px 7px;border-radius:8px;background:var(--voile);
+  border:1px solid var(--line);border-top:3px solid var(--c)}
+.cv-tab-t{font-family:'Roboto Condensed',sans-serif;font-size:12.5px;font-weight:800;
+  color:var(--c);text-align:center;line-height:1.25;letter-spacing:.01em;
+  overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.cv-tab-t i{display:block;font-style:normal;font-size:10.5px;font-weight:700;
+  color:var(--gris2);letter-spacing:.04em}
+.cv-tab-n{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:800;
+  color:var(--gris);line-height:1}
+.cv-tab-b{display:flex;gap:4px}
+.cv-tab-b button{font-size:11px;font-weight:800;width:24px;height:21px;border-radius:5px;
+  border:1px solid var(--line);background:var(--champ);color:var(--gris2);cursor:pointer;
+  line-height:1;padding:0}
+.cv-tab-b button:hover{border-color:var(--c);color:var(--c)}
+.cv-tab-l{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
+  background:var(--voile);padding:5px 9px}
+.cv-tab-l.hs{background:rgba(148,163,184,.08)}
+.cv-tab-nom{display:flex;align-items:center;gap:9px;min-width:0}
+.cv-tag{flex:0 0 auto;font-family:'Roboto Condensed',sans-serif;font-size:10.5px;
+  font-weight:800;letter-spacing:.03em;color:var(--c);border:1px solid var(--c);
+  border-radius:5px;padding:2px 6px;white-space:nowrap;
+  background:color-mix(in srgb,var(--c) 13%,transparent)}
+.cv-tab-x{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;
+  border-radius:8px;border:1px solid var(--line);background:var(--champ);cursor:pointer;
+  padding:6px;transition:all .12s;font-family:inherit}
+.cv-tab-x:hover{border-color:var(--c)}
+.cv-tab-x.on{background:color-mix(in srgb,var(--c) 15%,transparent);border-color:var(--c)}
+.cv-tab-x.on .cv-coche{background:var(--c);border-color:var(--c);color:#0b1016}
+.cv-tab-xl{display:none;font-size:12.5px;font-weight:700;color:var(--gris);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Regler sa semaine */
+.cv-reglages{display:flex;flex-direction:column;gap:8px;margin:12px 14px 0;padding:12px 13px 13px;
+  border:1px solid var(--or);border-radius:10px;background:rgba(249,115,22,.06)}
+.cv-reglages-t{font-size:12.5px;color:var(--gris2)}
+.cv-reg-l{display:flex;align-items:center;gap:8px;min-width:0}
+.cv-reg-p{flex:0 0 10px;height:10px;border-radius:50%;background:var(--c)}
+.cv-reg-l .fi{flex:1 1 auto;min-width:0;font-size:13px;padding:8px 10px}
+.cv-reg-l .cv-reg-h{flex:0 0 92px}
+.cv-reg-n{flex:0 0 auto;font-size:12px;color:var(--gris2);white-space:nowrap}
+.cv-reg-x{flex:0 0 auto;background:none;border:1px solid var(--line);border-radius:6px;
+  padding:6px 9px;cursor:pointer;font-size:12px;color:var(--gris2)}
+.cv-reg-x:hover{border-color:var(--red);color:var(--red)}
+.cv-bloc-b.on{background:rgba(249,115,22,.15);border-color:var(--or);color:var(--or)}
 
 /* Une case par joueur : coche, numero, nom entier. */
 .cv-cases{display:grid;gap:6px;padding:10px 11px 12px;
@@ -643,11 +683,18 @@ body.cv-plein #scr-convos.on{padding-top:0}
   .cv-pas{flex:1 1 220px}
   .cv-pas-fl{display:none}
 }
+@media(max-width:1000px){
+  /* Trop etroit pour un tableau : chaque joueur devient un bloc et chaque
+     seance reprend son nom en toutes lettres. */
+  .cv-tab-h{display:none}
+  .cv-tab-l{grid-template-columns:1fr;gap:6px}
+  .cv-tab-xl{display:block;flex:1}
+  .cv-tab-x{justify-content:flex-start;padding:9px 11px}
+}
 @media(max-width:900px){
   .cv-seg-l{display:none}
   .cv-seg-b{padding:8px 11px}
   .cv-seg-i{font-size:15px}
-  .cv-jours{grid-template-columns:1fr}
   .cv-cases{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
   /* Les cases de la convocation portent deux pastilles de plus : sur un
      telephone en paysage, deux colonnes suffisent pour garder le nom entier. */
@@ -2287,8 +2334,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v89</b> · 06/10/2026<br>
-      <span style="opacity:.7">Les convocations en trois temps · un joueur a plusieurs rôles</span>
+      AST COACH <b style="color:var(--or)">v90</b> · 06/10/2026<br>
+      <span style="opacity:.7">Les séances de la semaine se règlent · un suspendu s'entraîne</span>
     </div>
   </div>
 </div>
@@ -2834,7 +2881,7 @@ body.doc-ouvert{overflow:hidden}
 <!-- CONVOCATIONS -->
 <div class="scr" id="scr-convos">
   <div class="ph"><div><div class="ph-title">Convocations</div>
-      <div class="ph-sub">Trois questions dans l'ordre : qui est indisponible, qui s'entraîne, qui est convoqué</div></div>
+      <div class="ph-sub">Trois questions dans l'ordre : qui est indisponible <b>pour le match</b>, qui s'entraîne <b>dans la semaine</b>, qui est convoqué</div></div>
     <span class="bc" id="repartition-nb">0 affecté(s)</span>
   </div>
 
@@ -4662,7 +4709,7 @@ function reinitialiserPourNouveauClub(){
 
   JOUEURS=[]; STATS=[]; MATCHS=[]; VIDEOS=[]; PHOTOS=[];
   CONVOS={date:'',adv:'',lieu:'',a:[],b:[],bl:[],su:[]};
-  CONVOC_MARDI=[]; CONVOC_JEUDI=[]; CONVOC_ETAT={};
+  CONVOC_MARDI=[]; CONVOC_JEUDI=[]; CONVOC_ETAT={}; CONVOC_SEANCES=null;
   SEANCE=''; MESSAGE=''; ACTUALITES=[];
   OBJECTIFS=[]; OBJ_COLL=[];
   ATTRS_MANUELS={};
@@ -9394,8 +9441,27 @@ var CV_EQUIPES=[
   {k:'b',   lab:'Équipe B', ic:'⚽', c:'#38bdf8', places:18},
   {k:'u18', lab:'U18',      ic:'👦', c:'#eab308', places:18}
 ];
+// Le club ne s'entraine pas qu'un mardi et un jeudi : il y a aussi le groupe B
+// et les U18, et ca bouge d'une saison a l'autre. La semaine est donc une liste
+// que le coach regle lui-meme. 'ma' et 'je' sont les deux cles d'origine : ce
+// sont elles qui alimentent les listes que le reste de l'appli lit deja.
+var CONVOC_SEANCES=null;
+function cvSeancesDefaut(){
+  return [
+    {k:'ma',  lab:'Mardi',             h:'19h30', c:'#38bdf8'},
+    {k:'je',  lab:'Jeudi',             h:'19h30', c:'#22c55e'},
+    {k:'b',   lab:'Entraînement B',    h:'',      c:'#0ea5e9'},
+    {k:'u18', lab:'Entraînement U18',  h:'',      c:'#eab308'}
+  ];
+}
+function cvSeances(){
+  if(!Array.isArray(CONVOC_SEANCES) || !CONVOC_SEANCES.length) CONVOC_SEANCES=cvSeancesDefaut();
+  return CONVOC_SEANCES;
+}
+var CV_COULEURS_SEANCE=['#38bdf8','#22c55e','#0ea5e9','#eab308','#a855f7','#f59e0b'];
+
 var CV_ETAPES=[
-  {n:1, ic:'🩹', t:'Qui est indisponible ?'},
+  {n:1, ic:'🩹', t:'Indisponibles pour le match'},
   {n:2, ic:'🏋️', t:"Qui s'entraîne ?"},
   {n:3, ic:'⚽', t:'La convocation'}
 ];
@@ -9413,10 +9479,17 @@ function cvEquipeInfo(k){
 function cvEtat(num){
   if(!CONVOC_ETAT || typeof CONVOC_ETAT!=='object') CONVOC_ETAT={};
   var e=CONVOC_ETAT[num];
-  if(!e){ e=CONVOC_ETAT[num]={d:'ok', m:'', ma:0, je:0, eq:''}; }
+  if(!e){ e=CONVOC_ETAT[num]={d:'ok', m:'', s:{}, eq:''}; }
   if(!e.d) e.d='ok';
   if(typeof e.m!=='string') e.m='';
   if(typeof e.eq!=='string') e.eq='';
+  // Les deux jours en dur de la v89 deviennent des seances comme les autres.
+  if(!e.s || typeof e.s!=='object'){
+    e.s={};
+    if(e.ma) e.s.ma=1;
+    if(e.je) e.s.je=1;
+  }
+  delete e.ma; delete e.je;
   return e;
 }
 function cvDispoOk(num){ return cvEtat(num).d==='ok'; }
@@ -9430,20 +9503,23 @@ function cvDans(eq){ return (JOUEURS||[]).filter(function(j){ return cvEtat(j.nu
 // source de verite ici, et rien a changer ailleurs.
 function cvSyncListes(){
   if(!CONVOS || typeof CONVOS!=='object') CONVOS={date:'',adv:'',lieu:'',a:[],b:[],bl:[],su:[]};
-  var a=[], b=[], u=[], bl=[], su=[], ma=[], je=[];
+  var a=[], b=[], u=[], bl=[], su=[], seances={};
+  cvSeances().forEach(function(sc){ seances[sc.k]=[]; });
   (JOUEURS||[]).forEach(function(j){
     var e=cvEtat(j.num);
+    // La disponibilite ne porte que sur le MATCH : un suspendu s'entraine
+    // la semaine, un absent du boulot le mardi peut venir le jeudi.
     if(e.d==='suspendu') su.push(j.nom);
     else if(e.d!=='ok') bl.push(j.nom+(e.m?' ('+e.m+')':''));
+    Object.keys(seances).forEach(function(k){ if(e.s && e.s[k]) seances[k].push(j.nom); });
     if(e.d!=='ok') return;
-    if(e.ma) ma.push(j.nom);
-    if(e.je) je.push(j.nom);
     if(e.eq==='a') a.push(j.nom);
     else if(e.eq==='b') b.push(j.nom);
     else if(e.eq==='u18') u.push(j.nom);
   });
   CONVOS.a=a; CONVOS.b=b; CONVOS.u18=u; CONVOS.bl=bl; CONVOS.su=su;
-  CONVOC_MARDI=ma; CONVOC_JEUDI=je;
+  CONVOS.seances=seances;
+  CONVOC_MARDI=seances.ma||[]; CONVOC_JEUDI=seances.je||[];
   // L'ancien tableau de repartition sert encore au « ou est ce joueur ? » :
   // on le tient a jour sans que personne n'ait a le remplir.
   AFFECTATIONS_CONVOC={};
@@ -9455,8 +9531,10 @@ function cvSyncListes(){
     else if(e.eq==='a') k='convo_match_a';
     else if(e.eq==='b') k='convo_match_b';
     else if(e.eq==='u18') k='convo_match_u18';
-    else if(e.ma) k='entrainement_mardi';
-    else if(e.je) k='entrainement_jeudi';
+    else if(e.s && e.s.ma) k='entrainement_mardi';
+    else if(e.s && e.s.je) k='entrainement_jeudi';
+    else if(e.s && e.s.b) k='groupe_b';
+    else if(e.s && e.s.u18) k='u18';
     if(k) AFFECTATIONS_CONVOC[j.num]=k;
   });
 }
@@ -9472,8 +9550,7 @@ function cvImporterAncien(){
       var j=(JOUEURS||[]).filter(function(x){ return memeJoueur(x.nom, brut); })[0];
       if(!j) return;
       var e=cvEtat(j.num); rien=false;
-      if(quoi==='ma') e.ma=1;
-      else if(quoi==='je') e.je=1;
+      if(quoi==='ma'||quoi==='je'){ e.s=e.s||{}; e.s[quoi]=1; }
       else if(quoi==='bl'){ e.d='blesse'; var m=/\(([^)]+)\)\s*$/.exec(String(n)); if(m) e.m=m[1]; }
       else if(quoi==='su') e.d='suspendu';
       else e.eq=quoi;
@@ -9483,6 +9560,17 @@ function cvImporterAncien(){
   pour(c.a,'a'); pour(c.b,'b'); pour(c.u18,'u18');
   pour(CONVOC_MARDI,'ma'); pour(CONVOC_JEUDI,'je');
   pour(c.bl,'bl'); pour(c.su,'su');
+  // Les groupes d'entrainement B et U18 ne vivaient que dans l'ancien tableau.
+  if(AFFECTATIONS_CONVOC){
+    var corr={entrainement_mardi:'ma', entrainement_jeudi:'je', groupe_b:'b', u18:'u18'};
+    Object.keys(AFFECTATIONS_CONVOC).forEach(function(cle){
+      var k=corr[AFFECTATIONS_CONVOC[cle]]; if(!k) return;
+      var j=(JOUEURS||[]).filter(function(x){
+        return String(x.num)===String(cle) || memeJoueur(x.nom, cle); })[0];
+      if(!j) return;
+      var e=cvEtat(j.num); e.s=e.s||{}; e.s[k]=1; rien=false;
+    });
+  }
   // Les blesses deja connus du suivi medical : on les propose d'office.
   (BLESSURES||[]).forEach(function(b){
     if(b.statut==='disponible') return;
@@ -9500,20 +9588,71 @@ function cvPoserDispo(num, k){
   var e=cvEtat(num);
   if(e.d===k) return;
   e.d=k;
-  // Un joueur qui n'est plus disponible ne tient plus une place au match.
-  if(k!=='ok'){ e.eq=''; e.ma=0; e.je=0; }
+  // Indisponible veut dire : pas pour le MATCH. Les entrainements ne bougent
+  // pas — un suspendu s'entraine toute la semaine, et c'est bien le but.
+  if(k!=='ok') e.eq='';
   else e.m='';
   cvSyncListes(); sauvegardeAuto(); cvRendre();
 }
 function cvPoserMotif(num, v){ cvEtat(num).m=String(v||'').trim(); cvSyncListes(); sauvegardeAuto(); }
-function cvBasculerJour(num, jour){
+// Tout le monde peut etre mis a une seance, y compris un suspendu : la
+// suspension vaut pour le match, pas pour la semaine.
+function cvBasculerJour(num, cle){
   var e=cvEtat(num);
-  if(!cvDispoOk(num)) return;
-  e[jour]=e[jour]?0:1;
+  e.s=e.s||{};
+  if(e.s[cle]) delete e.s[cle]; else e.s[cle]=1;
   cvSyncListes(); sauvegardeAuto(); cvRendre();
 }
-function cvTousLeJour(jour, valeur){
-  cvDisponibles().forEach(function(j){ cvEtat(j.num)[jour]=valeur?1:0; });
+function cvTousLeJour(cle, valeur){
+  (JOUEURS||[]).forEach(function(j){
+    var e=cvEtat(j.num); e.s=e.s||{};
+    if(valeur) e.s[cle]=1; else delete e.s[cle];
+  });
+  cvSyncListes(); sauvegardeAuto(); cvRendre();
+}
+// L'initiale qui represente une seance dans les pastilles : on prend la
+// derniere majuscule ou le dernier mot, c'est ce qui distingue « Mardi » de
+// « Entrainement B » et de « Entrainement U18 ».
+function cvInitiale(lab){
+  var t=String(lab||'').trim();
+  if(!t) return '?';
+  var mots=t.split(/\s+/);
+  var dernier=mots[mots.length-1];
+  if(mots.length>1 && dernier.length<=3) return dernier.toUpperCase();
+  return t.charAt(0).toUpperCase();
+}
+function cvCompteSeance(cle){
+  return (JOUEURS||[]).filter(function(j){ var e=cvEtat(j.num); return e.s && e.s[cle]; }).length;
+}
+
+// ---------- Regler sa semaine ----------
+var CV_REGLAGES=false;
+function cvReglages(){ CV_REGLAGES=!CV_REGLAGES; cvRendreEtape(); }
+function cvSeanceNom(i, v){
+  var L=cvSeances(); if(!L[i]) return;
+  L[i].lab=String(v||'').trim()||('Séance '+(i+1));
+  sauvegardeAuto(); cvRendreEtape();
+}
+function cvSeanceHeure(i, v){
+  var L=cvSeances(); if(!L[i]) return;
+  L[i].h=String(v||'').trim();
+  sauvegardeAuto(); cvRendreEtape();
+}
+function cvSeanceAjouter(){
+  var L=cvSeances();
+  if(L.length>=6){ notif('\u26a0 Six séances dans la semaine, c\'est déjà beaucoup'); return; }
+  var k='s'+Date.now().toString(36).slice(-4);
+  L.push({k:k, lab:'Nouvelle séance', h:'', c:CV_COULEURS_SEANCE[L.length%CV_COULEURS_SEANCE.length]});
+  cvSyncListes(); sauvegardeAuto(); cvRendre();
+}
+function cvSeanceRetirer(i){
+  var L=cvSeances(); var sc=L[i]; if(!sc) return;
+  var n=cvCompteSeance(sc.k);
+  if(!confirm('Retirer « '+sc.lab+' » de la semaine ?'
+    +(n?('\n\n'+n+' joueur'+(n>1?'s y sont':' y est')+' coché'+(n>1?'s':'')+', ils en sortiront.'):''))) return;
+  (JOUEURS||[]).forEach(function(j){ var e=cvEtat(j.num); if(e.s) delete e.s[sc.k]; });
+  L.splice(i,1);
+  if(!L.length) CONVOC_SEANCES=cvSeancesDefaut();
   cvSyncListes(); sauvegardeAuto(); cvRendre();
 }
 function cvBasculerEquipe(num){
@@ -9615,11 +9754,13 @@ function cvEtape1(){
   }).join('');
   return '<div class="cv-bloc">'
     +'<div class="cv-bloc-h">'
-      +'<span class="cv-bloc-t">① Qui est indisponible cette semaine ?</span>'
+      +'<span class="cv-bloc-t">① Qui est indisponible pour le match ?</span>'
       +'<span class="cv-bloc-c"><b style="color:var(--green)">'+dispo+' disponibles</b>'
         +(indispo?(' · <b style="color:var(--red)">'+indispo+' indisponibles</b>'):'')+'</span>'
       +'<button class="cv-bloc-b" onclick="cvToutDispo()">↺ Tout remettre dispo</button>'
     +'</div>'
+    +'<div class="cv-note">Il s\'agit du <b>match</b> uniquement. Un suspendu ou un absent du '
+      +'boulot s\'entra\u00eene quand m\u00eame dans la semaine \u2014 \u00e7a se coche \u00e0 l\'\u00e9tape suivante.</div>'
     +'<div class="cv-rech cv-rech-f">'
       +'<input class="fi" id="cv-rech" placeholder="\ud83d\udd0e Chercher un joueur dans les '+(JOUEURS||[]).length+'" '
         +'value="'+echapForme(CV_FILTRE)+'" oninput="cvFiltrer(this.value)">'
@@ -9640,51 +9781,83 @@ function cvEtape1(){
 }
 
 // --- Etape 2 : qui s'entraine ? ---
-function cvColonneJour(jour, titre, couleur, heure){
-  var L=cvDisponibles().filter(cvVisible);
-  var n=(JOUEURS||[]).filter(function(j){ return cvDispoOk(j.num) && cvEtat(j.num)[jour]; }).length;
-  var cases=L.map(function(j){
-    var on=!!cvEtat(j.num)[jour];
-    return '<button class="cv-case'+(on?' on':'')+'" onclick="cvBasculerJour('+j.num+',\''+jour+'\')">'
-      +'<span class="cv-coche">'+(on?'✓':'')+'</span>'
-      +'<span class="cv-case-n">'+j.num+'</span>'
-      +'<span class="cv-case-t">'+echapForme(j.nom)+'</span></button>';
-  }).join('');
-  return '<div class="cv-jour" style="--c:'+couleur+'">'
-    +'<div class="cv-jour-h">'
-      +'<span class="cv-jour-t">'+titre+'<i>'+heure+'</i></span>'
-      +'<span class="cv-jour-c">'+n+'</span>'
-      +'<span class="cv-jour-b">'
-        +'<button onclick="cvTousLeJour(\''+jour+'\',1)">Tout cocher</button>'
-        +'<button onclick="cvTousLeJour(\''+jour+'\',0)">Vider</button></span>'
-    +'</div>'
-    +'<div class="cv-cases">'+(cases||'<div class="cv-vide2">Aucun joueur disponible.</div>')+'</div>'
+function cvPanneauSeances(){
+  var L=cvSeances();
+  if(!CV_REGLAGES) return '';
+  return '<div class="cv-reglages">'
+    +'<div class="cv-reglages-t">La semaine du club — ajoute, renomme ou retire une séance.</div>'
+    +L.map(function(sc,k){
+      return '<div class="cv-reg-l" style="--c:'+sc.c+'">'
+        +'<span class="cv-reg-p"></span>'
+        +'<input class="fi" value="'+echapForme(sc.lab)+'" placeholder="Nom de la séance" '
+          +'onchange="cvSeanceNom('+k+',this.value)">'
+        +'<input class="fi cv-reg-h" value="'+echapForme(sc.h)+'" placeholder="19h30" '
+          +'onchange="cvSeanceHeure('+k+',this.value)">'
+        +'<span class="cv-reg-n">'+cvCompteSeance(sc.k)+' joueur'+(cvCompteSeance(sc.k)>1?'s':'')+'</span>'
+        +'<button class="cv-reg-x" title="Retirer cette séance" onclick="cvSeanceRetirer('+k+')">🗑</button>'
+      +'</div>';
+    }).join('')
+    +(L.length<6?'<button class="cv-bloc-b" onclick="cvSeanceAjouter()">➕ Ajouter une séance</button>':'')
   +'</div>';
 }
+
+// Une ligne par joueur, une colonne par seance : on coche en balayant, et on
+// voit d'un coup qui vient a quoi. Les quatre listes cote a cote obligeaient a
+// chercher le meme nom quatre fois.
 function cvEtape2(){
+  var L=cvSeances();
+  var J=(JOUEURS||[]).filter(cvVisible);
+  var entete='<div class="cv-tab-h" style="--n:'+L.length+'">'
+    +'<span class="cv-tab-nom">Le joueur</span>'
+    +L.map(function(sc){
+        return '<span class="cv-tab-c" style="--c:'+sc.c+'">'
+          +'<span class="cv-tab-t">'+echapForme(sc.lab)+(sc.h?'<i>'+echapForme(sc.h)+'</i>':'')+'</span>'
+          +'<span class="cv-tab-n">'+cvCompteSeance(sc.k)+'</span>'
+          +'<span class="cv-tab-b">'
+            +'<button onclick="cvTousLeJour(\''+sc.k+'\',1)" title="Tout cocher">✓</button>'
+            +'<button onclick="cvTousLeJour(\''+sc.k+'\',0)" title="Vider">✕</button></span>'
+        +'</span>'; }).join('')
+  +'</div>';
+  var lignes=J.map(function(jo){
+    var e=cvEtat(jo.num), inf=cvDispoInfo(e.d);
+    return '<div class="cv-tab-l'+(e.d==='ok'?'':' hs')+'" style="--n:'+L.length+';--c:'+inf.c+'">'
+      +'<span class="cv-tab-nom">'
+        +'<span class="cv-num">'+jo.num+'</span>'
+        +'<span class="cv-nom">'+echapForme(jo.nom)+'</span>'
+        +(e.d==='ok'?'':'<span class="cv-tag" style="--c:'+inf.c+'" title="'
+            +(e.m?echapForme(e.m):inf.lab)+'">'+inf.ic+' '+inf.lab+'</span>')
+      +'</span>'
+      +L.map(function(sc){
+          var on=!!(e.s && e.s[sc.k]);
+          return '<button class="cv-tab-x'+(on?' on':'')+'" style="--c:'+sc.c+'" '
+            +'title="'+echapForme(jo.nom)+' — '+echapForme(sc.lab)+'" '
+            +'onclick="cvBasculerJour('+jo.num+',\''+sc.k+'\')">'
+            +'<span class="cv-coche">'+(on?'✓':'')+'</span>'
+            +'<span class="cv-tab-xl">'+echapForme(sc.lab)+'</span></button>'; }).join('')
+    +'</div>';
+  }).join('');
   var hs=cvIndisponibles();
   return '<div class="cv-bloc">'
     +'<div class="cv-bloc-h">'
       +'<span class="cv-bloc-t">② Qui s\'entraîne cette semaine ?</span>'
-      +'<span class="cv-bloc-c">'+cvDisponibles().length+' joueurs disponibles</span>'
+      +'<span class="cv-bloc-c">'+L.map(function(sc){
+          return echapForme(sc.lab)+' <b>'+cvCompteSeance(sc.k)+'</b>'; }).join(' · ')+'</span>'
+      +'<button class="cv-bloc-b'+(CV_REGLAGES?' on':'')+'" onclick="cvReglages()">⚙ Mes séances</button>'
     +'</div>'
+    +cvPanneauSeances()
     +cvBarreRecherche('Chercher un joueur')
-    +'<div class="cv-jours">'
-      +cvColonneJour('ma','Mardi','#38bdf8','19h30')
-      +cvColonneJour('je','Jeudi','#22c55e','19h30')
-    +'</div>'
+    +'<div class="cv-tab">'+entete+(lignes||'<div class="cv-vide2">Aucun joueur ne correspond.</div>')+'</div>'
     +(hs.length
-      ? '<div class="cv-ecartes">🩹 <b>'+hs.length+' joueur'+(hs.length>1?'s':'')+' indisponible'
-          +(hs.length>1?'s':'')+'</b>, écarté'+(hs.length>1?'s':'')+' : '
-          +hs.map(function(j){ var e=cvEtat(j.num);
-              return echapForme(j.nom)+' <i>('+cvDispoInfo(e.d).lab.toLowerCase()
+      ? '<div class="cv-ecartes">ℹ️ <b>'+hs.length+' joueur'+(hs.length>1?'s':'')
+          +' indisponible'+(hs.length>1?'s':'')+' pour le match</b> — ils restent dans la liste, '
+          +'un suspendu ou un absent du boulot s\'entraîne quand même : '
+          +hs.map(function(jo){ var e=cvEtat(jo.num);
+              return echapForme(jo.nom)+' <i>('+cvDispoInfo(e.d).lab.toLowerCase()
                 +(e.m?' — '+echapForme(e.m):'')+')</i>'; }).join(' · ')
         +'</div>'
       : '')
   +'</div>';
 }
-
-// --- Etape 3 : la convocation, une equipe a la fois ---
 function cvEtape3(){
   var inf=cvEquipeInfo(CV_EQ);
   var dedans=cvDans(CV_EQ), n=dedans.length, places=inf.places;
@@ -9698,10 +9871,14 @@ function cvEtape3(){
       +'<span class="cv-coche">'+(ici?'✓':'')+'</span>'
       +'<span class="cv-case-n">'+j.num+'</span>'
       +'<span class="cv-case-t">'+echapForme(j.nom)+'</span>'
-      +(ailleurs?'<span class="cv-case-x">'+cvEquipeInfo(e.eq).lab.replace('Équipe ','')+'</span>':'')
-      +(e.ma||e.je?'<span class="cv-case-e" title="S\'entraîne '
-         +[(e.ma?'mardi':''),(e.je?'jeudi':'')].filter(Boolean).join(' et ')+'">'
-         +[(e.ma?'M':''),(e.je?'J':'')].filter(Boolean).join('\u00b7')+'</span>':'')
+      +(ailleurs?'<span class="cv-case-x">en '+cvEquipeInfo(e.eq).lab.replace('Équipe ','')+'</span>':'')
+      +(function(){
+          var ses=cvSeances().filter(function(sc){ return e.s && e.s[sc.k]; });
+          if(!ses.length) return '';
+          return '<span class="cv-case-e" title="S\'entraîne : '
+            +ses.map(function(sc){ return echapForme(sc.lab); }).join(', ')+'">'
+            +ses.map(function(sc){ return echapForme(cvInitiale(sc.lab)); }).join('\u00b7')+'</span>';
+        })()
     +'</button>';
   }).join('');
   var etat=(n>places)
@@ -12337,7 +12514,7 @@ function renderEvolutionClassement(){
 function appliquerDonnees(p,silencieux){
   if(p.JOUEURS)JOUEURS=p.JOUEURS;
   if(p.STATS)STATS=p.STATS;if(p.MATCHS)MATCHS=p.MATCHS;if(p.VIDEOS)VIDEOS=p.VIDEOS;
-  if(p.CONVOS)CONVOS=p.CONVOS;if(p.CONVOCATIONS_HISTORIQUE)CONVOCATIONS_HISTORIQUE=p.CONVOCATIONS_HISTORIQUE;if(p.CONVOC_MARDI)CONVOC_MARDI=p.CONVOC_MARDI;if(p.CONVOC_JEUDI)CONVOC_JEUDI=p.CONVOC_JEUDI;if(p.CONVOC_ETAT)CONVOC_ETAT=p.CONVOC_ETAT;if(p.SEANCE){SEANCE=p.SEANCE;document.getElementById('seance-txt').value=SEANCE;}
+  if(p.CONVOS)CONVOS=p.CONVOS;if(p.CONVOCATIONS_HISTORIQUE)CONVOCATIONS_HISTORIQUE=p.CONVOCATIONS_HISTORIQUE;if(p.CONVOC_MARDI)CONVOC_MARDI=p.CONVOC_MARDI;if(p.CONVOC_JEUDI)CONVOC_JEUDI=p.CONVOC_JEUDI;if(p.CONVOC_ETAT)CONVOC_ETAT=p.CONVOC_ETAT;if(p.CONVOC_SEANCES)CONVOC_SEANCES=p.CONVOC_SEANCES;if(p.SEANCE){SEANCE=p.SEANCE;document.getElementById('seance-txt').value=SEANCE;}
   if(p.MESSAGE){MESSAGE=p.MESSAGE;}
   if(p.ACTUALITES)ACTUALITES=p.ACTUALITES;
   if(p.FEUILLE_MATCH)FEUILLE_MATCH=p.FEUILLE_MATCH;
@@ -12465,7 +12642,7 @@ function donneesSaisonSansPhotos(){
     return copie;
   });
   return {PHOTOS_REF, ENTRETIENS_JOUEURS:entretiensParJoueur(),
-  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS,SITUATIONS};
+  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS,SITUATIONS};
 }
 // ===== Les photos des joueurs, jusqu'à leur téléphone =====
 // Elles vivaient uniquement sur l'ordinateur du coach : l'appli joueur affichait
@@ -23835,7 +24012,7 @@ function supprimerSchemaCPA(i){
 }
 
 // Les données gardées sur cet appareil : une seule liste, utilisée partout
-function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
+function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
 
 // ===== L'enregistrement automatique =====
 // Une donnée modifiée mais pas enregistrée vit uniquement en mémoire : la
@@ -23909,7 +24086,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
