@@ -674,7 +674,9 @@ body.cv-plein #scr-convos.on{padding-top:0}
      elles passent a trois colonnes pour que le nom reste entier. */
   .cv-cases-eq{grid-template-columns:repeat(auto-fill,minmax(304px,1fr))}
 }
-@media(max-width:1500px){
+@media(max-width:1700px){
+  /* Deux colonnes de lignes ne tiennent qu'au-dela : en dessous, les cinq
+     boutons d'etat mangeaient la place du nom et il se faisait couper. */
   .cv-lignes{grid-template-columns:1fr}
 }
 @media(max-width:1180px){
@@ -1777,8 +1779,13 @@ body.terrain-plein #pl-sortie-plein{display:block}
 .evo-tr:hover{opacity:1;stroke-width:2.6}
 .evo-tr.evo-avant{opacity:1;stroke-width:3;stroke-dasharray:none!important}
 .evo-point{stroke:var(--carte);stroke-width:1.5}
-.evo-nom{font-family:'Roboto Condensed',sans-serif;font-size:10.5px;font-weight:700;
-  paint-order:stroke;stroke:var(--carte);stroke-width:3px;stroke-linejoin:round}
+.evo-nom{font-family:'Roboto Condensed',sans-serif;font-size:9.6px;font-weight:700;
+  paint-order:stroke;stroke:var(--carte);stroke-width:2.6px;stroke-linejoin:round}
+.evo-nom-suivie{font-size:10.4px}
+/* Notre club se lit en premier : un cran au-dessus des autres, pas deux. */
+.evo-nom-nous{font-size:11.6px;font-weight:800;letter-spacing:.012em}
+.evo-fil{fill:none;stroke-width:.9px;opacity:.42}
+.evo-pastille{opacity:.85}
 /* La legende : chaque equipe avec son trait exact, et on clique pour la suivre. */
 .evo-leg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:3px;margin-top:10px}
 .evo-lg-b{display:flex;align-items:center;gap:6px;background:none;border:1px solid transparent;
@@ -2334,8 +2341,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v90</b> · 06/10/2026<br>
-      <span style="opacity:.7">Les séances de la semaine se règlent · un suspendu s'entraîne</span>
+      AST COACH <b style="color:var(--or)">v91</b> · 06/10/2026<br>
+      <span style="opacity:.7">Convocations et points dans Entraînement · tous les clubs nommés</span>
     </div>
   </div>
 </div>
@@ -5670,9 +5677,7 @@ var POLES=[
   ]},
   {id:'effectif',label:'Effectif',icon:'👥',color:'#a855f7',screens:[
     {s:'effectif',ic:'👥',l:'Effectif'},
-    {s:'convos',ic:'📋',l:'Convocations'},
     {s:'recap',ic:'📈',l:'Récap global'},
-    {s:'points',ic:'🏅',l:'Points entraînement'},
     {s:'rotation',ic:'⏱️',l:'Temps de jeu'},
     {s:'forme-coach',ic:'🌡️',l:'Forme joueurs'},
     {s:'medical',ic:'🏥',l:'Suivi médical'},
@@ -5680,10 +5685,14 @@ var POLES=[
     {s:'suivi-objectifs',ic:'📋',l:'Suivi objectifs joueurs'},
     {s:'obj-coll',ic:'🏆',l:'Obj. collectifs'}
   ]},
+  // Les convocations disent qui vient s'entrainer, les points disent ce que ca
+  // a donne : les deux appartiennent a l'entrainement, pas a la fiche des joueurs.
   {id:'entrainement',label:'Entraînement',icon:'🏋️',color:'#22c55e',screens:[
+    {s:'convos',ic:'📋',l:'Convocations'},
     {s:'jeu',ic:'📐',l:'Le projet de jeu'},
     {s:'seances',ic:'🏋️',l:'La séance'},
-    {s:'constructeur',ic:'🎨',l:"Constructeur & bibliothèque"}
+    {s:'constructeur',ic:'🎨',l:"Constructeur & bibliothèque"},
+    {s:'points',ic:'🏅',l:'Points entraînement'}
   ]}
 ];
 // Aucun écran hors des cinq pôles : le menu n'a plus qu'un seul niveau.
@@ -12383,8 +12392,10 @@ function renderEvolutionClassement(){
   var nous=null;
   ev.noms.forEach(function(n){ if(!nous && estNotreEquipe(n)) nous=n; });
 
-  var gX=42, dX=58, hY=16, bY=30;
-  var W=520, H=Math.max(200, 40+N*15);
+  // Une colonne de noms a droite : chaque equipe se lit au bout de sa courbe,
+  // sans avoir a chercher sa couleur dans la legende.
+  var gX=42, dX=136, hY=16, bY=30;
+  var W=610, H=Math.max(210, 44+N*17);
   var traceL=W-gX-dX, traceH=H-hY-bY;
   var px=function(j){ return gX + (J===1?traceL/2:(j)*traceL/(J-1)); };
   var py=function(place){ return hY + (N===1?traceH/2:(place-1)*traceH/(N-1)); };
@@ -12417,26 +12428,73 @@ function renderEvolutionClassement(){
     }
     return pts;
   }
+  // Les etiquettes sont mises de cote : on les pose toutes ensemble a la fin,
+  // une fois qu'on peut les empiler sans qu'elles se chevauchent.
+  var etiquettes=[];
   function tracer(nom, avant){
     var st=styleEquipe(nom);
     var c=courbeDe(nom);
-    if(c.length<2) return '';
-    var d='<polyline points="'+c.map(function(m){ return m.x.toFixed(1)+','+m.y.toFixed(1); }).join(' ')+'"'
-      +' class="evo-tr'+(avant?' evo-avant':'')+'" style="stroke:'+st.couleur
-      +(st.tirets?(';stroke-dasharray:'+st.tirets):'')+'">'
-      +'<title>'+esc2(nom)+'</title></polyline>';
+    if(!c.length) return '';
+    var d='';
+    if(c.length>1)
+      d+='<polyline points="'+c.map(function(m){ return m.x.toFixed(1)+','+m.y.toFixed(1); }).join(' ')+'"'
+        +' class="evo-tr'+(avant?' evo-avant':'')+'" style="stroke:'+st.couleur
+        +(st.tirets?(';stroke-dasharray:'+st.tirets):'')+'">'
+        +'<title>'+esc2(nom)+'</title></polyline>';
     if(avant){
       c.forEach(function(m){
         d+='<circle cx="'+m.x.toFixed(1)+'" cy="'+m.y.toFixed(1)+'" r="3.4" class="evo-point" '
           +'style="fill:'+st.couleur+'"><title>'+esc2(nom)+' \u2014 J'+m.j+' : '+m.place+'e, '
           +m.pts+' pt'+(m.pts>1?'s':'')+'</title></circle>';
       });
-      var der=c[c.length-1];
-      var court = nom.length>13 ? (nom.slice(0,12)+'\u2026') : nom;
-      d+='<text x="'+(der.x+8)+'" y="'+(der.y+3.5)+'" class="evo-nom" style="fill:'+st.couleur+'">'
-        +esc2(court)+'<title>'+esc2(nom)+'</title></text>';
     }
+    var der=c[c.length-1];
+    etiquettes.push({nom:nom, coul:st.couleur, x:der.x, y:der.y,
+      place:der.place, pts:der.pts, nous:(nom===nous), suivie:avant && nom!==nous});
     return d;
+  }
+  // Chaque nom en face de sa derniere place connue, puis on ecarte ce qui se
+  // chevauche : a quatorze equipes, deux places voisines sont a 15 px l'une de
+  // l'autre et deux noms se mangeraient.
+  function poserEtiquettes(){
+    if(!etiquettes.length) return '';
+    var L=etiquettes.slice().sort(function(a,b){ return a.y-b.y; });
+    L.forEach(function(e){ e.ly=e.y; e.haut=e.nous?14:12; });
+    for(var i=1;i<L.length;i++){
+      var mini=L[i-1].ly + (L[i-1].haut+L[i].haut)/2;
+      if(L[i].ly<mini) L[i].ly=mini;
+    }
+    // Si la pile deborde en bas, on la remonte d'un bloc.
+    var bas=L[L.length-1].ly + L[L.length-1].haut/2;
+    if(bas>H-bY+6){
+      var trop=bas-(H-bY+6);
+      for(var k=L.length-1;k>=0;k--){
+        L[k].ly-=trop;
+        if(k>0){
+          var plafond=L[k].ly-(L[k].haut+L[k-1].haut)/2;
+          if(L[k-1].ly<=plafond) break;
+          trop=L[k-1].ly-plafond;
+        }
+      }
+    }
+    var haut=L[0].ly-L[0].haut/2;
+    if(haut<hY-6){ var dec=(hY-6)-haut; L.forEach(function(e){ e.ly+=dec; }); }
+
+    var xT=W-dX+13, out='';
+    L.forEach(function(e){
+      // Le fil qui relie le bout de la courbe a son nom, discret mais present.
+      out+='<path class="evo-fil" style="stroke:'+e.coul+'" d="M '+(e.x+4).toFixed(1)+' '+e.y.toFixed(1)
+        +' L '+(xT-14).toFixed(1)+' '+e.ly.toFixed(1)+' L '+(xT-4).toFixed(1)+' '+e.ly.toFixed(1)+'"/>';
+      out+='<circle class="evo-pastille" cx="'+(xT-4).toFixed(1)+'" cy="'+e.ly.toFixed(1)
+        +'" r="2.2" style="fill:'+e.coul+'"/>';
+      var max=e.nous?21:22;
+      var court=e.nom.length>max ? (e.nom.slice(0,max-1)+'\u2026') : e.nom;
+      out+='<text x="'+(xT+3)+'" y="'+(e.ly+(e.nous?4:3.4)).toFixed(1)+'" '
+        +'class="evo-nom'+(e.nous?' evo-nom-nous':(e.suivie?' evo-nom-suivie':''))+'" '
+        +'style="fill:'+e.coul+'">'+esc2(court)
+        +'<title>'+esc2(e.nom)+' \u2014 '+e.place+'e, '+e.pts+' pt'+(e.pts>1?'s':'')+'</title></text>';
+    });
+    return out;
   }
 
   // D'abord les autres, puis celles qu'on met en avant : l'ordre fait le relief.
@@ -12450,6 +12508,7 @@ function renderEvolutionClassement(){
   });
   if(suivie) svg+=tracer(suivie, true);
   if(nous) svg+=tracer(nous, true);
+  svg+=poserEtiquettes();
   svg+='</svg>';
 
   // --- le resume chiffre
