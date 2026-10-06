@@ -2397,8 +2397,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v95</b> · 06/10/2026<br>
-      <span style="opacity:.7">Les photos et vignettes s'affichent enfin</span>
+      AST COACH <b style="color:var(--or)">v96</b> · 06/10/2026<br>
+      <span style="opacity:.7">Logo, visages agrandis et nom complet sur la feuille</span>
     </div>
   </div>
 </div>
@@ -24266,6 +24266,7 @@ function genererFeuilleMatchPDF(){
     .filter(function(o){return o.s.bench && (o.s.nom||o.s.num);});
 
   function esc(t){ var d=document.createElement('div');d.textContent=(t==null?'':String(t));return d.innerHTML; }
+  var logoClub=(typeof docLogoClub==='function')?docLogoClub():'';
   function compY(y){ return 5+(y/100)*88; }
   function compX(x){ return 7+(x/100)*86; }
   // La photo du joueur : on la retrouve par son numero, c'est le seul lien
@@ -24283,6 +24284,16 @@ function genererFeuilleMatchPDF(){
     if(maj.length) return maj.join(' ');
     var mots=t.split(/\s+/);
     return mots[mots.length-1];
+  }
+  // Le prenom, c'est ce qui reste quand on a retire le nom de famille.
+  function prenomDe(nom){
+    var t=String(nom||'').trim(); if(!t) return '';
+    return t.replace(nomFamille(t),'').trim();
+  }
+  // Plus le nom est long, plus il s'ecrit serre : on ne coupe jamais.
+  function classeNom(t){
+    var n=String(t||'').length;
+    return n>11 ? ' nm-long' : (n>9 ? ' nm-moyen' : '');
   }
   function nomCourt(nom){
     var t=String(nom||'').trim(); if(!t) return '';
@@ -24313,8 +24324,9 @@ function genererFeuilleMatchPDF(){
     var s=o.s, pl=placeDe(s, k);
     return '<div class="pl" style="top:'+compY(pl.y)+'%;left:'+compX(pl.x)+'%">'
       +'<span class="pl-h">'+pastille(s.num, s.nom)+'<span class="num">'+(s.num==null?'?':s.num)+'</span></span>'
-      +'<span class="nm">'+esc(nomFamille(s.nom)||s.pos)+'</span>'
-      +'<span class="po">'+esc(s.pos||'')+'</span>'
+      +'<span class="nm'+classeNom(nomFamille(s.nom)||s.pos)+'">'
+        +esc(nomFamille(s.nom)||s.pos)+'</span>'
+      +(prenomDe(s.nom)?'<span class="pr">'+esc(prenomDe(s.nom))+'</span>':'')
     +'</div>';
   }).join('');
 
@@ -24392,9 +24404,13 @@ function genererFeuilleMatchPDF(){
 
   var bancHtml=banc.length
     ? '<div class="banc"><span class="banc-t">🪑 Sur le banc</span>'
-      +banc.map(function(o){
-        return '<span class="banc-j">'+pastille(o.s.num, o.s.nom)+'<b>'
-          +(o.s.num==null?'':o.s.num+'. ')+esc(nomCourt(o.s.nom)||o.s.pos)+'</b></span>'; }).join('')
+      +'<div class="banc-l">'+banc.map(function(o){
+        return '<span class="banc-j">'
+          +'<span class="banc-p">'+pastille(o.s.num, o.s.nom)
+            +'<span class="banc-n">'+(o.s.num==null?'?':o.s.num)+'</span></span>'
+          +'<span class="banc-t2"><b>'+esc(nomFamille(o.s.nom)||o.s.pos)+'</b>'
+            +(prenomDe(o.s.nom)?'<i>'+esc(prenomDe(o.s.nom))+'</i>':'')+'</span>'
+        +'</span>'; }).join('')+'</div>'
       +'</div>'
     : '';
 
@@ -24415,30 +24431,35 @@ function genererFeuilleMatchPDF(){
     +':root{--or:#F97316;--vert:#0f8a5f;--rouge:#dc2626;--bleu:#2563eb;--encre:#111418;--gris:#6b7480;--trait:#d8dde3}'
     +'*{box-sizing:border-box;margin:0;padding:0;font-family:"Roboto Condensed",sans-serif}'
     +'body{background:#f3f4f6;color:var(--encre);-webkit-print-color-adjust:exact;print-color-adjust:exact}'
-    +'.page{background:#fff;width:210mm;min-height:297mm;margin:0 auto 10px;padding:11mm 10mm 10mm;'
-      +'display:flex;flex-direction:column}'
+    +'.page{background:#fff;width:210mm;height:297mm;margin:0 auto 10px;padding:9mm 10mm 8mm;'
+      +'display:flex;flex-direction:column;overflow:hidden}'
+    +'.page.p2{height:auto;min-height:297mm;overflow:visible}'
 
     // --- L'en-tete : on doit savoir en une seconde de quel match il s'agit
     +'.tete{display:flex;align-items:stretch;gap:0;border-radius:10px;overflow:hidden;'
       +'border:2px solid var(--encre);margin-bottom:12px}'
-    +'.tete-g{flex:1;padding:11px 14px;background:var(--encre);color:#fff}'
+    +'.tete-g{flex:1;padding:9px 13px;background:var(--encre);color:#fff;'
+      +'display:flex;align-items:center;gap:12px}'
+    +'.tete-logo{flex:0 0 auto;width:46px;height:46px;object-fit:contain;'
+      +'background:#fff;border-radius:8px;padding:3px}'
     +'.tete-g .c{font-family:Anton,sans-serif;font-size:25px;letter-spacing:.01em;line-height:1.05}'
     +'.tete-g .s{font-size:11.5px;color:#c7ccd3;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}'
-    +'.tete-d{flex:1.15;padding:11px 14px;background:var(--or);color:#2a1202;text-align:right}'
+    +'.tete-d{flex:1.15;padding:9px 13px;background:var(--or);color:#2a1202;text-align:right}'
     +'.tete-d .v{font-size:11.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75}'
     +'.tete-d .a{font-family:Anton,sans-serif;font-size:25px;line-height:1.05}'
     +'.tete-d .m{font-size:12px;font-weight:700;margin-top:3px}'
 
     // --- Le mot sur l'adversaire : une bande, pas une note de bas de page
-    +'.mot{display:flex;align-items:center;gap:11px;margin-bottom:12px;padding:10px 14px;'
+    +'.mot{display:flex;align-items:center;gap:11px;margin-bottom:10px;padding:8px 13px;'
       +'border:2px solid var(--rouge);border-radius:10px;background:#fef2f2}'
     +'.mot-e{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.1em;color:var(--rouge);'
       +'text-transform:uppercase;flex:0 0 auto}'
     +'.mot-t{font-size:15px;font-weight:700;line-height:1.35}'
 
     // --- Les deux terrains
-    +'.terrains{display:grid;grid-template-columns:1.3fr 1fr;gap:11px;margin-bottom:12px}'
-    +'.tcol{display:flex;flex-direction:column;min-width:0}'
+    +'.terrains{display:grid;grid-template-columns:1.78fr 1fr;gap:10px;margin-bottom:10px;'
+      +'flex:1 1 auto;min-height:0}'
+    +'.tcol{display:flex;flex-direction:column;min-width:0;min-height:0}'
     +'.tcol-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;'
       +'padding:7px 11px;border-radius:8px 8px 0 0;color:#fff}'
     +'.tcol-h.nous{background:var(--or);color:#2a1202}'
@@ -24446,7 +24467,7 @@ function genererFeuilleMatchPDF(){
     +'.tcol-h .n{font-family:Anton,sans-serif;font-size:15px;letter-spacing:.01em;'
       +'overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
     +'.tcol-h .y{font-size:12px;font-weight:800;letter-spacing:.05em;flex:0 0 auto}'
-    +'.pitch{position:relative;height:124mm;border:2px solid var(--encre);border-top:none;'
+    +'.pitch{position:relative;flex:1 1 auto;min-height:74mm;border:2px solid var(--encre);border-top:none;'
       +'border-radius:0 0 8px 8px;overflow:hidden;'
       +'background:repeating-linear-gradient(0deg,#e4f1e7 0 7%,#edf6ef 7% 14%)}'
     +'.pitch.eux{background:repeating-linear-gradient(0deg,#eceef1 0 7%,#f5f6f8 7% 14%)}'
@@ -24459,20 +24480,25 @@ function genererFeuilleMatchPDF(){
     +'.median{position:absolute;top:50%;left:0;right:0;height:1.5px;background:#9aa4ad}'
 
     // --- Un joueur sur le terrain
-    +'.pl{position:absolute;transform:translate(-50%,-50%);text-align:center;width:63px}'
+    +'.pl{position:absolute;transform:translate(-50%,-50%);text-align:center;width:69px}'
     +'.pl.opp{width:58px}'
     +'.pl-h{position:relative;display:inline-block}'
-    +'.ph{display:block;width:32px;height:32px;border-radius:50%;background-size:cover;'
+    +'.ph{display:block;width:36px;height:36px;border-radius:50%;background-size:cover;'
       +'background-position:center;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}'
     +'.ph.vide{display:flex;align-items:center;justify-content:center;background:#9aa4ad;'
-      +'color:#fff;font-family:Anton,sans-serif;font-size:13px;letter-spacing:.02em}'
-    +'.ph-g{width:50px;height:50px}.ph-g.vide{font-size:18px}'
-    +'.pl .num{position:absolute;right:-5px;bottom:-3px;min-width:18px;height:18px;padding:0 3px;'
-      +'border-radius:9px;background:var(--or);color:#2a1202;font-family:Anton,sans-serif;'
-      +'font-size:11px;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}'
-    +'.pl .nm{display:block;margin-top:2px;font-size:8.8px;font-weight:800;line-height:1.18;'
-      +'letter-spacing:-.016em;'
-      +'background:rgba(255,255,255,.94);border-radius:3px;padding:1px 3px;'
+      +'color:#fff;font-family:Anton,sans-serif;font-size:15px;letter-spacing:.02em}'
+    +'.ph-g{width:52px;height:52px}.ph-g.vide{font-size:19px}'
+    +'.pl .num{position:absolute;right:-4px;bottom:-2px;min-width:21px;height:21px;padding:0 4px;'
+      +'border-radius:11px;background:var(--or);color:#2a1202;font-family:Anton,sans-serif;'
+      +'font-size:12.5px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}'
+    +'.pl .nm{display:block;margin-top:0;font-size:9px;font-weight:800;line-height:1.02;'
+      +'letter-spacing:-.02em;color:#11161c;'
+      +'background:rgba(255,255,255,.95);border-radius:3px 3px 0 0;padding:1px 3px 0;'
+      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    +'.pl .nm-moyen{font-size:8.3px;letter-spacing:-.028em}'
+    +'.pl .nm-long{font-size:7.5px;letter-spacing:-.035em}'
+    +'.pl .pr{display:block;font-size:7.7px;font-weight:700;line-height:1.0;color:#4b535c;'
+      +'background:rgba(255,255,255,.95);border-radius:0 0 3px 3px;padding:0 3px 1px;'
       +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
     +'.pl .po{display:block;font-size:7.8px;font-weight:700;color:var(--gris);letter-spacing:.06em}'
     +'.pl.opp .dot{display:flex;align-items:center;justify-content:center;width:29px;height:29px;'
@@ -24486,7 +24512,7 @@ function genererFeuilleMatchPDF(){
     +'.pl.opp.marque .dot{background:#2a2f36}'
 
     // --- Leurs reperes, en clair sous le terrain
-    +'.sous{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}'
+    +'.sous{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}'
     +'.col-bloc{border:1.5px solid var(--trait);border-radius:9px;overflow:hidden;background:#fff}'
     +'.col-h{font-family:Anton,sans-serif;font-size:12px;letter-spacing:.07em;text-transform:uppercase;'
       +'padding:7px 11px;color:#fff;background:var(--encre)}'
@@ -24502,7 +24528,7 @@ function genererFeuilleMatchPDF(){
     +'.col-bloc.poss .col-l li::before{background:var(--vert)}'
     +'.col-bloc.def .col-l li::before{background:var(--bleu)}'
     +'.col-v{padding:10px 11px;font-size:12px;color:var(--gris);font-style:italic}'
-    +'.rep{display:flex;flex-direction:column;gap:5px;padding:8px 10px 10px}'
+    +'.rep{display:flex;flex-direction:column;gap:4px;padding:7px 10px 9px}'
     +'.rep-l{display:flex;align-items:center;gap:8px;min-width:0}'
     +'.rep-s{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;'
       +'font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}'
@@ -24511,9 +24537,9 @@ function genererFeuilleMatchPDF(){
     +'.rep-t{flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.3}'
 
     // --- Les coups de pied arretes
-    +'.cpas{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:auto}'
+    +'.cpas{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:0 0 auto}'
     +'.cpa{border:1.5px solid var(--trait);border-top:4px solid var(--c);border-radius:9px;'
-      +'padding:8px 9px 9px;min-width:0;background:#fff}'
+      +'padding:7px 8px 8px;min-width:0;background:#fff}'
     +'.cpa-h{font-family:Anton,sans-serif;font-size:10.5px;letter-spacing:.04em;color:var(--c);'
       +'text-transform:uppercase;margin-bottom:6px;line-height:1.15}'
     +'.cpa-q{display:flex;align-items:center;gap:6px;font-size:12.5px;line-height:1.2}'
@@ -24526,12 +24552,22 @@ function genererFeuilleMatchPDF(){
     +'.cpa-pen .ph{width:20px;height:20px;border-width:1.5px}'
 
     // --- Le banc
-    +'.banc{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:12px;'
-      +'padding:8px 11px;border:1.5px dashed var(--trait);border-radius:9px}'
-    +'.banc-t{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.07em;text-transform:uppercase;'
-      +'color:var(--gris)}'
-    +'.banc-j{display:flex;align-items:center;gap:5px;font-size:11.5px}'
-    +'.banc-j .ph{width:22px;height:22px;border-width:1.5px}'
+    +'.banc{margin-bottom:10px;padding:7px 11px 9px;border:1.5px dashed var(--trait);border-radius:9px}'
+    +'.banc-t{display:block;font-family:Anton,sans-serif;font-size:10.5px;letter-spacing:.07em;'
+      +'text-transform:uppercase;color:var(--gris);margin-bottom:5px}'
+    +'.banc-l{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}'
+    +'.banc-j{display:flex;align-items:center;gap:6px;min-width:0}'
+    +'.banc-p{position:relative;flex:0 0 auto}'
+    +'.banc-j .ph{width:32px;height:32px;border-width:2px}'
+    +'.banc-j .ph.vide{font-size:12px}'
+    +'.banc-n{position:absolute;right:-3px;bottom:-2px;min-width:17px;height:17px;padding:0 3px;'
+      +'border-radius:9px;background:#2a2f36;color:#fff;font-family:Anton,sans-serif;font-size:10px;'
+      +'display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}'
+    +'.banc-t2{display:flex;flex-direction:column;min-width:0;line-height:1.18}'
+    +'.banc-t2 b{font-size:10.6px;font-weight:800;letter-spacing:-.016em;color:#11161c;'
+      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    +'.banc-t2 i{font-style:normal;font-size:9.2px;font-weight:700;color:#5a626b;'
+      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
 
     // --- Page 2 : les consignes, en grand
     +'.p2-tete{display:flex;align-items:baseline;gap:11px;border-bottom:3px solid var(--or);'
@@ -24556,7 +24592,8 @@ function genererFeuilleMatchPDF(){
     +'.ind-v{font-size:12px;color:var(--gris);font-style:italic;padding-top:3px}'
 
     +'@media print{body{background:#fff}'
-      +'.page{width:auto;min-height:auto;margin:0;padding:0;break-after:page}'
+      +'.page{width:auto;height:auto;min-height:0;margin:0;padding:0;break-after:page}'
+      +'.page.p2{min-height:0}'
       +'.page:last-child{break-after:auto}'
       +'.ind,.cpa,.col-bloc{break-inside:avoid}}'
     +'@page{size:A4 portrait;margin:9mm}'
@@ -24565,8 +24602,10 @@ function genererFeuilleMatchPDF(){
     // ===================== PAGE 1 =====================
     +'<div class="page">'
     +'<div class="tete">'
-      +'<div class="tete-g"><div class="c">'+esc(NOM_CLUB)+'</div>'
-        +'<div class="s">Séniors R2 · '+esc(compo.formation||'')+'</div></div>'
+      +'<div class="tete-g">'
+        +(logoClub?'<img class="tete-logo" src="'+logoClub+'" alt="">':'')
+        +'<div><div class="c">'+esc(NOM_CLUB)+'</div>'
+        +'<div class="s">Séniors R2 · '+esc(compo.formation||'')+'</div></div></div>'
       +'<div class="tete-d"><div class="v">Feuille de match — vs</div>'
         +'<div class="a">'+esc(FEUILLE_MATCH.adversaireNom||'—')+'</div>'
         +'<div class="m">'+esc(FEUILLE_MATCH.dateMatch||'')
@@ -24609,7 +24648,7 @@ function genererFeuilleMatchPDF(){
     +'</div>'
 
     // ===================== PAGE 2 =====================
-    +'<div class="page">'
+    +'<div class="page p2">'
     +'<div class="p2-tete"><span class="t">Les consignes</span>'
       +'<span class="s">'+esc(NOM_CLUB)+' vs '+esc(FEUILLE_MATCH.adversaireNom||'—')
       +(FEUILLE_MATCH.dateMatch?' · '+esc(FEUILLE_MATCH.dateMatch):'')+'</span></div>'
