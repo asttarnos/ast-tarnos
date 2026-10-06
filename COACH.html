@@ -2170,8 +2170,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v87</b> · 05/10/2026<br>
-      <span style="opacity:.7">Feuille de match au large · phases et captures au dossier</span>
+      AST COACH <b style="color:var(--or)">v88</b> · 05/10/2026<br>
+      <span style="opacity:.7">Le dossier d'avant-match se corrige directement dedans</span>
     </div>
   </div>
 </div>
@@ -20161,6 +20161,69 @@ function dmSupprimerVideo(id){
   dmRendreVideos(); dmMajEtat(); sauvegardeAuto();
 }
 
+// ---------- Les corrections faites dans le dossier ouvert en presentation ----
+// Le document n'ecrit rien lui-meme : il renvoie des adresses et des textes.
+// C'est ici qu'on sait ou chaque chose vit, et c'est ici qu'on sauvegarde.
+//   s:<champ>              un champ simple du dossier (adv, date, lieu, comp)
+//   b:<cle>:<libelle>      une case d'une carte (l'adversaire, le plan, les CPA...)
+//   c:                     les consignes collectives, lignes comprises
+//   t:<id> / u:<id>        le titre / le sous-titre d'une situation
+//   n:<id>:<cle>           la consigne individuelle d'un joueur sur une situation
+//   v:<id>:t / v:<id>:n    le titre / la note d'une video
+function dossierEditsAppliquer(edits){
+  if(!edits || typeof edits!=='object') return 0;
+  if(typeof DOSSIER==='undefined' || !DOSSIER) DOSSIER=dmVide();
+  if(!DOSSIER.bulles) DOSSIER.bulles={};
+  var n=0, inconnues=0;
+  function part(a,i){ try{ return decodeURIComponent(a[i]||''); }catch(e){ return a[i]||''; } }
+  Object.keys(edits).forEach(function(adr){
+    var v=String(edits[adr]==null?'':edits[adr]);
+    var a=adr.split(':'), t=a[0], ok=true;
+    if(t==='s'){
+      var ch=part(a,1);
+      if(['adv','date','lieu','comp'].indexOf(ch)>=0) DOSSIER[ch]=v; else ok=false;
+    } else if(t==='b'){
+      var cle=part(a,1), lab=part(a,2);
+      if(!cle || !lab){ ok=false; }
+      else { if(!DOSSIER.bulles[cle]) DOSSIER.bulles[cle]={}; DOSSIER.bulles[cle][lab]=v; }
+    } else if(t==='c'){
+      DOSSIER.collectif=v;
+    } else if(t==='t' || t==='u'){
+      var id=part(a,1), s1=(DOSSIER.situations||[]).filter(function(x){ return x.id===id; })[0];
+      if(!s1) ok=false;
+      else if(t==='t'){ s1.titre=v||'Situation'; }
+      else { s1.sous=v; }
+    } else if(t==='n'){
+      var id2=part(a,1), jc=part(a,2);
+      var s2=(DOSSIER.situations||[]).filter(function(x){ return x.id===id2; })[0];
+      if(!s2 || !s2.plateau || !Array.isArray(s2.plateau.joueurs)) ok=false;
+      else {
+        var touche=false;
+        s2.plateau.joueurs.forEach(function(j){ if(j.cle===jc){ j.note=v; touche=true; } });
+        ok=touche;
+      }
+    } else if(t==='v'){
+      var id3=part(a,1), quoi=part(a,2);
+      var vd=(DOSSIER.videos||[]).filter(function(x){ return x.id===id3; })[0];
+      if(!vd) ok=false;
+      else if(quoi==='t'){ vd.titre=v||'Vidéo'; }
+      else { vd.note=v; }
+    } else ok=false;
+    if(ok) n++; else inconnues++;
+  });
+  if(!n){ notif('⚠ Rien n\'a pu être repris du dossier'); return 0; }
+  sauvegardeAuto();
+  try{
+    var ec=document.getElementById('scr-avant-match');
+    if(ec && ec.classList.contains('on')) renderAvantMatch();
+  }catch(e){}
+  notif('✓ '+n+' correction'+(n>1?'s':'')+' repri'+(n>1?'ses':'se')+' du dossier'
+    +(inconnues?(' — '+inconnues+' ignorée'+(inconnues>1?'s':'')):'')
+    +(DOSSIER.publie?' — pense à le renvoyer aux joueurs':''));
+  return n;
+}
+window.dossierEditsAppliquer=dossierEditsAppliquer;
+
 // --- Publier ------------------------------------------------------------------
 // Le dossier va dans la collection que les joueurs lisent déjà pour le plateau :
 // aucune règle Firestore à changer.
@@ -20216,6 +20279,13 @@ function dmPoids(){
 // Rien à remplir deux fois : tout vient des cases du dossier et du plateau.
 
 function dpEsc(t){ var d=document.createElement('div'); d.textContent=(t==null?'':String(t)); return d.innerHTML; }
+// L'adresse d'un champ dans le dossier, portee par le texte lui-meme : c'est
+// elle qui permet au document ouvert en presentation de renvoyer la correction.
+// encodeURIComponent echappe ':' et '"', l'adresse tient donc dans un attribut.
+function dpAdr(){ return [].slice.call(arguments).map(encodeURIComponent).join(':'); }
+function dpEd(adr, val, cls){
+  return '<div class="'+cls+(String(val||'').trim()?'':' vide')+'" data-ed="'+adr+'">'+dpEsc(val)+'</div>';
+}
 function dpRempli(cle){
   var v=(DOSSIER.bulles||{})[cle]||{};
   return Object.keys(v).filter(function(k){ return (v[k]||'').trim(); });
@@ -20333,9 +20403,9 @@ function dpPage(cle, titre, corps, classe){
 function dpCartes(cle, labels){
   var out=labels.map(function(l){
     var v=dpVal(cle,l);
-    if(!v) return '';
-    return '<div class="carte"><div class="carte-l">'+dpEsc(l)+'</div><div class="carte-v">'+dpEsc(v)+'</div></div>';
-  }).filter(Boolean).join('');
+    return '<div class="carte'+(v?'':' vide')+'"><div class="carte-l">'+dpEsc(l)+'</div>'
+      +'<div class="carte-v" data-ed="'+dpAdr('b',cle,l)+'" data-vide="'+dpEsc(l)+'">'+dpEsc(v)+'</div></div>';
+  }).join('');
   return out?'<div class="cartes">'+out+'</div>':'';
 }
 
@@ -20348,12 +20418,17 @@ function genererDossierPresentation(){
     +(logo?'<img class="crest" src="'+logo+'" alt="">':'')
     +'<div class="af-eq">'+dpEsc(NOM_CLUB)+'</div>'
     +'<div class="af-vs">reçoit</div>'
-    +'<div class="af-adv">'+dpEsc(DOSSIER.adv||'—')+'</div>'
-    +'<div class="af-meta">'+dpEsc([DOSSIER.date,DOSSIER.lieu,DOSSIER.comp].filter(Boolean).join('  ·  '))+'</div>'
+    +'<div class="af-adv" data-ed="'+dpAdr('s','adv')+'" data-vide="L\'adversaire">'+dpEsc(DOSSIER.adv||'')+'</div>'
+    +'<div class="af-meta">'
+      +['date','lieu','comp'].map(function(k,i){
+        var lab=['La date','Le lieu','La compétition'][i];
+        return '<span class="af-m'+((DOSSIER[k]||'').trim()?'':' vide')+'" data-ed="'+dpAdr('s',k)+'"'
+          +' data-vide="'+lab+'">'+dpEsc(DOSSIER[k]||'')+'</span>'; }).join('<span class="af-sep"> · </span>')
+    +'</div>'
     +'</div>','affiche-pg'));
 
   // 2. L'adversaire
-  if(dpRempli('adv').length){
+  {
     var advForm=FORMATIONS[DOSSIER.advFormation]||null;
     var surv=dpVal('adv','Le joueur à tenir');
     var slotsAdv=advForm?advForm.map(function(p,i){
@@ -20364,12 +20439,12 @@ function genererDossierPresentation(){
       +(slotsAdv?'<div class="col-t">'+dpTerrainCompo(slotsAdv,'#c0392b',false)
         +'<div class="sous-t">'+dpEsc(dpVal('adv','Son système')||DOSSIER.advFormation||'')+'</div></div>':'')
       +'<div class="col-c">'+dpCartes('adv',['Son système','Ce qui fait mal','Sa faille','Le joueur à tenir'])+'</div>'
-      +'</div>'));
+      +'</div>', dpRempli('adv').length?'':'pg-vide'));
   }
 
   // 3. Notre équipe
   var compo=dpCompo();
-  if(compo || dpRempli('grp').length){
+  {
     var titus=compo?compo.slots.filter(function(s){ return !s.bench; }):[];
     var banc=compo?compo.slots.filter(function(s){ return s.bench && (s.nom||s.num); }):[];
     pages.push(dpPage('grp','👥 Notre équipe',
@@ -20382,19 +20457,18 @@ function genererDossierPresentation(){
         +dpCartes('grp', titus.length
             ? ['Absents','État de forme']
             : ['Compo de départ','Sur le banc','Absents','État de forme'])
-      +'</div></div>'));
+      +'</div></div>', (compo||dpRempli('grp').length)?'':'pg-vide'));
   }
 
   // 4. Notre plan
-  if(dpRempli('plan').length){
-    pages.push(dpPage('plan','🧠 Notre plan',
-      '<div class="quatre">'
-      +['Avec le ballon','Sans le ballon','À la perte','À la récupération'].map(function(l){
-        var v=dpVal('plan',l); if(!v) return '';
-        return '<div class="quart"><div class="q-l">'+dpEsc(l)+'</div><div class="q-v">'+dpEsc(v)+'</div></div>';
-      }).filter(Boolean).join('')
-      +'</div>'));
-  }
+  pages.push(dpPage('plan','🧠 Notre plan',
+    '<div class="quatre">'
+    +['Avec le ballon','Sans le ballon','À la perte','À la récupération'].map(function(l){
+      var v=dpVal('plan',l);
+      return '<div class="quart'+(v?'':' vide')+'"><div class="q-l">'+dpEsc(l)+'</div>'
+        +'<div class="q-v" data-ed="'+dpAdr('b','plan',l)+'" data-vide="'+dpEsc(l)+'">'+dpEsc(v)+'</div></div>';
+    }).join('')
+    +'</div>', dpRempli('plan').length?'':'pg-vide'));
 
   // 5. Les situations — une page chacune.
   // Chaque page est batie sous garde : une situation abimee est ecartee,
@@ -20403,18 +20477,18 @@ function genererDossierPresentation(){
   sitsOk.forEach(function(s,i){
    try{
     if(s.type==='image'){
-      pages.push(dpPage('sit'+i,'⚽ '+dpEsc(s.titre||('Situation '+(i+1))),
+      pages.push(dpPage('sit'+i,'⚽ <span data-ed="'+dpAdr('t',s.id)+'">'+dpEsc(s.titre||('Situation '+(i+1)))+'</span>',
         '<div class="sit sit-capture"><div class="sit-t"><img class="sit-img" src="'+s.image+'" alt=""></div>'
-        +(s.sous?'<div class="sit-c"><div class="sit-sous">'+dpEsc(s.sous)+'</div></div>':'')
+        +'<div class="sit-c">'+dpEd(dpAdr('u',s.id), s.sous, 'sit-sous')+'</div>'
         +'</div>','sit-pg'));
       return;
     }
     var pleines=[]; (s.plateau.sequence||[]).forEach(function(st,k){ if(st) pleines.push(k); });
-    pages.push(dpPage('sit'+i,'⚽ '+dpEsc(s.titre||('Situation '+(i+1))),
+    pages.push(dpPage('sit'+i,'⚽ <span data-ed="'+dpAdr('t',s.id)+'">'+dpEsc(s.titre||('Situation '+(i+1)))+'</span>',
       '<div class="sit" data-sit="'+i+'">'
       +'<div class="sit-t" id="sit-t-'+i+'">'+dpTerrainSituation(s.plateau, pleines.length?pleines[0]:null, false)+'</div>'
       +'<div class="sit-c">'
-        +(s.sous?'<div class="sit-sous">'+dpEsc(s.sous)+'</div>':'')
+        +dpEd(dpAdr('u',s.id), s.sous, 'sit-sous')
         +(pleines.length>1
           ? '<div class="sit-cmd">'
             +'<button class="pb" onclick="sitPas('+i+',-1)">‹</button>'
@@ -20435,7 +20509,8 @@ function genererDossierPresentation(){
             if(!cons.length) return '';
             return '<div class="sit-cons"><div class="carte-l">Les consignes individuelles</div>'
               +cons.map(function(j){
-                return '<div class="cons-l"><b>'+dpEsc(j.nom||j.label)+'</b>'+dpEsc(j.note)+'</div>'; }).join('')
+                return '<div class="cons-l"><b>'+dpEsc(j.nom||j.label)+'</b>'
+                  +'<span data-ed="'+dpAdr('n',s.id,j.cle)+'" data-sitidx="'+i+'">'+dpEsc(j.note)+'</span></div>'; }).join('')
             +'</div>';
           })()
       +'</div></div>','sit-pg'));
@@ -20447,31 +20522,31 @@ function genererDossierPresentation(){
   }
 
   // 6. Les coups de pied arrêtés
-  if(dpRempli('cpa').length){
-    pages.push(dpPage('cpa','⚡ Coups de pied arrêtés',
-      '<div class="quatre">'
-      +['Corners offensifs','Corners défensifs','Coups francs','Penalty'].map(function(l){
-        var v=dpVal('cpa',l); if(!v) return '';
-        return '<div class="quart"><div class="q-l">'+dpEsc(l)+'</div><div class="q-v">'+dpEsc(v)+'</div></div>';
-      }).filter(Boolean).join('')+'</div>'));
-  }
+  pages.push(dpPage('cpa','⚡ Coups de pied arrêtés',
+    '<div class="quatre">'
+    +['Corners offensifs','Corners défensifs','Coups francs','Penalty'].map(function(l){
+      var v=dpVal('cpa',l);
+      return '<div class="quart'+(v?'':' vide')+'"><div class="q-l">'+dpEsc(l)+'</div>'
+        +'<div class="q-v" data-ed="'+dpAdr('b','cpa',l)+'" data-vide="'+dpEsc(l)+'">'+dpEsc(v)+'</div></div>';
+    }).join('')+'</div>', dpRempli('cpa').length?'':'pg-vide'));
 
   // 7. Les objectifs
-  if(dpRempli('obj').length){
-    pages.push(dpPage('obj','🎯 Les objectifs', dpCartes('obj',(dmBranche('obj')||{lignes:[]}).lignes.map(function(l){ return l.lab; }))));
-  }
+  pages.push(dpPage('obj','🎯 Les objectifs',
+    dpCartes('obj',(dmBranche('obj')||{lignes:[]}).lignes.map(function(l){ return l.lab; })),
+    dpRempli('obj').length?'':'pg-vide'));
 
   // 8. Ce qu'on vérifie
-  if(dpRempli('verif').length){
-    pages.push(dpPage('verif','✅ À vérifier', dpCartes('verif',(dmBranche('verif')||{lignes:[]}).lignes.map(function(l){ return l.lab; }))));
-  }
+  pages.push(dpPage('verif','✅ À vérifier',
+    dpCartes('verif',(dmBranche('verif')||{lignes:[]}).lignes.map(function(l){ return l.lab; })),
+    dpRempli('verif').length?'':'pg-vide'));
 
-  // 9. Les consignes collectives — la page qui doit rester à l'écran
-  if((DOSSIER.collectif||'').trim()){
-    pages.push(dpPage('collectif','📢 Pour tout le monde',
-      '<div class="collectif">'+DOSSIER.collectif.split('\n').filter(function(l){ return l.trim(); })
-        .map(function(l){ return '<div class="cl">'+dpEsc(l.trim())+'</div>'; }).join('')+'</div>','collectif-pg'));
-  }
+  // 9. Les consignes collectives — la page qui doit rester à l'écran.
+  // Une seule zone editable : on y ajoute et on y retire des lignes librement.
+  pages.push(dpPage('collectif','📢 Pour tout le monde',
+    '<div class="collectif" data-ed="'+dpAdr('c')+'" data-lignes="1" data-vide="Une consigne par ligne">'
+      +(DOSSIER.collectif||'').split('\n').filter(function(l){ return l.trim(); })
+        .map(function(l){ return '<div class="cl">'+dpEsc(l.trim())+'</div>'; }).join('')
+    +'</div>','collectif-pg'+((DOSSIER.collectif||'').trim()?'':' pg-vide')));
 
   // 10. À regarder
   if((DOSSIER.videos||[]).length){
@@ -20482,10 +20557,11 @@ function genererDossierPresentation(){
         return '<a class="vid" href="'+dpEsc(dmLienAvecMinute(v))+'" target="_blank" rel="noopener">'
           +'<span class="vid-v" style="'+fond+'"'+(v.apercuId?(' data-apercu="'+v.apercuId+'"'):'')+'>'
             +(v.vignetteUrl||v.apercuId?'':'🎬')+'<span class="play-o">▶</span></span>'
-          +'<span class="vid-t">'+dpEsc(v.titre)+'</span>'
+          +'<span class="vid-t" data-ed="'+dpAdr('v',v.id,'t')+'">'+dpEsc(v.titre)+'</span>'
           +'<span class="vid-m">'+(v.source==='veo'?'Veo':(v.source==='youtube'?'YouTube':'Vidéo'))
             +(v.minute?' · démarre à '+dpEsc(v.minute):'')+'</span>'
-          +(v.note?'<span class="vid-n">'+dpEsc(v.note)+'</span>':'')
+          +'<span class="vid-n'+((v.note||'').trim()?'':' vide')+'" data-ed="'+dpAdr('v',v.id,'n')+'"'
+            +' data-vide="Ce qu\'il faut y voir">'+dpEsc(v.note||'')+'</span>'
         +'</a>';
       }).join('')+'</div>'));
   }
@@ -20505,8 +20581,13 @@ function genererDossierPresentation(){
       +'<div class="points" id="points"></div>'
       +'<button class="nb" onclick="aller(1)">›</button>'
       +'<span class="cpt" id="cpt"></span>'
+      +'<button class="nb ed" id="b-edit" onclick="edBasculer()" style="display:none">✏️ Modifier</button>'
+      +'<button class="nb ed" id="b-edit-ok" onclick="edEnregistrer()" style="display:none">💾 Enregistrer</button>'
       +'<button class="nb pl" onclick="pleinEcran()">⛶ Plein écran</button>'
     +'</div>'
+    +'<div class="ed-aide">✏️ <b>Mode modification</b> — clique sur un texte et corrige-le. '
+      +'Les cases vides et les pages vides apparaissent, tu peux les remplir. '
+      +'<b>Échap</b> pour sortir, <b>💾 Enregistrer</b> pour renvoyer tout ça dans l\'appli.</div>'
     +dpScript(donneesSit)
     +'</body></html>';
 
@@ -20596,8 +20677,9 @@ function dpStyles(){
   // Les consignes collectives : la page qu'on laisse au mur
   +'.collectif-pg{justify-content:center}'
   +'.collectif{display:flex;flex-direction:column;gap:2.6vh}'
-  +'.cl{font-size:clamp(22px,3.6vw,56px);font-weight:700;color:var(--gris,#fff);line-height:1.24;'
-    +'padding-left:2.4vw;border-left:6px solid #f97316}'
+  // Toute ligne du bloc, y compris celles qu'on tape en mode modification.
+  +'.cl,.collectif>div{font-size:clamp(22px,3.6vw,56px);font-weight:700;color:var(--gris,#fff);'
+    +'line-height:1.24;padding-left:2.4vw;border-left:6px solid #f97316}'
 
   // Les vidéos
   +'.vids{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));'
@@ -20612,6 +20694,31 @@ function dpStyles(){
   +'.vid-t{font-size:clamp(15px,1.75vw,25px);font-weight:700;color:var(--gris,#fff);padding:1.5vh 1.3vw .5vh;line-height:1.3}'
   +'.vid-m{font-size:clamp(11px,1.1vw,15px);color:#8b949e;padding:0 1.3vw}'
   +'.vid-n{font-size:clamp(12px,1.25vw,17px);color:var(--gris2,#c2c8d0);padding:.8vh 1.3vw 1.5vh;line-height:1.4}'
+
+  // ===== Le mode modification =====
+  // Les pages et les cases vides n'existent que pour celui qui corrige :
+  // le dossier projete devant le groupe reste exactement comme avant.
+  +'.carte.vide,.quart.vide,.af-m.vide,.vid-n.vide,.sit-sous.vide{display:none}'
+  +'body.edition .carte.vide,body.edition .quart.vide,body.edition .vid-n.vide{display:block}'
+  +'body.edition .af-m.vide{display:inline}'
+  +'body.edition .sit-sous.vide{display:block}'
+  +'body.edition [data-ed]{outline:1px dashed rgba(249,115,22,.5);outline-offset:4px;'
+    +'border-radius:5px;min-width:40px;min-height:1em;cursor:text}'
+  +'body.edition [data-ed]:hover{outline-color:rgba(249,115,22,.9)}'
+  +'body.edition [data-ed]:focus{outline:2px solid #f97316;outline-offset:4px;'
+    +'background:rgba(249,115,22,.08)}'
+  +'body.edition [data-ed]:empty::before,body.edition [data-ed].vide::before{'
+    +'content:attr(data-vide);color:#6b7480;font-style:italic;font-weight:400}'
+  +'body.edition .vid{pointer-events:auto}'
+  +'.pt-d.vide{background:transparent;box-shadow:inset 0 0 0 2px #4a535e}'
+  +'.pt-d.vide.on{background:#f97316;box-shadow:none}'
+  +'.ed-aide{position:fixed;right:3vw;top:14px;z-index:30;display:none;'
+    +'background:#11161d;border:1px solid #f97316;border-radius:11px;padding:10px 14px;'
+    +'font-size:13px;color:var(--gris2,#c2c8d0);max-width:min(410px,52vw);line-height:1.5}'
+  +'body.edition .ed-aide{display:block}'
+  +'.ed-aide b{color:#f97316}'
+  +'.nb.ed{width:auto;padding:0 16px;font-size:14px}'
+  +'.nb.ed.on{background:#f97316;border-color:#f97316;color:#170c02}'
 
   // La barre du bas
   +'.barre{position:fixed;left:0;right:0;bottom:0;height:9vh;min-height:58px;display:flex;'
@@ -20634,7 +20741,10 @@ function dpStyles(){
   +'}'
   +'@media print{html,body{overflow:visible;background:#fff;color:#111}'
     +'.pg{position:static;display:flex!important;break-after:page;min-height:96vh}'
-    +'.barre{display:none}}'
+    +'.pg.pg-vide{display:none!important}'
+    +'.carte.vide,.quart.vide,.af-m.vide,.vid-n.vide,.sit-sous.vide{display:none!important}'
+    +'[data-ed]{outline:none!important;background:none!important}'
+    +'.barre,.ed-aide{display:none}}'
   +'</style>';
 }
 
@@ -20659,24 +20769,40 @@ function dpScript(donneesSit){
       +'var q=st.opp&&st.opp[o.cle]; return q?Object.assign({},o,{x:q[0],y:q[1]}):o; });'
     +'return c;'
   +'}'
-  +'var pages=[].slice.call(document.querySelectorAll(".pg"));'
+  +'var toutes=[].slice.call(document.querySelectorAll(".pg"));'
+  +'var pages=[];'
   +'var idx=0;'
   +'var pts=document.getElementById("points");'
-  +'pages.forEach(function(p,i){'
-    +'var d=document.createElement("span"); d.className="pt-d";'
-    +'d.title=(p.querySelector(".pg-t")?p.querySelector(".pg-t").textContent:"Affiche");'
-    +'d.onclick=function(){ montrer(i); }; pts.appendChild(d);'
-  +'});'
+  +'function refaireNav(garder){'
+    +'var vu=pages[idx]||null;'
+    +'pages=document.body.classList.contains("edition")'
+      +'? toutes.slice()'
+      +': toutes.filter(function(p){ return !p.classList.contains("pg-vide"); });'
+    +'if(!pages.length) pages=toutes.slice();'
+    +'pts.innerHTML="";'
+    +'pages.forEach(function(p,i){'
+      +'var d=document.createElement("span");'
+      +'d.className="pt-d"+(p.classList.contains("pg-vide")?" vide":"");'
+      +'d.title=(p.querySelector(".pg-t")?p.querySelector(".pg-t").textContent:"Affiche")'
+        +'+(p.classList.contains("pg-vide")?" — encore vide":"");'
+      +'d.onclick=function(){ montrer(i); }; pts.appendChild(d);'
+    +'});'
+    +'var k=garder&&vu?pages.indexOf(vu):0;'
+    +'montrer(k<0?0:k);'
+  +'}'
   +'function montrer(i){'
     +'if(i<0||i>=pages.length) return;'
     +'stopTout();'
-    +'pages.forEach(function(p){ p.classList.remove("on"); });'
+    +'toutes.forEach(function(p){ p.classList.remove("on"); });'
     +'pages[i].classList.add("on"); idx=i;'
     +'[].slice.call(pts.children).forEach(function(d,k){ d.classList.toggle("on", k===i); });'
     +'document.getElementById("cpt").textContent=(i+1)+" / "+pages.length;'
   +'}'
   +'window.aller=function(sens){ montrer(idx+sens); };'
   +'document.addEventListener("keydown",function(e){'
+    +'if(e.key==="Escape" && document.body.classList.contains("edition")){ e.preventDefault(); edSortir(true); return; }'
+    // Tant qu'on ecrit dans une case, les fleches servent au curseur.
+    +'if(e.target && e.target.isContentEditable) return;'
     +'if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "){ e.preventDefault(); aller(1); }'
     +'else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); aller(-1); }'
     +'else if(e.key==="Home"){ montrer(0); }'
@@ -20769,7 +20895,123 @@ function dpScript(donneesSit){
     +'}'
     +'suite();'
   +'};'
-  +'montrer(0);'
+
+  // --- Modifier le dossier sans repasser par l'appli --------------------------
+  // Chaque texte porte son adresse (data-ed). Le document ne sait pas ou ca vit :
+  // il renvoie les adresses et les textes a l'appli restee ouverte derriere,
+  // c'est elle qui range. Si l'appli n'est pas la, le bouton n'apparait pas.
+  // Le dossier s'ouvre dans le cadre de l'appli (srcdoc) ou dans un onglet a part :
+  // dans un cas l'appli est le parent, dans l'autre c'est elle qui a ouvert.
+  +'function edAppli(){'
+    +'try{ if(window.parent && window.parent!==window && window.parent.dossierEditsAppliquer)'
+      +'return window.parent; }catch(e){}'
+    +'try{ if(window.opener && !window.opener.closed && window.opener.dossierEditsAppliquer)'
+      +'return window.opener; }catch(e){}'
+    +'return null;'
+  +'}'
+  +'var ED_DEPART=null, ED_TOUCHE=false;'
+  +'function edChamps(){ return [].slice.call(document.querySelectorAll("[data-ed]")); }'
+  // Une page masquee n'a pas d'innerText : on lit les blocs un par un.
+  +'function edLignes(el){'
+    +'var out=[], cur="";'
+    +'function pousser(){ if(cur.trim()) out.push(cur.trim().replace(/\\s+/g," ")); cur=""; }'
+    +'[].slice.call(el.childNodes).forEach(function(n){'
+      +'if(n.nodeType===3){ cur+=n.nodeValue; return; }'
+      +'if(n.nodeType!==1) return;'
+      +'var t=n.tagName.toLowerCase();'
+      +'if(t==="br"){ pousser(); return; }'
+      +'if(t==="div"||t==="p"||t==="li"||t==="section"){ pousser(); cur=n.textContent; pousser(); return; }'
+      +'cur+=n.textContent;'
+    +'});'
+    +'pousser();'
+    +'return out.join("\\n");'
+  +'}'
+  +'function edLire(e){'
+    +'return e.getAttribute("data-lignes") ? edLignes(e)'
+      +': (e.textContent||"").replace(/\\s+/g," ").trim();'
+  +'}'
+  +'function edEtat(){ var o={}; edChamps().forEach(function(e){ o[e.getAttribute("data-ed")]=edLire(e); }); return o; }'
+  +'function edModifie(){'
+    +'if(!ED_DEPART) return false;'
+    +'var m=edEtat();'
+    +'return Object.keys(m).some(function(k){ return m[k]!==ED_DEPART[k]; });'
+  +'}'
+  +'window.edBasculer=function(){'
+    +'if(document.body.classList.contains("edition")){ edSortir(true); return; }'
+    +'if(!edAppli()){'
+      +'alert("L\'appli n\'est plus ouverte derrière le dossier.\\n\\nReviens sur AST COACH, '
+        +'rouvre le dossier depuis l\'appli, et tu pourras le corriger ici.");'
+      +'return; }'
+    +'document.body.classList.add("edition");'
+    +'edChamps().forEach(function(e){ e.setAttribute("contenteditable","true"); e.spellcheck=true; });'
+    +'ED_DEPART=edEtat(); ED_TOUCHE=false;'
+    +'document.getElementById("b-edit").textContent="\u2715 Quitter";'
+    +'document.getElementById("b-edit").classList.add("on");'
+    +'document.getElementById("b-edit-ok").style.display="";'
+    +'refaireNav(true);'
+  +'};'
+  +'function edSortir(demander){'
+    +'if(demander && edModifie() && !confirm("Tu as corrigé des choses sans les enregistrer.\\n\\n'
+      +'OK = quitter quand même\\nAnnuler = revenir au dossier")) return;'
+    +'document.body.classList.remove("edition");'
+    +'edChamps().forEach(function(e){ e.removeAttribute("contenteditable"); });'
+    +'document.getElementById("b-edit").textContent="\u270f\ufe0f Modifier";'
+    +'document.getElementById("b-edit").classList.remove("on");'
+    +'document.getElementById("b-edit-ok").style.display="none";'
+    +'refaireNav(true);'
+  +'}'
+  // On ne renvoie que ce qui a bouge : l'appli garde le reste intact.
+  +'window.edEnregistrer=function(){'
+    +'var app=edAppli();'
+    +'if(!app){ alert("L\'appli n\'est plus ouverte derrière le dossier — rouvre-le depuis l\'appli.'
+      +'\\n\\nCe que tu as écrit reste affiché ici."); return; }'
+    +'var m=edEtat(), chg={}, n=0;'
+    +'Object.keys(m).forEach(function(k){ if(!ED_DEPART || m[k]!==ED_DEPART[k]){ chg[k]=m[k]; n++; } });'
+    +'if(!n){ edSortir(false); return; }'
+    +'var r=null;'
+    +'try{ r=app.dossierEditsAppliquer(chg); }'
+    +'catch(e){ alert("Enregistrement impossible : "+e.message); return; }'
+    +'ED_DEPART=m;'
+    // Les bulles du terrain viennent des memes consignes : on les redessine.
+    +'Object.keys(chg).forEach(function(k){'
+      +'var e=document.querySelector(\'[data-ed="\'+k+\'"]\');'
+      +'if(!e || !e.getAttribute("data-sitidx")) return;'
+      +'var i=parseInt(e.getAttribute("data-sitidx"),10), p=PLATEAUX[i];'
+      +'var cle=decodeURIComponent(k.split(":")[2]||"");'
+      +'if(!p) return;'
+      +'(p.joueurs||[]).forEach(function(j){ if(j.cle===cle) j.note=chg[k]; });'
+      +'var a=ANIM[i]||{};'
+      +'peindre(i,p,(a.etape!=null?a.etape:(pleines(p)[0]!=null?pleines(p)[0]:null)),false);'
+    +'});'
+    // Les cases qu'on vient de remplir ne sont plus vides, et leur page non plus.
+    +'edChamps().forEach(function(e){'
+      +'var plein=!!edLire(e);'
+      +'e.classList.toggle("vide", !plein);'
+      +'var pg=e.closest(".pg");'
+      +'if(pg && plein) pg.classList.remove("pg-vide");'
+    +'});'
+    +'var b=document.getElementById("b-edit-ok"), t=b.textContent;'
+    +'b.textContent="\u2713 "+n+" correction"+(n>1?"s":"")+" enregistrée"+(n>1?"s":"");'
+    +'setTimeout(function(){ b.textContent=t; },2600);'
+  +'};'
+  // Un lien vidéo ne doit pas s'ouvrir quand on vient corriger son titre.
+  +'document.addEventListener("click",function(e){'
+    +'if(!document.body.classList.contains("edition")) return;'
+    +'var a=e.target.closest?e.target.closest("a"):null;'
+    +'if(a){ e.preventDefault(); }'
+  +'},true);'
+  +'window.addEventListener("beforeunload",function(e){'
+    +'if(document.body.classList.contains("edition") && edModifie()){ e.preventDefault(); e.returnValue=""; }'
+  +'});'
+  // Coller du texte riche casserait la mise en page : on ne garde que les mots.
+  +'document.addEventListener("paste",function(e){'
+    +'if(!e.target || !e.target.isContentEditable) return;'
+    +'e.preventDefault();'
+    +'var t=(e.clipboardData||window.clipboardData).getData("text/plain")||"";'
+    +'document.execCommand("insertText",false,t);'
+  +'});'
+  +'document.getElementById("b-edit").style.display=edAppli()?"":"none";'
+  +'refaireNav(false);'
   +'})();<\/script>';
 }
 
