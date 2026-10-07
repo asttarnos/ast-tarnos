@@ -292,6 +292,14 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .pl-aide ol{margin:7px 0 0;padding-left:19px}
 .pl-aide li{margin-bottom:4px}
 
+/* Retenu, ou pas : c'est la premiere chose qu'il cherche sur la carte. */
+.ms-ret{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;padding:4px 10px 4px 8px;border-radius:999px;
+  margin-bottom:8px}
+.ms-ret .ic{width:13px;height:13px}
+.ms-ret.oui{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.ms-ret.non{background:var(--voile2);color:var(--mute)}
+
 /* Ma semaine : une carte par seance, trois reponses possibles. */
 /* ===== Jour de match : un seul ecran, des reperes forts =====
    Les titres de section decoupent le defilement : on sait toujours ou on est. */
@@ -348,6 +356,22 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
   text-decoration:none;cursor:pointer;background:var(--voile);border:1px solid var(--hair);
   border-radius:12px;padding:14px 6px;font-size:13.5px;font-weight:700;color:var(--ink)}
 .jm-prat .ic{font-size:21px;line-height:1}
+
+/* La demande d'activation des notifications. Elle doit se voir sans crier :
+   c'est la seule chose qui fera arriver une convocation jusqu'a lui. */
+.no-c{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:13px 14px;
+  border-radius:13px;border:1px solid color-mix(in srgb,var(--or) 42%,transparent);
+  background:linear-gradient(120deg,color-mix(in srgb,var(--or) 14%,var(--surface)),var(--surface))}
+.no-c .ic{width:24px;height:24px;flex:0 0 auto;color:var(--or)}
+.no-c .tx{flex:1;min-width:0;line-height:1.35}
+.no-c .tx b{display:block;font-size:14.5px;font-weight:800;color:var(--ink)}
+.no-c .tx i{font-style:normal;display:block;font-size:12.5px;color:var(--mute);margin-top:2px}
+.no-c .act{display:flex;flex-direction:column;gap:5px;flex:0 0 auto}
+.no-c button{font-family:var(--titre);font-size:var(--t6);font-weight:400;letter-spacing:.05em;
+  text-transform:uppercase;padding:9px 13px;border-radius:9px;cursor:pointer;border:none;
+  background:var(--or);color:#fff;white-space:nowrap}
+.no-c button.plus-tard{background:none;color:var(--mute);font-family:var(--texte);
+  font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;padding:2px}
 
 /* Ou en est l'equipe */
 .eq-l{display:flex;align-items:center;gap:13px;padding-bottom:11px;
@@ -1122,7 +1146,9 @@ async function activerNotifications(){
     }})});
     localStorage.setItem('ast_notifs_actives_'+MON_NUM,'1');
     if(statutEl) statutEl.textContent='✓ Notifications activées';
+    notif('🔔 C\'est bon — tu seras prévenu');
     renderNotifPushBanniere();
+    try{ if(!document.getElementById('scr-hub').classList.contains('hidden')) renderHub(); }catch(e){}
   }catch(e){
     if(statutEl) statutEl.textContent='⚠ Erreur : '+e.message;
   }
@@ -2315,10 +2341,43 @@ function auEquipeHtml(){
       +'<span class="eq-rs">'+pastilles+'</span></div>':'')
     +'</div></div>';
 }
+// La demande d'activation : on la pose une fois, on la retire quand c'est
+// fait ou refuse, et on la represente une semaine apres un « plus tard ».
+function noCleReporte(){ return 'ast_notifs_plus_tard_'+MON_NUM; }
+function noDemandeHtml(){
+  if(!notifsConfigurees()) return '';
+  if(localStorage.getItem('ast_notifs_actives_'+MON_NUM)==='1') return '';
+  // Si le telephone a deja refuse, insister ne sert a rien : on explique ou
+  // ca se change, une fois, et on n'y revient pas.
+  var refus=false;
+  try{ refus=(typeof Notification!=='undefined' && Notification.permission==='denied'); }catch(e){}
+  if(refus){
+    return '<div class="no-c">'+ic('cloche')
+      +'<div class="tx"><b>Les notifications sont bloqu\u00e9es</b>'
+      +'<i>Ton t\u00e9l\u00e9phone les a refus\u00e9es. \u00c7a se r\u00e9active dans ses r\u00e9glages, '
+      +'\u00e0 la ligne de cette appli.</i></div></div>';
+  }
+  var reporte=0;
+  try{ reporte=parseInt(localStorage.getItem(noCleReporte())||'0',10)||0; }catch(e){}
+  if(reporte && (Date.now()-reporte) < 7*86400000) return '';
+  return '<div class="no-c" id="no-carte">'+ic('cloche')
+    +'<div class="tx"><b>Fais-toi pr\u00e9venir</b>'
+    +'<i id="notif-push-statut">La convocation, un message du coach, un sondage \u2014 '
+      +'tu le sais tout de suite au lieu de l\'apprendre trop tard.</i></div>'
+    +'<div class="act"><button onclick="activerNotifications()">Activer</button>'
+      +'<button class="plus-tard" onclick="noPlusTard()">Plus tard</button></div>'
+  +'</div>';
+}
+function noPlusTard(){
+  try{ localStorage.setItem(noCleReporte(), String(Date.now())); }catch(e){}
+  var el=document.getElementById('no-carte');
+  if(el) el.remove();
+}
 function renderHub(){
   var ct=document.getElementById('scr-hub');
   var hero=auBandeau() + jvHtml();
   var htmlHub=hero
+    + noDemandeHtml()
     + auAFaire()
     + calProchainsHtml()
     + auEquipeHtml()
@@ -2327,8 +2386,8 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v42</b> · 07/10/2026<br>'
-    +'<span style="opacity:.8">Le plateau au doigt \u00b7 zoom et placement</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v43</b> · 07/10/2026<br>'
+    +'<span style="opacity:.8">Qui vient \u00e0 l\'entra\u00eenement \u00b7 notifications</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
   jvBrancher();
@@ -3435,6 +3494,20 @@ var MS_SEANCES_DEFAUT=[
   {k:'b',   lab:'Entra\u00eenement B',    h:'',      c:'#0ea5e9'},
   {k:'u18', lab:'Entra\u00eenement U18',  h:'',      c:'#eab308'}
 ];
+// Les listes que le coach compose, seance par seance. Elles existaient deja
+// dans la charge publiee ; personne ne les lisait cote joueur.
+function msRetenus(k){
+  var se=(((SAISON&&SAISON.CONVOS)||{}).seances)||{};
+  return se[k]||[];
+}
+function msListesPosees(){
+  var L=msSeances();
+  for(var i=0;i<L.length;i++) if(msRetenus(L[i].k).length) return true;
+  return false;
+}
+function msSuisRetenu(k){
+  return msRetenus(k).some(function(n){ return memeJoueur(n, MON_NOM||''); });
+}
 function msSeances(){
   var L=(SAISON&&SAISON.CONVOC_SEANCES);
   return (Array.isArray(L)&&L.length)?L:MS_SEANCES_DEFAUT;
@@ -3508,6 +3581,11 @@ function msHtml(){
           +(sc.h?'<span>'+esc(sc.h)+'</span>':'')
           +(inf?'<span class="et" style="color:'+inf.c+'">'+inf.lab+'</span>'
                :'<span class="et" style="color:var(--mute)">\u2014</span>')+'</div>'
+        +(msRetenus(sc.k).length
+          ? '<div><span class="ms-ret '+(msSuisRetenu(sc.k)?'oui':'non')+'">'
+            +ic(msSuisRetenu(sc.k)?'valide':'info')
+            +(msSuisRetenu(sc.k)?'Tu es retenu':'Pas retenu cette fois')+'</span></div>'
+          : '')
         +'<div class="ms-b">'+MS_REPONSES.map(function(x){
             return '<button'+(r.reponse===x.k?' class="on"':'')+' style="--rc:'+x.c+'" '
               +'onclick="msRepondre(\''+sc.k+'\',\''+x.k+'\')">'+x.lab+'</button>';
@@ -3524,6 +3602,26 @@ function msHtml(){
     }).join('')
     +'<div class="ms-pied">Semaine '+esc(sem.split('-S')[1])+' \u00b7 '+esc(sem.split('-S')[0])+'. '
       +'Tes r\u00e9ponses repartent \u00e0 blanc chaque lundi.</div>'
+    +'</div></div>'
+    + msGroupesHtml();
+}
+// Qui vient, seance par seance. Meme presentation que le groupe du match :
+// on voit tout de suite avec qui on va s'entrainer.
+function msGroupesHtml(){
+  if(!msListesPosees()) return '';
+  var L=msSeances(), total=0;
+  L.forEach(function(sc){ total+=msRetenus(sc.k).length; });
+  return '<div class="blk"><div class="blk-h"><span class="t">'+ic('groupe')
+      +'Qui vient cette semaine</span>'
+      +'<span class="bc" style="font-size:12.5px;color:var(--mute)">'+total+' places</span></div>'
+    +'<div class="blk-body">'
+    +L.filter(function(sc){ return msRetenus(sc.k).length; }).map(function(sc){
+      var l=msRetenus(sc.k);
+      return '<div class="gr-g" style="--gc:'+esc(sc.c||'#38bdf8')+'">'
+        +'<div class="gr-t">'+esc(sc.lab)+(sc.h?' \u00b7 '+esc(sc.h):'')
+          +'<span class="n">'+l.length+'</span></div>'
+        +'<div class="gr-l">'+l.map(grPuce).join('')+'</div></div>';
+    }).join('')
     +'</div></div>';
 }
 async function msRepondre(k, reponse){
@@ -3603,6 +3701,7 @@ function renderPlanning(){
     }).join(''):'<div class="empty-txt">Aucun planning d\'entraînement publié pour l\'instant</div>')
     +'</div></div>';
   ct.innerHTML=_ms+planningHtml;
+  photosRemplir(ct);
 }
 var LABELS_CATEGORIES_CONVOC={
   entrainement_a:'Entraînement A',
