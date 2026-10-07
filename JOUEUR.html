@@ -226,6 +226,26 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .pl-aide ol{margin:7px 0 0;padding-left:19px}
 .pl-aide li{margin-bottom:4px}
 
+/* Ma semaine : une carte par seance, trois reponses possibles. */
+.ms-l{border:1px solid var(--hair);border-left:4px solid var(--sc,var(--or));border-radius:11px;
+  padding:11px 12px 12px;margin-bottom:9px;background:var(--voile)}
+.ms-h{display:flex;align-items:baseline;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+.ms-h b{font-size:15px;font-weight:800;color:var(--ink)}
+.ms-h span{font-size:12.5px;color:var(--mute)}
+.ms-h .et{margin-left:auto;font-size:11.5px;font-weight:800;letter-spacing:.04em}
+.ms-b{display:flex;gap:6px}
+.ms-b button{flex:1;min-width:0;font-family:inherit;font-size:13px;font-weight:700;
+  padding:9px 6px;border-radius:9px;border:1px solid var(--hair);background:var(--surface);
+  color:var(--mute);cursor:pointer;line-height:1.2;white-space:nowrap}
+.ms-b button.on{color:#fff;border-color:var(--rc);background:var(--rc)}
+.ms-motif{margin-top:8px}
+.ms-motif input{width:100%;box-sizing:border-box}
+.ms-att{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;
+  color:var(--gold)}
+.ms-att button{font-family:inherit;font-size:12px;font-weight:700;border:1px solid var(--hair);
+  background:var(--voile);color:var(--ink);padding:5px 10px;border-radius:7px;cursor:pointer}
+.ms-pied{font-size:12.5px;color:var(--mute);line-height:1.5;margin-top:4px}
+
 /* Le groupe du match, visage par visage. */
 .gr-g{margin-bottom:13px}
 .gr-t{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:.07em;
@@ -268,6 +288,19 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .jrub-b.on{background:var(--tc,var(--or));border-color:var(--tc,var(--or));color:#fff}
 .jrub-b .pt{position:absolute;top:3px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--red)}
 .jrub-b.on .pt{background:#fff}
+
+/* Quand les donnees viennent du telephone et pas du cloud. */
+.hl-b{display:none}
+.hl-b.on{display:flex;align-items:center;gap:10px;margin-bottom:13px;padding:10px 12px;
+  border-radius:11px;background:color-mix(in srgb,var(--gold) 14%,var(--surface));
+  border:1px solid color-mix(in srgb,var(--gold) 45%,transparent)}
+.hl-b .ic{font-size:17px;flex:0 0 auto}
+.hl-b .tx{flex:1;min-width:0;line-height:1.3}
+.hl-b .tx b{display:block;font-size:13.5px;font-weight:800;color:var(--ink)}
+.hl-b .tx i{font-style:normal;display:block;font-size:12.5px;color:var(--mute);margin-top:1px}
+.hl-b button{flex:0 0 auto;font-family:inherit;font-size:12.5px;font-weight:700;
+  border:1px solid var(--hair);background:var(--voile);color:var(--ink);
+  padding:7px 11px;border-radius:8px;cursor:pointer}
 
 /* Les cinq onglets, au pouce. */
 #jtabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;
@@ -616,6 +649,7 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
   </div>
 
   <div class="wrap">
+    <div class="hl-b" id="hl-bandeau"></div>
     <div id="scr-hub" class="screen"></div>
     <div id="scr-accueil" class="screen hidden"></div>
     <div id="scr-clips" class="screen hidden"></div>
@@ -1199,14 +1233,77 @@ function renderNotifPushBanniere(){
     +'<span onclick="activerNotifications()" style="background:var(--or);color:#1a0f02;font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:6px;cursor:pointer;white-space:nowrap">Activer</span>'
     +'</div></div>';
 }
+// ===== La saison, gardee sur le telephone =====
+// Elle ne change qu'une fois par semaine ou deux. La relire depuis le
+// telephone quand le reseau manque, c'est la difference entre une appli qui
+// marche au stade et une appli qui ne marche qu'a la maison.
+var CLE_CACHE_SAISON='ast_saison_cache', CLE_CACHE_DATE='ast_saison_cache_date';
+var SAISON_DU=null;        // quand datent les donnees affichees
+var SAISON_HORS_LIGNE=false;
+
+function saisonGarder(raw){
+  try{
+    localStorage.setItem(CLE_CACHE_SAISON, raw);
+    localStorage.setItem(CLE_CACHE_DATE, new Date().toISOString());
+    return true;
+  }catch(e){
+    // Plus de place : les photos deja gardees en occupent le plus. On ne
+    // touche pas aux siennes, on renonce simplement au cache cette fois.
+    return false;
+  }
+}
+function saisonDuCache(){
+  try{
+    var raw=localStorage.getItem(CLE_CACHE_SAISON);
+    if(!raw) return null;
+    return {saison:JSON.parse(raw), date:localStorage.getItem(CLE_CACHE_DATE)||null};
+  }catch(e){ return null; }
+}
 async function chargerSaison(){
-  var res=await fbFetch(FIRESTORE_BASE+'/saison/main');
-  if(!res.ok) throw new Error('HTTP '+res.status);
-  var doc=await res.json();
-  var raw=doc.fields && doc.fields.data ? doc.fields.data.stringValue : null;
-  if(!raw) throw new Error('Aucune donnée de saison synchronisée pour le moment');
-  SAISON=JSON.parse(raw);
-  return SAISON;
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/saison/main');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var doc=await res.json();
+    var raw=doc.fields && doc.fields.data ? doc.fields.data.stringValue : null;
+    if(!raw) throw new Error('Aucune donnée de saison synchronisée pour le moment');
+    SAISON=JSON.parse(raw);
+    saisonGarder(raw);
+    SAISON_DU=new Date().toISOString();
+    SAISON_HORS_LIGNE=false;
+    majBandeauHorsLigne();
+    return SAISON;
+  }catch(e){
+    var c=saisonDuCache();
+    if(!c) throw e;                       // rien en reserve : l'erreur passe
+    SAISON=c.saison;
+    SAISON_DU=c.date;
+    SAISON_HORS_LIGNE=true;
+    majBandeauHorsLigne();
+    return SAISON;
+  }
+}
+// Quand les donnees viennent du telephone et non du cloud, il faut le dire :
+// une convocation d'il y a trois jours n'est pas la convocation d'aujourd'hui.
+function horsLigneQuand(){
+  if(!SAISON_DU) return '';
+  var d=new Date(SAISON_DU);
+  if(isNaN(d)) return '';
+  var auj=new Date();
+  var meme=d.toDateString()===auj.toDateString();
+  var heure=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  return meme ? ('aujourd\'hui \u00e0 '+heure)
+              : (d.toLocaleDateString('fr-FR')+' \u00e0 '+heure);
+}
+function majBandeauHorsLigne(){
+  var el=document.getElementById('hl-bandeau');
+  if(!el) return;
+  if(!SAISON_HORS_LIGNE){ el.className='hl-b'; el.innerHTML=''; return; }
+  var q=horsLigneQuand();
+  el.className='hl-b on';
+  el.innerHTML='<span class="ic">\ud83d\udcf4</span>'
+    +'<span class="tx"><b>Hors ligne</b>'
+    +(q?'<i>Donn\u00e9es enregistr\u00e9es '+esc(q)+'</i>':'')+'</span>'
+    +'<button onclick="actualiserDonnees(true)">R\u00e9essayer</button>';
 }
 
 function init(){
@@ -1237,7 +1334,7 @@ async function initLogin(){
     sel.disabled=false;
     document.getElementById('login-btn').disabled=false;
   }catch(e){
-    document.getElementById('login-err').textContent='⚠ Impossible de charger l\'effectif ('+e.message+'). Vérifie ta connexion et réessaie.';
+    document.getElementById('login-err').textContent='⚠ Pas de réseau, et l\'effectif n\'a jamais été chargé sur ce téléphone. Reconnecte-toi une fois, ensuite ça marchera partout.';
     document.getElementById('login-err').classList.remove('hidden');
     sel.innerHTML='<option value="">Erreur de chargement</option>';
   }
@@ -1385,7 +1482,7 @@ var RENDER_MAP={
   effectif:[renderEffectif],
   entrainement:[renderEffectif],
   messages:[renderMessages],
-  planning:[renderPlanning],
+  planning:[msCharger,renderPlanning],
   convocations:[renderConvocations],
   seances:[renderSeances],
   videos:[renderVideosJoueur],
@@ -1415,7 +1512,11 @@ async function demarrerApp(){
   jHdrMoi(); jHdrTitre();
   if(!SAISON){
     try{ await chargerSaison(); DERNIERE_MAJ_SAISON=Date.now(); }catch(e){
-      document.getElementById('scr-hub').innerHTML='<div class="blk"><div class="blk-body"><div class="err-msg">⚠ Impossible de charger les données ('+esc(e.message)+'). Tire vers le bas pour réessayer ou relance l\'appli.</div></div></div>';
+      document.getElementById('scr-hub').innerHTML='<div class="blk"><div class="blk-body">'
+        +'<div class="err-msg">⚠ Pas de réseau, et rien d\'enregistré sur ce téléphone pour l\'instant.<br>'
+        +'Ouvre l\'appli une fois avec du réseau : après ça, elle marchera aussi au stade.</div>'
+        +'<button class="btn-or" style="margin-top:12px" onclick="location.reload()">Réessayer</button>'
+        +'</div></div>';
       document.getElementById('scr-hub').classList.remove('hidden');
       return;
     }
@@ -1436,7 +1537,8 @@ function tuileSignature(key){
       var mesNotes=(SAISON.MATCHS||[]).map(function(m){return (m.notes||[]).find(function(n){return n.num===MON_NUM;});}).filter(Boolean).length;
       var conv=SAISON.CONVOS||{};
       return JSON.stringify({n:mesNotes,c:conv.adv,d:conv.date});
-    case 'planning': case 'seances': return JSON.stringify(SAISON.PLANNING_MENSUEL||[]);
+    case 'planning': case 'seances':
+      return JSON.stringify({p:SAISON.PLANNING_MENSUEL||[], s:SAISON.CONVOC_SEANCES||[]});
     case 'convocations': return JSON.stringify((SAISON.CONVOCATIONS_HISTORIQUE||[]).length);
     case 'videos': return JSON.stringify((SAISON.VIDEOS||[]).length);
     case 'calannuel': return JSON.stringify({e:(SAISON.EVENEMENTS_PERSO||[]).length,m:(SAISON.MATCHS||[]).length});
@@ -1467,6 +1569,14 @@ function tuileSignature(key){
 }
 async function calculerActionsEnAttente(){
   window._actionsEnAttente=window._actionsEnAttente||{};
+  // Les seances de la semaine : c'est la reponse que le coach attend le plus
+  // souvent, et c'est celle qu'on oublie le plus facilement.
+  try{
+    await msCharger();
+    window._actionsEnAttente.planning=msManque();
+  }catch(e){ window._actionsEnAttente.planning=false; }
+  // Ce qui attendait du reseau repart des qu'on en a.
+  try{ msRenvoyer(); }catch(e){}
   // Sondage en attente de réponse ?
   try{
     var sondages=(SAISON.SONDAGES||[]).filter(function(s){return s.actif;});
@@ -1809,6 +1919,13 @@ function auAFaire(){
     t:'Donne ta disponibilit\u00e9',d:'Le coach attend ta r\u00e9ponse pour composer le groupe.'});
   if(a.accueil) l.push({s:'accueil',ic:'\ud83d\udcca',tc:'var(--blue)',
     t:'Un sondage attend ta voix',d:'\u00c7a prend dix secondes.'});
+  if(a.planning){
+    var reste=msSeances().filter(function(sc){ return !(MS_REP[sc.k]&&MS_REP[sc.k].reponse); });
+    l.push({s:'planning',ic:'\ud83d\uddd3\ufe0f',tc:'var(--green)',
+      t:'Dis si tu viens \u00e0 l\'entra\u00eenement',
+      d:reste.length===1 ? ('Il reste '+reste[0].lab+'.')
+        : ('Il reste '+reste.length+' s\u00e9ances \u00e0 r\u00e9pondre cette semaine.')});
+  }
   var derniere=lireMaForme()[0];
   var vieille=!derniere || (Date.now()-new Date(derniere.date).getTime())>3*86400000;
   if(vieille) l.push({s:'formephysique',ic:'\ud83c\udf21\ufe0f',tc:'var(--green)',
@@ -1931,8 +2048,8 @@ function renderHub(){
   var htmlHub=hero + auAFaire() + auForme() + auChiffres() + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v38</b> · 07/10/2026<br>'
-    +'<span style="opacity:.8">Le plateau \u00e0 toi \u00b7 le groupe en visages</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v39</b> · 07/10/2026<br>'
+    +'<span style="opacity:.8">Marche au stade, sans r\u00e9seau</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
   jvBrancher();
@@ -1969,7 +2086,7 @@ var JTABS=[
     {s:'statslive',   ic:'\ud83d\udd22', l:'Stats live'}
   ]},
   {id:'entrainement',ic:'\ud83c\udfc3',l:'Entra\u00eenement',tc:'var(--green)',rub:[
-    {s:'planning',    ic:'\ud83d\udcc5', l:'Planning'},
+    {s:'planning',    ic:'\ud83d\udcc5', l:'Ma semaine'},
     {s:'seances',     ic:'\ud83c\udfaf', l:'S\u00e9ances'},
     {s:'formephysique',ic:'\ud83c\udf21\ufe0f', l:'Ma forme'},
     {s:'entrainement',ic:'\ud83c\udfc6', l:'Points'},
@@ -2072,7 +2189,7 @@ function jAller(s){
   document.querySelectorAll('.screen').forEach(function(el){ el.classList.add('hidden'); });
   cible.classList.remove('hidden');
   window.scrollTo(0,0);
-  jRendreOnglets(); jRendreRubriques(); jHdrTitre(); jHdrMoi();
+  jRendreOnglets(); jRendreRubriques(); jHdrTitre(); jHdrMoi(); majBandeauHorsLigne();
   if(s==='hub'){
     renderHub();
     calculerActionsEnAttente().then(function(){ renderHub(); jRendreOnglets(); jRendreRubriques(); });
@@ -2102,7 +2219,9 @@ async function actualiserDonnees(manuel,ecranCible){
       if(idVisible==='hub'){ await calculerActionsEnAttente(); renderHub(); }
       else if(idVisible) await rendreEcran(idVisible);
     }
-    if(manuel) notif('✓ Données à jour');
+    if(manuel) notif(SAISON_HORS_LIGNE
+      ? '📴 Toujours hors ligne — données du téléphone'
+      : '✓ Données à jour');
   }catch(e){
     if(manuel) notif('⚠ Impossible d\'actualiser — vérifie ta connexion');
   }
@@ -3009,8 +3128,183 @@ async function renderMessages(){
   var liste=document.getElementById('chat-liste');
   if(liste) liste.scrollTop=liste.scrollHeight;
 }
+// ===== Ma semaine : les seances que le coach a posees =====
+// La semaine ISO sert de cle : la meme formule que cote coach, mot pour mot,
+// sinon les deux ne parleraient pas de la meme semaine.
+function semaineISO(dt){
+  var d=dt?new Date(dt.getTime()):new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+3-((d.getDay()+6)%7));      // le jeudi decide de l'annee
+  var an=d.getFullYear();
+  var j1=new Date(an,0,4);
+  j1.setDate(j1.getDate()+3-((j1.getDay()+6)%7));
+  var n=1+Math.round((d-j1)/604800000);
+  return an+'-S'+(n<10?'0'+n:n);
+}
+var MS_SEANCES_DEFAUT=[
+  {k:'ma',  lab:'Mardi',                   h:'19h30', c:'#38bdf8'},
+  {k:'je',  lab:'Jeudi',                   h:'19h30', c:'#22c55e'},
+  {k:'b',   lab:'Entra\u00eenement B',    h:'',      c:'#0ea5e9'},
+  {k:'u18', lab:'Entra\u00eenement U18',  h:'',      c:'#eab308'}
+];
+function msSeances(){
+  var L=(SAISON&&SAISON.CONVOC_SEANCES);
+  return (Array.isArray(L)&&L.length)?L:MS_SEANCES_DEFAUT;
+}
+var MS_REP={};            // cle de seance -> {reponse, motif, semaine, envoye}
+var MS_CHARGE=false;
+function msCleDoc(k){ return 'seance_'+MON_NUM+'_'+k; }
+function msCleAttente(){ return 'ast_ms_attente_'+MON_NUM; }
+function msAttenteLire(){
+  try{ return JSON.parse(localStorage.getItem(msCleAttente())||'{}'); }catch(e){ return {}; }
+}
+function msAttenteEcrire(o){
+  try{ localStorage.setItem(msCleAttente(), JSON.stringify(o)); }catch(e){}
+}
+// Mes reponses, lues d'un coup : un document par seance, ecrase chaque semaine.
+async function msCharger(){
+  var L=msSeances(), sem=semaineISO();
+  MS_REP={};
+  try{
+    var noms=L.map(function(sc){
+      return 'projects/'+FIREBASE_PROJECT_ID+'/databases/(default)/documents/disponibilites/'+msCleDoc(sc.k);
+    });
+    var res=await fbFetch(FIRESTORE_BASE+':batchGet',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({documents:noms})});
+    if(res.ok){
+      var tab=await res.json();
+      (tab||[]).forEach(function(o){
+        if(!o || !o.found) return;
+        var f=o.found.fields||{};
+        var k=(f.seanceCle||{}).stringValue||'';
+        // Une reponse de la semaine derniere ne vaut plus : on repart a blanc.
+        if(!k || (f.semaine||{}).stringValue!==sem) return;
+        MS_REP[k]={reponse:(f.reponse||{}).stringValue||'',
+                   motif:(f.motif||{}).stringValue||'', envoye:true};
+      });
+    }
+  }catch(e){}
+  // Ce qu'il a repondu sans reseau reste prioritaire : c'est le plus recent.
+  var att=msAttenteLire();
+  Object.keys(att).forEach(function(k){
+    if(att[k] && att[k].semaine===sem)
+      MS_REP[k]={reponse:att[k].reponse, motif:att[k].motif||'', envoye:false};
+  });
+  MS_CHARGE=true;
+  return MS_REP;
+}
+function msManque(){
+  if(!MS_CHARGE) return false;
+  return msSeances().some(function(sc){ return !(MS_REP[sc.k]&&MS_REP[sc.k].reponse); });
+}
+var MS_REPONSES=[
+  {k:'dispo',    lab:'\u2713 J\'y serai',  c:'var(--green)'},
+  {k:'peutetre', lab:'? Pas s\u00fbr',      c:'var(--gold)'},
+  {k:'indispo',  lab:'\u2715 Absent',       c:'var(--red)'}
+];
+function msHtml(){
+  var L=msSeances(), sem=semaineISO();
+  var repondu=L.filter(function(sc){ return MS_REP[sc.k]&&MS_REP[sc.k].reponse; }).length;
+  return '<div class="blk"><div class="blk-h"><span class="t">\ud83d\uddd3\ufe0f Ma semaine</span>'
+    +'<span class="bc" style="font-size:12.5px;color:'+(repondu===L.length?'var(--green)':'var(--mute)')+'">'
+      +repondu+' / '+L.length+'</span></div><div class="blk-body">'
+    +'<div class="ms-pied" style="margin-bottom:12px">Dis au coach sur quelles s\u00e9ances il peut compter sur toi '
+      +'cette semaine. Tu peux changer d\'avis jusqu\'\u00e0 la s\u00e9ance.</div>'
+    +L.map(function(sc){
+      var r=MS_REP[sc.k]||{};
+      var inf=null;
+      MS_REPONSES.forEach(function(x){ if(x.k===r.reponse) inf=x; });
+      return '<div class="ms-l" id="ms-'+esc(sc.k)+'" style="--sc:'+esc(sc.c||'#38bdf8')+'">'
+        +'<div class="ms-h"><b>'+esc(sc.lab)+'</b>'
+          +(sc.h?'<span>'+esc(sc.h)+'</span>':'')
+          +(inf?'<span class="et" style="color:'+inf.c+'">'+inf.lab+'</span>'
+               :'<span class="et" style="color:var(--mute)">\u2014</span>')+'</div>'
+        +'<div class="ms-b">'+MS_REPONSES.map(function(x){
+            return '<button'+(r.reponse===x.k?' class="on"':'')+' style="--rc:'+x.c+'" '
+              +'onclick="msRepondre(\''+sc.k+'\',\''+x.k+'\')">'+x.lab+'</button>';
+          }).join('')+'</div>'
+        +(r.reponse==='indispo'
+          ? '<div class="ms-motif"><input class="fi" placeholder="Pourquoi ? (boulot, famille\u2026) \u2014 facultatif" '
+            +'value="'+esc(r.motif||'')+'" onchange="msMotif(\''+sc.k+'\',this.value)"></div>'
+          : '')
+        +(r.reponse && r.envoye===false
+          ? '<div class="ms-att"><span>\u26a0 Pas encore parti \u2014 ta r\u00e9ponse est gard\u00e9e ici.</span>'
+            +'<button onclick="msRenvoyer()">Renvoyer</button></div>'
+          : '')
+      +'</div>';
+    }).join('')
+    +'<div class="ms-pied">Semaine '+esc(sem.split('-S')[1])+' \u00b7 '+esc(sem.split('-S')[0])+'. '
+      +'Tes r\u00e9ponses repartent \u00e0 blanc chaque lundi.</div>'
+    +'</div></div>';
+}
+async function msRepondre(k, reponse){
+  var L=msSeances(), sem=semaineISO(), sc=null;
+  L.forEach(function(x){ if(x.k===k) sc=x; });
+  if(!sc) return;
+  var motif=(MS_REP[k]&&MS_REP[k].motif)||'';
+  if(reponse!=='indispo') motif='';
+  MS_REP[k]={reponse:reponse, motif:motif, envoye:false};
+  renderPlanning();
+  await msEnvoyer(k, sc, reponse, motif, sem);
+}
+function msMotif(k, val){
+  if(!MS_REP[k]) return;
+  MS_REP[k].motif=String(val||'').trim();
+  var L=msSeances(), sc=null;
+  L.forEach(function(x){ if(x.k===k) sc=x; });
+  if(sc) msEnvoyer(k, sc, MS_REP[k].reponse, MS_REP[k].motif, semaineISO());
+}
+// Un document par joueur et par seance, a identifiant fixe : il s'ecrase d'une
+// semaine sur l'autre, donc la collection ne gonfle jamais.
+async function msEnvoyer(k, sc, reponse, motif, sem){
+  var corps={fields:{
+    joueurNum:{integerValue:String(MON_NUM)},
+    joueurNom:{stringValue:MON_NOM||''},
+    seanceCle:{stringValue:k},
+    seanceLabel:{stringValue:sc.lab||''},
+    semaine:{stringValue:sem},
+    reponse:{stringValue:reponse},
+    motif:{stringValue:motif||''},
+    evenementCle:{stringValue:'seance|'+k+'|'+sem},
+    evenementLabel:{stringValue:(sc.lab||'')+(sc.h?' \u2014 '+sc.h:'')},
+    dateReponse:{stringValue:new Date().toISOString()}
+  }};
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/disponibilites/'+msCleDoc(k),{
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(corps)});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    if(MS_REP[k]) MS_REP[k].envoye=true;
+    var att=msAttenteLire(); delete att[k]; msAttenteEcrire(att);
+    notif(reponse==='dispo'?'\u2713 Le coach sait que tu viens'
+      :(reponse==='indispo'?'\u2713 Le coach sait que tu ne peux pas'
+                           :'\u2713 Not\u00e9 \u2014 tu confirmeras'));
+  }catch(e){
+    // Sans reseau on garde sa reponse : il l'a donnee, elle ne doit pas se perdre.
+    var a=msAttenteLire();
+    a[k]={reponse:reponse, motif:motif||'', semaine:sem};
+    msAttenteEcrire(a);
+    notif('\ud83d\udcf4 Gard\u00e9 ici \u2014 \u00e7a partira d\u00e8s que tu auras du r\u00e9seau');
+  }
+  renderPlanning();
+}
+// A la reconnexion, ce qui attendait part tout seul.
+async function msRenvoyer(){
+  var att=msAttenteLire(), sem=semaineISO(), L=msSeances();
+  var cles=Object.keys(att);
+  if(!cles.length) return;
+  for(var i=0;i<cles.length;i++){
+    var k=cles[i], o=att[k], sc=null;
+    L.forEach(function(x){ if(x.k===k) sc=x; });
+    if(!sc || !o || o.semaine!==sem){ delete att[k]; continue; }
+    await msEnvoyer(k, sc, o.reponse, o.motif, sem);
+  }
+}
 function renderPlanning(){
   var ct=document.getElementById('scr-planning');
+  if(!ct) return;
+  var _ms=msHtml();
   var calendrierHtml='<div class="blk"><div class="blk-h"><span class="t">⚽ Calendrier des matchs</span></div><div class="blk-body">'+renderCalendrierMensuel()+'</div></div>';
   var items=(SAISON.PLANNING_MENSUEL||[]).map(function(p){ return {raw:p, d:parseDateFr(p.date)}; })
     .sort(function(a,b){ return (a.d||0)-(b.d||0); });
@@ -3021,7 +3315,7 @@ function renderPlanning(){
       return '<div class="plan-item" style="'+(passe?'opacity:.45':'')+'"><div class="plan-date">'+esc(x.raw.date)+'</div><div class="plan-theme">'+esc(x.raw.theme||'')+'</div></div>';
     }).join(''):'<div class="empty-txt">Aucun planning d\'entraînement publié pour l\'instant</div>')
     +'</div></div>';
-  ct.innerHTML=calendrierHtml+planningHtml;
+  ct.innerHTML=_ms+planningHtml+calendrierHtml;
 }
 var LABELS_CATEGORIES_CONVOC={
   entrainement_a:'Entraînement A',

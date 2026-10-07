@@ -570,6 +570,27 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-tab-x:hover{border-color:var(--c)}
 .cv-tab-x.on{background:color-mix(in srgb,var(--c) 15%,transparent);border-color:var(--c)}
 .cv-tab-x.on .cv-coche{background:var(--c);border-color:var(--c);color:#0b1016}
+/* Ce que le joueur a repondu : un lisere sur la case, pour que la difference
+   entre « il a dit oui » et « je l'ai coche » se voie d'un coup d'oeil. */
+.cv-tab-x{position:relative}
+.cv-tab-x .cv-dit{position:absolute;top:2px;right:3px;font-size:10px;font-weight:800;
+  line-height:1;pointer-events:none}
+.cv-tab-x.dit-dispo{box-shadow:inset 0 0 0 1.5px rgba(34,197,94,.75)}
+.cv-tab-x.dit-indispo{box-shadow:inset 0 0 0 1.5px rgba(220,38,38,.65)}
+.cv-tab-x.dit-peutetre{box-shadow:inset 0 0 0 1.5px rgba(234,179,8,.75)}
+.cv-tab-x .cv-dit.d-dispo{color:#16a34a}
+.cv-tab-x .cv-dit.d-indispo{color:#dc2626}
+.cv-tab-x .cv-dit.d-peutetre{color:#ca8a04}
+.cv-rep{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 14px 10px;
+  padding:9px 12px;border:1px solid var(--trait);border-left:4px solid var(--or);
+  border-radius:9px;background:var(--voile);font-size:12.5px;color:var(--gris2)}
+.cv-rep b{color:var(--texte)}
+.cv-rep .cv-rep-b{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.cv-rep button{font-family:inherit;font-size:12px;font-weight:700;border:1px solid var(--trait);
+  background:var(--carte);color:var(--texte);padding:6px 11px;border-radius:7px;cursor:pointer}
+.cv-rep button.or{background:var(--or);border-color:var(--or);color:#2a1202}
+.cv-rep-m{width:100%;font-size:12px;color:var(--gris2);line-height:1.5}
+.cv-rep-m b{color:var(--texte);font-weight:700}
 .cv-tab-xl{display:none;font-size:12.5px;font-weight:700;color:var(--gris);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
@@ -2413,8 +2434,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v98</b> · 07/10/2026<br>
-      <span style="opacity:.7">Les joueurs peuvent te renvoyer une situation</span>
+      AST COACH <b style="color:var(--or)">v99</b> · 07/10/2026<br>
+      <span style="opacity:.7">Les joueurs déclarent eux-mêmes leurs séances</span>
     </div>
   </div>
 </div>
@@ -6854,7 +6875,7 @@ function rendreEcran(s){
   if(s==='effectif' || s==='feuille-match'){
     if(typeof majBandeauPhotos==='function') majBandeauPhotos();
   }
-  if(s==='convos') renderRepartitionJoueurs();
+  if(s==='convos'){ renderRepartitionJoueurs(); cvChargerReponses(); }
   if(s==='biblio-generale') renderBibliothequeGenerale();
   if(s==='correction-buts') renderCorrectionButs();
   if(s==='a-creuser') renderACreuser();
@@ -9849,6 +9870,8 @@ function cvVisible(j){
 function cvAller(n){
   if(n<1||n>3) return;
   CV_ETAPE=n; CV_FILTRE='';
+  // L'etape 2, c'est celle qui se nourrit de ce que les joueurs ont declare.
+  if(n===2 && !CV_REPONSES_N && CV_REPONSES_ETAT!=='chargement') cvChargerReponses();
   cvRendre();
   var m=document.getElementById('main'); if(m) m.scrollTop=0;
 }
@@ -9970,6 +9993,127 @@ function cvPanneauSeances(){
 // Une ligne par joueur, une colonne par seance : on coche en balayant, et on
 // voit d'un coup qui vient a quoi. Les quatre listes cote a cote obligeaient a
 // chercher le meme nom quatre fois.
+// ===== Ce que les joueurs declarent depuis leur appli =====
+// Meme formule de semaine ISO que cote joueur, mot pour mot : sans ca les deux
+// ne parleraient pas de la meme semaine.
+function cvSemaineISO(dt){
+  var d=dt?new Date(dt.getTime()):new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+3-((d.getDay()+6)%7));
+  var an=d.getFullYear();
+  var j1=new Date(an,0,4);
+  j1.setDate(j1.getDate()+3-((j1.getDay()+6)%7));
+  var n=1+Math.round((d-j1)/604800000);
+  return an+'-S'+(n<10?'0'+n:n);
+}
+var CV_REPONSES={};        // num -> { cleSeance : {reponse, motif} }
+var CV_REPONSES_N=0;       // combien de joueurs ont repondu au moins une fois
+var CV_REPONSES_ETAT='';   // '', 'chargement', 'erreur'
+
+// Un document par joueur et par seance, a identifiant fixe : on les demande
+// par leur nom plutot que de parcourir toute la collection, qui contient aussi
+// les disponibilites de match et grossit a chaque journee.
+async function cvChargerReponses(){
+  if(FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI') return;
+  var L=cvSeances(), J=(JOUEURS||[]), sem=cvSemaineISO();
+  CV_REPONSES={}; CV_REPONSES_N=0; CV_REPONSES_ETAT='chargement';
+  cvMajBandeauReponses();
+  var base='projects/'+FIREBASE_PROJECT_ID+'/databases/(default)/documents/disponibilites/';
+  var noms=[];
+  J.forEach(function(jo){ L.forEach(function(sc){ noms.push(base+'seance_'+jo.num+'_'+sc.k); }); });
+  try{
+    // batchGet accepte une longue liste, mais on la decoupe pour rester sobre.
+    for(var i=0;i<noms.length;i+=100){
+      var res=await fbFetch(FIRESTORE_BASE+':batchGet',{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({documents:noms.slice(i,i+100)})});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      var tab=await res.json();
+      (tab||[]).forEach(function(o){
+        if(!o || !o.found) return;
+        var f=o.found.fields||{};
+        if((f.semaine||{}).stringValue!==sem) return;   // reponse perimee
+        var num=parseInt((f.joueurNum||{}).integerValue||(f.joueurNum||{}).stringValue||'0',10);
+        var k=(f.seanceCle||{}).stringValue||'';
+        var r=(f.reponse||{}).stringValue||'';
+        if(!num || !k || !r) return;
+        (CV_REPONSES[num]=CV_REPONSES[num]||{})[k]={reponse:r,
+          motif:(f.motif||{}).stringValue||''};
+      });
+    }
+    CV_REPONSES_N=Object.keys(CV_REPONSES).length;
+    CV_REPONSES_ETAT='';
+  }catch(e){ CV_REPONSES_ETAT='erreur'; }
+  if(CV_ETAPE===2) cvRendre();
+}
+function cvReponseDe(num, k){
+  var r=CV_REPONSES[num];
+  return (r && r[k]) ? r[k] : null;
+}
+// Reprendre les reponses : present coche, absent decoche, « pas sur » laisse
+// tel quel — c'est justement celui sur lequel le coach veut trancher lui-meme.
+function cvReprendreReponses(){
+  var L=cvSeances(), n=0;
+  (JOUEURS||[]).forEach(function(jo){
+    var e=cvEtat(jo.num);
+    L.forEach(function(sc){
+      var r=cvReponseDe(jo.num, sc.k);
+      if(!r) return;
+      e.s=e.s||{};
+      if(r.reponse==='dispo'){ if(!e.s[sc.k]){ e.s[sc.k]=1; n++; } }
+      else if(r.reponse==='indispo'){ if(e.s[sc.k]){ delete e.s[sc.k]; n++; } }
+    });
+  });
+  cvSyncListes();
+  sauvegardeAuto();
+  cvRendre();
+  notif(n?('\u2713 '+n+' case'+(n>1?'s':'')+' mise'+(n>1?'s':'')+' \u00e0 jour')
+         :'Rien \u00e0 changer \u2014 tu es d\u00e9j\u00e0 d\'accord avec eux');
+}
+function cvMajBandeauReponses(){
+  var el=document.getElementById('cv-rep-bandeau');
+  if(el) el.outerHTML=cvBandeauReponses();
+}
+function cvBandeauReponses(){
+  var L=cvSeances(), J=(JOUEURS||[]), total=J.length;
+  if(CV_REPONSES_ETAT==='chargement')
+    return '<div class="cv-rep" id="cv-rep-bandeau">\u23f3 Lecture des r\u00e9ponses des joueurs\u2026</div>';
+  if(CV_REPONSES_ETAT==='erreur')
+    return '<div class="cv-rep" id="cv-rep-bandeau">\u26a0 Impossible de lire les r\u00e9ponses des joueurs'
+      +'<span class="cv-rep-b"><button onclick="cvChargerReponses()">R\u00e9essayer</button></span></div>';
+  // Qui dit quoi, seance par seance
+  var detail=L.map(function(sc){
+    var oui=0, non=0, peut=0;
+    J.forEach(function(jo){
+      var r=cvReponseDe(jo.num, sc.k);
+      if(!r) return;
+      if(r.reponse==='dispo') oui++; else if(r.reponse==='indispo') non++; else peut++;
+    });
+    return echapForme(sc.lab)+' <b>'+oui+'</b> oui'
+      +(peut?' \u00b7 '+peut+' ?':'')+(non?' \u00b7 '+non+' non':'');
+  }).join(' &nbsp;|&nbsp; ');
+  // Les motifs : c'est la qu'on apprend que trois gars bossent le mardi
+  var motifs=[];
+  J.forEach(function(jo){
+    L.forEach(function(sc){
+      var r=cvReponseDe(jo.num, sc.k);
+      if(r && r.reponse==='indispo' && r.motif)
+        motifs.push('<b>'+echapForme(jo.nom)+'</b> \u2014 '+echapForme(sc.lab)
+          +' : '+echapForme(r.motif));
+    });
+  });
+  return '<div class="cv-rep" id="cv-rep-bandeau">'
+    +'<span>\ud83d\udcf1 <b>'+CV_REPONSES_N+'</b> joueur'+(CV_REPONSES_N>1?'s ont':' a')
+      +' r\u00e9pondu sur '+total+'</span>'
+    +(CV_REPONSES_N?'<span>'+detail+'</span>':'<span>Personne n\'a encore d\u00e9clar\u00e9 sa semaine.</span>')
+    +'<span class="cv-rep-b">'
+      +'<button onclick="cvChargerReponses()">\u21bb Actualiser</button>'
+      +(CV_REPONSES_N?'<button class="or" onclick="cvReprendreReponses()">\u2193 Reprendre leurs r\u00e9ponses</button>':'')
+    +'</span>'
+    +(motifs.length?'<div class="cv-rep-m">'+motifs.slice(0,8).join(' \u00b7 ')
+      +(motifs.length>8?(' \u00b7 et '+(motifs.length-8)+' autre'+(motifs.length-8>1?'s':'')):'')+'</div>':'')
+  +'</div>';
+}
 function cvEtape2(){
   var L=cvSeances();
   var J=(JOUEURS||[]).filter(cvVisible);
@@ -9995,9 +10139,17 @@ function cvEtape2(){
       +'</span>'
       +L.map(function(sc){
           var on=!!(e.s && e.s[sc.k]);
-          return '<button class="cv-tab-x'+(on?' on':'')+'" style="--c:'+sc.c+'" '
-            +'title="'+echapForme(jo.nom)+' — '+echapForme(sc.lab)+'" '
+          var rep=cvReponseDe(jo.num, sc.k);
+          var dit=rep?rep.reponse:'';
+          var sigle=dit==='dispo'?'✓':(dit==='indispo'?'✕':(dit==='peutetre'?'?':''));
+          var ditTxt=dit==='dispo'?'il a dit qu\'il vient'
+            :(dit==='indispo'?('il a dit qu\'il ne peut pas'+(rep.motif?' — '+rep.motif:''))
+            :(dit==='peutetre'?'il n\'est pas sûr':''));
+          return '<button class="cv-tab-x'+(on?' on':'')+(dit?(' dit-'+dit):'')+'" style="--c:'+sc.c+'" '
+            +'title="'+echapForme(jo.nom)+' — '+echapForme(sc.lab)
+              +(ditTxt?(' · '+echapForme(ditTxt)):' · pas de réponse')+'" '
             +'onclick="cvBasculerJour('+jo.num+',\''+sc.k+'\')">'
+            +(sigle?'<span class="cv-dit d-'+dit+'">'+sigle+'</span>':'')
             +'<span class="cv-coche">'+(on?'✓':'')+'</span>'
             +'<span class="cv-tab-xl">'+echapForme(sc.lab)+'</span></button>'; }).join('')
     +'</div>';
@@ -10006,11 +10158,16 @@ function cvEtape2(){
   return '<div class="cv-bloc">'
     +'<div class="cv-bloc-h">'
       +'<span class="cv-bloc-t">② Qui s\'entraîne cette semaine ?</span>'
+      +'<span class="cv-bloc-c" style="opacity:.85">'
+        +'<span style="color:#16a34a">✓</span> il a dit oui &nbsp;'
+        +'<span style="color:#ca8a04">?</span> pas sûr &nbsp;'
+        +'<span style="color:#dc2626">✕</span> il a dit non</span>'
       +'<span class="cv-bloc-c">'+L.map(function(sc){
           return echapForme(sc.lab)+' <b>'+cvCompteSeance(sc.k)+'</b>'; }).join(' · ')+'</span>'
       +'<button class="cv-bloc-b'+(CV_REGLAGES?' on':'')+'" onclick="cvReglages()">⚙ Mes séances</button>'
     +'</div>'
     +cvPanneauSeances()
+    +cvBandeauReponses()
     +cvBarreRecherche('Chercher un joueur')
     +'<div class="cv-tab">'+entete+(lignes||'<div class="cv-vide2">Aucun joueur ne correspond.</div>')+'</div>'
     +(hs.length
