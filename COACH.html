@@ -2368,10 +2368,10 @@ var CD_EQ={
   g:{c:'#334155',l:'G',n:'Gardien'}
 };
 var CD_FL={
-  run :{c:'#0d9488',e:1.2,d:'',    n:'Course'},
-  pass:{c:'#11161c',e:1.0,d:'3 2', n:'Passe'},
-  drib:{c:'#b45309',e:1.1,d:'',    n:'Conduite'},
-  tir :{c:'#b91c1c',e:1.8,d:'',    n:'Tir'}
+  run :{c:'#0d9488',e:0.9, d:'',          n:'Course'},
+  pass:{c:'#11161c',e:0.75,d:'2.4 1.6', n:'Passe'},
+  drib:{c:'#b45309',e:0.85,d:'',          n:'Conduite'},
+  tir :{c:'#b91c1c',e:1.35,d:'',          n:'Tir'}
 };
 var CD_NOMS={move:'Déplacer',gomme:'Gomme',ball:'Ballon',cone:'Plot',
   goal:'Mini-but',zone:'Zone',text:'Texte'};
@@ -2405,9 +2405,9 @@ function cdEcrire(w,o,sansHisto){
 function cdOnde(x1,y1,x2,y2){
   var dx=x2-x1, dy=y2-y1, L=Math.sqrt(dx*dx+dy*dy)||1;
   var ux=dx/L, uy=dy/L, px=-uy, py=ux;
-  var n=Math.max(3,Math.round(L/4.5)), d='M'+cdNb(x1)+' '+cdNb(y1);
+  var n=Math.max(3,Math.round(L/3.6)), d='M'+cdNb(x1)+' '+cdNb(y1);
   for(var i=1;i<=n;i++){
-    var t=i/n, tm=t-0.5/n, a=(i%2?1:-1)*1.7;
+    var t=i/n, tm=t-0.5/n, a=(i%2?1:-1)*1.3;
     d+='Q'+cdNb(x1+ux*L*tm+px*a)+' '+cdNb(y1+uy*L*tm+py*a)
       +' '+cdNb(x1+ux*L*t)+' '+cdNb(y1+uy*L*t);
   }
@@ -2417,7 +2417,7 @@ function cdFormeFleche(x,i,fantome){
   var f=CD_FL[x.k]||CD_FL.run;
   var dx=x.x2-x.x1, dy=x.y2-x.y1, L=Math.sqrt(dx*dx+dy*dy);
   if(L<0.6) return '';
-  var ux=dx/L, uy=dy/L, hl=Math.min(4,L*0.45);
+  var ux=dx/L, uy=dy/L, hl=Math.min(3.2,L*0.45);
   var bx=x.x2-ux*hl, by=x.y2-uy*hl, px=-uy, py=ux, hw=hl*0.52;
   var d=(x.k==='drib')?cdOnde(x.x1,x.y1,bx,by):('M'+cdNb(x.x1)+' '+cdNb(x.y1)+'L'+cdNb(bx)+' '+cdNb(by));
   return '<g'+(fantome?' opacity=".55"':' data-i="'+i+'" class="cd-el"')+'>'
@@ -2443,37 +2443,41 @@ function cdForme(x,i,fantome){
   }
   if(x.t==='j'){
     var e=CD_EQ[x.e]||CD_EQ.a;
-    return '<g'+a+'><circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="4.3" fill="'+e.c
-      +'" stroke="#11161c" stroke-width=".8"/>'
-      +'<text x="'+cdNb(x.x)+'" y="'+cdNb(x.y+1.6)+'" text-anchor="middle" font-size="4.6"'
-      +' font-weight="700" fill="#fff" style="pointer-events:none">'+cdEsc(x.n||e.l)+'</text></g>';
+    return '<g'+a+'><circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="3.1" fill="'+e.c
+      +'" stroke="#11161c" stroke-width=".55"/>'
+      +'<text x="'+cdNb(x.x)+'" y="'+cdNb(x.y+1.2)+'" text-anchor="middle" font-size="3.5"'
+      +' font-weight="700" fill="#fff" style="pointer-events:none">'+cdEsc(x.n||e.l)+'</text>'
+      // Une cible plus large que le dessin : le pion reste attrapable au doigt.
+      +'<circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="5" fill="rgba(0,0,0,0)"/></g>';
   }
   if(x.t==='b'){
-    return '<g'+a+'><circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="2.7" fill="#fff"'
-      +' stroke="#11161c" stroke-width=".8"/>'
-      +'<circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="1.1" fill="#11161c"/></g>';
+    return '<g'+a+'><circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="2.1" fill="#fff"'
+      +' stroke="#11161c" stroke-width=".6"/>'
+      +'<circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="0.85" fill="#11161c"/>'
+      +'<circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="4" fill="rgba(0,0,0,0)"/></g>';
   }
   if(x.t==='c'){
-    return '<g'+a+'><path d="M'+cdNb(x.x)+' '+cdNb(x.y-3.2)+'L'+cdNb(x.x+2.8)+' '+cdNb(x.y+2.2)
-      +'L'+cdNb(x.x-2.8)+' '+cdNb(x.y+2.2)+'Z" fill="#f59e0b" stroke="#92400e" stroke-width=".6"'
-      +' stroke-linejoin="round"/></g>';
+    return '<g'+a+'><path d="M'+cdNb(x.x)+' '+cdNb(x.y-2.5)+'L'+cdNb(x.x+2.2)+' '+cdNb(x.y+1.7)
+      +'L'+cdNb(x.x-2.2)+' '+cdNb(x.y+1.7)+'Z" fill="#f59e0b" stroke="#92400e" stroke-width=".45"'
+      +' stroke-linejoin="round"/>'
+      +'<circle cx="'+cdNb(x.x)+'" cy="'+cdNb(x.y)+'" r="4" fill="rgba(0,0,0,0)"/></g>';
   }
   if(x.t==='g'){
     // Un mini-but vu de dessus : la gueule du but devant, le filet derrière.
     var X=x.x, Y=x.y;
-    return '<g'+a+'><rect x="'+cdNb(X-6)+'" y="'+cdNb(Y-2.6)+'" width="12" height="5.2"'
-      +' fill="rgba(255,255,255,.88)" stroke="#11161c" stroke-width=".55"/>'
-      +'<path d="M'+cdNb(X-3)+' '+cdNb(Y-2.6)+'V'+cdNb(Y+2.6)
-      +'M'+cdNb(X)+' '+cdNb(Y-2.6)+'V'+cdNb(Y+2.6)
-      +'M'+cdNb(X+3)+' '+cdNb(Y-2.6)+'V'+cdNb(Y+2.6)
-      +'M'+cdNb(X-6)+' '+cdNb(Y)+'H'+cdNb(X+6)
-      +'" stroke="#11161c" stroke-width=".35" opacity=".55" fill="none"/>'
-      +'<path d="M'+cdNb(X-6)+' '+cdNb(Y+2.6)+'H'+cdNb(X+6)
-      +'" stroke="#11161c" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>';
+    return '<g'+a+'><rect x="'+cdNb(X-4.8)+'" y="'+cdNb(Y-2.1)+'" width="9.6" height="4.2"'
+      +' fill="rgba(255,255,255,.88)" stroke="#11161c" stroke-width=".4"/>'
+      +'<path d="M'+cdNb(X-2.4)+' '+cdNb(Y-2.1)+'V'+cdNb(Y+2.1)
+      +'M'+cdNb(X)+' '+cdNb(Y-2.1)+'V'+cdNb(Y+2.1)
+      +'M'+cdNb(X+2.4)+' '+cdNb(Y-2.1)+'V'+cdNb(Y+2.1)
+      +'M'+cdNb(X-4.8)+' '+cdNb(Y)+'H'+cdNb(X+4.8)
+      +'" stroke="#11161c" stroke-width=".28" opacity=".55" fill="none"/>'
+      +'<path d="M'+cdNb(X-4.8)+' '+cdNb(Y+2.1)+'H'+cdNb(X+4.8)
+      +'" stroke="#11161c" stroke-width="1" fill="none" stroke-linecap="round"/></g>';
   }
   if(x.t==='x'){
-    return '<g'+a+'><text x="'+cdNb(x.x)+'" y="'+cdNb(x.y)+'" text-anchor="middle" font-size="5"'
-      +' font-weight="700" fill="#11161c" paint-order="stroke" stroke="#fff" stroke-width="1.4">'
+    return '<g'+a+'><text x="'+cdNb(x.x)+'" y="'+cdNb(x.y)+'" text-anchor="middle" font-size="4.2"'
+      +' font-weight="700" fill="#11161c" paint-order="stroke" stroke="#fff" stroke-width="1.2">'
       +cdEsc(x.s||'')+'</text></g>';
   }
   return '';
@@ -2483,15 +2487,15 @@ function cdPoignees(o,w){
   if(cdOutil!=='move' || !cdSel || cdSel.w!==w) return '';
   var x=o[cdSel.i];
   if(!x || (x.t!=='f' && x.t!=='z')) return '';
-  return '<circle class="cd-p" data-h="'+cdSel.i+':1" cx="'+cdNb(x.x1)+'" cy="'+cdNb(x.y1)+'" r="2.4"/>'
-    +'<circle class="cd-p" data-h="'+cdSel.i+':2" cx="'+cdNb(x.x2)+'" cy="'+cdNb(x.y2)+'" r="2.4"/>';
+  return '<circle class="cd-p" data-h="'+cdSel.i+':1" cx="'+cdNb(x.x1)+'" cy="'+cdNb(x.y1)+'" r="2"/>'
+    +'<circle class="cd-p" data-h="'+cdSel.i+':2" cx="'+cdNb(x.x2)+'" cy="'+cdNb(x.y2)+'" r="2"/>';
 }
 function cdRendre(w){
   var o=cdLire(w), s='';
   for(var i=0;i<o.length;i++) s+=cdForme(o[i],i);
   s+=cdPoignees(o,w);
   if(cdAttente && cdAttente.w===w)
-    s+='<circle class="cd-att" cx="'+cdNb(cdAttente.x)+'" cy="'+cdNb(cdAttente.y)+'" r="2.4"/>';
+    s+='<circle class="cd-att" cx="'+cdNb(cdAttente.x)+'" cy="'+cdNb(cdAttente.y)+'" r="2"/>';
   if(cdTrace && cdTrace.w===w && cdTrace.bouge) s+=cdForme(cdTrace.obj,-1,true);
   w.querySelector('.cd-o').innerHTML=s;
   var v=w.parentElement&&w.parentElement.querySelector?w.parentElement.querySelector('.cd-vider'):null;
@@ -2770,8 +2774,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v105</b> · 08/10/2026<br>
-      <span style="opacity:.7">On dessine la séance à l'écran</span>
+      AST COACH <b style="color:var(--or)">v106</b> · 08/10/2026<br>
+      <span style="opacity:.7">La fiche passe dans Entraînement</span>
     </div>
   </div>
 </div>
@@ -3299,22 +3303,6 @@ Chez le président"></textarea>
           </div>
         </div>
 
-        <div class="doc-carte phare">
-          <div class="doc-apercu"><span class="doc-etiq">Nouveau</span>
-            <div class="mini"><div class="band"></div><div class="corps">
-              <div class="mcp">
-                <span class="l" style="--c:#11161c"></span><span class="l" style="--c:#0e7490"></span><span class="l" style="--c:#7c3aed"></span>
-                <span class="p" style="--c:#0f8a5f"></span><span class="p" style="--c:#2563eb"></span>
-                <span class="p" style="--c:#d97706"></span><span class="p" style="--c:#c0392b"></span>
-                <span class="t"></span><span class="t"></span>
-              </div></div></div>
-          </div>
-          <div class="doc-corps">
-            <div class="doc-titre">🧭 Fiche de préparation de séance</div>
-            <div class="doc-desc">Deux pages A4 à photocopier. Page&nbsp;1, celle qu'on emporte au bord du terrain&nbsp;: quatre colonnes à remplir — présents, reprise course, blessés, absents —, le cadre, le thème, et le minutage des cinq moments. Page&nbsp;2, les quatre situations sur de grands demi-terrains, qui se dessinent <b>directement à l'écran</b>&nbsp;: joueurs, ballon, plots, mini-buts, zones, courses, passes, conduites, tirs. Plus les variables pour faire évoluer un exercice et le bilan à chaud.</div>
-            <button class="btn" onclick="genererFicheConception()">Ouvrir la fiche de préparation</button>
-          </div>
-        </div>
 
       </div>
     </div>
@@ -4855,7 +4843,19 @@ Chez le président"></textarea>
   </div>
 </div>
 <div class="rub-p bg-bureau" data-r="seance">
-  
+
+<div class="blk plein" style="margin-bottom:14px;border-color:var(--or)">
+    <div class="bh"><span class="bt"><svg class="ico" aria-hidden="true"><use href="#i-memo"/></svg>Fiche de préparation de séance</span>
+      <span class="bc" style="font-size:11.5px;color:var(--gris2)">2 pages A4 · à remplir ici ou à imprimer</span></div>
+    <div style="padding:14px">
+      <div style="font-size:13px;line-height:1.6;color:var(--gris2);margin-bottom:12px">
+        <b style="color:var(--gris)">Page 1</b>, celle qu'on emporte au bord du terrain : présents, reprise course, blessés, absents, le cadre, le thème et le minutage des cinq moments.
+        <b style="color:var(--gris)">Page 2</b>, les quatre situations sur de grands demi-terrains, qui <b style="color:var(--or)">se dessinent directement à l'écran</b> — joueurs, ballon, plots, mini-buts, zones, courses, passes, conduites, tirs.
+      </div>
+      <button class="btn" onclick="genererFicheConception()">Ouvrir la fiche de préparation</button>
+      <div style="margin-top:9px;font-size:11.5px;color:var(--gris2)">Une fois remplie et archivée, elle se range dans <b>Club house › Documents › Docs à imprimer</b>, avec les autres fiches.</div>
+    </div>
+  </div>
   <div class="blk"><div class="bh"><span class="bt">Plan de séance</span></div>
     <div style="padding:14px"><textarea class="fta" id="seance-txt" style="min-height:300px;line-height:2" placeholder="Échauffement : 15 min&#10;- Toro 4v2&#10;&#10;Exercice principal : 25 min&#10;- Travail en transition..."></textarea></div>
     <div style="padding:0 14px 14px"><button class="btn" onclick="saveSeance()">✓ SAUVEGARDER</button></div>
