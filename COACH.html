@@ -2814,8 +2814,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v107</b> · 08/10/2026<br>
-      <span style="opacity:.7">Le fil de la semaine</span>
+      AST COACH <b style="color:var(--or)">v108</b> · 08/10/2026<br>
+      <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
 </div>
@@ -5730,7 +5730,7 @@ function ouvrirSelectionConvoque(champId,titre){
     var checked=actuels.indexOf(j.nom)!==-1;
     return '<label class="jr" style="grid-template-columns:28px 1fr 26px;cursor:pointer;align-items:center">'
       +'<div class="jnum">'+j.num+'</div><div class="jnom">'+j.nom+'</div>'
-      +'<input type="checkbox" class="convo-check" data-nom="'+j.nom.replace(/"/g,'&quot;')+'"'+(checked?' checked':'')+' style="width:18px;height:18px;cursor:pointer">'
+      +'<input type="checkbox" class="convo-check" data-nom="'+String(j.nom||'').replace(/"/g,'&quot;')+'"'+(checked?' checked':'')+' style="width:18px;height:18px;cursor:pointer">'
       +'</label>';
   }).join('');
   var lb=document.createElement('div');
@@ -8213,9 +8213,9 @@ function ouvrirEditionMatch(mi){
     }
     rows=joueursDepart.map(function(j,ni){
       var nd={consignes:3,offensif:3,defensif:3,esprit:3};
-      return '<div class="jr-notation" style="margin-bottom:5px;border-radius:6px;overflow:hidden;position:relative" data-num="'+j.num+'" data-nom="'+j.nom.replace(/"/g,'&quot;')+'" data-note="3" data-notedetail=\''+JSON.stringify(nd)+'\'>'
+      return '<div class="jr-notation" style="margin-bottom:5px;border-radius:6px;overflow:hidden;position:relative" data-num="'+j.num+'" data-nom="'+String(j.nom||'').replace(/"/g,'&quot;')+'" data-note="3" data-notedetail=\''+JSON.stringify(nd)+'\'>'
         +'<span onclick="this.closest(\'.jr-notation\').remove()" title="Retirer ce joueur" style="position:absolute;right:2px;top:2px;z-index:2;cursor:pointer;color:var(--red);font-size:14px;padding:3px 5px">✕</span>'
-        +'<div class="jr" style="grid-template-columns:26px minmax(120px,200px) 90px 55px 55px 50px 40px 40px" data-num="'+j.num+'" data-nom="'+j.nom.replace(/"/g,'&quot;')+'">'
+        +'<div class="jr" style="grid-template-columns:26px minmax(120px,200px) 90px 55px 55px 50px 40px 40px" data-num="'+j.num+'" data-nom="'+String(j.nom||'').replace(/"/g,'&quot;')+'">'
         +'<div class="jnum">'+j.num+'</div>'
         +'<div class="jnom">'+j.nom+'</div>'
         +'<select class="sel edit-statut" style="font-size:11px">'
@@ -8235,9 +8235,9 @@ function ouvrirEditionMatch(mi){
   }else{
   rows=m.notes.map(function(n,ni){
     var nd=n.noteDetail||{consignes:3,offensif:3,defensif:3,esprit:3};
-    return '<div class="jr-notation" style="margin-bottom:5px;border-radius:6px;overflow:hidden;position:relative" data-num="'+n.num+'" data-nom="'+n.nom.replace(/"/g,'&quot;')+'" data-note="'+(n.note||3)+'" data-notedetail=\''+JSON.stringify(nd)+'\'>'
+    return '<div class="jr-notation" style="margin-bottom:5px;border-radius:6px;overflow:hidden;position:relative" data-num="'+n.num+'" data-nom="'+String(n.nom||'').replace(/"/g,'&quot;')+'" data-note="'+(n.note||3)+'" data-notedetail=\''+JSON.stringify(nd)+'\'>'
       +'<span onclick="this.closest(\'.jr-notation\').remove()" title="Retirer ce joueur" style="position:absolute;right:2px;top:2px;z-index:2;cursor:pointer;color:var(--red);font-size:14px;padding:3px 5px">✕</span>'
-      +'<div class="jr" style="grid-template-columns:26px minmax(120px,200px) 90px 55px 55px 50px 40px 40px" data-num="'+n.num+'" data-nom="'+n.nom.replace(/"/g,'&quot;')+'">'
+      +'<div class="jr" style="grid-template-columns:26px minmax(120px,200px) 90px 55px 55px 50px 40px 40px" data-num="'+n.num+'" data-nom="'+String(n.nom||'').replace(/"/g,'&quot;')+'">'
       +'<div class="jnum">'+n.num+'</div>'
       +'<div class="jnom">'+n.nom+'</div>'
       +'<select class="sel edit-statut" style="font-size:11px">'
@@ -8320,7 +8320,7 @@ function ajouterJoueurOublieMatch(){
   if(!j) return;
   var rowsCt=document.getElementById('edit-match-rows');
   var div=document.createElement('div');
-  div.innerHTML='<div class="jr" style="grid-template-columns:26px minmax(120px,200px) 90px 55px 55px 50px 40px 40px 55px" data-num="'+j.num+'" data-nom="'+j.nom.replace(/"/g,'&quot;')+'">'
+  div.innerHTML='<div class="jr" style="grid-template-columns:26px minmax(120px,200px) 90px 55px 55px 50px 40px 40px 55px" data-num="'+j.num+'" data-nom="'+String(j.nom||'').replace(/"/g,'&quot;')+'">'
     +'<div class="jnum">'+j.num+'</div>'
     +'<div class="jnom">'+j.nom+' <span style="color:var(--or);font-size:11px">(ajouté)</span></div>'
     +'<select class="sel edit-statut" style="font-size:11px">'
@@ -8559,7 +8559,7 @@ function voirNotesMatch(mi){
       var libBdt={frappeCad:'🎯',frappeHors:'↗️',recup:'🔄',perte:'❌',arret:'🧤',capte:'🤲',relanceRatee:'🦶'};
       relBdt=Object.keys(n.bdt).map(function(k){ return (libBdt[k]||k)+(n.bdt[k]>1?'×'+n.bdt[k]:''); }).join(' ');
     }
-    return '<div class="vn-row" data-joueur="'+n.nom.replace(/"/g,'&quot;')+'" style="display:grid;grid-template-columns:1fr 50px 45px 45px 70px;align-items:center;gap:5px;padding:9px 12px;border-bottom:1px solid rgba(249,115,22,.08)">'
+    return '<div class="vn-row" data-joueur="'+String(n.nom||'').replace(/"/g,'&quot;')+'" style="display:grid;grid-template-columns:1fr 50px 45px 45px 70px;align-items:center;gap:5px;padding:9px 12px;border-bottom:1px solid rgba(249,115,22,.08)">'
       +'<div style="font-weight:700;font-size:13.5px">'+n.num+'. '+n.nom+'<div style="font-size:11px;color:'+stCol+';font-weight:700">'+stLbl+(relBdt?(' <span style="color:var(--gris2)">· '+relBdt+'</span>'):'')+'</div></div>'
       +'<div style="font-size:12px;color:var(--blue);text-align:center">'+(n.tps||0)+' min</div>'
       +'<div style="font-size:12px;color:var(--gold);text-align:center">'+n.buts+'⚽</div>'
@@ -8877,6 +8877,34 @@ function fsEtat(fait, d){
   if(j<0) return 'retard';
   return j<=2 ? 'afaire' : 'avenir';
 }
+// ---- Aller exactement là où est le travail -------------------------
+// Un attribut HTML se ferme sur le premier guillemet. esc2 ne l'echappe pas :
+// il faut un echappement d'attribut, sinon un nom d'adversaire casse le bouton.
+function fsAttr(t){
+  return String(t==null?'':t)
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fsIndexMatch(adversaire){
+  var idx=-1;
+  (MATCHS||[]).forEach(function(x,i){
+    if(fexNomsCorrespondent(x.adversaire||'', adversaire||'')) idx=i;
+  });
+  return idx;
+}
+// L'éditeur du match : le score, les temps de jeu et les notes sont là.
+function fsAllerMatch(adv){
+  var i=fsIndexMatch(adv);
+  goNav('matchs');
+  if(i<0) return;   // le match n'est pas encore saisi : l'écran suffit
+  setTimeout(function(){ try{ ouvrirEditionMatch(i); }catch(e){} }, 280);
+}
+// Un écran puis sa rubrique : goNav rend l'écran, goRubrique a besoin qu'il existe.
+function fsAllerRubrique(ecran, rub){
+  goNav(ecran);
+  setTimeout(function(){ try{ goRubrique(ecran, rub); }catch(e){} }, 220);
+}
+
 function fsArchive(cle){
   try{ return ficheArchiveExistante?ficheArchiveExistante(cle):null; }catch(e){ return null; }
 }
@@ -8892,15 +8920,19 @@ function fsEtapes(){
     E.push({cle:'resultat', t:'Le résultat', d:dernier.d,
       fait:!!score, etat:fsEtat(!!score, dernier.d),
       detail:score || ('Le match contre '+(dernier.c.adversaire||'?')+' n\'est pas encore enregistré.'),
-      ecran:'matchs', bouton:score?'Revoir le match':'Enregistrer le match'});
+      ecran:'matchs', action:'fsAllerMatch('+JSON.stringify(dernier.c.adversaire||'')+')',
+      bouton:score?'Revoir le match':'Enregistrer le match'});
 
-    var notes=(m && m.notes) ? m.notes.length : 0;
-    var attendus=(CONVOS && (CONVOS.a||[]).length) ? (CONVOS.a||[]).length : 0;
+    // Une ligne existe pour chaque joueur dès que le match est enregistré,
+    // banc compris. Seuls ceux qui ont joué portent une vraie note.
+    var notes=(m && m.notes) ? m.notes.filter(function(n){
+      return n && n.statut!=='BN' && n.statut!=='ABS' && (n.note||0)>0; }).length : 0;
     E.push({cle:'notes', t:'Les notes des joueurs', d:dernier.d,
       fait:notes>0, etat:fsEtat(notes>0, dernier.d),
       detail:notes>0 ? (notes+' joueur'+(notes>1?'s':'')+' noté'+(notes>1?'s':''))
                      : 'Personne n\'est noté : les joueurs ne verront rien de ce match.',
-      ecran:'matchs', bouton:notes>0?'Compléter les notes':'Noter les joueurs',
+      ecran:'matchs', action:'fsAllerMatch('+JSON.stringify(dernier.c.adversaire||'')+')',
+      bouton:notes>0?'Compléter les notes':'Noter les joueurs',
       doc:'obs_nous'});
   }
 
@@ -8924,13 +8956,15 @@ function fsEtapes(){
       fait:!!theme, etat:fsEtat(!!theme, x.d),
       detail:theme ? theme+((x.p.sousThemes&&x.p.sousThemes.length)?(' · '+x.p.sousThemes.join(', ')):'')
                    : 'Aucun thème posé pour cette séance.',
-      ecran:'seances', bouton:theme?'Préparer la séance':'Poser le thème',
+      ecran:'seances', action:'fsAllerRubrique(\'seances\',\''+(theme?'seance':'seances-cal')+'\')',
+      bouton:theme?'Préparer la séance':'Poser le thème',
       doc:'conception'});
   });
   if(!seances.length && prochain){
     E.push({cle:'seance0', t:'Les séances', d:null, fait:false, etat:'afaire',
       detail:'Aucune séance au planning entre les deux matchs.',
-      ecran:'seances', bouton:'Ouvrir le planning', doc:'conception'});
+      ecran:'seances', action:'fsAllerRubrique(\'seances\',\'seances-cal\')',
+      bouton:'Ouvrir le planning', doc:'conception'});
   }
 
   // ---------- le groupe
@@ -8991,7 +9025,8 @@ function fsLigne(e){
       +'</div>'
       +'<div class="fs-dt">'+esc2(e.detail||'')+'</div>'
       +'<div class="fs-a">'
-        +'<button class="fs-b" onclick="goNav(\''+e.ecran+'\')">'+esc2(e.bouton||'Ouvrir')+'</button>'
+        +'<button class="fs-b" onclick="'+fsAttr(e.action||('goNav(\''+e.ecran+'\')'))+'">'
+          +esc2(e.bouton||'Ouvrir')+'</button>'
         +doc
       +'</div>'
     +'</div></div>';
