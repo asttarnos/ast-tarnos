@@ -2024,6 +2024,19 @@ body.terrain-plein #pl-sortie-plein{display:block}
 /* Quand la barre ouvre l'ecran — chaque rubrique garde son propre titre en
    dessous — il lui faut sa marge du haut. */
 .rub-barre.rub-haut{padding:2px 13px 12px}
+/* ===== Les badges d'etat sur le menu ===== */
+.fs-al{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+  min-width:19px;height:19px;padding:0 5px;border-radius:19px;
+  font-family:Inter,sans-serif;font-size:11px;font-weight:800;line-height:1;
+  background:var(--ac);color:#0b0e12}
+.ni .fs-al{margin-left:auto}
+.ni-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ni.alerte{color:var(--gris)}
+.hubl-al{font-size:11.5px;font-weight:700;white-space:nowrap;margin-right:8px}
+@media(max-width:760px){
+  .hubl-al{display:none}
+  .fs-al{min-width:17px;height:17px;font-size:10.5px}
+}
 /* ===== Le fil de la semaine ===== */
 .fs-blk{margin-bottom:16px}
 .fs-bc{font-size:12.5px;color:var(--gris2)}
@@ -2814,7 +2827,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v108</b> · 08/10/2026<br>
+      AST COACH <b style="color:var(--or)">v109</b> · 08/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -6317,6 +6330,7 @@ var HUBL_LOGO='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQUAAAEYCAYAAABV3uP
 function renderHubListe(){
   var ct=document.getElementById('scr-hub-liste');
   if(!ct) return;
+  var AL=fsAlertes();
   var html='<div class="hubl-hero"><img src="'+HUBL_LOGO+'" alt="AST Tarnos"><div><div class="club">'+(typeof NOM_CLUB!=='undefined'&&NOM_CLUB?NOM_CLUB:'AST TARNOS')+'</div><div class="sub">Coach R2 · 2025/26</div></div></div>';
   html+='<div class="hubl-poles">';
   POLES.forEach(function(p){
@@ -6324,7 +6338,11 @@ function renderHubListe(){
     html+='<div><div class="hubl-pole-titre" style="color:'+cp+'">'+ic(p.icon)+esc2(p.label)+'</div>';
     html+='<div class="hubl-grid">';
     p.screens.forEach(function(sc){
-      html+='<div class="hubl-item" style="--pc:'+cp+'" onclick="goNav(\''+sc.s+'\')">'+ic(sc.ic)+'<span class="lbl">'+esc2(sc.l)+'</span><span class="chev">\u203A</span></div>';
+      var a=fsAlerteEcran(AL, sc.s);
+      html+='<div class="hubl-item'+(a?' alerte':'')+'" style="--pc:'+cp+'" onclick="goNav(\''+sc.s+'\')">'
+        +ic(sc.ic)+'<span class="lbl">'+esc2(sc.l)+'</span>'
+        +(a?'<span class="hubl-al" style="color:'+fsCouleurAlerte(a.etat)+'">'+esc2(a.titre)+'</span>':'')
+        +fsPastille(a,'fs-al-hubl')+'<span class="chev">\u203A</span></div>';
     });
     html+='</div></div>';
   });
@@ -6336,12 +6354,18 @@ var TAB_ACTIF='terrain';
 function renderSideNav(){
   var ct=document.getElementById('side-nav-dynamic');
   if(!ct) return;
+  var AL=fsAlertes();
   if(!POLE_ACTIF){
     ct.innerHTML=POLES.map(function(p){
-      return '<div class="pole-tile" style="--pc:'+couleurPole(p)+'" onclick="ouvrirPole(\''+p.id+'\')">'
+      var a=fsAlertePole(AL, p);
+      // Quand il y a du travail, le nombre d'écrans n'intéresse personne.
+      var sous=(a&&a.resume)?a.resume:(p.screens.length+' écrans');
+      return '<div class="pole-tile'+(a?' alerte':'')+'" style="--pc:'+couleurPole(p)+'" onclick="ouvrirPole(\''+p.id+'\')">'
         +'<span class="pole-badge">'+ic(p.icon)+'</span>'
         +'<span class="pole-txt"><span class="pole-t">'+p.label+'</span>'
-        +'<span class="pole-count">'+p.screens.length+' écrans</span></span>'
+        +'<span class="pole-count"'+(a&&a.resume?' style="color:'+fsCouleurAlerte(a.etat)+'"':'')+'>'
+          +esc2(sous)+'</span></span>'
+        +fsPastille(a,'fs-al-pole')
         +'<span class="pole-arrow">›</span>'
         +'</div>';
     }).join('');
@@ -6351,8 +6375,17 @@ function renderSideNav(){
     ct.innerHTML='<div class="pole-back" onclick="retourHub()">← Retour aux pôles</div>'
       +'<div class="pole-title-active" style="color:'+couleurPole(pole)+'">'+ic(pole.icon)+esc2(pole.label)+'</div>'
       +pole.screens.map(function(sc){
-        return '<div class="ni" data-s="'+sc.s+'" onclick="goNav(this)"><span class="ni-ic">'+ic(sc.ic)+'</span>'+esc2(sc.l)+'</div>';
+        var a=fsAlerteEcran(AL, sc.s);
+        return '<div class="ni'+(a?' alerte':'')+'" data-s="'+sc.s+'" onclick="goNav(this)">'
+          +'<span class="ni-ic">'+ic(sc.ic)+'</span><span class="ni-l">'+esc2(sc.l)+'</span>'
+          +fsPastille(a,'fs-al-ni')+'</div>';
       }).join('');
+  }
+  // Un re-rendu ne doit pas effacer le surlignage de l'écran ouvert.
+  var scr=document.querySelector('.scr.on');
+  if(scr){
+    var el=ct.querySelector('.ni[data-s="'+scr.id.replace(/^scr-/,'')+'"]');
+    if(el) el.classList.add('on');
   }
 }
 function ouvrirPole(id){
@@ -6445,9 +6478,11 @@ function renderRecherche(q){
   q=normaliserTexte(q);
   var ct=document.getElementById('resultats-recherche');
   var res=Object.keys(ECRANS_INFO).filter(function(k){return normaliserTexte(ECRANS_INFO[k].l).indexOf(q)!==-1;});
+  var AL=fsAlertes();
   ct.innerHTML=res.length?res.map(function(k){
     var info=ECRANS_INFO[k];
-    return '<div class="ni" data-s="'+k+'" onclick="irVersEcranReel(\''+k+'\')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--line)"><span class="ni-ic">'+ic(info.ic)+'</span>'+esc2(info.l)+'</div>';
+    var a=fsAlerteEcran(AL, k);
+    return '<div class="ni'+(a?' alerte':'')+'" data-s="'+k+'" onclick="irVersEcranReel(\''+k+'\')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--line)"><span class="ni-ic">'+ic(info.ic)+'</span><span class="ni-l">'+esc2(info.l)+'</span>'+fsPastille(a,'fs-al-ni')+'</div>';
   }).join(''):'<div style="padding:14px;color:var(--gris2);font-size:12.5px">Aucun écran trouvé</div>';
 }
 function toggleSideMobile(forcerEtat){
@@ -9037,6 +9072,85 @@ function fsOuvrirDoc(cle){
     if(ft && ft.gen) ft.gen({});
   }catch(e){ notif('⚠ Document indisponible'); }
 }
+// ---- Ce que le fil sait, porté jusqu'au menu ------------------------
+//
+//   Le fil ne vit que sur le tableau de bord. Les mêmes calculs servent ici
+//   à marquer le menu, pour qu'on voie ce qui manque sans entrer nulle part.
+//
+//   Un seul passage par rendu : fsEtapes() relit les matchs et le planning,
+//   on ne le rappelle pas une fois par entrée de menu.
+var FS_AL_INFO={c:'var(--gris2)', l:'à connaître'};
+
+function fsAlerteVide(){ return {retard:0, afaire:0, info:0}; }
+
+function fsAlertes(){
+  var M={};
+  function pour(ecran){
+    if(!ecran) return null;
+    if(!M[ecran]) M[ecran]=fsAlerteVide();
+    return M[ecran];
+  }
+  try{
+    fsEtapes().forEach(function(e){
+      if(e.echeance) return;                 // le match n'est pas une tâche
+      if(e.etat!=='retard' && e.etat!=='afaire') return;
+      var a=pour(e.ecran);
+      if(a) a[e.etat]++;
+    });
+  }catch(err){}
+  // L'infirmerie n'est pas une étape du fil, mais c'est la même question :
+  // qu'est-ce que je dois savoir avant d'ouvrir l'écran ?
+  try{
+    var bl=dvBlessesActifs().length;
+    if(bl){ var am=pour('medical'); if(am) am.info=bl; }
+  }catch(err){}
+  return M;
+}
+
+// Un écran : le total, l'état le plus grave, et de quoi faire une infobulle.
+function fsAlerteEcran(M, ecran){
+  var a=M && M[ecran];
+  if(!a) return null;
+  var taches=a.retard+a.afaire;
+  var n=taches||a.info;
+  if(!n) return null;
+  var mots=[];
+  if(a.retard) mots.push(a.retard+' en retard');
+  if(a.afaire) mots.push(a.afaire+' à faire');
+  if(a.info)   mots.push(a.info+(a.info>1?' joueurs':' joueur')+" à l'infirmerie");
+  return {n:n, etat:a.retard?'retard':(a.afaire?'afaire':'info'), titre:mots.join(' · ')};
+}
+
+// Un pôle : la somme de ses écrans. L'infirmerie compte dans l'infobulle
+// mais pas dans le chiffre — sinon un pôle sans rien à faire s'allume.
+function fsAlertePole(M, pole){
+  var cum=fsAlerteVide(), mots=[];
+  (pole.screens||[]).forEach(function(sc){
+    var a=fsAlerteEcran(M, sc.s);
+    if(!a) return;
+    var b=M[sc.s];
+    cum.retard+=b.retard; cum.afaire+=b.afaire; cum.info+=b.info;
+    mots.push(sc.l+' : '+a.titre);
+  });
+  var taches=cum.retard+cum.afaire;
+  if(!taches && !cum.info) return null;
+  return {n:taches||cum.info, etat:cum.retard?'retard':(cum.afaire?'afaire':'info'),
+          titre:mots.join('\n'), taches:taches, info:cum.info,
+          resume:[(cum.retard?cum.retard+' en retard':''),
+                  (cum.afaire?cum.afaire+' à faire':'')].filter(Boolean).join(' · ')};
+}
+
+function fsCouleurAlerte(etat){
+  if(etat==='info') return FS_AL_INFO.c;
+  return (FS_ETATS[etat]||FS_ETATS.afaire).c;
+}
+// Une pastille, trois tailles d'accueil, un seul morceau de code.
+function fsPastille(a, cls){
+  if(!a) return '';
+  return '<span class="fs-al '+cls+'" style="--ac:'+fsCouleurAlerte(a.etat)+'"'
+    +' title="'+fsAttr(a.titre)+'" aria-label="'+fsAttr(a.titre)+'">'+a.n+'</span>';
+}
+
 function renderFilSemaine(){
   var ct=document.getElementById('fil-semaine');
   if(!ct) return;
@@ -9212,6 +9326,7 @@ function updateDash(){
   if(champNom) champNom.value=NOM_CLUB;
   renderDashVivant();
   renderFilSemaine();   // apres : son conteneur nait dans renderDashVivant
+  renderSideNav();      // les badges du menu sortent des memes calculs
   // Les compteurs de l'ancien dashboard ont disparu avec lui : l'accueil vivant les remplace.
   var formeCt=document.getElementById('d-forme');
   if(formeCt){
