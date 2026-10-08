@@ -761,6 +761,10 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .mc-cle b{display:block;font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800;line-height:1.1}
 .mc-cle span{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;line-height:1.25}
 .mc-badges{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:14px}
+.mc-export{display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;margin:2px 0 16px}
+.mc-export .ic{width:1.05em;height:1.05em}
+.mc-export[disabled]{opacity:.6}
 .mc-badge{background:rgba(234,181,63,.12);border:1px solid var(--gold);border-radius:20px;
   padding:6px 12px;font-size:13.5px;color:var(--gold);font-weight:700}
 .mc-traj{display:grid;gap:12px}
@@ -1859,7 +1863,9 @@ async function calculerActionsEnAttente(){
   }catch(e){ window._actionsEnAttente.accueil=false; }
   // Disponibilité en attente de réponse ?
   try{
-    var evts=prochainsEvenementsDispo();
+    // La pastille de l'onglet Match ne compte que les matchs : les séances
+    // ont la leur dans l'onglet Entraînement.
+    var evts=prochainsEvenementsDispo('match');
     if(evts.length){
       var mesDispo=await chargerMesDisponibilites();
       window._actionsEnAttente.mesmatchs=evts.some(function(e){return !mesDispo[e.cle];});
@@ -2186,7 +2192,7 @@ function auPhotoPoser(){
 function auAFaire(){
   var a=window._actionsEnAttente||{}, l=[];
   if(a.mesmatchs) l.push({s:'mesmatchs',ic:'calendrier',tc:'var(--red)',
-    t:'Donne ta disponibilit\u00e9',d:'Le coach attend ta r\u00e9ponse pour composer le groupe.'});
+    t:'Donne ta disponibilit\u00e9 pour le match',d:'Le coach attend ta r\u00e9ponse pour composer le groupe.'});
   if(a.accueil) l.push({s:'accueil',ic:'barres',tc:'var(--blue)',
     t:'Un sondage attend ta voix',d:'\u00c7a prend dix secondes.'});
   if(a.planning){
@@ -2386,8 +2392,8 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v43</b> · 07/10/2026<br>'
-    +'<span style="opacity:.8">Qui vient \u00e0 l\'entra\u00eenement \u00b7 notifications</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v44</b> · 08/10/2026<br>'
+    +'<span style="opacity:.8">Ma carte s\'enregistre \u00b7 Mes matchs recentr\u00e9</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
   jvBrancher();
@@ -2642,20 +2648,265 @@ async function envoyerDisponibilite(cle,label,reponse){
     notif('⚠ Envoi impossible — vérifie ta connexion');
   }
 }
-function prochainsEvenementsDispo(){
+// Chaque événement porte sa nature. Le match appartient à l'onglet Match,
+// la séance à l'onglet Entraînement : les mélanger était la raison pour
+// laquelle « Mes matchs » parlait surtout d'entraînement.
+// ===================== MA CARTE, EN IMAGE =====================
+// Un joueur veut pouvoir garder sa carte et la montrer. On la redessine sur
+// un canvas plutot que de capturer l'ecran : la sortie est nette sur
+// n'importe quel telephone, elle ne depend pas du reseau, et elle part
+// directement dans le partage natif.
+var MC_L=1080, MC_H=1500;
+var MC_FOND='#14161b', MC_FOND2='#0b0d10';
+
+function mcImgCharger(src){
+  return new Promise(function(ok){
+    if(!src) return ok(null);
+    var im=new Image();
+    im.onload=function(){ ok(im); };
+    im.onerror=function(){ ok(null); };
+    im.src=src;
+  });
+}
+// Une image posee dans un rond, cadree au centre sans deformation.
+function mcRond(g, im, cx, cy, r){
+  g.save();
+  g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2); g.clip();
+  var k=Math.max(2*r/im.width, 2*r/im.height);
+  var w=im.width*k, h=im.height*k;
+  g.drawImage(im, cx-w/2, cy-h/2, w, h);
+  g.restore();
+}
+// Un texte qui se retrecit plutot que de deborder de la carte.
+function mcTexteAjuste(g, txt, cx, y, taille, famille, coul, maxLarg){
+  var t=taille;
+  do{
+    g.font='400 '+t+'px '+famille;
+    if(g.measureText(txt).width<=maxLarg) break;
+    t-=4;
+  }while(t>22);
+  g.fillStyle=coul; g.textAlign='center'; g.textBaseline='alphabetic';
+  g.fillText(txt, cx, y);
+  return t;
+}
+function mcCoinsArrondis(g,x,y,w,h,r){
+  g.beginPath();
+  g.moveTo(x+r,y); g.lineTo(x+w-r,y); g.quadraticCurveTo(x+w,y,x+w,y+r);
+  g.lineTo(x+w,y+h-r); g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  g.lineTo(x+r,y+h); g.quadraticCurveTo(x,y+h,x,y+h-r);
+  g.lineTo(x,y+r); g.quadraticCurveTo(x,y,x+r,y);
+  g.closePath();
+}
+
+async function mcConstruireImage(){
+  var joueurs=(SAISON&&SAISON.JOUEURS)||[];
+  var idx=joueurs.findIndex(function(j){ return j.num===MON_NUM; });
+  if(idx===-1) return null;
+  var st=(SAISON.STATS||[])[idx]||{}, am=((SAISON.ATTRS_MANUELS||[])[idx])||{};
+  var detail=calcAttrsJoueurDetail(idx);
+  var presPct=(st.seances>0?Math.round(st.pres/st.seances*100):0);
+  var badges=(typeof calculerBadges==='function')?calculerBadges(idx):[];
+
+  // Les polices embarquees ne se chargent qu'a la demande : un canvas qui
+  // dessine avant la fin du chargement retombe sur une police de secours.
+  try{
+    await Promise.all([
+      document.fonts.load('400 120px Anton'),
+      document.fonts.load('700 34px Inter'),
+      document.fonts.load('700 30px "Roboto Condensed"')
+    ]);
+  }catch(e){}
+
+  var cv=document.createElement('canvas');
+  cv.width=MC_L; cv.height=MC_H;
+  var g=cv.getContext('2d');
+
+  // ---- le fond
+  var fond=g.createLinearGradient(0,0,0,MC_H);
+  fond.addColorStop(0,MC_FOND); fond.addColorStop(1,MC_FOND2);
+  g.fillStyle=fond; g.fillRect(0,0,MC_L,MC_H);
+  var halo=g.createRadialGradient(MC_L/2,430,60,MC_L/2,430,620);
+  halo.addColorStop(0,'rgba(217,119,6,.30)'); halo.addColorStop(1,'rgba(217,119,6,0)');
+  g.fillStyle=halo; g.fillRect(0,0,MC_L,MC_H);
+  // Le numero en filigrane, pose sur le bord droit et coupe par la carte :
+  // centre, il depassait de la photo et ressemblait a une erreur.
+  g.save();
+  g.globalAlpha=.06; g.textAlign='right'; g.fillStyle='#ffffff';
+  g.font='400 560px Anton';
+  g.fillText(String(MON_NUM), MC_L+44, 760);
+  g.restore();
+  // le liseré
+  g.strokeStyle='rgba(217,119,6,.55)'; g.lineWidth=6;
+  mcCoinsArrondis(g,16,16,MC_L-32,MC_H-32,34); g.stroke();
+
+  // ---- le bandeau du club
+  var logo=await mcImgCharger(typeof PHOTO_LOGO!=='undefined'?PHOTO_LOGO:null);
+  if(logo){
+    var lh=104, lw=logo.width*(lh/logo.height);
+    g.drawImage(logo, 70, 62, lw, lh);
+  }
+  g.textAlign='right'; g.textBaseline='alphabetic';
+  g.font='400 46px Anton'; g.fillStyle='#ffffff';
+  g.fillText((typeof NOM_CLUB!=='undefined'&&NOM_CLUB)?NOM_CLUB:'AST TARNOS', MC_L-70, 120);
+  g.font='700 26px Inter'; g.fillStyle='rgba(255,255,255,.52)';
+  g.fillText('SAISON '+((SAISON&&SAISON.SAISON_LABEL)||'2025/26'), MC_L-70, 158);
+
+  // ---- la photo
+  var cx=MC_L/2, cy=540, r=218;
+  var photo=await mcImgCharger(photoLocale(MON_NUM));
+  g.save();
+  g.shadowColor='rgba(0,0,0,.55)'; g.shadowBlur=42; g.shadowOffsetY=14;
+  g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2);
+  g.fillStyle='#1d2026'; g.fill();
+  g.restore();
+  if(photo){
+    mcRond(g, photo, cx, cy, r);
+  }else{
+    g.font='400 170px Anton'; g.fillStyle='rgba(255,255,255,.80)';
+    g.textAlign='center'; g.fillText(initialesJoueur(MON_NOM), cx, cy+58);
+  }
+  g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2);
+  g.strokeStyle='#d97706'; g.lineWidth=11; g.stroke();
+  // la pastille du numero
+  var bx=cx+r*0.76, by=cy+r*0.76;
+  g.beginPath(); g.arc(bx,by,64,0,Math.PI*2);
+  g.fillStyle='#d97706'; g.fill();
+  g.strokeStyle=MC_FOND; g.lineWidth=9; g.stroke();
+  g.font='400 62px Anton'; g.fillStyle='#ffffff'; g.textAlign='center';
+  g.fillText(String(MON_NUM), bx, by+22);
+
+  // ---- l'identite
+  mcTexteAjuste(g, (MON_NOM||'').toUpperCase(), cx, 882, 86, 'Anton', '#ffffff', MC_L-140);
+  g.font='700 31px Inter'; g.fillStyle='rgba(255,255,255,.58)'; g.textAlign='center';
+  var mj=st.matchsJoues||0;
+  g.fillText((am.gardien?'Gardien de but':'Joueur de champ')
+    +'  ·  '+mj+' match'+(mj>1?'s':'')+' jou'+(mj>1?'és':'é'), cx, 932);
+
+  // ---- la note globale
+  g.font='400 158px Anton'; g.fillStyle='#e0a530'; g.textAlign='center';
+  g.fillText(String(detail.note), cx, 1092);
+  g.font='700 27px Inter'; g.fillStyle='rgba(255,255,255,.55)';
+  g.fillText('NOTE GLOBALE', cx, 1132);
+
+  // ---- les quatre chiffres
+  var tuiles=[
+    {v:(st.noteMoy?jNote1(st.noteMoy):'—'), l:'note moy. /'+NOTE_MAX, c:'#e0a530'},
+    {v:(st.tpsMoy||0)+"'",                  l:'par match',            c:'#d97706'},
+    {v:presPct+'%',                         l:'présence',             c:(presPct>=75?'#22a06b':(presPct>=50?'#e0a530':'#dc4444'))},
+    {v:String(am.gardien?(st.cleanSheets||0):(st.buts||0)),
+     l:(am.gardien?'clean sheets':'but'+((st.buts||0)>1?'s':'')), c:'#b285e8'}
+  ];
+  var marge=58, ecart=18;
+  var lt=(MC_L-2*marge-3*ecart)/4, ht=136, yt=1178;
+  tuiles.forEach(function(t,i){
+    var x=marge+i*(lt+ecart);
+    g.fillStyle='rgba(255,255,255,.055)';
+    mcCoinsArrondis(g,x,yt,lt,ht,16); g.fill();
+    g.strokeStyle='rgba(255,255,255,.10)'; g.lineWidth=2;
+    mcCoinsArrondis(g,x,yt,lt,ht,16); g.stroke();
+    g.textAlign='center';
+    g.font='400 56px Anton'; g.fillStyle=t.c;
+    g.fillText(t.v, x+lt/2, yt+74);
+    g.font='700 21px Inter'; g.fillStyle='rgba(255,255,255,.52)';
+    g.fillText(t.l, x+lt/2, yt+110);
+  });
+
+  // ---- les badges
+  if(badges.length){
+    var y=1380, total=0, larg=[];
+    g.font='700 25px Inter';
+    badges.slice(0,3).forEach(function(b){
+      var w=g.measureText(b.lab).width+70; larg.push(w); total+=w;
+    });
+    total+=(larg.length-1)*16;
+    var x0=(MC_L-total)/2;
+    badges.slice(0,3).forEach(function(b,i){
+      g.fillStyle='rgba(224,165,48,.14)';
+      mcCoinsArrondis(g,x0,y-36,larg[i],52,26); g.fill();
+      g.strokeStyle='rgba(224,165,48,.45)'; g.lineWidth=2;
+      mcCoinsArrondis(g,x0,y-36,larg[i],52,26); g.stroke();
+      g.textAlign='center'; g.font='700 25px Inter'; g.fillStyle='#e0a530';
+      g.fillText(b.lab, x0+larg[i]/2, y);
+      x0+=larg[i]+16;
+    });
+  }
+
+  // ---- le pied
+  g.textAlign='center'; g.font='700 22px Inter'; g.fillStyle='rgba(255,255,255,.30)';
+  g.fillText('Carte générée par l\'appli du club', cx, MC_H-56);
+
+  return cv;
+}
+
+function mcNomFichier(){
+  return ('ma-carte-'+(MON_NOM||'joueur'))
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()+'.png';
+}
+async function mcEnregistrerCarte(bouton){
+  var lab=bouton?bouton.innerHTML:null;
+  if(bouton){ bouton.disabled=true; bouton.innerHTML='Préparation…'; }
+  try{
+    var cv=await mcConstruireImage();
+    if(!cv) throw new Error('carte indisponible');
+    var blob=await new Promise(function(ok){
+      if(cv.toBlob) cv.toBlob(ok,'image/png');
+      else ok(null);
+    });
+    var nom=mcNomFichier();
+    // Sur un téléphone, le partage natif laisse le joueur choisir :
+    // enregistrer dans la galerie, envoyer au groupe, publier.
+    if(blob && navigator.canShare){
+      var fichier=new File([blob], nom, {type:'image/png'});
+      if(navigator.canShare({files:[fichier]})){
+        try{
+          await navigator.share({files:[fichier], title:MON_NOM||'Ma carte'});
+          return;
+        }catch(e){
+          // L'utilisateur a annulé : on ne retombe pas sur un téléchargement
+          // qu'il n'a pas demandé.
+          if(e && e.name==='AbortError') return;
+        }
+      }
+    }
+    var url=blob?URL.createObjectURL(blob):cv.toDataURL('image/png');
+    var a=document.createElement('a');
+    a.href=url; a.download=nom;
+    document.body.appendChild(a); a.click(); a.remove();
+    if(blob) setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+  }catch(e){
+    alert('La carte n\'a pas pu être générée : '+(e&&e.message?e.message:'erreur inconnue'));
+  }finally{
+    if(bouton){ bouton.disabled=false; if(lab) bouton.innerHTML=lab; }
+  }
+}
+
+// ===== L'échelle des notes =====
+// Le club note sur 6. Tout ce qui s'affiche passe par ici : une valeur
+// aberrante venue d'ailleurs est ramenée dans l'échelle plutôt que montrée
+// telle quelle au joueur.
+var NOTE_MAX=6;
+function jNote(v){
+  var n=Number(v);
+  if(!isFinite(n)) return 0;
+  return Math.max(0, Math.min(NOTE_MAX, n));
+}
+function jNote1(v){ return jNote(v).toFixed(1); }
+
+function prochainsEvenementsDispo(type){
   var evts=[];
   var conv=SAISON.CONVOS||{};
   if(conv.adv){
-    evts.push({cle:(conv.date||'')+'|'+conv.adv,label:'Match vs '+conv.adv+(conv.date?' — '+conv.date:'')});
+    evts.push({t:'match',cle:(conv.date||'')+'|'+conv.adv,label:'Match vs '+conv.adv+(conv.date?' — '+conv.date:'')});
   }
   var planning=(SAISON.PLANNING_MENSUEL||[]).map(function(p){ return {raw:p, d:parseDateFr(p.date)}; })
     .filter(function(x){ return x.d && x.d>=new Date(new Date().setHours(0,0,0,0)); })
     .sort(function(a,b){ return a.d-b.d; })
     .slice(0,2);
   planning.forEach(function(x){
-    evts.push({cle:'seance|'+x.raw.date,label:'Séance du '+x.raw.date+(x.raw.theme?' — '+x.raw.theme:'')});
+    evts.push({t:'seance',cle:'seance|'+x.raw.date,label:'Séance du '+x.raw.date+(x.raw.theme?' — '+x.raw.theme:'')});
   });
-  return evts;
+  return type ? evts.filter(function(e){ return e.t===type; }) : evts;
 }
 async function chargerMaConfirmation(matchKey){
   try{
@@ -2693,11 +2944,13 @@ async function renderMesMatchs(){
   if(!ct) return;
   var html='';
 
-  var evts=prochainsEvenementsDispo();
+  // On le construit à part : il se pose après la convocation, pas avant.
+  var evts=prochainsEvenementsDispo('match');
   var mesReponses=evts.length?await chargerMesDisponibilites():{};
-  html+='<div class="blk"><div class="blk-h"><span class="t">'+ic('valide')+'Mes disponibilités</span></div><div class="blk-body">';
+  var dispoHtml='<div class="blk"><div class="blk-h"><span class="t">'+ic('valide')
+    +'Ma disponibilité</span></div><div class="blk-body">';
   if(evts.length){
-    html+=evts.map(function(e){
+    dispoHtml+=evts.map(function(e){
       var rep=mesReponses[e.cle];
       return '<div style="padding:9px 0;border-bottom:1px solid var(--hair)">'
         +'<div style="font-size:14px;color:var(--ink);margin-bottom:6px">'+esc(e.label)+'</div>'
@@ -2707,9 +2960,9 @@ async function renderMesMatchs(){
         +'</div></div>';
     }).join('');
   }else{
-    html+='<div class="empty-txt">Rien à venir pour l\'instant</div>';
+    dispoHtml+='<div class="empty-txt">Aucun match annoncé pour l\'instant</div>';
   }
-  html+='</div></div>';
+  dispoHtml+='</div></div>';
 
   // Ma convocation (convocation en cours de préparation par le coach) — masquée si le match a déjà eu lieu
   var conv=SAISON.CONVOS||{};
@@ -2753,21 +3006,7 @@ async function renderMesMatchs(){
     html+='<div class="hero-eyebrow">📋 Convocation</div><div class="empty-txt" style="text-align:left;padding:4px 0 0">Aucune convocation en préparation pour le moment</div>';
   }
   html+='</div>';
-
-  // Prochaines séances (planning mensuel, dates futures uniquement)
-  var planning=(SAISON.PLANNING_MENSUEL||[]).map(function(p){ return {raw:p, d:parseDateFr(p.date)}; })
-    .filter(function(x){ return x.d && x.d>=new Date(new Date().setHours(0,0,0,0)); })
-    .sort(function(a,b){ return a.d-b.d; })
-    .slice(0,3);
-  html+='<div class="blk"><div class="blk-h"><span class="t">'+ic('calendrier')+'Prochaines séances</span></div><div class="blk-body">';
-  if(planning.length){
-    html+=planning.map(function(x){
-      return '<div class="plan-item"><div class="plan-date">'+esc(x.raw.date)+'</div><div class="plan-theme">'+esc(x.raw.theme||'')+'</div></div>';
-    }).join('');
-  }else{
-    html+='<div class="empty-txt">Aucune séance programmée à venir pour le moment</div>';
-  }
-  html+='</div></div>';
+  html+=dispoHtml;
 
   // Mes dernières notes de match (mêmes 4 critères que côté coach)
   var CRITERES=[{k:'consignes',lab:'Respect des consignes',ic:'📋'},{k:'offensif',lab:'Apport offensif',ic:'⚔️'},{k:'defensif',lab:'Apport défensif',ic:'🛡️'},{k:'esprit',lab:"État d'esprit / combativité",ic:'🔥'}];
@@ -2785,7 +3024,7 @@ async function renderMesMatchs(){
       return '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)">'
         +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'
         +'<div><b style="color:var(--ink,#fff);font-size:14.5px">vs '+esc(m.adversaire||'')+'</b><span style="color:var(--gris2);font-size:13.5px;margin-left:6px">'+esc(m.date||'')+'</span></div>'
-        +'<div style="color:var(--gold);font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:16.5px">'+(n.note||0)+'/6</div></div>'
+        +'<div style="color:var(--gold);font-family:Roboto Condensed,sans-serif;font-weight:700;font-size:16.5px">'+jNote(n.note)+'/'+NOTE_MAX+'</div></div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13.5px;color:var(--gris2);margin-bottom:8px">'
         +'<span>'+statutLab+'</span><span>⚽ '+(n.buts||0)+' but(s)</span><span>🎯 '+(n.pd||0)+' passe(s) D.</span><span>⏱ '+(n.tps||0)+' min</span>'
         +((n.cj||0)>0?'<span style="color:var(--gold)">🟨 '+n.cj+'</span>':'')+((n.cr||0)>0?'<span style="color:var(--red)">🟥</span>':'')
@@ -2801,7 +3040,8 @@ async function renderMesMatchs(){
         +CRITERES.map(function(c){
           var v=nd[c.k]||0;
           var etoiles='';
-          for(var i=1;i<=6;i++){ etoiles+='<span style="font-size:16.5px;color:'+(i<=v?'#fbbf24':'#3a3a3a')+'">★</span>'; }
+          var v6=jNote(v);
+          for(var i=1;i<=NOTE_MAX;i++){ etoiles+='<span style="font-size:16.5px;color:'+(i<=v6?'#fbbf24':'#3a3a3a')+'">★</span>'; }
           return '<div><div style="font-size:13px;color:var(--gris2);margin-bottom:3px">'+c.ic+' '+c.lab+'</div><div>'+etoiles+'</div></div>';
         }).join('')
         +'</div></div>';
@@ -3231,7 +3471,7 @@ function renderMaCarte(){
       +' · '+(s.matchsJoues||0)+' match'+((s.matchsJoues||0)>1?'s':'')+' joué'+((s.matchsJoues||0)>1?'s':'')+'</div>'
     +'<div class="mc-note"><span class="v">'+detail.note+'</span><span class="l">note globale</span></div>'
     +'<div class="mc-cles">'
-      +'<div class="mc-cle"><b style="color:var(--gold)">'+(s.noteMoy?s.noteMoy.toFixed(1):'—')+'</b><span>note moyenne /6</span></div>'
+      +'<div class="mc-cle"><b style="color:var(--gold)">'+(s.noteMoy?jNote1(s.noteMoy):'—')+'</b><span>note moyenne /'+NOTE_MAX+'</span></div>'
       +'<div class="mc-cle"><b style="color:var(--or)">'+(s.tpsMoy||0)+'\'</b><span>par match</span></div>'
       +'<div class="mc-cle"><b style="color:'+(presPct>=75?'var(--green)':(presPct>=50?'var(--gold)':'var(--red)'))+'">'+presPct+'%</b><span>présence</span></div>'
       +'<div class="mc-cle"><b style="color:var(--purple)">'+(s.buts||0)+'</b><span>'+(am.gardien?'clean sheets':'but'+((s.buts||0)>1?'s':''))+'</span></div>'
@@ -3245,6 +3485,11 @@ function renderMaCarte(){
       +'</div>';
   }
 
+  // De quoi l'emporter : la carte se redessine en image et part dans le
+  // partage du téléphone, ou se télécharge.
+  html+='<button class="btn-or mc-export" onclick="mcEnregistrerCarte(this)">'
+    +ic('appareil')+'Enregistrer ma carte</button>';
+
   // ---------- Où j'en suis ----------
   html+='<div class="blk"><div class="blk-h"><span class="t">'+ic('hausse')+'Où j\'en suis</span>'
     +'<span class="bc">'+(ms.length?ms.length+' match'+(ms.length>1?'s':'')+' noté'+(ms.length>1?'s':''):'aucun match noté')+'</span></div>'
@@ -3252,7 +3497,7 @@ function renderMaCarte(){
     +'<div class="mc-traj">'
     +mcColonne('Ma note en match', (notesM.length?notesM[notesM.length-1].toFixed(1):'—'), notesM.length?' /6':'',
         notesM, 6, 'var(--gold)', 0.3,
-        notesM.length?('moyenne '+(s.noteMoy?s.noteMoy.toFixed(1):'—')+' sur la saison'):'le coach note après chaque match')
+        notesM.length?('moyenne '+(s.noteMoy?jNote1(s.noteMoy):'—')+' sur la saison'):'le coach note après chaque match')
     +mcColonne('Mon temps de jeu', (tpsM.length?tpsM[tpsM.length-1]:'—'), tpsM.length?' min':'',
         tpsM, 90, 'var(--or)', 8,
         (s.titu||0)+' fois titulaire · '+(s.rempl||0)+' fois remplaçant')
@@ -3265,7 +3510,7 @@ function renderMaCarte(){
         var col=m.note>=4.5?'var(--green)':(m.note<=2.5?'var(--red)':'var(--gold)');
         return '<div class="mc-m" style="--mc:'+col+'">'
           +'<div class="mc-m-h"><b>'+esc(m.adv||'?')+'</b><span>'+esc(m.date||'')+(m.lieu==='E'?' · ext.':'')+'</span></div>'
-          +'<div class="mc-m-b"><span class="mc-m-n" style="color:'+col+'">'+m.note+'<i>/6</i></span>'
+          +'<div class="mc-m-b"><span class="mc-m-n" style="color:'+col+'">'+jNote(m.note)+'<i>/'+NOTE_MAX+'</i></span>'
           +'<span class="mc-m-t">'+m.tps+'\'</span>'
           +'<span class="mc-m-e">'+(m.buts?('⚽'+m.buts+' '):'')+(m.pd?('🅰️'+m.pd+' '):'')
             +(m.cj?'🟨':'')+(m.cr?'🟥':'')+'</span></div></div>';
@@ -3288,7 +3533,7 @@ function renderMaCarte(){
       var etoiles='';
       for(var k=1;k<=6;k++) etoiles+='<span style="color:'+(k<=Math.round(val6)?'#fbbf24':'#3a3a3a')+'">★</span>';
       return '<div class="mc-a"><div class="mc-a-h"><span class="mc-a-l">'+a.label+'</span>'+ecart
-        +'<span class="mc-a-v">'+val6+'<i>/6</i></span></div>'
+        +'<span class="mc-a-v">'+jNote(val6)+'<i>/'+NOTE_MAX+'</i></span></div>'
         +'<div class="mc-a-e">'+etoiles+'</div></div>';
     }).join('')
     +'</div>'
