@@ -761,6 +761,14 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .mc-cle b{display:block;font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800;line-height:1.1}
 .mc-cle span{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;line-height:1.25}
 .mc-badges{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:14px}
+/* Ce que disent les chiffres : un trait de couleur, le constat, le conseil */
+.lec-b{padding-top:4px}
+.lec-l{border-left:3px solid var(--lc);padding:2px 0 2px 11px;margin-bottom:13px}
+.lec-l:last-child{margin-bottom:2px}
+.lec-e{font-family:'Roboto Condensed',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--lc);margin-bottom:3px}
+.lec-t{font-size:14.5px;line-height:1.45;color:var(--ink);font-weight:600}
+.lec-q{font-size:13.5px;line-height:1.5;color:var(--gris2);margin-top:3px}
 .mc-export{display:flex;align-items:center;justify-content:center;gap:8px;
   width:100%;margin:2px 0 16px}
 .mc-export .ic{width:1.05em;height:1.05em}
@@ -2392,8 +2400,8 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v44</b> · 08/10/2026<br>'
-    +'<span style="opacity:.8">Ma carte s\'enregistre \u00b7 Mes matchs recentr\u00e9</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v45</b> · 08/10/2026<br>'
+    +'<span style="opacity:.8">Les chiffres disent ce qu\'ils valent</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
   jvBrancher();
@@ -2879,6 +2887,180 @@ async function mcEnregistrerCarte(bouton){
   }finally{
     if(bouton){ bouton.disabled=false; if(lab) bouton.innerHTML=lab; }
   }
+}
+
+// ==================== CE QUE VALENT LES CHIFFRES ====================
+//
+//   COACH : tout le texte que l'appli dit au joueur sur ses chiffres est
+//   ici, et nulle part ailleurs. Réécris-le dans tes mots. Garde juste la
+//   structure : « a » = le seuil à partir duquel la phrase s'applique
+//   (paliers rangés du plus haut au plus bas), « t » = ce que ça vaut,
+//   « q » = quoi faire. « vide » sert quand il n'y a pas encore de données :
+//   un chiffre bas faute de matchs n'est pas un reproche.
+//
+var LECTURES={
+  globale:{
+    nom:'Ta note globale',
+    vide:{t:'Elle part de tes attributs de départ : il n\'y a pas encore assez de matchs pour qu\'elle veuille dire quelque chose.',
+          q:'Joue, sois là, fais-toi noter — elle bougera toute seule.'},
+    paliers:[
+      {a:75,t:'Tu es dans le haut du groupe.',
+           q:'Ce qui fait un cadre maintenant, c\'est de tenir ce niveau quand ça va moins bien.'},
+      {a:60,t:'Tu es un joueur sur qui le coach compte.',
+           q:'Regarde ton attribut le plus bas : c\'est là que tu gagneras le plus vite.'},
+      {a:45,t:'Tu es dans la moyenne du groupe.',
+           q:'Un seul domaine travaillé sérieusement sur un mois te fait passer devant.'},
+      {a:0, t:'Ta note est encore basse, et elle tient surtout à ce qui se compte : présence, temps de jeu, notes.',
+           q:'Commence par la présence — c\'est celui qui monte le plus vite et il tire les autres.'}
+    ]
+  },
+  note:{
+    nom:'Ta note en match',
+    vide:{t:'Le coach ne t\'a pas encore noté cette saison.',
+          q:'Rien à faire là-dessus : ça vient avec les premières feuilles de match.'},
+    paliers:[
+      {a:5,  t:'Tes performances en match sont solides et régulières.',
+             q:'Demande au coach ce qui te manque pour passer au-dessus — il a un avis précis.'},
+      {a:4,  t:'Tu rends des matchs corrects.',
+             q:'Regarde tes quatre critères : il y en a souvent un qui tire la moyenne vers le bas.'},
+      {a:3,  t:'Tes notes sont justes en dessous de la moyenne.',
+             q:'Le respect des consignes est le critère le plus rapide à faire monter. Commence par là.'},
+      {a:0,  t:'Tes dernières notes sont basses.',
+             q:'Va voir le coach et demande-lui une chose à corriger. Une seule, pas quatre.'}
+    ]
+  },
+  presence:{
+    nom:'Ta présence à l\'entraînement',
+    vide:{t:'Aucune séance n\'a encore été pointée.',
+          q:'Dis simplement si tu viens, dans « Ma semaine » — c\'est ce que le coach regarde en premier.'},
+    paliers:[
+      {a:85, t:'Tu es là, presque toujours. C\'est ce qui se voit le plus.',
+             q:'Continue : c\'est l\'argument le plus solide quand une place se discute.'},
+      {a:70, t:'Tu es présent la plupart du temps.',
+             q:'Deux séances de plus par mois et tu passes dans le haut du groupe.'},
+      {a:50, t:'Tu manques une séance sur deux.',
+             q:'Préviens quand tu ne peux pas venir : un absent annoncé ne compte pas pareil qu\'un absent muet.'},
+      {a:0,  t:'Tu es rarement à l\'entraînement.',
+             q:'Si c\'est le boulot ou les horaires, dis-le au coach. Il adapte ce qu\'il sait.'}
+    ]
+  },
+  temps:{
+    nom:'Ton temps de jeu',
+    vide:{t:'Tu n\'as pas encore de temps de jeu cette saison.',
+          q:'C\'est l\'entraînement qui ouvre la porte du week-end. Rien d\'autre.'},
+    paliers:[
+      {a:70, t:'Tu joues l\'essentiel des matchs.',
+             q:'Garde ton niveau d\'exigence : c\'est la place la plus facile à perdre.'},
+      {a:45, t:'Tu joues une bonne partie des matchs.',
+             q:'Les entrées sont des oraux : rentre à 100 % dès la première minute, ça se remarque.'},
+      {a:20, t:'Tu as du temps de jeu, mais par bouts.',
+             q:'Demande au coach ce qu\'il attend de toi quand tu rentres. Beaucoup ne le demandent jamais.'},
+      {a:0,  t:'Tu joues peu pour l\'instant.',
+             q:'La présence et l\'état d\'esprit à l\'entraînement sont ce qui fait bouger ça en premier.'}
+    ]
+  },
+  points:{
+    nom:'Tes points d\'entraînement',
+    vide:{t:'Tu n\'as pas encore de points.',
+          q:'Ils se gagnent en venant et en s\'appliquant. Rien de plus compliqué.'},
+    paliers:[
+      {a:80, t:'Tu es dans le haut du classement de l\'entraînement.',
+             q:'Le coach le voit. C\'est ce qui pèse quand deux joueurs se valent sur le terrain.'},
+      {a:50, t:'Tu es dans la moyenne du groupe à l\'entraînement.',
+             q:'La régularité compte plus que les grosses séances : viens, même les semaines creuses.'},
+      {a:0,  t:'Tu es dans le bas du classement de l\'entraînement.',
+             q:'C\'est le classement le plus facile à remonter : il ne demande que d\'être là.'}
+    ]
+  }
+};
+
+// Choisit la phrase qui correspond a la valeur.
+function lecPhrase(cle, valeur, aDesDonnees){
+  var L=LECTURES[cle];
+  if(!L) return null;
+  if(!aDesDonnees) return {nom:L.nom, t:L.vide.t, q:L.vide.q, rang:null};
+  for(var i=0;i<L.paliers.length;i++){
+    if(valeur>=L.paliers[i].a)
+      return {nom:L.nom, t:L.paliers[i].t, q:L.paliers[i].q, rang:L.paliers.length-i};
+  }
+  var d=L.paliers[L.paliers.length-1];
+  return {nom:L.nom, t:d.t, q:d.q, rang:1};
+}
+
+// Les lectures disponibles pour un joueur, chacune avec son rang de palier :
+// c'est ce rang qui dit ce qui va bien et ce qui va moins bien.
+function lecToutes(idx){
+  var st=(SAISON.STATS||[])[idx]||{};
+  var detail=calcAttrsJoueurDetail(idx);
+  var nbMatchs=((SAISON.MATCHS||[]).length)||0;
+  var presPct=(st.seances>0?Math.round(st.pres/st.seances*100):0);
+  // Le temps de jeu se lit en part du temps possible, pas en minutes brutes :
+  // 420 minutes ne veulent rien dire sans savoir combien de matchs ont eu lieu.
+  var partTemps=(nbMatchs>0 && (st.tpsTotal||0)>0)
+    ? Math.min(100, Math.round((st.tpsTotal||0)/(nbMatchs*90)*100)) : 0;
+  // Les points se lisent en percentile dans le groupe.
+  var tousPts=(SAISON.STATS||[]).map(function(x){ return (x&&x.pts)||0; });
+  var maxPts=Math.max.apply(null,[1].concat(tousPts));
+  var partPts=Math.round(((st.pts||0)/maxPts)*100);
+
+  return [
+    // La note globale ne veut rien dire tant qu'il n'y a pas de match : elle
+    // part d'attributs par defaut et dirait « tu es dans la moyenne » a un
+    // joueur qui n'a pas encore joue une minute.
+    {cle:'globale', l:lecPhrase('globale', detail.note, (st.matchsJoues||0)>0)},
+    // Idem pour la note en match : une note sans match joue est une
+    // incoherence de saisie, pas une performance.
+    {cle:'note',     l:lecPhrase('note', jNote(st.noteMoy),
+        ((st.notesCount||0)>0 && (st.matchsJoues||0)>0))},
+    {cle:'presence', l:lecPhrase('presence', presPct, (st.seances||0)>0)},
+    {cle:'temps',    l:lecPhrase('temps', partTemps, (st.matchsJoues||0)>0)},
+    {cle:'points',   l:lecPhrase('points', partPts, (st.pts||0)>0)}
+  ];
+}
+
+// Le bloc de la carte : la note globale, puis ce qui va bien, puis ce qui
+// est a travailler. Jamais plus de trois lignes — au-dela, personne ne lit.
+function lecBlocCarte(idx){
+  var L=lecToutes(idx);
+  var globale=L[0];
+  var autres=L.slice(1).filter(function(x){ return x.l && x.l.rang!==null; });
+  autres.sort(function(a,b){ return b.l.rang-a.l.rang; });
+  var fort=autres.length?autres[0]:null;
+  var faible=autres.length>1?autres[autres.length-1]:null;
+  if(fort && faible && fort.cle===faible.cle) faible=null;
+
+  function ligne(x, etiq, coul){
+    if(!x || !x.l) return '';
+    return '<div class="lec-l" style="--lc:'+coul+'">'
+      +'<div class="lec-e">'+esc(etiq)+'</div>'
+      +'<div class="lec-t">'+esc(x.l.t)+'</div>'
+      +'<div class="lec-q">'+esc(x.l.q)+'</div></div>';
+  }
+  return '<div class="blk"><div class="blk-h"><span class="t">'+ic('parole')
+      +'Ce que ça dit</span></div><div class="blk-body lec-b">'
+    +ligne(globale, globale.l.rang===null?'Pas encore assez de matchs':'Où tu en es','var(--or)')
+    +(fort&&fort.l.rang>=3 ? ligne(fort,'Ce qui va bien','var(--green)') : ligne(fort,'À regarder','var(--gold)'))
+    +ligne(faible,'À travailler en premier','var(--gold)')
+    +'</div></div>';
+}
+
+// Une lecture seule, pour les ecrans qui n'en montrent qu'une.
+function lecBlocSeul(idx, cle, etiq){
+  var L=lecToutes(idx);
+  var x=null;
+  L.forEach(function(y){ if(y.cle===cle) x=y; });
+  if(!x || !x.l) return '';
+  return '<div class="blk"><div class="blk-h"><span class="t">'+ic('parole')
+      +esc(etiq||'Ce que ça dit')+'</span></div><div class="blk-body lec-b">'
+    +'<div class="lec-l" style="--lc:var(--or)">'
+      +'<div class="lec-t">'+esc(x.l.t)+'</div>'
+      +'<div class="lec-q">'+esc(x.l.q)+'</div></div>'
+    +'</div></div>';
+}
+function lecMonIndex(){
+  var joueurs=(SAISON&&SAISON.JOUEURS)||[];
+  for(var i=0;i<joueurs.length;i++) if(joueurs[i].num===MON_NUM) return i;
+  return -1;
 }
 
 // ===== L'échelle des notes =====
@@ -3485,6 +3667,9 @@ function renderMaCarte(){
       +'</div>';
   }
 
+  // Les chiffres au-dessus ne disent rien seuls : on les lit.
+  html+=lecBlocCarte(idx);
+
   // De quoi l'emporter : la carte se redessine en image et part dans le
   // partage du téléphone, ou se télécharge.
   html+='<button class="btn-or mc-export" onclick="mcEnregistrerCarte(this)">'
@@ -3495,8 +3680,9 @@ function renderMaCarte(){
     +'<span class="bc">'+(ms.length?ms.length+' match'+(ms.length>1?'s':'')+' noté'+(ms.length>1?'s':''):'aucun match noté')+'</span></div>'
     +'<div class="blk-body">'
     +'<div class="mc-traj">'
-    +mcColonne('Ma note en match', (notesM.length?notesM[notesM.length-1].toFixed(1):'—'), notesM.length?' /6':'',
-        notesM, 6, 'var(--gold)', 0.3,
+    +mcColonne('Ma note en match', (notesM.length?jNote1(notesM[notesM.length-1]):'—'),
+        notesM.length?(' /'+NOTE_MAX):'',
+        notesM.map(jNote), NOTE_MAX, 'var(--gold)', 0.3,
         notesM.length?('moyenne '+(s.noteMoy?jNote1(s.noteMoy):'—')+' sur la saison'):'le coach note après chaque match')
     +mcColonne('Mon temps de jeu', (tpsM.length?tpsM[tpsM.length-1]:'—'), tpsM.length?' min':'',
         tpsM, 90, 'var(--or)', 8,
@@ -3507,7 +3693,8 @@ function renderMaCarte(){
     +'</div>'
     +(ms.length?'<div class="mc-derniers-t">Tes '+Math.min(6,ms.length)+' derniers matchs, du plus ancien au plus récent</div>'
       +'<div class="mc-derniers">'+ms.slice(-6).map(function(m){
-        var col=m.note>=4.5?'var(--green)':(m.note<=2.5?'var(--red)':'var(--gold)');
+        var n6=jNote(m.note);
+        var col=n6>=4.5?'var(--green)':(n6<=2.5?'var(--red)':'var(--gold)');
         return '<div class="mc-m" style="--mc:'+col+'">'
           +'<div class="mc-m-h"><b>'+esc(m.adv||'?')+'</b><span>'+esc(m.date||'')+(m.lieu==='E'?' · ext.':'')+'</span></div>'
           +'<div class="mc-m-b"><span class="mc-m-n" style="color:'+col+'">'+jNote(m.note)+'<i>/'+NOTE_MAX+'</i></span>'
@@ -3640,7 +3827,9 @@ function renderEffectif(){
   ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">'+ic('barres')+'Stats de l\'effectif</span></div><div class="blk-body">'+cartes+'</div></div>';
   var ctEnt=document.getElementById('scr-entrainement');
   if(ctEnt){
-    ctEnt.innerHTML='<div class="blk"><div class="blk-h"><span class="t">'+ic('coupe')+'Classement points d\'entraînement</span></div><div class="blk-body">'
+    var moiIdx=lecMonIndex();
+    ctEnt.innerHTML=((moiIdx>=0)?lecBlocSeul(moiIdx,'points','Tes points d\'entraînement'):'')
+      +'<div class="blk"><div class="blk-h"><span class="t">'+ic('coupe')+'Classement points d\'entraînement</span></div><div class="blk-body">'
       +'<div class="podium-wrap">'+podium+'</div>'+listeComplete+'</div></div>';
   }
   photosRemplir(ct);
@@ -4552,7 +4741,11 @@ function renderTempsJeu(){
     {k:'rempl',ic:'entrant',titre:'Entrées en jeu (banc)',unit:'fois',get:function(s){return s.rempl||0;}},
     {k:'matchs',ic:'ballon',titre:'Matchs joués',unit:'matchs',get:function(s){return s.matchsJoues||0;}}
   ];
-  ct.innerHTML=configs.map(function(cfg){
+  // L'écran s'ouvrait sur le classement de l'effectif : le joueur se
+  // cherchait dans quatorze noms. Il s'ouvre maintenant sur lui.
+  var moi=lecMonIndex();
+  var enTete=(moi>=0)?lecBlocSeul(moi,'temps','Ton temps de jeu'):'';
+  ct.innerHTML=enTete+configs.map(function(cfg){
     var data=joueurs.map(function(j,i){return {j:j,v:cfg.get(stats[i]||{}),actif:((stats[i]||{}).matchsJoues||0)>0};});
     var actifs=data.filter(function(d){return d.actif;});
     var moyenne=actifs.length?Math.round(actifs.reduce(function(s,d){return s+d.v;},0)/actifs.length):0;

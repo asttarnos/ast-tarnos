@@ -1,0 +1,126 @@
+LES PHRASES QUE L'APPLI DIT AU JOUEUR SUR SES CHIFFRES
+AST Tarnos — appli joueur v45
+==============================================================
+
+Réécris ce que tu veux, dans tes mots. Garde seulement la structure :
+  « à partir de X »  = le seuil, ne le change que si tu sais ce que tu fais
+  CONSTAT           = ce que ça vaut
+  CONSEIL           = quoi faire
+Renvoie-moi le fichier, je le remets dans l'appli.
+
+──────────────────────────────────────────────────────────────
+TA NOTE GLOBALE   [clé technique : globale]
+──────────────────────────────────────────────────────────────
+
+  QUAND IL N'Y A PAS ENCORE DE DONNÉES
+    CONSTAT : Elle part de tes attributs de départ : il n'y a pas encore assez de matchs pour qu'elle veuille dire quelque chose.
+    CONSEIL : Joue, sois là, fais-toi noter — elle bougera toute seule.
+
+  À PARTIR DE 75
+    CONSTAT : Tu es dans le haut du groupe.
+    CONSEIL : Ce qui fait un cadre maintenant, c'est de tenir ce niveau quand ça va moins bien.
+
+  À PARTIR DE 60
+    CONSTAT : Tu es un joueur sur qui le coach compte.
+    CONSEIL : Regarde ton attribut le plus bas : c'est là que tu gagneras le plus vite.
+
+  À PARTIR DE 45
+    CONSTAT : Tu es dans la moyenne du groupe.
+    CONSEIL : Un seul domaine travaillé sérieusement sur un mois te fait passer devant.
+
+  À PARTIR DE 0
+    CONSTAT : Ta note est encore basse, et elle tient surtout à ce qui se compte : présence, temps de jeu, notes.
+    CONSEIL : Commence par la présence — c'est celui qui monte le plus vite et il tire les autres.
+
+──────────────────────────────────────────────────────────────
+TA NOTE EN MATCH   [clé technique : note]
+──────────────────────────────────────────────────────────────
+
+  QUAND IL N'Y A PAS ENCORE DE DONNÉES
+    CONSTAT : Le coach ne t'a pas encore noté cette saison.
+    CONSEIL : Rien à faire là-dessus : ça vient avec les premières feuilles de match.
+
+  À PARTIR DE 5
+    CONSTAT : Tes performances en match sont solides et régulières.
+    CONSEIL : Demande au coach ce qui te manque pour passer au-dessus — il a un avis précis.
+
+  À PARTIR DE 4
+    CONSTAT : Tu rends des matchs corrects.
+    CONSEIL : Regarde tes quatre critères : il y en a souvent un qui tire la moyenne vers le bas.
+
+  À PARTIR DE 3
+    CONSTAT : Tes notes sont justes en dessous de la moyenne.
+    CONSEIL : Le respect des consignes est le critère le plus rapide à faire monter. Commence par là.
+
+  À PARTIR DE 0
+    CONSTAT : Tes dernières notes sont basses.
+    CONSEIL : Va voir le coach et demande-lui une chose à corriger. Une seule, pas quatre.
+
+──────────────────────────────────────────────────────────────
+TA PRÉSENCE À L'ENTRAÎNEMENT   [clé technique : presence]
+──────────────────────────────────────────────────────────────
+
+  QUAND IL N'Y A PAS ENCORE DE DONNÉES
+    CONSTAT : Aucune séance n'a encore été pointée.
+    CONSEIL : Dis simplement si tu viens, dans « Ma semaine » — c'est ce que le coach regarde en premier.
+
+  À PARTIR DE 85
+    CONSTAT : Tu es là, presque toujours. C'est ce qui se voit le plus.
+    CONSEIL : Continue : c'est l'argument le plus solide quand une place se discute.
+
+  À PARTIR DE 70
+    CONSTAT : Tu es présent la plupart du temps.
+    CONSEIL : Deux séances de plus par mois et tu passes dans le haut du groupe.
+
+  À PARTIR DE 50
+    CONSTAT : Tu manques une séance sur deux.
+    CONSEIL : Préviens quand tu ne peux pas venir : un absent annoncé ne compte pas pareil qu'un absent muet.
+
+  À PARTIR DE 0
+    CONSTAT : Tu es rarement à l'entraînement.
+    CONSEIL : Si c'est le boulot ou les horaires, dis-le au coach. Il adapte ce qu'il sait.
+
+──────────────────────────────────────────────────────────────
+TON TEMPS DE JEU   [clé technique : temps]
+──────────────────────────────────────────────────────────────
+
+  QUAND IL N'Y A PAS ENCORE DE DONNÉES
+    CONSTAT : Tu n'as pas encore de temps de jeu cette saison.
+    CONSEIL : C'est l'entraînement qui ouvre la porte du week-end. Rien d'autre.
+
+  À PARTIR DE 70
+    CONSTAT : Tu joues l'essentiel des matchs.
+    CONSEIL : Garde ton niveau d'exigence : c'est la place la plus facile à perdre.
+
+  À PARTIR DE 45
+    CONSTAT : Tu joues une bonne partie des matchs.
+    CONSEIL : Les entrées sont des oraux : rentre à 100 % dès la première minute, ça se remarque.
+
+  À PARTIR DE 20
+    CONSTAT : Tu as du temps de jeu, mais par bouts.
+    CONSEIL : Demande au coach ce qu'il attend de toi quand tu rentres. Beaucoup ne le demandent jamais.
+
+  À PARTIR DE 0
+    CONSTAT : Tu joues peu pour l'instant.
+    CONSEIL : La présence et l'état d'esprit à l'entraînement sont ce qui fait bouger ça en premier.
+
+──────────────────────────────────────────────────────────────
+TES POINTS D'ENTRAÎNEMENT   [clé technique : points]
+──────────────────────────────────────────────────────────────
+
+  QUAND IL N'Y A PAS ENCORE DE DONNÉES
+    CONSTAT : Tu n'as pas encore de points.
+    CONSEIL : Ils se gagnent en venant et en s'appliquant. Rien de plus compliqué.
+
+  À PARTIR DE 80
+    CONSTAT : Tu es dans le haut du classement de l'entraînement.
+    CONSEIL : Le coach le voit. C'est ce qui pèse quand deux joueurs se valent sur le terrain.
+
+  À PARTIR DE 50
+    CONSTAT : Tu es dans la moyenne du groupe à l'entraînement.
+    CONSEIL : La régularité compte plus que les grosses séances : viens, même les semaines creuses.
+
+  À PARTIR DE 0
+    CONSTAT : Tu es dans le bas du classement de l'entraînement.
+    CONSEIL : C'est le classement le plus facile à remonter : il ne demande que d'être là.
+
