@@ -2461,8 +2461,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v102</b> · 07/10/2026<br>
-      <span style="opacity:.7">Même identité que l'appli joueur</span>
+      AST COACH <b style="color:var(--or)">v103</b> · 07/10/2026<br>
+      <span style="opacity:.7">Fiche de préparation de séance</span>
     </div>
   </div>
 </div>
@@ -3001,9 +3001,9 @@ Chez le président"></textarea>
               </div></div></div>
           </div>
           <div class="doc-corps">
-            <div class="doc-titre">🧭 Fiche de conception de séance</div>
-            <div class="doc-desc">Deux pages A4, vierges, à photocopier pour la réunion technique&nbsp;: le cadre, d'où vient la séance, l'objectif, les cinq moments du déroulé, quatre terrains à dessiner à la main, les quatre variables pour faire évoluer un exercice, et le bilan à chaud.</div>
-            <button class="btn" onclick="genererFicheConception()">Ouvrir la fiche de conception</button>
+            <div class="doc-titre">🧭 Fiche de préparation de séance</div>
+            <div class="doc-desc">Deux pages A4 à photocopier. Page&nbsp;1, celle qu'on emporte au bord du terrain&nbsp;: l'appel de tout l'effectif — présent, reprise course, blessé, absent —, le cadre, le thème, et les cinq moments du déroulé avec une zone à dessiner pour chaque situation. Page&nbsp;2, les quatre terrains en grand, les variables pour faire évoluer un exercice, et le bilan à chaud.</div>
+            <button class="btn" onclick="genererFicheConception()">Ouvrir la fiche de préparation</button>
           </div>
         </div>
 
@@ -16819,16 +16819,50 @@ function cpStyles(){
       +'font-weight:600;letter-spacing:0;text-transform:none;color:#6b7480;margin-left:auto}'
     // Une phase du déroulé
     +'.ph3{border:1.5px solid #e2e6ea;border-left:5px solid var(--c);border-radius:8px;'
-      +'padding:6px 10px 7px;page-break-inside:avoid;break-inside:avoid}'
-    +'.ph3-h{display:flex;align-items:center;gap:8px;margin-bottom:4px}'
+      +'padding:5px 9px 6px;page-break-inside:avoid;break-inside:avoid}'
+    +'.ph3-h{display:flex;align-items:center;gap:8px;margin-bottom:3px}'
     +'.ph3-n{font-family:Anton,sans-serif;font-size:15px;line-height:1;color:var(--c);min-width:13px}'
     +'.ph3-t{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--c)}'
     +'.ph3-s{font-size:8.4px;color:#98a2ad;font-weight:600}'
     +'.ph3-d{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#98a2ad;'
       +'display:flex;align-items:baseline;gap:5px;white-space:nowrap}'
-    +'.ph3 .ch.large .ch-v{min-height:36px}.ph3 .ch{margin-bottom:6px}'
+    +'.ph3 .ch.large .ch-v{min-height:60px}.ph3 .ch{margin-bottom:5px}'
+    +'.ph3 .ch .ch-v{min-height:20px}.ph3 .ch:last-child{margin-bottom:0}'
     +'.ph3-d span[contenteditable]{display:inline-block;min-width:54px;border-bottom:1.2px dotted #b4bcc4;'
       +'color:#11161c;font-size:10.5px;font-weight:700;text-align:center;padding:0 3px}'
+    // Le terrain glissé dans chaque phase du déroulé
+    +'.ph3-b{display:grid;gap:9px;align-items:start}'
+    +'.ph3-ter svg{border:1px solid #dfe4e9;border-radius:5px}'
+    +'.ph3-ter .cp-lg{margin-top:3px;min-height:13px;font-size:9px;font-weight:600;'
+      +'white-space:nowrap;overflow:hidden;text-align:center}'
+    // L'appel — un joueur par ligne, quatre cases à cocher au stylo
+    +'.cp-ap-lg{display:flex;gap:13px;flex-wrap:wrap;align-items:center;margin-bottom:3px;'
+      +'font-size:7.6px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#6b7480}'
+    +'.cp-ap-lg b{display:flex;align-items:center;gap:4px;font-weight:700}'
+    +'.cp-ap-lg i,.cp-ap-r .cs i{width:8.6px;height:8.6px;border:1.3px solid #b4bcc4;'
+      +'border-radius:2px;flex:0 0 auto;font-style:normal;font-size:5.6px;font-weight:700;'
+      +'line-height:1;display:flex;align-items:center;justify-content:center;opacity:.72}'
+    +'.cp-ap-g{display:grid;grid-auto-flow:column;gap:0 12px}'
+    +'.feuille{gap:7px}'
+    +'.bl .ch{margin-bottom:4px}.bl .ch:last-child{margin-bottom:0}'
+    +'.bl .duo{margin-bottom:4px}.bl .duo .ch{margin-bottom:0}'
+    +'.cp-ap-lg{margin-bottom:4px}'
+    +'.cp-ap-r{display:flex;align-items:center;gap:5px;padding:0;line-height:1.15;'
+      +'border-bottom:1px dotted #edf0f3}'
+    +'.cp-ap-r .n{width:13px;text-align:right;font-size:7px;font-weight:700;color:#b4bcc4;flex:0 0 auto}'
+    +'.cp-ap-r .nm{flex:1;min-width:0;font-size:7.8px;font-weight:600;color:#3c4650;'
+      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+    +'.cp-ap-r .nm em{font-style:normal;color:#d97706;font-size:7px}'
+    +'.cp-ap-r .nm[contenteditable]{border-bottom:1.2px dotted #c3cbd3;min-height:9px;'
+      +'line-height:1.15;padding:0}'
+    +'.cp-ap-r .cs{display:flex;gap:3px;flex:0 0 auto}'
+    +'.cp-ap-t{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;margin-top:5px;'
+      +'padding-top:5px;border-top:1px solid #e2e6ea}'
+    +'.cp-ap-t > div{display:flex;align-items:baseline;gap:5px}'
+    +'.cp-ap-t > div > b{font-size:7.2px;font-weight:700;letter-spacing:.09em;'
+      +'text-transform:uppercase;color:#98a2ad}'
+    +'.cp-ap-t > div > span{display:inline-block;font-family:Anton,sans-serif;font-size:13px;'
+      +'color:#11161c;min-width:30px;min-height:15px;border-bottom:1.3px dotted #b4bcc4;text-align:center}'
     // Les terrains à dessiner
     +'.cp-ters{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
     +'.cp-ter{border:1.5px solid #e2e6ea;border-radius:8px;padding:6px 7px 7px;page-break-inside:avoid;break-inside:avoid}'
@@ -16849,14 +16883,24 @@ function cpStyles(){
       // et la hauteur des cases. Les autres documents, eux, restent nets.
       +'.ch-v{border-bottom:1.2px dotted #c3cbd3!important;min-height:17px!important}'
       +'.ch.large .ch-v{min-height:30px!important}'
-      +'.ph3 .ch.large .ch-v{min-height:36px!important}'
+      +'.ph3 .ch.large .ch-v{min-height:60px!important}'
+      +'.ph3 .ch .ch-v{min-height:20px!important}'
       +'.ph3-d span[contenteditable],.bandeau .droite span[contenteditable],'
         +'.cp-ter-t span[contenteditable]{border-bottom:1.2px dotted #b4bcc4!important;min-height:14px!important}'
       +'.ph3-d span[contenteditable]{min-width:54px!important;display:inline-block!important}'
+      +'.cp-ap-r .cs i,.cp-ap-lg i{border:1.3px solid #9aa3ad!important;'
+        +'-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      +'.cp-ap-t > div > span{border-bottom:1.3px dotted #9aa3ad!important;min-height:18px!important}'
+      +'.cp-ap-r .nm[contenteditable]{border-bottom:1.2px dotted #b4bcc4!important;'
+        +'min-height:9px!important}'
       +'.bandeau .droite span[contenteditable]{min-width:96px!important;display:inline-block!important}'
     +'}'
     +'@media screen and (max-width:860px){.cp-ters,.cp-var{grid-template-columns:1fr!important}'
-      +'.ph3-h{flex-wrap:wrap}.ph3-d{margin-left:0;width:100%}}'
+      +'.ph3-h{flex-wrap:wrap}.ph3-d{margin-left:0;width:100%}'
+      +'.ph3-b{grid-template-columns:1fr!important}'
+      +'.cp-ap-g{grid-auto-flow:row!important;grid-template-rows:none!important;'
+        +'grid-template-columns:1fr 1fr!important}'
+      +'.cp-ap-t{grid-template-columns:repeat(2,1fr)!important}}'
     +'</style>';
 }
 // Un terrain vide, en clair : c'est du papier, il faut pouvoir dessiner dessus au stylo
@@ -16873,27 +16917,111 @@ function cpTerrain(){
     +'</g><circle cx="65" cy="42" r="1" fill="'+t+'"/></svg>';
   return s;
 }
+// ---- L'appel du soir -------------------------------------------------
+// Quatre cases par joueur, cochées au stylo au bord du terrain :
+//   P présent · R reprise course · B blessé · A absent
+// La liste sort de l'effectif de l'appli ; si elle est vide, la fiche
+// s'imprime avec des lignes nues et se remplit à la main.
+var CP_CASES=[['P','présent','#0f8a5f'],['R','reprise course','#d97706'],
+              ['B','blessé','#c0392b'],['A','absent','#98a2ad']];
+function cpCases(){
+  return '<span class="cs">'+CP_CASES.map(function(c){
+    return '<i style="border-color:'+c[2]+';color:'+c[2]+'">'+c[0]+'</i>';
+  }).join('')+'</span>';
+}
+function cpLigneAppel(j){
+  return '<div class="cp-ap-r"><span class="n">'+docEsc(j?String(j.num||''):'')+'</span>'
+    +(j? '<span class="nm">'+docEsc(j.nom||'')+(j.gardien?' <em>G</em>':'')+'</span>'
+       : '<span class="nm" contenteditable data-vide="nom"></span>')
+    +cpCases()+'</div>';
+}
+function cpAppel(){
+  var l=[];
+  try{ l=(JOUEURS||[]).slice().sort(function(a,b){ return (a.num||999)-(b.num||999); }); }catch(e){}
+  var lignes=l.map(cpLigneAppel);
+  // De quoi ajouter un essai, un jeune monté, un mutation du jour
+  var vides = l.length ? 4 : 32;
+  for(var i=0;i<vides;i++) lignes.push(cpLigneAppel(null));
+  var parCol = Math.ceil(lignes.length/4);
+
+  var legende='<div class="cp-ap-lg">'+CP_CASES.map(function(c){
+      return '<b><i style="border-color:'+c[2]+'"></i>'+docEsc(c[0])+' '+docEsc(c[1])+'</b>';
+    }).join('')+'<b style="margin-left:auto;color:#b4bcc4">G = gardien</b></div>';
+
+  var totaux='<div class="cp-ap-t">'
+    +[['Présents','P'],['En reprise','R'],['Blessés','B'],['Absents','A'],['Gardiens','G']]
+      .map(function(t){ return '<div><b>'+docEsc(t[0])+'</b>'
+        +'<span contenteditable data-vide="0"></span></div>'; }).join('')
+    +'</div>';
+
+  // Ce que l'appli sait déjà : inutile de le chercher de mémoire à 19h25.
+  var infirmerie='';
+  try{
+    var bl=dvBlessesActifs();
+    if(bl && bl.length) infirmerie=reuSu('À l\'infirmerie d\'après l\'appli', bl, 'personne');
+  }catch(e){}
+
+  return reuBloc('L\'appel','#c0392b',
+    legende
+    +'<div class="cp-ap-g" style="grid-template-rows:repeat('+parCol+',auto)">'
+      +lignes.join('')+'</div>'
+    +totaux+infirmerie);
+}
+
+// Dans le déroulé, on ne dessine pas un terrain complet en miniature : on
+// dessine la ZONE où se passe l'exercice. Deux buts, une ligne médiane, et
+// de la place. Le terrain entier reste page 2, en grand.
+function cpZone(){
+  var t='#9fb8a8';
+  return '<svg viewBox="0 0 130 55" preserveAspectRatio="none" '
+      +'style="width:100%;height:auto;display:block">'
+    +'<rect x="0" y="0" width="130" height="55" rx="2" fill="#eef5f0"/>'
+    +'<g fill="none" stroke="'+t+'" stroke-width="0.6">'
+    +'<rect x="2" y="2" width="126" height="51"/>'
+    +'<line x1="65" y1="2" x2="65" y2="53" stroke-dasharray="2.5 2.5"/>'
+    +'<circle cx="65" cy="27.5" r="6.5"/>'
+    +'<rect x="2" y="19" width="5" height="17"/><rect x="123" y="19" width="5" height="17"/>'
+    +'</g><circle cx="65" cy="27.5" r="0.9" fill="'+t+'"/></svg>';
+}
+
 // Les cinq moments d'une séance. Les deux bouts sont courts : on n'y conçoit pas grand-chose.
 var CP_PHASES=[
-  {n:'1', t:'Mise en train',   s:'échauffement, déjà orienté vers le thème', c:'#0f8a5f', court:true},
-  {n:'2', t:'Situation 1',     s:'le thème isolé, peu ou pas d\'opposition',  c:'#2563eb'},
-  {n:'3', t:'Situation 2',     s:'le même thème, avec de l\'opposition',      c:'#d97706'},
-  {n:'4', t:'Le jeu',          s:'le thème dans le match, sans le dire',      c:'#c0392b'},
+  {n:'1', t:'Mise en train',   s:'échauffement, déjà orienté vers le thème', c:'#0f8a5f', court:true, ter:true},
+  {n:'2', t:'Situation 1',     s:'le thème isolé, peu ou pas d\'opposition',  c:'#2563eb', ter:true},
+  {n:'3', t:'Situation 2',     s:'le même thème, avec de l\'opposition',      c:'#d97706', ter:true},
+  {n:'4', t:'Le jeu',          s:'le thème dans le match, sans le dire',      c:'#c0392b', ter:true},
   {n:'5', t:'Retour au calme', s:'ce qu\'on retient, dit par les joueurs',    c:'#6b7480', court:true}
 ];
+// Une phase se conçoit en la dessinant. Le terrain vient donc d'abord, et les
+// mots autour : c'est l'inverse de ce qu'on avait, et c'est ce qui manquait.
 function cpPhase(p){
-  var corps = p.court
-    ? '<div class="duo">'
-        +reuChamp('Organisation','espace, nombre, matériel')
-        +reuChamp(p.n==='5'?'La question que je pose':'Consignes', p.n==='5'?'une seule, ouverte':'ce que je dis en deux phrases')
-      +'</div>'
-    : '<div class="duo"><div>'
-        +reuChamp('Organisation','espace, nombre, buts, matériel',null,true)
-        +reuChamp('Consignes — ce que je dis','deux phrases, pas plus',null,true)
-      +'</div><div>'
-        +reuChamp('Critère de réussite','ce qui doit se produire pour dire que ça marche',null,true)
-        +reuChamp('Variables + / −','ce que je change si c\'est trop simple ou trop dur',null,true)
+  // Le dessin dit l'organisation ; la ligne dessous la chiffre.
+  var ter = p.ter
+    ? '<div class="ph3-ter">'+cpZone()
+        +'<div class="cp-lg" contenteditable data-vide="40×30 · 8v8"></div></div>'
+    : '';
+  var corps;
+  if(!p.ter){
+    // Le retour au calme ne se dessine pas : il se parle.
+    corps='<div class="ph3-b" style="grid-template-columns:1fr 1fr">'
+      +reuChamp('La question que je pose','une seule, ouverte')
+      +reuChamp('Ce qu\'ils doivent retenir','la phrase qu\'ils emportent')
+      +'</div>';
+  }else if(p.court){
+    corps='<div class="ph3-b" style="grid-template-columns:136px 1fr 1fr">'
+      +ter
+      +reuChamp('Consignes — ce que je dis','deux phrases, pas plus',null,true)
+      +reuChamp('Ce que je regarde déjà','le comportement lié au thème',null,true)
+      +'</div>';
+  }else{
+    corps='<div class="ph3-b" style="grid-template-columns:136px 1fr 1fr">'
+      +ter
+      +reuChamp('Consignes — ce que je dis','deux phrases, pas plus',null,true)
+      +'<div>'
+        +reuChamp('Critère de réussite','ce qui doit se produire')
+        +reuChamp('Variables + / −','si c\'est trop simple ou trop dur')
       +'</div></div>';
+  }
   return '<div class="ph3" style="--c:'+p.c+'">'
     +'<div class="ph3-h"><span class="ph3-n">'+p.n+'</span>'
       +'<span class="ph3-t">'+docEsc(p.t)+'</span>'
@@ -16912,60 +17040,53 @@ function genererFicheConception(){
   var logo=docLogoClub();
   var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
     +'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
-    +'<title>Conception de séance — '+docEsc(NOM_CLUB)+'</title>'
+    +'<title>Préparation de séance — '+docEsc(NOM_CLUB)+'</title>'
     +docStylesCommuns()+reuStyles()+cpStyles()
     +'</head><body>'
     +docBarre(true)
 
     // ---------------------------- PAGE 1 ----------------------------
     +'<div class="feuille">'
-    +reuBandeau(logo,'Conception de séance',
-      'Date : <span contenteditable data-vide="jj/mm/aaaa"></span><br>'
-      +'Conçue par : <span contenteditable data-vide="nom(s)"></span>')
+    +reuBandeau(logo,'Préparation de séance',
+      'Date : <span contenteditable data-vide="jj/mm/aaaa"></span>'
+      +' &nbsp; Horaire : <span contenteditable data-vide="19h30 → 21h00"></span><br>'
+      +'Coach : <span contenteditable data-vide="nom(s)"></span>'
+      +' &nbsp; Terrain : <span contenteditable data-vide="synthé ou honneur"></span>')
 
-    +'<div class="rang r3">'
+    +'<div class="rang" style="grid-template-columns:1fr 1.25fr">'
       +reuBloc('Le cadre','#11161c',
-        reuChamp('Catégorie / équipe','U17, séniors R2…')
-        +reuChamp('Jour et horaire','mardi, 19h30 → 21h00')
-        +reuChamp('Joueurs attendus','nombre, dont gardiens')
-        +reuChamp('Espace disponible','terrain entier, moitié, tiers')
-        +reuChamp('Matériel à sortir','coupelles, chasubles, mini-buts'))
-      +reuBloc('D\'où ça vient','#0e7490',
-        '<div class="cp-aide">Une séance ne part jamais de rien. Si on ne sait pas répondre ici, c\'est qu\'on n\'a pas encore de séance.</div>'
-        +reuChamp('Ce qu\'on a vu au dernier match','le constat, précis — pas « on a mal joué »',null,true)
-        +reuChamp('Le principe du projet de jeu visé','celui qu\'on veut faire progresser')
-        +reuChamp('Déjà travaillé quand ?','la dernière fois qu\'on l\'a abordé'))
-      +reuBloc('Où on veut aller','#7c3aed',
-        reuChamp('Le thème','en trois mots')
-        +reuChamp('À la fin, le joueur sait…','un comportement qu\'on peut voir, pas une intention',null,true)
-        +reuChamp('Je saurai que c\'est réussi si…','le critère qu\'on pourra vérifier sur le terrain',null,true))
+        '<div class="duo">'
+          +reuChamp('Catégorie / équipe','séniors R2')
+          +reuChamp('Espace disponible','entier, moitié, tiers')
+        +'</div>'
+        +reuChamp('Matériel à sortir','coupelles, chasubles, mini-buts, ballons')
+        +reuChamp('Plan B si l\'effectif change','ce que je garde, ce que je coupe'))
+      +reuBloc('Le thème du soir','#7c3aed',
+        '<div class="duo" style="grid-template-columns:1fr 1fr 1.2fr">'
+          +reuChamp('Le thème','en trois mots')
+          +reuChamp('Le principe visé','projet de jeu')
+          +reuChamp('D\'où il vient — dernier match','le constat, précis')
+        +'</div>'
+        +'<div class="duo">'
+          +reuChamp('À la fin, le joueur sait…','un comportement qu\'on peut voir')
+          +reuChamp('C\'est réussi si…','ce qu\'on vérifie sur le terrain')
+        +'</div>'
+        +reuChamp('Ce que je leur dis en arrivant — trente secondes','le thème en une phrase, dans leurs mots'))
     +'</div>'
 
-    +'<div class="cp-sect">Le déroulé<em>Un seul thème du début à la fin. Une séance = un objectif.</em></div>'
+    +cpAppel()
+
+    +'<div class="cp-sect">Le déroulé<em>Un seul thème du début à la fin. Dessine la situation, les mots viennent après.</em></div>'
     +'<div class="rang" style="gap:7px">'+CP_PHASES.map(cpPhase).join('')+'</div>'
 
-    +'<div class="rang r2">'
-      +reuBloc('Le plan B','#6b7480',
-        '<div class="cp-aide">Ce qui arrive une fois sur trois. Mieux vaut l\'avoir \u00e9crit que l\'improviser \u00e0 19h30.</div>'
-        +'<div class="duo">'
-          +reuChamp('S\'ils sont beaucoup moins que pr\u00e9vu','ce que je garde, ce que je coupe',null,true)
-          +reuChamp('Si le terrain ou la m\u00e9t\u00e9o change','l\'espace de repli, la situation adapt\u00e9e',null,true)
-        +'</div>')
-      +reuBloc('Ce que je dis en arrivant','#0e7490',
-        '<div class="cp-aide">Trente secondes, avant le premier ballon : pourquoi on est l\u00e0 ce soir.</div>'
-        +'<div class="duo">'
-          +reuChamp('Le th\u00e8me annonc\u00e9','en une phrase, dans leurs mots',null,true)
-          +reuChamp('Ce que j\'attends d\'eux ce soir','l\'attitude, pas la technique',null,true)
-        +'</div>')
-    +'</div>'
 
-    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — fiche de conception de séance. Page 1 / 2 : le cadre et le déroulé.</span>'
-      +'<span>Page 2 : les situations à dessiner et le bilan.</span></div>'
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — préparation de séance. Page 1 / 2 : l\'appel et le déroulé.</span>'
+      +'<span>Page 2 : les situations en grand et le bilan.</span></div>'
     +'</div>'
 
     // ---------------------------- PAGE 2 ----------------------------
     +'<div class="feuille p2">'
-    +reuBandeau(logo,'Conception de séance — les situations',
+    +reuBandeau(logo,'Préparation de séance — les situations',
       'Séance du <span contenteditable data-vide="jj/mm/aaaa"></span><br>Page 2 / 2')
 
     +reuBloc('Les situations, dessinées à la main','#2563eb',
@@ -17003,13 +17124,13 @@ function genererFicheConception(){
         +'</div></div>')
     +'</div>'
 
-    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — fiche de conception de séance. Page 2 / 2.</span>'
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — préparation de séance. Page 2 / 2.</span>'
       +'<span>Remplis à l\'écran, archive dans l\'appli — ou imprime vierge et travaille au stylo.</span></div>'
     +'</div>'
-    +docMemoire('conception', {type:'conception', titre:'Conception de séance',
+    +docMemoire('conception', {type:'conception', titre:'Préparation de séance',
       sujet:'Séance — '+new Date().toLocaleDateString('fr-FR')})
     +'</body></html>';
-  docOuvrir(html,'Fiche de conception de séance');
+  docOuvrir(html,'Fiche de préparation de séance');
 }
 
 // ============== L'OBSERVATION DE NOTRE PROPRE ÉQUIPE, UN JOUR DE MATCH ==============
@@ -21010,7 +21131,7 @@ var FICHE_TYPES={
   reunion_rapport:{ic:'📝', nom:'Rapport de réunion',        gen:function(f){ genererRapportReunion(); }},
   cahier_questions:{ic:'📓', nom:'Cahier des questions',    gen:function(f){ genererCahierQuestions(); }},
   entretien:  {ic:'🗣️', nom:'Entretien individuel',    gen:function(f){ genererFeuilleEntretien(f.joueurIdx!=null?f.joueurIdx:0); }},
-  conception: {ic:'🧭', nom:'Conception de séance',       gen:function(f){ genererFicheConception(); }},
+  conception: {ic:'🧭', nom:'Préparation de séance',      gen:function(f){ genererFicheConception(); }},
   obs_nous:   {ic:'👁️', nom:'Observation de notre équipe', gen:function(f){ genererFicheObservationNous(); }}
 };
 function ficheHorodatage(){
