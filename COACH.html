@@ -2024,6 +2024,46 @@ body.terrain-plein #pl-sortie-plein{display:block}
 /* Quand la barre ouvre l'ecran — chaque rubrique garde son propre titre en
    dessous — il lui faut sa marge du haut. */
 .rub-barre.rub-haut{padding:2px 13px 12px}
+/* ===== Le fil de la semaine ===== */
+.fs-blk{margin-bottom:16px}
+.fs-bc{font-size:12.5px;color:var(--gris2)}
+.fs-bc .fs-r{color:var(--rouge,#dc4444);font-weight:700}
+.fs-l{padding:4px 16px 16px;position:relative}
+/* Le trait vertical qui relie les etapes : c'est lui qui fait le « fil ». */
+.fs-l:before{content:'';position:absolute;left:25px;top:16px;bottom:26px;
+  width:2px;background:var(--line)}
+.fs-e{position:relative;display:flex;gap:13px;padding:11px 0}
+.fs-pt{position:relative;z-index:1;flex:0 0 auto;width:20px;height:20px;margin-top:2px;
+  border-radius:50%;background:var(--carte);border:2.5px solid var(--ec);
+  display:flex;align-items:center;justify-content:center;color:var(--ec)}
+.fs-pt .ico{width:11px;height:11px;stroke-width:3}
+.fs-e.ech .fs-pt{background:var(--ec);border-color:var(--ec)}
+.fs-c{flex:1;min-width:0}
+.fs-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:9px;margin-bottom:3px}
+.fs-t{font-family:Anton,sans-serif;font-size:15px;letter-spacing:.3px;color:var(--gris)}
+.fs-et{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ec);border:1.3px solid var(--ec);border-radius:20px;padding:1.5px 8px;line-height:1.5}
+.fs-d{margin-left:auto;font-size:11.5px;color:var(--gris2);white-space:nowrap}
+.fs-dt{font-size:13.5px;line-height:1.5;color:var(--gris2);margin-bottom:8px}
+.fs-a{display:flex;flex-wrap:wrap;gap:8px}
+.fs-b,.fs-doc{display:inline-flex;align-items:center;gap:6px;border-radius:8px;
+  font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 13px;cursor:pointer;
+  border:1.4px solid var(--line);background:var(--carte);color:var(--gris)}
+.fs-b{border-color:var(--ec);color:var(--ec)}
+.fs-b:hover,.fs-doc:hover{border-color:var(--or);color:var(--or)}
+.fs-doc .ico{width:14px;height:14px}
+.fs-doc.ok{border-color:var(--green);color:var(--green)}
+.fs-doc b{font-weight:700}
+.fs-e.ech .fs-t{color:var(--or)}
+@media(max-width:760px){
+  .fs-l{padding:4px 11px 14px}
+  .fs-l:before{left:20px}
+  /* La date passe sous le titre, et le compteur sous l'en-tete : a 390 px
+     ils se chevauchaient. */
+  .fs-d{margin-left:0;width:100%;order:3}
+  .fs-bc{width:100%;margin-top:3px}
+  .fs-b,.fs-doc{flex:1 1 auto;justify-content:center}
+}
 /* ===== Les icones ===== */
 .ico{width:1em;height:1em;flex:0 0 auto;display:inline-block;vertical-align:-.13em;
   fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -2774,8 +2814,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v106</b> · 08/10/2026<br>
-      <span style="opacity:.7">La fiche passe dans Entraînement</span>
+      AST COACH <b style="color:var(--or)">v107</b> · 08/10/2026<br>
+      <span style="opacity:.7">Le fil de la semaine</span>
     </div>
   </div>
 </div>
@@ -8796,6 +8836,191 @@ function dvLigne(k, v, classe){
   return '<div class="dv-l"><span class="k">'+esc2(k)+'</span><span class="v'+(classe?(' '+classe):'')+'">'+v+'</span></div>';
 }
 
+// ===================== LE FIL DE LA SEMAINE =====================
+//
+//   Du dernier match au prochain. Chaque étape porte son état, calculé sur
+//   les données de l'appli — jamais déclaré à la main —, le bouton qui y
+//   mène, et le document qui va avec.
+//
+//   Quatre états : fait, à faire, en retard (la date est passée et ce n'est
+//   pas fait), et à venir. C'est « en retard » qui fait l'utilité du fil.
+var FS_ETATS={
+  fait:   {c:'var(--green)', l:'Fait'},
+  afaire: {c:'var(--or)',    l:'À faire'},
+  retard: {c:'var(--rouge,#dc4444)', l:'En retard'},
+  avenir: {c:'var(--gris2)', l:'À venir'},
+  echeance:{c:'var(--or)',   l:'Le rendez-vous'}
+};
+
+function fsDateSeance(txt){
+  var m=String(txt||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!m) return null;
+  var d=new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10));
+  return isNaN(d.getTime())?null:d;
+}
+function fsAujourdhui(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
+function fsJours(d){
+  if(!d) return null;
+  return Math.round((d-fsAujourdhui())/86400000);
+}
+// « sam. 17 oct. » — assez court pour tenir dans une colonne étroite.
+function fsDateCourte(d){
+  if(!d) return '';
+  try{ return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}); }
+  catch(e){ return ''; }
+}
+// Une étape dont la date est passée et qui n'est pas faite est en retard.
+function fsEtat(fait, d){
+  if(fait) return 'fait';
+  var j=fsJours(d);
+  if(j===null) return 'afaire';
+  if(j<0) return 'retard';
+  return j<=2 ? 'afaire' : 'avenir';
+}
+function fsArchive(cle){
+  try{ return ficheArchiveExistante?ficheArchiveExistante(cle):null; }catch(e){ return null; }
+}
+
+function fsEtapes(){
+  var E=[], dernier=dvDernierMatch(), prochain=dvProchainMatch();
+
+  // ---------- ce qu'il reste à faire du dernier match
+  if(dernier){
+    var m=dvResultatEnregistre(dernier.c.adversaire);
+    var score=(m && m.res) ? ((m.ast!=null?m.ast:'?')+'-'+(m.adv!=null?m.adv:'?')
+        +' · '+({V:'victoire',N:'nul',D:'défaite'}[m.res]||m.res)) : null;
+    E.push({cle:'resultat', t:'Le résultat', d:dernier.d,
+      fait:!!score, etat:fsEtat(!!score, dernier.d),
+      detail:score || ('Le match contre '+(dernier.c.adversaire||'?')+' n\'est pas encore enregistré.'),
+      ecran:'matchs', bouton:score?'Revoir le match':'Enregistrer le match'});
+
+    var notes=(m && m.notes) ? m.notes.length : 0;
+    var attendus=(CONVOS && (CONVOS.a||[]).length) ? (CONVOS.a||[]).length : 0;
+    E.push({cle:'notes', t:'Les notes des joueurs', d:dernier.d,
+      fait:notes>0, etat:fsEtat(notes>0, dernier.d),
+      detail:notes>0 ? (notes+' joueur'+(notes>1?'s':'')+' noté'+(notes>1?'s':''))
+                     : 'Personne n\'est noté : les joueurs ne verront rien de ce match.',
+      ecran:'matchs', bouton:notes>0?'Compléter les notes':'Noter les joueurs',
+      doc:'obs_nous'});
+  }
+
+  // ---------- les séances entre les deux matchs
+  var bornA=dernier?dernier.d:null, bornB=prochain?prochain.d:null;
+  var seances=(PLANNING_MENSUEL||[]).map(function(p){
+      return {p:p, d:fsDateSeance(p.date)};
+    })
+    .filter(function(x){
+      if(!x.d) return false;
+      if(bornA && x.d<=bornA) return false;
+      if(bornB && x.d>bornB) return false;
+      return true;
+    })
+    .sort(function(a,b){ return a.d-b.d; })
+    .slice(0,4);
+
+  seances.forEach(function(x,i){
+    var theme=(x.p.theme||'').trim();
+    E.push({cle:'seance'+i, t:seances.length>1?('La séance '+(i+1)):'La séance', d:x.d,
+      fait:!!theme, etat:fsEtat(!!theme, x.d),
+      detail:theme ? theme+((x.p.sousThemes&&x.p.sousThemes.length)?(' · '+x.p.sousThemes.join(', ')):'')
+                   : 'Aucun thème posé pour cette séance.',
+      ecran:'seances', bouton:theme?'Préparer la séance':'Poser le thème',
+      doc:'conception'});
+  });
+  if(!seances.length && prochain){
+    E.push({cle:'seance0', t:'Les séances', d:null, fait:false, etat:'afaire',
+      detail:'Aucune séance au planning entre les deux matchs.',
+      ecran:'seances', bouton:'Ouvrir le planning', doc:'conception'});
+  }
+
+  // ---------- le groupe
+  if(prochain){
+    var cv=CONVOS||{};
+    var memeAdv=cv.adv && (typeof fexNomsCorrespondent==='function')
+      ? fexNomsCorrespondent(cv.adv, prochain.c.adversaire||'') : false;
+    var nbA=(cv.a||[]).length, nbB=(cv.b||[]).length;
+    var pose=memeAdv && (nbA+nbB)>0;
+    // La convocation se pose dans les jours qui précèdent : on la situe
+    // deux jours avant le match.
+    var dConvoc=new Date(prochain.d.getTime()-2*86400000);
+    E.push({cle:'groupe', t:'Le groupe', d:dConvoc,
+      fait:pose, etat:fsEtat(pose, dConvoc),
+      detail:pose ? (nbA+nbB)+' convoqués — '+nbA+' en A, '+nbB+' en B'
+                  : 'La convocation n\'est pas posée pour '+(prochain.c.adversaire||'ce match')+'.',
+      ecran:'convos', bouton:pose?'Revoir le groupe':'Composer le groupe'});
+
+    // ---------- l'avant-match
+    var compo=(COMPOSITIONS||[]).length>0;
+    var plateau=((SITUATIONS||[]).length>0)||((SCHEMAS_CPA||[]).length>0);
+    var dossier=!!(DOSSIER && (DOSSIER.collectif || (DOSSIER.bulles && Object.keys(DOSSIER.bulles).length)));
+    var faits=[compo&&'compo', plateau&&'plateau', dossier&&'dossier'].filter(Boolean).length;
+    var dAvant=new Date(prochain.d.getTime()-1*86400000);
+    E.push({cle:'avant', t:'L\'avant-match', d:dAvant,
+      fait:faits===3, etat:fsEtat(faits===3, dAvant),
+      detail:[(compo?'compo faite':'compo à faire'),
+              (plateau?'plateau posé':'plateau à poser'),
+              (dossier?'dossier rempli':'dossier à remplir')].join(' · '),
+      ecran:'avant-match', bouton:'Ouvrir le dossier', doc:'carte'});
+
+    // ---------- le match
+    var lieu=prochain.c.lieu==='E'?'à l\'extérieur':(prochain.c.lieu==='D'?'à domicile':'');
+    E.push({cle:'match', t:'Le match', d:prochain.d, fait:false, etat:'echeance',
+      detail:[prochain.c.adversaire, lieu, prochain.c.comp].filter(Boolean).join(' · '),
+      ecran:'feuille-match', bouton:'La feuille de match', echeance:true});
+  }
+  return E;
+}
+
+function fsLigne(e){
+  var et=FS_ETATS[e.etat]||FS_ETATS.avenir;
+  var j=fsJours(e.d);
+  var quand=e.d ? fsDateCourte(e.d) : '';
+  var relatif=(j===null)?'':(j===0?'aujourd\'hui':(j===1?'demain':(j<0?('il y a '+(-j)+' j'):('dans '+j+' j'))));
+  var doc='';
+  if(e.doc && typeof FICHE_TYPES!=='undefined' && FICHE_TYPES[e.doc]){
+    var ft=FICHE_TYPES[e.doc], arch=fsArchive(e.doc);
+    doc='<button class="fs-doc'+(arch?' ok':'')+'" onclick="fsOuvrirDoc(\''+e.doc+'\')">'
+      +ic('document')+esc2(ft.nom)+(arch?' <b>· remplie</b>':'')+'</button>';
+  }
+  return '<div class="fs-e'+(e.echeance?' ech':'')+'" style="--ec:'+et.c+'">'
+    +'<div class="fs-pt">'+(e.fait?ic('valide'):'')+'</div>'
+    +'<div class="fs-c">'
+      +'<div class="fs-h"><span class="fs-t">'+esc2(e.t)+'</span>'
+        +'<span class="fs-et">'+esc2(et.l)+'</span>'
+        +(quand?'<span class="fs-d">'+esc2(quand)+(relatif?' · '+esc2(relatif):'')+'</span>':'')
+      +'</div>'
+      +'<div class="fs-dt">'+esc2(e.detail||'')+'</div>'
+      +'<div class="fs-a">'
+        +'<button class="fs-b" onclick="goNav(\''+e.ecran+'\')">'+esc2(e.bouton||'Ouvrir')+'</button>'
+        +doc
+      +'</div>'
+    +'</div></div>';
+}
+function fsOuvrirDoc(cle){
+  try{
+    var ft=FICHE_TYPES[cle];
+    if(ft && ft.gen) ft.gen({});
+  }catch(e){ notif('⚠ Document indisponible'); }
+}
+function renderFilSemaine(){
+  var ct=document.getElementById('fil-semaine');
+  if(!ct) return;
+  var E=fsEtapes();
+  if(!E.length){
+    ct.innerHTML='';
+    return;
+  }
+  var reste=E.filter(function(e){ return !e.fait && !e.echeance; }).length;
+  var retards=E.filter(function(e){ return e.etat==='retard'; }).length;
+  ct.innerHTML='<div class="blk plein fs-blk"><div class="bh">'
+      +'<span class="bt">'+ic('liste')+'Le fil de la semaine</span>'
+      +'<span class="bc fs-bc">'
+        +(retards?('<b class="fs-r">'+retards+' en retard</b> · '):'')
+        +(reste?(reste+' étape'+(reste>1?'s':'')+' à faire'):'tout est fait')
+      +'</span></div>'
+    +'<div class="fs-l">'+E.map(fsLigne).join('')+'</div></div>';
+}
+
 function renderDashVivant(){
   var ct=document.getElementById('dash-vivant');
   if(!ct) return;
@@ -8831,7 +9056,8 @@ function renderDashVivant(){
     +'<div class="dv-meteo" id="dv-meteo" style="display:none"></div>'
   +'</div>';
 
-  ct.innerHTML=hero+'<div class="dv-scene" id="dv-scene">'+dvScene(c, jours)+'</div>';
+  ct.innerHTML=hero+'<div id="fil-semaine"></div>'
+    +'<div class="dv-scene" id="dv-scene">'+dvScene(c, jours)+'</div>';
 
   if(jours<=7) dvChargerMeteo(prochain.d).then(dvAfficherMeteo);
   if(jours<=8) dvChargerCloud(c.adversaire).then(function(){ 
@@ -8950,6 +9176,7 @@ function updateDash(){
   var champNom=document.getElementById('param-nom-club');
   if(champNom) champNom.value=NOM_CLUB;
   renderDashVivant();
+  renderFilSemaine();   // apres : son conteneur nait dans renderDashVivant
   // Les compteurs de l'ancien dashboard ont disparu avec lui : l'accueil vivant les remplace.
   var formeCt=document.getElementById('d-forme');
   if(formeCt){
