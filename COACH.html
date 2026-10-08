@@ -2275,7 +2275,7 @@ body.doc-ouvert{overflow:hidden}
 .anc-aide{font-size:12px;color:var(--gris2);line-height:1.5;margin-top:8px}
 .anc-puces{display:flex;flex-wrap:wrap;gap:6px}
 .anc-puce{display:inline-flex;align-items:center;gap:7px;background:var(--voile);border:1px solid var(--line);
-  border-radius:20px;padding:5px 10px;font-size:12.5px}
+  border-radius:20px;padding:5px 10px;font-size:12.5px}.anc-puce.inactive{opacity:.75;border-style:dashed;border-color:var(--rouge,#dc4444);color:var(--rouge,#dc4444)}
 .anc-puce b{cursor:pointer;color:var(--red);font-size:13px}
 .fex-retourner{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .fex-retourner .fex-ret-lab{font-size:12px;color:var(--gris2);font-weight:800;letter-spacing:.02em}
@@ -2461,8 +2461,8 @@ body.doc-ouvert{overflow:hidden}
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v103</b> · 07/10/2026<br>
-      <span style="opacity:.7">Fiche de préparation de séance</span>
+      AST COACH <b style="color:var(--or)">v104</b> · 08/10/2026<br>
+      <span style="opacity:.7">Fiche de séance refaite · homonymes protégés</span>
     </div>
   </div>
 </div>
@@ -3002,7 +3002,7 @@ Chez le président"></textarea>
           </div>
           <div class="doc-corps">
             <div class="doc-titre">🧭 Fiche de préparation de séance</div>
-            <div class="doc-desc">Deux pages A4 à photocopier. Page&nbsp;1, celle qu'on emporte au bord du terrain&nbsp;: l'appel de tout l'effectif — présent, reprise course, blessé, absent —, le cadre, le thème, et les cinq moments du déroulé avec une zone à dessiner pour chaque situation. Page&nbsp;2, les quatre terrains en grand, les variables pour faire évoluer un exercice, et le bilan à chaud.</div>
+            <div class="doc-desc">Deux pages A4 à photocopier. Page&nbsp;1, celle qu'on emporte au bord du terrain&nbsp;: quatre colonnes à remplir — présents, reprise course, blessés, absents —, le cadre, le thème, et le minutage des cinq moments. Page&nbsp;2, les quatre situations dessinées sur de grands demi-terrains, les variables pour faire évoluer un exercice, et le bilan à chaud.</div>
             <button class="btn" onclick="genererFicheConception()">Ouvrir la fiche de préparation</button>
           </div>
         </div>
@@ -5696,7 +5696,7 @@ function purgerNomPartout(nom, num){
   function filtrer(liste){
     if(!Array.isArray(liste)) return liste;
     var avant=liste.length;
-    var res=liste.filter(function(x){ return !memeJoueur(String(x||''), nom); });
+    var res=liste.filter(function(x){ return !correspondJoueur(String(x||''), nom); });
     n+=avant-res.length;
     return res;
   }
@@ -5709,26 +5709,26 @@ function purgerNomPartout(nom, num){
   if(AFFECTATIONS_CONVOC){
     Object.keys(AFFECTATIONS_CONVOC).forEach(function(k){
       var parNum=(num!=null && String(k)===String(num));
-      if(parNum || memeJoueur(k, nom)){ delete AFFECTATIONS_CONVOC[k]; n++; }
+      if(parNum || correspondJoueur(k, nom)){ delete AFFECTATIONS_CONVOC[k]; n++; }
     });
   }
   if(CONVOC_ETAT && num!=null && CONVOC_ETAT.hasOwnProperty(num)){ delete CONVOC_ETAT[num]; n++; }
   (COMPOSITIONS||[]).forEach(function(c){
     (c.slots||[]).forEach(function(sl){
-      if(sl && ((num!=null && sl.num===num) || (sl.nom && memeJoueur(sl.nom, nom)))){ sl.num=null; sl.nom=''; n++; }
+      if(sl && ((num!=null && sl.num===num) || (sl.nom && correspondJoueur(sl.nom, nom)))){ sl.num=null; sl.nom=''; n++; }
     });
   });
   (SCHEMAS_CPA||[]).forEach(function(sch){
     if(!sch.roles) return;
     Object.keys(sch.roles).forEach(function(k){
       var r=sch.roles[k];
-      if(r && ((num!=null && r.num===num) || (r.nom && memeJoueur(r.nom, nom)))){ delete sch.roles[k]; n++; }
+      if(r && ((num!=null && r.num===num) || (r.nom && correspondJoueur(r.nom, nom)))){ delete sch.roles[k]; n++; }
     });
   });
   if(typeof CPA_COURANT!=='undefined' && CPA_COURANT){
     Object.keys(CPA_COURANT).forEach(function(k){
       var r=CPA_COURANT[k];
-      if(r && ((num!=null && r.num===num) || (r.nom && memeJoueur(r.nom, nom)))){ delete CPA_COURANT[k]; n++; }
+      if(r && ((num!=null && r.num===num) || (r.nom && correspondJoueur(r.nom, nom)))){ delete CPA_COURANT[k]; n++; }
     });
   }
   if(typeof FEUILLE_MATCH!=='undefined' && FEUILLE_MATCH && FEUILLE_MATCH.consignesIndiv && num!=null
@@ -5736,11 +5736,11 @@ function purgerNomPartout(nom, num){
   (MATCHS||[]).forEach(function(m){
     if(m.notes){
       var av=m.notes.length;
-      m.notes=m.notes.filter(function(x){ return !(x.nom && memeJoueur(x.nom, nom)); });
+      m.notes=m.notes.filter(function(x){ return !(x.nom && correspondJoueur(x.nom, nom)); });
       n+=av-m.notes.length;
     }
   });
-  (BLESSURES||[]).forEach(function(b,i){ if(b && b.nom && memeJoueur(b.nom, nom)){ BLESSURES.splice(i,1); n++; } });
+  (BLESSURES||[]).forEach(function(b,i){ if(b && b.nom && correspondJoueur(b.nom, nom)){ BLESSURES.splice(i,1); n++; } });
   if(typeof CLIP_JOUEURS!=='undefined' && Array.isArray(CLIP_JOUEURS) && num!=null){
     var a2=CLIP_JOUEURS.length;
     CLIP_JOUEURS=CLIP_JOUEURS.filter(function(x){ return x!==num; });
@@ -5750,15 +5750,22 @@ function purgerNomPartout(nom, num){
 }
 
 function estBanni(nom){
-  return (JOUEURS_BANNIS||[]).some(function(b){ return memeJoueur(b, nom); });
+  return (JOUEURS_BANNIS||[]).some(function(b){ return correspondJoueur(nom, b); });
 }
+// Les bannissements qu'on refuse d'appliquer, pour pouvoir les montrer.
+var BANNIS_INACTIFS=[];
 
 // Rejoue a chaque chargement : une vieille sauvegarde ne peut plus les ramener.
 function nettoyerBannis(){
   if(!JOUEURS_BANNIS || !JOUEURS_BANNIS.length) return 0;
   var total=0;
+  BANNIS_INACTIFS=[];
   JOUEURS_BANNIS.forEach(function(nom){
-    var j=(JOUEURS||[]).filter(function(x){ return memeJoueur(x.nom, nom); })[0];
+    // Un nom qui tient en un mot, ou qui colle a plusieurs joueurs, ne
+    // supprime plus personne : il mangeait un joueur de plus a chaque
+    // ouverture. On le met de cote et on le signale a l'ecran Effectif.
+    if(motsDuNom(nom).length<2 || nomAmbigu(nom)){ BANNIS_INACTIFS.push(nom); return; }
+    var j=(JOUEURS||[]).filter(function(x){ return correspondJoueur(x.nom, nom); })[0];
     if(j){
       var idx=JOUEURS.indexOf(j), taille=JOUEURS.length;
       // On ne decale que les tableaux vraiment alignes sur l'effectif : si une
@@ -5782,6 +5789,12 @@ function nettoyerBannis(){
 function bannirJoueur(nom, num){
   nom=String(nom||'').trim();
   if(!nom) return;
+  // On n'ajoute jamais a la liste un nom qui pourrait en emporter un autre.
+  if(motsDuNom(nom).length<2 || nomAmbigu(nom)){
+    notif('\u26a0 \u00ab '+nom+' \u00bb peut d\u00e9signer plusieurs joueurs : rien n\'a \u00e9t\u00e9 '
+      +'supprim\u00e9. Reprends-le avec son nom complet, pr\u00e9nom ET nom.');
+    return;
+  }
   if(!estBanni(nom)) JOUEURS_BANNIS.push(nom);
   var n=nettoyerBannis();
   rafraichirApresPurge();
@@ -5796,7 +5809,8 @@ function bannirJoueur(nom, num){
 }
 
 function reintegrerJoueur(nom){
-  JOUEURS_BANNIS=(JOUEURS_BANNIS||[]).filter(function(b){ return !memeJoueur(b, nom); });
+  JOUEURS_BANNIS=(JOUEURS_BANNIS||[]).filter(function(b){ return !memeJoueurExact(b, nom); });
+  BANNIS_INACTIFS=(BANNIS_INACTIFS||[]).filter(function(b){ return !memeJoueurExact(b, nom); });
   renderAnciensJoueurs();
   notif('✓ '+nom+' n\'est plus banni — tu peux le réinscrire dans l\'effectif');
   sauvegarder();
@@ -5836,10 +5850,23 @@ function renderAnciensJoueurs(){
     +'<div class="anc-aide">Il disparaît de l\'effectif et de toutes les listes, et il est ajouté à la liste ci-dessous : '
     +'même une vieille sauvegarde ou une synchronisation ne pourra plus le faire revenir.</div>';
   var b=JOUEURS_BANNIS||[];
+  // Un nom trop vague est neutralise : il faut le dire, et dire quoi faire.
+  var inactifs=(typeof BANNIS_INACTIFS!=='undefined'?BANNIS_INACTIFS:[])||[];
+  if(inactifs.length){
+    h+='<div class="anc-alerte">⚠ '+inactifs.length+' nom'+(inactifs.length>1?'s':'')
+      +' de cette liste ne supprime plus rien : '+inactifs.map(esc2).join(', ')
+      +(inactifs.length>1?' peuvent désigner':' peut désigner')+' plusieurs joueurs de l\'effectif '
+      +'(un prénom seul, un nom de famille partagé). Tant qu\''+(inactifs.length>1?'ils y sont':'il y est')
+      +', un joueur pouvait être retiré à chaque ouverture. Retire-'+(inactifs.length>1?'les':'le')
+      +' avec la croix, puis ressors le bon joueur avec son nom complet.</div>';
+  }
   h+='<div class="anc-sec">Joueurs sortis ('+b.length+')</div>';
   h+=b.length
     ? '<div class="anc-puces">'+b.map(function(nom){
-        return '<span class="anc-puce">'+esc2(nom)
+        var mort=inactifs.some(function(x){ return x===nom; });
+        return '<span class="anc-puce'+(mort?' inactive':'')+'"'
+          +(mort?' title="Trop vague : ce bannissement ne s\'applique plus"':'')+'>'
+          +(mort?'⚠ ':'')+esc2(nom)
           +'<b onclick="reintegrerJoueur('+JSON.stringify(nom).replace(/"/g,'&quot;')+')" title="Le réautoriser">✕</b></span>'; }).join('')+'</div>'
     : '<div class="anc-aide">Personne pour l\'instant.</div>';
   ct.innerHTML=h;
@@ -16811,231 +16838,196 @@ function reuRappel(origine){
 // Volontairement vierge : elle se photocopie et sert à toutes les catégories.
 function cpStyles(){
   return '<style>'
-    +'.cp-aide{font-size:8.6px;color:#6b7480;line-height:1.5;margin-bottom:5px}'
     +'.cp-sect{font-family:Anton,sans-serif;font-size:12.5px;letter-spacing:.6px;text-transform:uppercase;'
-      +'color:#11161c;border-bottom:2px solid #d97706;padding-bottom:3px;margin:3px 0 1px;'
-      +'display:flex;align-items:baseline;gap:9px}'
-    +'.cp-sect em{font-family:"Roboto Condensed",sans-serif;font-style:normal;font-size:8.6px;'
-      +'font-weight:600;letter-spacing:0;text-transform:none;color:#6b7480;margin-left:auto}'
-    // Une phase du déroulé
-    +'.ph3{border:1.5px solid #e2e6ea;border-left:5px solid var(--c);border-radius:8px;'
-      +'padding:5px 9px 6px;page-break-inside:avoid;break-inside:avoid}'
-    +'.ph3-h{display:flex;align-items:center;gap:8px;margin-bottom:3px}'
-    +'.ph3-n{font-family:Anton,sans-serif;font-size:15px;line-height:1;color:var(--c);min-width:13px}'
-    +'.ph3-t{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--c)}'
-    +'.ph3-s{font-size:8.4px;color:#98a2ad;font-weight:600}'
-    +'.ph3-d{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#98a2ad;'
-      +'display:flex;align-items:baseline;gap:5px;white-space:nowrap}'
-    +'.ph3 .ch.large .ch-v{min-height:60px}.ph3 .ch{margin-bottom:5px}'
-    +'.ph3 .ch .ch-v{min-height:20px}.ph3 .ch:last-child{margin-bottom:0}'
-    +'.ph3-d span[contenteditable]{display:inline-block;min-width:54px;border-bottom:1.2px dotted #b4bcc4;'
-      +'color:#11161c;font-size:10.5px;font-weight:700;text-align:center;padding:0 3px}'
-    // Le terrain glissé dans chaque phase du déroulé
-    +'.ph3-b{display:grid;gap:9px;align-items:start}'
-    +'.ph3-ter svg{border:1px solid #dfe4e9;border-radius:5px}'
-    +'.ph3-ter .cp-lg{margin-top:3px;min-height:13px;font-size:9px;font-weight:600;'
-      +'white-space:nowrap;overflow:hidden;text-align:center}'
-    // L'appel — un joueur par ligne, quatre cases à cocher au stylo
-    +'.cp-ap-lg{display:flex;gap:13px;flex-wrap:wrap;align-items:center;margin-bottom:3px;'
-      +'font-size:7.6px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#6b7480}'
-    +'.cp-ap-lg b{display:flex;align-items:center;gap:4px;font-weight:700}'
-    +'.cp-ap-lg i,.cp-ap-r .cs i{width:8.6px;height:8.6px;border:1.3px solid #b4bcc4;'
-      +'border-radius:2px;flex:0 0 auto;font-style:normal;font-size:5.6px;font-weight:700;'
-      +'line-height:1;display:flex;align-items:center;justify-content:center;opacity:.72}'
-    +'.cp-ap-g{display:grid;grid-auto-flow:column;gap:0 12px}'
-    +'.feuille{gap:7px}'
+      +'color:#11161c;border-bottom:2.5px solid #d97706;padding-bottom:3px;display:flex;align-items:baseline;gap:9px}'
+    +'.cp-sect em{font-style:normal;font-size:8.6px;font-weight:600;color:#98a2ad;margin-left:auto;'
+      +'text-transform:none;letter-spacing:0}'
+    +'.feuille{gap:8px}'
     +'.bl .ch{margin-bottom:4px}.bl .ch:last-child{margin-bottom:0}'
     +'.bl .duo{margin-bottom:4px}.bl .duo .ch{margin-bottom:0}'
-    +'.cp-ap-lg{margin-bottom:4px}'
-    +'.cp-ap-r{display:flex;align-items:center;gap:5px;padding:0;line-height:1.15;'
-      +'border-bottom:1px dotted #edf0f3}'
-    +'.cp-ap-r .n{width:13px;text-align:right;font-size:7px;font-weight:700;color:#b4bcc4;flex:0 0 auto}'
-    +'.cp-ap-r .nm{flex:1;min-width:0;font-size:7.8px;font-weight:600;color:#3c4650;'
-      +'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
-    +'.cp-ap-r .nm em{font-style:normal;color:#d97706;font-size:7px}'
-    +'.cp-ap-r .nm[contenteditable]{border-bottom:1.2px dotted #c3cbd3;min-height:9px;'
-      +'line-height:1.15;padding:0}'
-    +'.cp-ap-r .cs{display:flex;gap:3px;flex:0 0 auto}'
-    +'.cp-ap-t{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;margin-top:5px;'
-      +'padding-top:5px;border-top:1px solid #e2e6ea}'
-    +'.cp-ap-t > div{display:flex;align-items:baseline;gap:5px}'
-    +'.cp-ap-t > div > b{font-size:7.2px;font-weight:700;letter-spacing:.09em;'
-      +'text-transform:uppercase;color:#98a2ad}'
-    +'.cp-ap-t > div > span{display:inline-block;font-family:Anton,sans-serif;font-size:13px;'
-      +'color:#11161c;min-width:30px;min-height:15px;border-bottom:1.3px dotted #b4bcc4;text-align:center}'
-    // Les terrains à dessiner
-    +'.cp-ters{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
-    +'.cp-ter{border:1.5px solid #e2e6ea;border-radius:8px;padding:6px 7px 7px;page-break-inside:avoid;break-inside:avoid}'
-    +'.cp-ter-t{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}'
-    +'.cp-ter-n{font-family:Anton,sans-serif;font-size:10px;color:#d97706;letter-spacing:.4px}'
-    +'.cp-ter-t span[contenteditable]{flex:1;font-size:10.5px;font-weight:700;border-bottom:1.2px dotted #c3cbd3;min-height:14px}'
-    +'.cp-ter svg{width:100%;height:auto;display:block;border-radius:5px}'
-    +'.cp-lg{border-bottom:1.2px dotted #c3cbd3;min-height:16px;margin-top:5px}'
-    // Les quatre variables
+
+    // ---- Qui est là ce soir : quatre zones, et de la place pour écrire
+    +'.cp-ec{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}'
+    +'.cp-ec-g{border:1.5px solid #e2e6ea;border-left:4px solid var(--gc);border-radius:8px;'
+      +'padding:6px 9px 8px;page-break-inside:avoid;break-inside:avoid}'
+    // Les quatre en-têtes doivent commencer à la même hauteur, sinon les
+    // colonnes de lignes ne s'alignent plus d'une zone à l'autre.
+    +'.cp-ec-t{display:flex;align-items:center;gap:7px;margin-bottom:6px;height:17px}'
+    +'.cp-ec-t b{font-family:Anton,sans-serif;font-size:10.5px;letter-spacing:.4px;line-height:1;'
+      +'text-transform:uppercase;color:var(--gc);font-weight:400;white-space:nowrap}'
+    +'.cp-ec-t .n{margin-left:auto;font-family:Anton,sans-serif;font-size:13px;color:#11161c;'
+      +'min-width:26px;border-bottom:1.3px dotted #b4bcc4;text-align:center;padding:0 2px}'
+    +'.cp-ec-c{display:grid;gap:0 11px}'
+    +'.cp-ec-l{min-height:14px;border-bottom:1.1px dotted #c3cbd3;font-size:9.5px;'
+      +'font-weight:600;color:#3c4650;padding:1px 2px}'
+
+    // ---- Le minutage : cinq moments, une ligne chacun
+    +'.cp-mo{border:1.5px solid #e2e6ea;border-left:5px solid var(--c);border-radius:8px;'
+      +'padding:5px 10px 6px;page-break-inside:avoid;break-inside:avoid}'
+    +'.cp-mo-h{display:flex;align-items:center;gap:8px;margin-bottom:3px}'
+    +'.cp-mo-n{font-family:Anton,sans-serif;font-size:15px;line-height:1;color:var(--c);min-width:13px}'
+    +'.cp-mo-t{font-family:Anton,sans-serif;font-size:11px;letter-spacing:.5px;'
+      +'text-transform:uppercase;color:var(--c)}'
+    +'.cp-mo-s{font-size:8.4px;color:#98a2ad;font-weight:600}'
+    +'.cp-mo-d{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:.08em;'
+      +'text-transform:uppercase;color:#98a2ad;display:flex;align-items:baseline;gap:5px;white-space:nowrap}'
+    +'.cp-mo-d span[contenteditable]{display:inline-block;min-width:50px;border-bottom:1.2px dotted #b4bcc4;'
+      +'color:#11161c;font-size:10.5px;font-weight:700;text-align:center;padding:0 3px}'
+    +'.cp-mo-b{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    +'.cp-mo .ch-v{min-height:30px}'
+    +'.cp-mo-r{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;'
+      +'color:#d97706;white-space:nowrap}'
+
+    // ---- Les situations, en grand, page 2
+    +'.cp-sits{display:grid;grid-template-columns:1fr 1fr;gap:9px}'
+    +'.cp-sit{border:1.5px solid #e2e6ea;border-left:5px solid var(--c);border-radius:8px;'
+      +'padding:5px 7px 7px;page-break-inside:avoid;break-inside:avoid}'
+    +'.cp-sit-h{display:flex;align-items:baseline;gap:7px;margin-bottom:5px}'
+    +'.cp-sit-n{font-family:Anton,sans-serif;font-size:15px;line-height:1;color:var(--c)}'
+    +'.cp-sit-t{font-family:Anton,sans-serif;font-size:10px;letter-spacing:.5px;'
+      +'text-transform:uppercase;color:var(--c);white-space:nowrap}'
+    +'.cp-sit-h span[contenteditable]{flex:1;min-width:0;border-bottom:1.2px dotted #c3cbd3;'
+      +'font-size:10px;font-weight:700;min-height:13px;padding:0 3px}'
+    +'.cp-sit svg{border:1px solid #dfe4e9;border-radius:5px}'
+    +'.cp-sit-l{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:5px}'
+    +'.cp-sit .ch-v{min-height:20px}'
+    +'.cp-sit-e{display:flex;align-items:baseline;gap:6px;margin-top:4px;font-size:7.4px;'
+      +'font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad}'
+    +'.cp-sit-e span[contenteditable]{flex:1;border-bottom:1.2px dotted #c3cbd3;min-height:13px;'
+      +'font-size:9.5px;font-weight:600;color:#11161c;text-transform:none;letter-spacing:0}'
+
+    // ---- Les quatre variables
     +'.cp-var{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}'
     +'.cp-v{background:#f4f6f8;border:1px solid #e2e6ea;border-radius:6px;padding:6px 8px 7px}'
     +'.cp-v b{display:block;font-family:Anton,sans-serif;font-size:10px;letter-spacing:.5px;color:#d97706}'
-    +'.cp-v i{display:block;font-style:normal;font-size:8.2px;color:#6b7480;line-height:1.45;margin:2px 0 4px}'
-    +'.cp-v .cp-lg{min-height:14px;margin-top:0}'
+    +'.cp-v i{display:block;font-style:normal;font-size:8px;color:#6b7480;line-height:1.35;margin:2px 0 3px}'
+    +'.cp-v .cp-lg{min-height:14px;border-bottom:1.2px dotted #c3cbd3}'
+
     +'@media print{.p2{break-before:page;page-break-before:always}'
-      +'.bl,.ph3,.cp-ter{break-inside:avoid;page-break-inside:avoid}'
-      // Une fiche vierge sert à écrire dessus : sur le papier, on garde les lignes
-      // et la hauteur des cases. Les autres documents, eux, restent nets.
+      +'.bl,.cp-mo,.cp-sit,.cp-ec-g{break-inside:avoid;page-break-inside:avoid}'
+      // Une fiche vierge sert à écrire dessus : sur le papier, on garde les
+      // lignes et la hauteur des cases.
       +'.ch-v{border-bottom:1.2px dotted #c3cbd3!important;min-height:17px!important}'
       +'.ch.large .ch-v{min-height:30px!important}'
-      +'.ph3 .ch.large .ch-v{min-height:60px!important}'
-      +'.ph3 .ch .ch-v{min-height:20px!important}'
-      +'.ph3-d span[contenteditable],.bandeau .droite span[contenteditable],'
-        +'.cp-ter-t span[contenteditable]{border-bottom:1.2px dotted #b4bcc4!important;min-height:14px!important}'
-      +'.ph3-d span[contenteditable]{min-width:54px!important;display:inline-block!important}'
-      +'.cp-ap-r .cs i,.cp-ap-lg i{border:1.3px solid #9aa3ad!important;'
-        +'-webkit-print-color-adjust:exact;print-color-adjust:exact}'
-      +'.cp-ap-t > div > span{border-bottom:1.3px dotted #9aa3ad!important;min-height:18px!important}'
-      +'.cp-ap-r .nm[contenteditable]{border-bottom:1.2px dotted #b4bcc4!important;'
-        +'min-height:9px!important}'
-      +'.bandeau .droite span[contenteditable]{min-width:96px!important;display:inline-block!important}'
+      +'.cp-mo .ch-v{min-height:30px!important}.cp-sit .ch-v{min-height:20px!important}'
+      +'.cp-ec-l{border-bottom:1.1px dotted #b4bcc4!important;min-height:14px!important}'
+      +'.cp-ec-t .n,.cp-sit-e span[contenteditable],.cp-sit-h span[contenteditable]{'
+        +'border-bottom:1.2px dotted #b4bcc4!important;min-height:13px!important}'
+      +'.cp-mo-d span[contenteditable],.bandeau .droite span[contenteditable]{'
+        +'border-bottom:1.2px dotted #b4bcc4!important;min-height:14px!important;display:inline-block!important}'
+      +'.cp-mo-d span[contenteditable]{min-width:50px!important}'
+      +'.bandeau .droite span[contenteditable]{min-width:96px!important}'
     +'}'
-    +'@media screen and (max-width:860px){.cp-ters,.cp-var{grid-template-columns:1fr!important}'
-      +'.ph3-h{flex-wrap:wrap}.ph3-d{margin-left:0;width:100%}'
-      +'.ph3-b{grid-template-columns:1fr!important}'
-      +'.cp-ap-g{grid-auto-flow:row!important;grid-template-rows:none!important;'
-        +'grid-template-columns:1fr 1fr!important}'
-      +'.cp-ap-t{grid-template-columns:repeat(2,1fr)!important}}'
+    +'@media screen and (max-width:860px){'
+      +'.cp-ec,.cp-sits,.cp-var{grid-template-columns:1fr!important}'
+      +'.cp-ec-g{grid-column:auto!important}'
+      +'.cp-ec-c{grid-template-columns:1fr 1fr!important}'
+      +'.cp-mo-h{flex-wrap:wrap}.cp-mo-d{margin-left:0;width:100%}'
+      +'.cp-mo-b,.cp-sit-l{grid-template-columns:1fr!important}}'
     +'</style>';
 }
-// Un terrain vide, en clair : c'est du papier, il faut pouvoir dessiner dessus au stylo
-function cpTerrain(){
+
+// ===== Le demi-terrain, en grand =====
+// Un exercice se dessine sur un demi-terrain. La surface, le point de penalty
+// et le rond central donnent l'échelle ; tout le reste est laissé vide, parce
+// que c'est le coach qui pose les joueurs, les plots et les ballons au stylo.
+function cpDemiTerrain(){
   var t='#9fb8a8';
-  var s='<svg viewBox="0 0 130 84" preserveAspectRatio="none" style="width:100%;height:auto;display:block">'
-    +'<rect x="0" y="0" width="130" height="84" rx="2" fill="#eef5f0"/>'
-    +'<g fill="none" stroke="'+t+'" stroke-width="0.6">'
-    +'<rect x="2" y="2" width="126" height="80"/>'
-    +'<line x1="65" y1="2" x2="65" y2="82"/>'
-    +'<circle cx="65" cy="42" r="10"/>'
-    +'<rect x="2" y="22" width="17" height="40"/><rect x="2" y="32" width="6.5" height="20"/>'
-    +'<rect x="111" y="22" width="17" height="40"/><rect x="121.5" y="32" width="6.5" height="20"/>'
-    +'</g><circle cx="65" cy="42" r="1" fill="'+t+'"/></svg>';
+  return '<svg viewBox="0 0 130 100" style="width:100%;height:auto;display:block">'
+    +'<rect x="0" y="0" width="130" height="100" rx="2" fill="#eef5f0"/>'
+    +'<g fill="none" stroke="'+t+'" stroke-width="0.7" stroke-linejoin="round">'
+      +'<rect x="4" y="4" width="122" height="92"/>'
+      +'<rect x="4" y="23" width="38" height="54"/>'
+      +'<rect x="4" y="37.5" width="13" height="25"/>'
+      +'<rect x="0.6" y="43" width="3.4" height="14" fill="#fff"/>'
+      +'<path d="M42 36.8A16 13.4 0 0 1 42 63.2"/>'
+      +'<path d="M126 37.6A21 12.4 0 0 0 126 62.4"/>'
+      +'<path d="M4 10A6 6 0 0 0 10 4"/>'
+      +'<path d="M10 96A6 6 0 0 0 4 90"/>'
+    +'</g>'
+    +'<circle cx="29" cy="50" r="1.1" fill="'+t+'"/>'
+    +'<circle cx="126" cy="50" r="1.1" fill="'+t+'"/></svg>';
+}
+
+// ===== Qui est là ce soir =====
+// Pas un listing imprimé de tout l'effectif : de la place pour écrire. Le
+// coach note ceux qui sont là, et ça reste vrai quel que soit l'effectif.
+var CP_GROUPES=[
+  {t:'Présents',      c:'#0f8a5f', n:16, cols:2, span:2},
+  {t:'Reprise course',c:'#d97706', n:16, cols:1},
+  {t:'Blessés',       c:'#c0392b', n:16, cols:1},
+  {t:'Absents',       c:'#98a2ad', n:16, cols:1}
+];
+function cpLignes(n){
+  var s='';
+  for(var i=0;i<n;i++) s+='<div class="cp-ec-l" contenteditable></div>';
   return s;
 }
-// ---- L'appel du soir -------------------------------------------------
-// Quatre cases par joueur, cochées au stylo au bord du terrain :
-//   P présent · R reprise course · B blessé · A absent
-// La liste sort de l'effectif de l'appli ; si elle est vide, la fiche
-// s'imprime avec des lignes nues et se remplit à la main.
-var CP_CASES=[['P','présent','#0f8a5f'],['R','reprise course','#d97706'],
-              ['B','blessé','#c0392b'],['A','absent','#98a2ad']];
-function cpCases(){
-  return '<span class="cs">'+CP_CASES.map(function(c){
-    return '<i style="border-color:'+c[2]+';color:'+c[2]+'">'+c[0]+'</i>';
-  }).join('')+'</span>';
-}
-function cpLigneAppel(j){
-  return '<div class="cp-ap-r"><span class="n">'+docEsc(j?String(j.num||''):'')+'</span>'
-    +(j? '<span class="nm">'+docEsc(j.nom||'')+(j.gardien?' <em>G</em>':'')+'</span>'
-       : '<span class="nm" contenteditable data-vide="nom"></span>')
-    +cpCases()+'</div>';
-}
-function cpAppel(){
-  var l=[];
-  try{ l=(JOUEURS||[]).slice().sort(function(a,b){ return (a.num||999)-(b.num||999); }); }catch(e){}
-  var lignes=l.map(cpLigneAppel);
-  // De quoi ajouter un essai, un jeune monté, un mutation du jour
-  var vides = l.length ? 4 : 32;
-  for(var i=0;i<vides;i++) lignes.push(cpLigneAppel(null));
-  var parCol = Math.ceil(lignes.length/4);
-
-  var legende='<div class="cp-ap-lg">'+CP_CASES.map(function(c){
-      return '<b><i style="border-color:'+c[2]+'"></i>'+docEsc(c[0])+' '+docEsc(c[1])+'</b>';
-    }).join('')+'<b style="margin-left:auto;color:#b4bcc4">G = gardien</b></div>';
-
-  var totaux='<div class="cp-ap-t">'
-    +[['Présents','P'],['En reprise','R'],['Blessés','B'],['Absents','A'],['Gardiens','G']]
-      .map(function(t){ return '<div><b>'+docEsc(t[0])+'</b>'
-        +'<span contenteditable data-vide="0"></span></div>'; }).join('')
-    +'</div>';
-
+function cpEffectif(){
+  var zones=CP_GROUPES.map(function(g){
+    return '<div class="cp-ec-g" style="--gc:'+g.c+(g.span?';grid-column:span '+g.span:'')+'">'
+      +'<div class="cp-ec-t"><b>'+docEsc(g.t)+'</b>'
+        +'<span class="n" contenteditable data-vide="0"></span></div>'
+      +'<div class="cp-ec-c" style="grid-template-columns:repeat('+g.cols+',1fr)">'
+        +cpLignes(g.n*g.cols)+'</div></div>';
+  }).join('');
   // Ce que l'appli sait déjà : inutile de le chercher de mémoire à 19h25.
-  var infirmerie='';
+  var rappel='';
   try{
     var bl=dvBlessesActifs();
-    if(bl && bl.length) infirmerie=reuSu('À l\'infirmerie d\'après l\'appli', bl, 'personne');
+    if(bl && bl.length) rappel=reuSu('À l\'infirmerie d\'après l\'appli', bl, 'personne');
   }catch(e){}
-
-  return reuBloc('L\'appel','#c0392b',
-    legende
-    +'<div class="cp-ap-g" style="grid-template-rows:repeat('+parCol+',auto)">'
-      +lignes.join('')+'</div>'
-    +totaux+infirmerie);
+  return '<div class="cp-ec">'+zones+'</div>'+rappel;
 }
 
-// Dans le déroulé, on ne dessine pas un terrain complet en miniature : on
-// dessine la ZONE où se passe l'exercice. Deux buts, une ligne médiane, et
-// de la place. Le terrain entier reste page 2, en grand.
-function cpZone(){
-  var t='#9fb8a8';
-  return '<svg viewBox="0 0 130 55" preserveAspectRatio="none" '
-      +'style="width:100%;height:auto;display:block">'
-    +'<rect x="0" y="0" width="130" height="55" rx="2" fill="#eef5f0"/>'
-    +'<g fill="none" stroke="'+t+'" stroke-width="0.6">'
-    +'<rect x="2" y="2" width="126" height="51"/>'
-    +'<line x1="65" y1="2" x2="65" y2="53" stroke-dasharray="2.5 2.5"/>'
-    +'<circle cx="65" cy="27.5" r="6.5"/>'
-    +'<rect x="2" y="19" width="5" height="17"/><rect x="123" y="19" width="5" height="17"/>'
-    +'</g><circle cx="65" cy="27.5" r="0.9" fill="'+t+'"/></svg>';
-}
-
-// Les cinq moments d'une séance. Les deux bouts sont courts : on n'y conçoit pas grand-chose.
+// Les cinq moments d'une séance. Les deux bouts sont courts : on n'y conçoit
+// pas grand-chose. Les quatre premiers se dessinent, page 2.
 var CP_PHASES=[
-  {n:'1', t:'Mise en train',   s:'échauffement, déjà orienté vers le thème', c:'#0f8a5f', court:true, ter:true},
+  {n:'1', t:'Mise en train',   s:'échauffement, déjà orienté vers le thème', c:'#0f8a5f', ter:true},
   {n:'2', t:'Situation 1',     s:'le thème isolé, peu ou pas d\'opposition',  c:'#2563eb', ter:true},
   {n:'3', t:'Situation 2',     s:'le même thème, avec de l\'opposition',      c:'#d97706', ter:true},
   {n:'4', t:'Le jeu',          s:'le thème dans le match, sans le dire',      c:'#c0392b', ter:true},
-  {n:'5', t:'Retour au calme', s:'ce qu\'on retient, dit par les joueurs',    c:'#6b7480', court:true}
+  {n:'5', t:'Retour au calme', s:'ce qu\'on retient, dit par les joueurs',    c:'#6b7480'}
 ];
-// Une phase se conçoit en la dessinant. Le terrain vient donc d'abord, et les
-// mots autour : c'est l'inverse de ce qu'on avait, et c'est ce qui manquait.
-function cpPhase(p){
-  // Le dessin dit l'organisation ; la ligne dessous la chiffre.
-  var ter = p.ter
-    ? '<div class="ph3-ter">'+cpZone()
-        +'<div class="cp-lg" contenteditable data-vide="40×30 · 8v8"></div></div>'
-    : '';
-  var corps;
-  if(!p.ter){
-    // Le retour au calme ne se dessine pas : il se parle.
-    corps='<div class="ph3-b" style="grid-template-columns:1fr 1fr">'
-      +reuChamp('La question que je pose','une seule, ouverte')
-      +reuChamp('Ce qu\'ils doivent retenir','la phrase qu\'ils emportent')
-      +'</div>';
-  }else if(p.court){
-    corps='<div class="ph3-b" style="grid-template-columns:136px 1fr 1fr">'
-      +ter
-      +reuChamp('Consignes — ce que je dis','deux phrases, pas plus',null,true)
-      +reuChamp('Ce que je regarde déjà','le comportement lié au thème',null,true)
-      +'</div>';
-  }else{
-    corps='<div class="ph3-b" style="grid-template-columns:136px 1fr 1fr">'
-      +ter
-      +reuChamp('Consignes — ce que je dis','deux phrases, pas plus',null,true)
-      +'<div>'
-        +reuChamp('Critère de réussite','ce qui doit se produire')
-        +reuChamp('Variables + / −','si c\'est trop simple ou trop dur')
-      +'</div></div>';
-  }
-  return '<div class="ph3" style="--c:'+p.c+'">'
-    +'<div class="ph3-h"><span class="ph3-n">'+p.n+'</span>'
-      +'<span class="ph3-t">'+docEsc(p.t)+'</span>'
-      +'<span class="ph3-s">'+docEsc(p.s)+'</span>'
-      +'<span class="ph3-d">Durée <span contenteditable data-vide="min"></span>'
+// Page 1 : le minutage. Ce qu'on regarde entre deux exercices, pas ce qu'on conçoit.
+function cpMoment(p){
+  return '<div class="cp-mo" style="--c:'+p.c+'">'
+    +'<div class="cp-mo-h"><span class="cp-mo-n">'+p.n+'</span>'
+      +'<span class="cp-mo-t">'+docEsc(p.t)+'</span>'
+      +'<span class="cp-mo-s">'+docEsc(p.s)+'</span>'
+      +(p.ter?'<span class="cp-mo-r">→ situation '+p.n+', page 2</span>':'')
+      +'<span class="cp-mo-d">Durée <span contenteditable data-vide="min"></span>'
         +' · de <span contenteditable data-vide="h"></span> à <span contenteditable data-vide="h"></span></span>'
-    +'</div>'+corps+'</div>';
+    +'</div>'
+    +'<div class="cp-mo-b">'
+      +reuChamp(p.ter?'Consignes — ce que je dis':'La question que je pose',
+                p.ter?'deux phrases, pas plus':'une seule, ouverte')
+      +reuChamp(p.ter?'Ce que je regarde':'Ce qu\'ils doivent retenir',
+                p.ter?'le comportement lié au thème':'la phrase qu\'ils emportent')
+    +'</div></div>';
 }
+// Page 2 : la situation, dessinée en grand.
+function cpSituation(p){
+  return '<div class="cp-sit" style="--c:'+p.c+'">'
+    +'<div class="cp-sit-h"><span class="cp-sit-n">'+p.n+'</span>'
+      +'<span class="cp-sit-t">'+docEsc(p.t)+'</span>'
+      +'<span contenteditable data-vide="nom de la situation"></span></div>'
+    +cpDemiTerrain()
+    +'<div class="cp-sit-e">Espace · nombre'
+      +'<span contenteditable data-vide="40×30 · 8v8 · 2 mini-buts"></span></div>'
+    +'<div class="cp-sit-l">'
+      +reuChamp('Critère de réussite','ce qui doit se produire')
+      +reuChamp('Variables + / −','si c\'est trop simple ou trop dur')
+    +'</div></div>';
+}
+
 var CP_VARIABLES=[
   ['L\'espace',  'Plus grand : l\'attaque respire. Plus petit : il faut décider vite.'],
   ['Le nombre',  'Un joueur en plus pour qui attaque, un en moins pour qui défend.'],
   ['Le temps',   'Limiter les touches, chronométrer, imposer un délai pour marquer.'],
   ['Les règles', 'But qui compte double, zone interdite, passage obligé par un joueur.']
 ];
+
 function genererFicheConception(){
   var logo=docLogoClub();
   var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
@@ -17045,7 +17037,7 @@ function genererFicheConception(){
     +'</head><body>'
     +docBarre(true)
 
-    // ---------------------------- PAGE 1 ----------------------------
+    // ------------------------- PAGE 1 — la feuille du soir -------------------------
     +'<div class="feuille">'
     +reuBandeau(logo,'Préparation de séance',
       'Date : <span contenteditable data-vide="jj/mm/aaaa"></span>'
@@ -17074,33 +17066,28 @@ function genererFicheConception(){
         +reuChamp('Ce que je leur dis en arrivant — trente secondes','le thème en une phrase, dans leurs mots'))
     +'</div>'
 
-    +cpAppel()
+    +'<div class="cp-sect">Qui est là ce soir'
+      +'<em>Reprise course = à part, sans opposition. Le total au bout de chaque titre.</em></div>'
+    +cpEffectif()
 
-    +'<div class="cp-sect">Le déroulé<em>Un seul thème du début à la fin. Dessine la situation, les mots viennent après.</em></div>'
-    +'<div class="rang" style="gap:7px">'+CP_PHASES.map(cpPhase).join('')+'</div>'
+    +'<div class="cp-sect">Le déroulé'
+      +'<em>Un seul thème du début à la fin. Les situations se dessinent page 2.</em></div>'
+    +'<div class="rang" style="gap:7px">'+CP_PHASES.map(cpMoment).join('')+'</div>'
 
-
-    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — préparation de séance. Page 1 / 2 : l\'appel et le déroulé.</span>'
-      +'<span>Page 2 : les situations en grand et le bilan.</span></div>'
+    +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — préparation de séance. Page 1 / 2 : qui est là, et le déroulé.</span>'
+      +'<span>Page 2 : les quatre situations à dessiner.</span></div>'
     +'</div>'
 
-    // ---------------------------- PAGE 2 ----------------------------
+    // ------------------------- PAGE 2 — les situations -------------------------
     +'<div class="feuille p2">'
     +reuBandeau(logo,'Préparation de séance — les situations',
       'Séance du <span contenteditable data-vide="jj/mm/aaaa"></span><br>Page 2 / 2')
 
-    +reuBloc('Les situations, dessinées à la main','#2563eb',
-      '<div class="cp-aide">Un schéma vaut mieux qu\'un paragraphe : si la situation ne se dessine pas, elle ne se met pas en place.</div>'
-      +'<div class="cp-ters">'
-      +[1,2,3,4].map(function(i){
-        return '<div class="cp-ter">'
-          +'<div class="cp-ter-t"><span class="cp-ter-n">'+i+'</span>'
-            +'<span contenteditable data-vide="nom de la situation"></span></div>'
-          +cpTerrain()
-          +'<div class="cp-lg"></div><div class="cp-lg"></div>'
-        +'</div>';
-      }).join('')
-      +'</div>')
+    +'<div class="cp-sect">Les quatre situations, dessinées à la main'
+      +'<em>Un demi-terrain par situation. Si ça ne se dessine pas, ça ne se met pas en place.</em></div>'
+    +'<div class="cp-sits">'
+      +CP_PHASES.filter(function(p){ return p.ter; }).map(cpSituation).join('')
+    +'</div>'
 
     +reuBloc('Pour faire évoluer un exercice, on ne change que quatre choses','#d97706',
       '<div class="cp-var">'+CP_VARIABLES.map(function(v){
@@ -17108,21 +17095,14 @@ function genererFicheConception(){
           +'<div class="cp-lg"></div></div>';
       }).join('')+'</div>')
 
-    +'<div class="rang r2">'
-      +reuBloc('Ce que je regarde pendant la séance','#7c3aed',
-        '<div class="cp-aide">Trois choses, pas dix. Le reste, on le verra une autre fois.</div>'
-        +reuChamp('1','le comportement collectif que je surveille')
-        +reuChamp('2','le joueur que je suis particulièrement')
-        +reuChamp('3','ce que je note pour le match de samedi'))
-      +reuBloc('Après la séance, à chaud','#0f8a5f',
-        '<div class="duo"><div>'
-          +reuChamp('Ce qui a marché','et pourquoi',null,true)
-          +reuChamp('À refaire ou à corriger','pour la prochaine fois',null,true)
-        +'</div><div>'
-          +reuChamp('Ce qui a coincé','la situation à revoir',null,true)
-          +reuChamp('Le joueur à revoir','nom, et ce qu\'on lui dit',null,true)
-        +'</div></div>')
-    +'</div>'
+    +reuBloc('Après la séance, à chaud','#0f8a5f',
+      '<div class="duo"><div>'
+        +reuChamp('Ce qui a marché','et pourquoi')
+        +reuChamp('À refaire ou à corriger','pour la prochaine fois')
+      +'</div><div>'
+        +reuChamp('Ce qui a coincé','la situation à revoir')
+        +reuChamp('Le joueur à revoir','nom, et ce qu\'on lui dit')
+      +'</div></div>')
 
     +'<div class="pied"><span>'+docEsc(NOM_CLUB)+' — préparation de séance. Page 2 / 2.</span>'
       +'<span>Remplis à l\'écran, archive dans l\'appli — ou imprime vierge et travaille au stylo.</span></div>'
@@ -23784,6 +23764,29 @@ function memeJoueur(a,b){
   // (« Sam PAPAIX » retrouve « Sam PAPAIX BELLO », « PAPAIX » aussi)
   return court.every(function(m){ return long.indexOf(m)!==-1; });
 }
+// Le nom complet, mot pour mot. Aucune indulgence.
+function memeJoueurExact(a,b){
+  var ma=motsDuNom(a), mb=motsDuNom(b);
+  return !!ma.length && ma.join(' ')===mb.join(' ');
+}
+// Ce nom peut-il designer plus d'un joueur de l'effectif ?
+//   « Quentin » le peut : il y a Quentin HENRY et Quentin MIREMONT.
+//   « DURAND » le peut : il y a Jo DURAND et Antho DURAND.
+// Un seul mot est toujours considere comme ambigu, meme s'il ne colle
+// aujourd'hui qu'a un joueur : demain il en collera un autre.
+function nomAmbigu(nom){
+  if(motsDuNom(nom).length<2) return true;
+  var n=0;
+  (JOUEURS||[]).forEach(function(j){ if(memeJoueur(j.nom, nom)) n++; });
+  return n>1;
+}
+// La comparaison a utiliser partout ou l'on EFFACE quelque chose : souple
+// quand le nom ne peut viser qu'une personne, stricte des qu'il hesite.
+function correspondJoueur(candidat, reference){
+  return nomAmbigu(reference) ? memeJoueurExact(candidat, reference)
+                              : memeJoueur(candidat, reference);
+}
+
 // Deux passes : d'abord les correspondances exactes, ensuite les partielles.
 // Ainsi « Thomas » ne prend pas la place d'un « Thomas MARTIN » écrit en toutes lettres.
 function apparierNoms(noms){
