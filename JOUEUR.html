@@ -652,6 +652,14 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .actu-item{background:var(--voile);border-radius:5px;padding:11px 12px;font-size:14.5px;line-height:1.45;color:var(--ink)}
 .actu-date{font-size:13px;color:var(--mute);margin-top:7px}
 /* --- Hero convocation --- */
+.ou-l{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:5px 0}
+.ou-l+.ou-l{border-top:1px solid var(--hair)}
+.ou-q{flex:0 0 86px;font-size:12px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--mute)}
+.ou-l b{font-size:15.5px;font-weight:700}
+.ou-v{font-size:14px;color:var(--mute)}
+.ou-n{margin-top:8px;font-size:13px;line-height:1.5;color:var(--mute);
+  border-left:2px solid var(--green);padding-left:9px}
 .hero-convoc{background:linear-gradient(160deg,rgba(217,119,6,.18),rgba(217,119,6,.02) 65%);border:1px solid rgba(217,119,6,.3);border-radius:14px;margin-bottom:14px;padding:18px;position:relative;overflow:hidden;box-shadow:0 8px 24px -12px rgba(217,119,6,.25)}
 .hero-eyebrow{font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--or);margin-bottom:8px}
 .convoc-adv{font-family:var(--titre);font-weight:400;font-size:var(--t2);
@@ -2400,7 +2408,7 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v45</b> · 08/10/2026<br>'
+    +'AST JOUEUR <b style="color:var(--or)">v46</b> · 09/10/2026<br>'
     +'<span style="opacity:.8">Les chiffres disent ce qu\'ils valent</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
@@ -4202,11 +4210,62 @@ function grGroupeHtml(){
     }).join('')
     +'</div></div>';
 }
+// ---- Ou j'en suis : le match, et la semaine -------------------------
+//
+//   La suspension porte sur le MATCH. Un suspendu s'entraine toute la
+//   semaine, et c'est bien le but. L'appli doit donc dire les deux, sans
+//   que l'un efface l'autre.
+function moiDedans(liste){
+  return (liste||[]).some(function(n){
+    var brut=String(n||'').replace(/\s*\(.*\)\s*$/,'').trim();
+    return memeJoueur(brut, MON_NOM||'');
+  });
+}
+// Le match : une seule reponse, celle du groupe publie.
+function maSituationMatch(){
+  var c=(SAISON&&SAISON.CONVOS)||{};
+  if(moiDedans(c.a))   return {lab:'Convoqué — Équipe A', c:'var(--green)'};
+  if(moiDedans(c.b))   return {lab:'Convoqué — Équipe B', c:'var(--green)'};
+  if(moiDedans(c.u18)) return {lab:'Convoqué — U18',      c:'var(--green)'};
+  if(moiDedans(c.su))  return {lab:'Suspendu pour le match', c:'var(--red)'};
+  if(moiDedans(c.bl))  return {lab:'Indisponible pour le match', c:'var(--red)'};
+  if((c.a||[]).length || (c.b||[]).length || (c.u18||[]).length)
+    return {lab:'Pas dans le groupe cette fois', c:'var(--mute)'};
+  return null;
+}
+// La semaine : autant de reponses que de seances ou le coach m'a retenu.
+function mesSeancesRetenues(){
+  var L=(typeof msSeances==='function')?msSeances():[];
+  var out=[];
+  L.forEach(function(sc){
+    if(moiDedans(((SAISON&&SAISON.CONVOS)||{}).seances
+      ? (((SAISON.CONVOS.seances)||{})[sc.k]||[]) : []))
+      out.push(sc.lab+(sc.h?(' '+sc.h):''));
+  });
+  return out;
+}
+
 function renderConvocations(){
   var ct=document.getElementById('scr-convocations');
-  var maCategorie=(SAISON.AFFECTATIONS_CONVOC||{})[MON_NUM];
-  var html='<div class="hero-convoc"><div class="hero-eyebrow">📋 Ma catégorie actuelle</div>'
-    +(maCategorie?'<div class="convoc-adv">'+esc(LABELS_CATEGORIES_CONVOC[maCategorie]||maCategorie)+'</div>':'<div class="empty-txt" style="text-align:left;padding:4px 0 0">Pas encore affecté par le coach</div>')
+  var mm=maSituationMatch(), ms=mesSeancesRetenues();
+  // Garde-fou : si la convocation n'a pas encore ete publiee, on retombe sur
+  // l'ancienne table plutot que de ne rien dire.
+  if(!mm && !ms.length){
+    var cat=(SAISON.AFFECTATIONS_CONVOC||{})[MON_NUM];
+    if(cat) mm={lab:(LABELS_CATEGORIES_CONVOC[cat]||cat), c:'var(--ink)'};
+  }
+  var html='<div class="hero-convoc"><div class="hero-eyebrow">📋 Où j\'en suis</div>'
+    +((mm||ms.length)
+      ? '<div class="ou-l"><span class="ou-q">Le match</span>'
+          +(mm?'<b style="color:'+mm.c+'">'+esc(mm.lab)+'</b>'
+              :'<span class="ou-v">pas encore annoncé</span>')+'</div>'
+        +'<div class="ou-l"><span class="ou-q">La semaine</span>'
+          +(ms.length?'<b style="color:var(--green)">'+esc(ms.join(' · '))+'</b>'
+                     :'<span class="ou-v">aucune séance pour toi cette semaine</span>')+'</div>'
+        +((mm && /Suspendu|Indisponible/.test(mm.lab) && ms.length)
+          ? '<div class="ou-n">Tu ne joues pas ce match, mais tu t\'entraînes : '
+            +'on compte sur toi aux séances.</div>' : '')
+      : '<div class="empty-txt" style="text-align:left;padding:4px 0 0">Pas encore affecté par le coach</div>')
     +'</div>';
   var items=(SAISON.CONVOCATIONS_HISTORIQUE||[]).slice().reverse();
   var monNomLc=(MON_NOM||'').toLowerCase().trim();

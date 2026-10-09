@@ -519,8 +519,9 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-note b{color:var(--gris)}
 
 /* --- Etape 1 : une ligne par joueur, deux colonnes quand la place le permet --- */
+/* min() : sans lui, une colonne de 430 px deborde un telephone de 390. */
 .cv-lignes{display:grid;gap:8px;padding:12px 14px 14px;
-  grid-template-columns:repeat(auto-fill,minmax(640px,1fr));align-items:start}
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,430px),1fr));align-items:start}
 .cv-ligne{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
   background:var(--voile);padding:9px 11px;min-width:0}
 .cv-ligne.hs{background:rgba(239,68,68,.05)}
@@ -539,11 +540,34 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-seg-b.on{background:color-mix(in srgb,var(--c) 18%,transparent);
   border-color:var(--c);color:var(--c)}
 .cv-seg-i{font-size:12.5px;line-height:1}
+/* Les quatre etats non choisis sont des propositions : icone et infobulle
+   suffisent. Celui qui est pose se lit en toutes lettres. */
+.cv-seg-b .cv-seg-l{display:none}
+.cv-seg-b.on .cv-seg-l{display:inline}
 .cv-motif{margin-top:8px;font-size:12.5px;padding:7px 10px}
 
 /* --- Etape 2 : un tableau joueurs x seances --- */
 /* Quatre listes de quarante noms cote a cote obligeaient a chercher le meme
    joueur quatre fois. Une ligne par joueur, une colonne par seance. */
+/* Deux tableaux cote a cote : la liste fait moitie moins de haut, et chacun
+   garde son en-tete de seances. */
+.cv-tabs{display:grid;gap:14px;padding:12px 14px 14px;align-items:start;
+  /* La largeur qu'il faut a un tableau depend du nombre de seances : deux
+     colonnes de deux seances tiennent la ou quatre ne tiendraient pas. */
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(258px + var(--n,4) * 62px)),1fr))}
+.cv-tabs .cv-tab{padding:0}
+/* A deux tableaux, chaque colonne est deux fois plus etroite : le nom doit
+   reprendre du poids, sinon les noms longs se font couper. */
+/* A deux tableaux, l'etiquette d'indisponibilite se reduit a son icone :
+   sinon elle prend la place du nom, qui se fait couper. L'infobulle et la
+   couleur de la ligne disent le reste. */
+/* Deux tableaux, donc des colonnes deux fois plus etroites : « Entrainement »
+   ne tient plus en un mot. On le laisse se couper plutot que disparaitre. */
+.cv-tabs .cv-tab-t{font-size:11.5px;overflow-wrap:anywhere}
+.cv-tabs .cv-tag i{display:none}
+.cv-tabs .cv-tag{padding:2px 5px}
+.cv-tabs .cv-tab-h,.cv-tabs .cv-tab-l{gap:5px;
+  grid-template-columns:minmax(150px,2.2fr) repeat(var(--n),minmax(0,.85fr))}
 .cv-tab{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
 .cv-tab-h,.cv-tab-l{display:grid;align-items:stretch;gap:7px;min-width:0;
   grid-template-columns:minmax(190px,1.45fr) repeat(var(--n),minmax(0,1fr))}
@@ -706,9 +730,8 @@ body.cv-plein #scr-convos.on{padding-top:0}
      elles passent a trois colonnes pour que le nom reste entier. */
   .cv-cases-eq{grid-template-columns:repeat(auto-fill,minmax(304px,1fr))}
 }
-@media(max-width:1700px){
-  /* Deux colonnes de lignes ne tiennent qu'au-dela : en dessous, les cinq
-     boutons d'etat mangeaient la place du nom et il se faisait couper. */
+@media(max-width:820px){
+  /* Sous cette largeur, le nom et les cinq etats ne tiennent plus a deux. */
   .cv-lignes{grid-template-columns:1fr}
 }
 @media(max-width:1180px){
@@ -2840,7 +2863,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v111</b> · 09/10/2026<br>
+      AST COACH <b style="color:var(--or)">v112</b> · 09/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -4918,7 +4941,11 @@ Chez le président"></textarea>
         <b style="color:var(--gris)">Page 1</b>, celle qu'on emporte au bord du terrain : présents, reprise course, blessés, absents, le cadre, le thème et le minutage des cinq moments.
         <b style="color:var(--gris)">Page 2</b>, les quatre situations sur de grands demi-terrains, qui <b style="color:var(--or)">se dessinent directement à l'écran</b> — joueurs, ballon, plots, mini-buts, zones, courses, passes, conduites, tirs.
       </div>
-      <button class="btn" onclick="genererFicheConception()">Ouvrir la fiche de préparation</button>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px">
+        <button class="btn" style="width:auto" onclick="ficheSeanceOuvrir()">Ouvrir la fiche de préparation</button>
+        <label class="fl" style="margin:0;font-size:11px">Pour la séance</label>
+        <select class="fi" id="fiche-seance-sel" style="width:auto;min-width:190px;font-size:13px;padding:8px 9px"></select>
+      </div>
       <div style="margin-top:9px;font-size:11.5px;color:var(--gris2)">Une fois remplie et archivée, elle se range dans <b>Club house › Documents › Docs à imprimer</b>, avec les autres fiches.</div>
     </div>
   </div>
@@ -7324,6 +7351,9 @@ function rendreEcran(s){
   if(s==='projet-jeu') renderProjetJeuCoach();
   if(s==='aide') renderAide();
   if(s==='seances-cal') renderCalSeances();
+  // goNav rend l'ecran, goRubrique la rubrique : le selecteur doit se remplir
+  // dans les deux cas.
+  if(s==='seances' || s==='seance') ficheSeanceRemplirSelect();
   if(s==='effectif'){ renderFicheCoach(); renderAnciensJoueurs(); }
   if(s==='recap') renderRecap();
   if(s==='points') renderPointsEntrainement();
@@ -10898,6 +10928,15 @@ function cvBandeauReponses(){
       +(motifs.length>8?(' \u00b7 et '+(motifs.length-8)+' autre'+(motifs.length-8>1?'s':'')):'')+'</div>':'')
   +'</div>';
 }
+// Couper la liste en deux paquets d'egale hauteur. En dessous de douze
+// joueurs, un seul tableau : deux colonnes de cinq lignes ne font gagner
+// personne et cassent la lecture.
+function cvPaquets(J){
+  if(J.length<12) return [J];
+  var m=Math.ceil(J.length/2);
+  return [J.slice(0,m), J.slice(m)];
+}
+
 function cvEtape2(){
   var L=cvSeances();
   var J=(JOUEURS||[]).filter(cvVisible);
@@ -10912,14 +10951,14 @@ function cvEtape2(){
             +'<button onclick="cvTousLeJour(\''+sc.k+'\',0)" title="Vider">✕</button></span>'
         +'</span>'; }).join('')
   +'</div>';
-  var lignes=J.map(function(jo){
+  function ligne(jo){
     var e=cvEtat(jo.num), inf=cvDispoInfo(e.d);
     return '<div class="cv-tab-l'+(e.d==='ok'?'':' hs')+'" style="--n:'+L.length+';--c:'+inf.c+'">'
       +'<span class="cv-tab-nom">'
         +'<span class="cv-num">'+jo.num+'</span>'
         +'<span class="cv-nom">'+echapForme(jo.nom)+'</span>'
         +(e.d==='ok'?'':'<span class="cv-tag" style="--c:'+inf.c+'" title="'
-            +(e.m?echapForme(e.m):inf.lab)+'">'+inf.ic+' '+inf.lab+'</span>')
+            +(e.m?echapForme(e.m):inf.lab)+'">'+inf.ic+'<i>'+inf.lab+'</i></span>')
       +'</span>'
       +L.map(function(sc){
           var on=!!(e.s && e.s[sc.k]);
@@ -10937,7 +10976,13 @@ function cvEtape2(){
             +'<span class="cv-coche">'+(on?'✓':'')+'</span>'
             +'<span class="cv-tab-xl">'+echapForme(sc.lab)+'</span></button>'; }).join('')
     +'</div>';
-  }).join('');
+  }
+  var paquets=cvPaquets(J);
+  var tableaux=J.length
+    ? '<div class="cv-tabs" style="--n:'+L.length+'">'+paquets.map(function(paquet){
+        return '<div class="cv-tab">'+entete+paquet.map(ligne).join('')+'</div>';
+      }).join('')+'</div>'
+    : '<div class="cv-tab"><div class="cv-vide2">Aucun joueur ne correspond.</div></div>';
   var hs=cvIndisponibles();
   return '<div class="cv-bloc">'
     +'<div class="cv-bloc-h">'
@@ -10953,7 +10998,7 @@ function cvEtape2(){
     +cvPanneauSeances()
     +cvBandeauReponses()
     +cvBarreRecherche('Chercher un joueur')
-    +'<div class="cv-tab">'+entete+(lignes||'<div class="cv-vide2">Aucun joueur ne correspond.</div>')+'</div>'
+    +tableaux
     +(hs.length
       ? '<div class="cv-ecartes">ℹ️ <b>'+hs.length+' joueur'+(hs.length>1?'s':'')
           +' indisponible'+(hs.length>1?'s':'')+' pour le match</b> — ils restent dans la liste, '
@@ -17619,6 +17664,9 @@ function cpStyles(){
       +'font-size:10px;font-weight:700;min-height:13px;padding:0 3px}'
     +'.cp-sit svg{border:1px solid #dfe4e9;border-radius:5px}'
     +'.cp-sit-l{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:5px}'
+    +'.cp-ec-src{font-size:7px;color:#6b7684;line-height:1.45;margin:0 0 4px;'
+      +'padding:3.5px 7px;background:#f4f7f9;border-left:2px solid #c9d4dc;border-radius:0 3px 3px 0}'
+    +'.cp-ec-l.pre{color:#11161c}'
     +'.cp-sit-a{display:flex;align-items:center;gap:8px;margin-top:6px}'
     +'.cp-exo{font-family:inherit;font-size:7.6px;font-weight:700;letter-spacing:.02em;'
       +'border:1px solid var(--c);color:var(--c);background:#fff;border-radius:4px;'
@@ -17756,32 +17804,102 @@ function cpDessinSource(){
 // ===== Qui est là ce soir =====
 // Pas un listing imprimé de tout l'effectif : de la place pour écrire. Le
 // coach note ceux qui sont là, et ça reste vrai quel que soit l'effectif.
+// ---- Qui est là ce soir, d'après les convocations --------------------
+//
+//   Une seule règle, et elle compte : la suspension et l'absence du boulot
+//   portent sur le MATCH. Un suspendu coché pour la séance est présent ce
+//   soir. On le range donc dans les présents, en gardant la mention, parce
+//   que le coach doit savoir en le regardant qu'il ne jouera pas samedi.
+//
+//   L'ordre de lecture fait la répartition : blessé, puis reprise course,
+//   puis coché pour la séance, puis absent. Les quatre colonnes de la fiche
+//   couvrent ainsi tout l'effectif, sans qu'un joueur tombe deux fois.
+function cpSeanceChoisie(cle){
+  var L=(typeof cvSeances==='function')?cvSeances():[];
+  if(!L.length) return null;
+  var trouve=null;
+  if(cle) L.forEach(function(x){ if(x.k===cle) trouve=x; });
+  if(trouve) return trouve;
+  // Par défaut : la séance de la semaine sur laquelle le plus de monde est
+  // coché. C'est celle qu'on prépare.
+  var best=null, n=0;
+  L.forEach(function(x){
+    var c=(typeof cvCompteSeance==='function')?cvCompteSeance(x.k):0;
+    if(c>n){ n=c; best=x; }
+  });
+  return best;
+}
+
+function cpPresences(cle){
+  var R={seance:null, presents:[], reprise:[], blesses:[], absents:[], total:0};
+  var sc=cpSeanceChoisie(cle);
+  if(!sc || typeof cvEtat!=='function') return R;
+  R.seance=sc;
+  (JOUEURS||[]).forEach(function(j){
+    var e=cvEtat(j.num)||{};
+    var nom=j.nom, motif=e.m?(' — '+e.m):'';
+    var vient=!!(e.s && e.s[sc.k]);
+    R.total++;
+    if(e.d==='blesse'){ R.blesses.push(nom+motif); return; }
+    if(e.d==='reprise'){ R.reprise.push(nom+motif); return; }
+    if(vient){
+      // Il est là ce soir. Ce qui l'empêche de jouer samedi reste écrit.
+      R.presents.push(nom+(e.d==='suspendu'?' (susp.)':(e.d==='boulot'?' (boulot samedi)':'')));
+      return;
+    }
+    R.absents.push(nom+(e.d==='boulot'?' (boulot)':(e.d==='suspendu'?' (suspendu)':motif)));
+  });
+  return R;
+}
+
 var CP_GROUPES=[
   {t:'Présents',      c:'#0f8a5f', n:16, cols:2, span:2},
   {t:'Reprise course',c:'#d97706', n:16, cols:1},
   {t:'Blessés',       c:'#c0392b', n:16, cols:1},
   {t:'Absents',       c:'#98a2ad', n:16, cols:1}
 ];
-function cpLignes(n){
+// Les noms deja connus sont poses dans les premieres lignes ; elles restent
+// modifiables, et il en reste toujours de libres pour ceux qui arrivent.
+function cpLignes(n, noms){
+  var L=(noms||[]).filter(Boolean);
+  var total=Math.max(n, L.length+2);
   var s='';
-  for(var i=0;i<n;i++) s+='<div class="cp-ec-l" contenteditable></div>';
+  for(var i=0;i<total;i++){
+    s+='<div class="cp-ec-l'+(L[i]?' pre':'')+'" contenteditable>'
+      +(L[i]?docEsc(L[i]):'')+'</div>';
+  }
   return s;
 }
-function cpEffectif(){
+function cpEffectif(cleSeance){
+  var P={};
+  try{ P=cpPresences(cleSeance); }catch(e){ P={}; }
+  var par={'Présents':P.presents, 'Reprise course':P.reprise,
+           'Blessés':P.blesses, 'Absents':P.absents};
   var zones=CP_GROUPES.map(function(g){
+    var noms=par[g.t]||[];
     return '<div class="cp-ec-g" style="--gc:'+g.c+(g.span?';grid-column:span '+g.span:'')+'">'
       +'<div class="cp-ec-t"><b>'+docEsc(g.t)+'</b>'
-        +'<span class="n" contenteditable data-vide="0"></span></div>'
+        +'<span class="n" contenteditable data-vide="0">'+(noms.length||'')+'</span></div>'
       +'<div class="cp-ec-c" style="grid-template-columns:repeat('+g.cols+',1fr)">'
-        +cpLignes(g.n*g.cols)+'</div></div>';
+        +cpLignes(g.n*g.cols, noms)+'</div></div>';
   }).join('');
-  // Ce que l'appli sait déjà : inutile de le chercher de mémoire à 19h25.
+  // D'où ça sort : sans cette ligne, le coach ne sait pas s'il peut s'y fier.
+  var source='';
+  if(P.seance){
+    source='<div class="cp-ec-src">Pré-rempli d\'après les convocations — séance '
+      +'<b>'+docEsc(P.seance.lab||'')+'</b>'+(P.seance.h?(' · '+docEsc(P.seance.h)):'')
+      +'. Tout se corrige à la main. Un suspendu coché pour la séance est '
+      +'dans les présents : la suspension vaut pour le match.</div>';
+  }else{
+    source='<div class="cp-ec-src">Rien de coché dans les convocations : '
+      +'les quatre listes sont à remplir à la main.</div>';
+  }
   var rappel='';
   try{
     var bl=dvBlessesActifs();
     if(bl && bl.length) rappel=reuSu('À l\'infirmerie d\'après l\'appli', bl, 'personne');
   }catch(e){}
-  return '<div class="cp-ec">'+zones+'</div>'+rappel;
+  return source+'<div class="cp-ec">'+zones+'</div>'+rappel;
 }
 
 // Les cinq moments d'une séance. Les deux bouts sont courts : on n'y conçoit
@@ -17986,7 +18104,30 @@ function cpScriptExport(){
   +'})();';
 }
 
-function genererFicheConception(){
+// Le selecteur dit sur quelle seance la fiche se pre-remplit, et combien de
+// joueurs y sont coches : sans ce chiffre, on ne sait pas si la convocation a
+// ete faite.
+function ficheSeanceRemplirSelect(){
+  var sel=document.getElementById('fiche-seance-sel');
+  if(!sel) return;
+  var L=(typeof cvSeances==='function')?cvSeances():[];
+  var defaut=null;
+  try{ defaut=cpSeanceChoisie(); }catch(e){}
+  var garde=sel.value;
+  sel.innerHTML=L.map(function(sc){
+    var n=(typeof cvCompteSeance==='function')?cvCompteSeance(sc.k):0;
+    return '<option value="'+echapForme(sc.k)+'">'+echapForme(sc.lab)
+      +(sc.h?(' · '+echapForme(sc.h)):'')+' — '+n+' joueur'+(n>1?'s':'')+'</option>';
+  }).join('') || '<option value="">Aucune séance posée</option>';
+  if(garde && L.some(function(x){ return x.k===garde; })) sel.value=garde;
+  else if(defaut) sel.value=defaut.k;
+}
+function ficheSeanceOuvrir(){
+  var sel=document.getElementById('fiche-seance-sel');
+  genererFicheConception(sel?sel.value:'');
+}
+
+function genererFicheConception(cleSeance){
   var logo=docLogoClub();
   var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
     +'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
@@ -18026,7 +18167,7 @@ function genererFicheConception(){
 
     +'<div class="cp-sect">Qui est là ce soir'
       +'<em>Reprise course = à part, sans opposition. Le total au bout de chaque titre.</em></div>'
-    +cpEffectif()
+    +cpEffectif(cleSeance)
 
     +'<div class="cp-sect">Le déroulé'
       +'<em>Un seul thème du début à la fin. Les situations se dessinent page 2.</em></div>'
