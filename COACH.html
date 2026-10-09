@@ -778,6 +778,10 @@ body.cv-plein #scr-convos.on{padding-top:0}
   #app-version{display:none}
   .ni{padding:9px 14px}
 }
+/* Le bouton ☰ n'existe qu'en mode tiroir : petit ecran en portrait, ou
+   ecran bas en paysage. Sa valeur par defaut doit rester AVANT ces deux
+   cas, sinon elle les ecrase — une media query n'ajoute pas de specificite. */
+#burger-mobile{display:none}
 @media(max-height:560px) and (max-width:1100px){
   #burger-mobile{display:flex;position:fixed;top:8px;left:8px;z-index:60;width:34px;height:34px;
     background:var(--fond2);border:1px solid var(--or);border-radius:8px;align-items:center;
@@ -790,6 +794,15 @@ body.cv-plein #scr-convos.on{padding-top:0}
   .side{z-index:56}
   .scr{padding-top:42px}
   .breadcrumb{padding:6px 14px 6px 50px;font-size:11.5px}
+  /* Le peu de hauteur disponible doit aller a la liste des ecrans. */
+  .side-logo{padding:6px 10px 6px 52px}
+  .side-logo img{width:30px;height:30px}
+  .side-club{font-size:13px}
+  .side-sub{font-size:9.5px}
+  .side-footer{max-height:118px;padding:5px 10px}
+  .side-footer .gen-btn,.side-footer .gen-btn2{padding:6px 8px;font-size:11.5px;margin-bottom:4px}
+  .ni{padding:7px 14px}
+  .pole-tile{padding:7px 10px;margin:4px 8px}
 }
 @media(max-width:700px){
   #scr-convos.on{display:block;height:auto;overflow:visible}
@@ -1815,6 +1828,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
   text-transform:uppercase;color:var(--gris2);opacity:.75;padding:1px 0 2px;order:-1}
 body.avec-barre .scr{padding-bottom:104px}
 body.cv-plein #barre-jour{display:none!important}
+body.tiroir-ouvert #barre-jour{display:none!important}
 #bdt.on ~ #barre-jour{display:none!important}
 /* Le terrain en grand : on efface tout ce qui n'est pas le terrain. */
 body.terrain-plein #side,
@@ -2386,7 +2400,6 @@ body.doc-ouvert{overflow:hidden}
 .el-zone{cursor:grab}
 .del-x{position:absolute;top:-8px;right:-8px;width:16px;height:16px;background:var(--red);border-radius:50%;color:#fff;font-size:12px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:5}
 .el-player:hover .del-x,.el-goal:hover .del-x,.el-cone:hover .del-x,.el-ballon:hover .del-x{display:flex}
-#burger-mobile{display:none}
 @media(max-width:760px){
   #burger-mobile{display:flex;position:fixed;top:10px;left:10px;z-index:60;width:38px;height:38px;background:var(--fond2);border:1px solid var(--or);border-radius:8px;align-items:center;justify-content:center;font-size:18px;color:var(--or);cursor:pointer}
   .side{position:fixed;top:0;left:0;height:100%;z-index:55;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.6)}
@@ -2827,7 +2840,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v110</b> · 08/10/2026<br>
+      AST COACH <b style="color:var(--or)">v111</b> · 09/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -6491,6 +6504,9 @@ function toggleSideMobile(forcerEtat){
   var ouvrir=typeof forcerEtat==='boolean'?forcerEtat:!side.classList.contains('side-ouvert');
   side.classList.toggle('side-ouvert',ouvrir);
   overlay.classList.toggle('actif',ouvrir);
+  // Le tiroir ouvert prend l'ecran : la barre du bas s'efface, sinon elle
+  // recouvre les boutons du tiroir et recupere les clics a leur place.
+  document.body.classList.toggle('tiroir-ouvert',ouvrir);
 }
 function irVersEcranReel(s){
   goNav(s);
