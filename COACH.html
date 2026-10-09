@@ -2827,7 +2827,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v109</b> · 08/10/2026<br>
+      AST COACH <b style="color:var(--or)">v110</b> · 08/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -17603,6 +17603,14 @@ function cpStyles(){
       +'font-size:10px;font-weight:700;min-height:13px;padding:0 3px}'
     +'.cp-sit svg{border:1px solid #dfe4e9;border-radius:5px}'
     +'.cp-sit-l{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:5px}'
+    +'.cp-sit-a{display:flex;align-items:center;gap:8px;margin-top:6px}'
+    +'.cp-exo{font-family:inherit;font-size:7.6px;font-weight:700;letter-spacing:.02em;'
+      +'border:1px solid var(--c);color:var(--c);background:#fff;border-radius:4px;'
+      +'padding:3.5px 8px;cursor:pointer;white-space:nowrap}'
+    +'.cp-exo:hover{background:var(--c);color:#fff}'
+    +'.cp-exo.ok{background:#0f8a5f;border-color:#0f8a5f;color:#fff}'
+    +'.cp-exo-s{font-size:6.6px;color:#7b8794;line-height:1.3}'
+    +'@media print{.cp-sit-a{display:none!important}}'
     +'.cp-sit .ch-v{min-height:20px}'
     +'.cp-sit-e{display:flex;align-items:baseline;gap:6px;margin-top:4px;font-size:7.4px;'
       +'font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#98a2ad}'
@@ -17802,6 +17810,13 @@ function cpSituation(p){
     +'<div class="cp-sit-l">'
       +reuChamp('Critère de réussite','ce qui doit se produire')
       +reuChamp('Variables + / −','si c\'est trop simple ou trop dur')
+    +'</div>'
+    // Ce qui est dessiné ici peut repartir dans la bibliothèque. À l'écran
+    // seulement : sur le papier, le bouton n'a rien à faire.
+    +'<div class="cp-sit-a">'
+      +'<button type="button" class="cp-exo" onclick="if(window.cpVersExos)cpVersExos(this)">'
+        +'\u2192 Envoyer dans mes exercices</button>'
+      +'<span class="cp-exo-s">rejoint le constructeur, la bibliothèque et le générateur</span>'
     +'</div></div>';
 }
 
@@ -17811,6 +17826,149 @@ var CP_VARIABLES=[
   ['Le temps',   'Limiter les touches, chronométrer, imposer un délai pour marquer.'],
   ['Les règles', 'But qui compte double, zone interdite, passage obligé par un joueur.']
 ];
+
+// ===== De la fiche de séance au constructeur =====
+//
+//   Ce qui est dessiné sur la fiche doit pouvoir servir deux fois : ce soir
+//   sur le terrain, et plus tard dans la bibliothèque. Sans ça, chaque
+//   situation est à redessiner.
+//
+//   Deux repères différents, donc une vraie conversion :
+//     la fiche     — demi-terrain en paysage, but à gauche, 130 × 100
+//     constructeur — demi-terrain en portrait, but en haut, 100 × 68
+//   La ligne de but passe de la gauche au haut : un quart de tour vers la
+//   droite. Les coordonnées du constructeur sont des pourcentages du cadre.
+// Les quatre pions de la fiche portent les memes lettres que ceux du
+// constructeur : attaque, defense, appui, gardien.
+var CP_EQ_FEX={a:1, d:1, s:1, g:1};
+var CP_FL_FEX={run:'arrow-run', pass:'arrow-pass', drib:'arrow-dribble', tir:'arrow-tir'};
+
+function cpPct(v){ return Math.round(Math.max(0, Math.min(100, v))*10)/10; }
+function cpXY(x,y){
+  return {x:cpPct(100-(Number(y)||0)), y:cpPct((Number(x)||0)/130*100)};
+}
+
+function cpObjetsVersElements(objets){
+  var E=[];
+  (objets||[]).forEach(function(o){
+    if(!o || !o.t) return;
+    if(o.t==='j'){
+      var a=cpXY(o.x,o.y);
+      E.push({type:'player', team:CP_EQ_FEX[o.e]?o.e:'a', x:a.x, y:a.y, rot:0, note:''});
+    }else if(o.t==='b'){
+      var bq=cpXY(o.x,o.y); E.push({type:'ballon', x:bq.x, y:bq.y});
+    }else if(o.t==='c'){
+      var c=cpXY(o.x,o.y); E.push({type:'cone', x:c.x, y:c.y, rot:0});
+    }else if(o.t==='g'){
+      var g=cpXY(o.x,o.y); E.push({type:'goal', taille:'small', x:g.x, y:g.y, rot:0});
+    }else if(o.t==='x'){
+      var t=cpXY(o.x,o.y); E.push({type:'texte', x:t.x, y:t.y, texte:String(o.s||'')});
+    }else if(o.t==='z'){
+      // Un quart de tour garde le rectangle droit : il suffit de reprendre
+      // les deux coins convertis et de les remettre dans l'ordre.
+      var p1=cpXY(o.x1,o.y1), p2=cpXY(o.x2,o.y2);
+      var x=Math.min(p1.x,p2.x), y=Math.min(p1.y,p2.y);
+      var w=Math.abs(p2.x-p1.x), h=Math.abs(p2.y-p1.y);
+      if(w<1.5 || h<1.5) return;        // un clic sans glissement : pas une zone
+      E.push({type:'zone-rect', style:'yellow', x:cpPct(x), y:cpPct(y),
+              w:cpPct(w), h:cpPct(h), rot:0, coins:null, mouv:''});
+    }else if(o.t==='f'){
+      var A=cpXY(o.x1,o.y1), B=cpXY(o.x2,o.y2);
+      E.push({type:'arrow', x1:A.x, y1:A.y, x2:B.x, y2:B.y,
+              style:CP_FL_FEX[o.k]||'arrow-pass', sens:1, reversed:false});
+    }
+  });
+  return E;
+}
+
+// Appelée depuis la fiche, qui est dans une iframe de la même page.
+// Retourne {ok:…, msg:…} : c'est la fiche qui parle au coach, pas l'appli —
+// elle est au-dessus, c'est elle qu'il regarde.
+function cpRecevoirExercice(p){
+  p=p||{};
+  var objets=[];
+  try{ objets=(typeof p.objets==='string')?(JSON.parse(p.objets||'[]')||[]):(p.objets||[]); }
+  catch(e){ objets=[]; }
+  if(!objets.length)
+    return {ok:false, msg:"Cette situation n'est pas encore dessinée.\n\nPose au moins un joueur ou une zone sur le terrain, puis renvoie-la."};
+
+  var el=cpObjetsVersElements(objets);
+  if(!el.length)
+    return {ok:false, msg:"Rien à envoyer dans cette situation."};
+
+  var nom=String(p.nom||'').trim();
+  if(!nom) nom=(String(p.intitule||'Situation').trim()+' — '+new Date().toLocaleDateString('fr-FR'));
+
+  var pr=fexNouveauProcede(1);
+  pr.titre=nom;
+  pr.terrain='pt-demi';
+  pr.elements=el;
+  pr.moment='corps';
+  // Le thème n'est repris que s'il correspond vraiment à un thème du
+  // planning : inventer une valeur fausserait le générateur de séance.
+  var th=String(p.theme||'').trim();
+  pr.theme=(THEMES_PLANNING.indexOf(th)>=0)?th:'';
+  pr.espace=String(p.espace||'').trim();
+  pr.setup=[th?('Thème de la séance : '+th):'', pr.espace?('Dispositif : '+pr.espace):'']
+    .filter(Boolean).join('\n');
+  pr.consignes=String(p.reussite||'').trim();
+  pr.important=String(p.variables||'').trim();
+
+  var maintenant=new Date();
+  var fiche={id:'fiche_'+Date.now(), titre:nom, origine:'conception',
+    dateCreation:maintenant.toLocaleString('fr-FR'),
+    dateModif:maintenant.toLocaleString('fr-FR'),
+    procedes:[pr, fexNouveauProcede(2), fexNouveauProcede(3),
+              fexNouveauProcede(4), fexNouveauProcede(5)]};
+  FICHES_EXERCICES.unshift(fiche);
+  SEANCES_PHOTOS.unshift({titre:nom, theme:'Exercices',
+    date:maintenant.toLocaleDateString('fr-FR'), ficheExerciceId:fiche.id});
+
+  try{ renderBiblio(); }catch(e){}
+  try{ renderGenerateur(); }catch(e){}     // le générateur doit le voir tout de suite
+  try{ fexRenderListeFiches(); }catch(e){}
+  try{ sauvegarder(); }catch(e){}
+  notif('✓ « '+nom+' » est dans Constructeur › Mes exercices');
+  return {ok:true, id:fiche.id, msg:nom};
+}
+
+function cpScriptExport(){
+  return '(function(){'
+    // L'appli est soit la page qui porte cette iframe, soit celle qui a
+    // ouvert cet onglet. docAppli() sait déjà la trouver.
+    +'function appli(){ try{ if(window.docAppli) return window.docAppli(); }catch(e){} return null; }'
+    // Un champ se retrouve par son libellé, pas par sa position : la fiche
+    // peut bouger sans casser l'envoi.
+    +'function champ(carte,lab){ var r="";'
+      +'[].slice.call(carte.querySelectorAll(".ch")).forEach(function(c){'
+        +'var l=c.querySelector(".ch-l"); if(!l) return;'
+        +'if(l.textContent.trim().indexOf(lab)!==0) return;'
+        +'var v=c.querySelector(".ch-v"); if(v) r=v.textContent.trim(); });'
+      +'return r; }'
+    +'function txt(sel,ou){ var e=(ou||document).querySelector(sel); return e?e.textContent.trim():""; }'
+    +'window.cpVersExos=function(btn){'
+      +'var carte=btn.closest?btn.closest(".cp-sit"):null; if(!carte) return;'
+      +'var app=appli();'
+      +'if(!app || !app.cpRecevoirExercice){'
+        +'alert("L\'appli n\'est plus ouverte derrière cette fiche.\\n\\nReviens sur AST COACH, rouvre la fiche depuis l\'appli : ce que tu as écrit est retenu.");'
+        +'return; }'
+      +'var w=carte.querySelector("[data-dessin]");'
+      +'var r;'
+      +'try{ r=app.cpRecevoirExercice({'
+        +'nom:txt(".cp-sit-h [contenteditable]",carte),'
+        +'intitule:txt(".cp-sit-t",carte),'
+        +'objets:(w?(w.getAttribute("data-objets")||"[]"):"[]"),'
+        +'espace:txt(".cp-sit-e [contenteditable]",carte),'
+        +'reussite:champ(carte,"Critère de réussite"),'
+        +'variables:champ(carte,"Variables"),'
+        +'theme:champ(document,"Le th\u00e8me")'
+      +'}); }catch(e){ alert("Envoi impossible : "+e.message); return; }'
+      +'if(!r || !r.ok){ alert((r&&r.msg)||"Envoi impossible."); return; }'
+      +'var t=btn.innerHTML; btn.innerHTML="✓ Dans mes exercices"; btn.className="cp-exo ok";'
+      +'setTimeout(function(){ btn.innerHTML=t; btn.className="cp-exo"; },2800);'
+    +'};'
+  +'})();';
+}
 
 function genererFicheConception(){
   var logo=docLogoClub();
@@ -17896,6 +18054,8 @@ function genererFicheConception(){
       sujet:'Séance — '+new Date().toLocaleDateString('fr-FR')})
     // Le moteur vient après la mémoire : il a besoin de docRetenir().
     +'<scr'+'ipt>'+cpDessinSource()+'</scr'+'ipt>'
+    // Après la mémoire : l'envoi se sert de docAppli().
+    +'<scr'+'ipt>'+cpScriptExport()+'</scr'+'ipt>'
     +'</body></html>';
   docOuvrir(html,'Fiche de préparation de séance');
 }
@@ -21993,6 +22153,15 @@ function docMemoire(cle, meta){
   function json(o){ return JSON.stringify(o===undefined?null:o).replace(/</g,'\\u003c'); }
   return '<script>(function(){'
     +'var CLE="ast_fiche_'+cle+'";'
+    // Ou est l'appli ? Dans la vue integree c'est window.parent, dans un
+    // onglet ouvert a part c'est window.opener. Une seule fonction pour les deux.
+    +'function appli(){'
+      +'try{ if(window.parent && window.parent!==window && window.parent.ficheArchiver)'
+        +'return window.parent; }catch(e){}'
+      +'try{ if(window.opener && !window.opener.closed && window.opener.ficheArchiver)'
+        +'return window.opener; }catch(e){}'
+      +'return null; }'
+    +'window.docAppli=appli;'
     +'var META='+json(m)+';'
     +'var CHARGE='+json(charge?charge.donnees:null)+';'
     +'function champs(){ return [].slice.call(document.querySelectorAll("[contenteditable]")); }'
@@ -22047,7 +22216,9 @@ function docMemoire(cle, meta){
       +'if(!META){ alert("Cette fiche ne s\'archive pas."); return; }'
       +'var d=lire();'
       +'if(vide(d)){ alert("La fiche est encore vide — remplis au moins un champ avant de l\'archiver."); return; }'
-      +'var app=null; try{ app=(window.opener && !window.opener.closed && window.opener.ficheArchiver)?window.opener:null; }catch(e){}'
+      // La fiche vit soit dans la vue integree (window.parent), soit dans un
+      // onglet a part (window.opener). On regarde les deux, parent d'abord.
+      +'var app=appli();'
       +'if(!app){ alert("L\'appli n\'est plus ouverte derrière cette fiche.\\n\\nReviens sur AST COACH, rouvre la fiche depuis l\'appli, puis archive : ce que tu as écrit est retenu, rien n\'est perdu."); return; }'
       +'var remplacer=true;'
       +'try{ var deja=app.ficheArchiveExistante?app.ficheArchiveExistante(META.cle):null;'
