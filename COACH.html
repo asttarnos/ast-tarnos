@@ -479,9 +479,16 @@ body.cv-plein #scr-convos.on{padding-top:0}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cv-pas-c{font-size:11.5px;color:var(--gris2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cv-pas.faite .cv-pas-n{background:rgba(15,138,95,.22);color:var(--green)}
-.cv-pas.on{border-color:var(--or);background:rgba(249,115,22,.08)}
-.cv-pas.on .cv-pas-n{background:var(--or);color:#1a0d02}
-.cv-pas.on .cv-pas-c{color:var(--or)}
+/* L'etape porte la couleur de son monde : orange le samedi, vert la semaine.
+   On voit d'un coup d'oeil qu'on a change de sujet. */
+.cv-pas{border-top:3px solid var(--mc,transparent)}
+.cv-pas-h{display:flex;align-items:center;gap:7px;min-width:0}
+.cv-pas-m{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mc);white-space:nowrap}
+.cv-pas.on{border-color:var(--mc);border-top-width:3px;
+  background:color-mix(in srgb,var(--mc) 9%,transparent)}
+.cv-pas.on .cv-pas-n{background:var(--mc);color:#0b1016}
+.cv-pas.on .cv-pas-c{color:var(--mc)}
 .cv-pas-fl{align-self:center;color:var(--gris2);font-size:17px;flex:0 0 auto;padding:0 2px}
 
 /* --- L'etape ouverte : elle defile, le reste ne bouge pas --- */
@@ -519,13 +526,24 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-note b{color:var(--gris)}
 
 /* --- Etape 1 : une ligne par joueur, deux colonnes quand la place le permet --- */
-/* min() : sans lui, une colonne de 430 px deborde un telephone de 390. */
-.cv-lignes{display:grid;gap:8px;padding:12px 14px 14px;
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,430px),1fr));align-items:start}
+/* min() : sans lui, une colonne de 360 px deborde un telephone de 390 — et
+   la colonne passerait sous la largeur de l'ecran. */
+.cv-lignes{display:grid;gap:7px;padding:12px 14px 14px;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));align-items:start}
+/* Au-dela, on s'arrete a trois : quatre colonnes de noms, l'oeil ne suit plus. */
+@media(min-width:1480px){ .cv-lignes{grid-template-columns:repeat(3,1fr)} }
 .cv-ligne{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
   background:var(--voile);padding:9px 11px;min-width:0}
+.cv-ligne .cv-seg{gap:3px}
+.cv-ligne .cv-seg-b{padding:6px 7px}
+.cv-ligne .cv-seg-b.on{padding:6px 9px}
 .cv-ligne.hs{background:rgba(239,68,68,.05)}
-.cv-ligne-h{display:flex;align-items:center;gap:11px;min-width:0}
+/* Quand un etat sort de l'ordinaire, son libelle s'ecrit et la ligne peut
+   manquer de place. Les boutons passent alors a la ligne : le nom reste
+   entier, c'est lui qu'on cherche. */
+.cv-ligne-h{display:flex;flex-wrap:wrap;align-items:center;gap:9px 11px;min-width:0}
+.cv-ligne-h .cv-nom{min-width:128px}
+.cv-ligne-h .cv-seg{margin-left:auto}
 .cv-num{flex:0 0 30px;text-align:center;font-family:'Roboto Condensed',sans-serif;font-size:13px;
   font-weight:800;color:var(--gris2);background:var(--champ);border:1px solid var(--line);
   border-radius:6px;padding:4px 0}
@@ -544,6 +562,9 @@ body.cv-plein #scr-convos.on{padding-top:0}
    suffisent. Celui qui est pose se lit en toutes lettres. */
 .cv-seg-b .cv-seg-l{display:none}
 .cv-seg-b.on .cv-seg-l{display:inline}
+/* « Dispo » est l'etat de presque tout le monde : la coche verte suffit, et
+   la place va au nom. Seuls les etats qui sortent de l'ordinaire s'ecrivent. */
+.cv-seg-b.on[data-k="ok"] .cv-seg-l{display:none}
 .cv-motif{margin-top:8px;font-size:12.5px;padding:7px 10px}
 
 /* --- Etape 2 : un tableau joueurs x seances --- */
@@ -554,7 +575,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-tabs{display:grid;gap:14px;padding:12px 14px 14px;align-items:start;
   /* La largeur qu'il faut a un tableau depend du nombre de seances : deux
      colonnes de deux seances tiennent la ou quatre ne tiendraient pas. */
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(258px + var(--n,4) * 62px)),1fr))}
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(236px + var(--n,4) * 58px)),1fr))}
 .cv-tabs .cv-tab{padding:0}
 /* A deux tableaux, chaque colonne est deux fois plus etroite : le nom doit
    reprendre du poids, sinon les noms longs se font couper. */
@@ -566,8 +587,10 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-tabs .cv-tab-t{font-size:11.5px;overflow-wrap:anywhere}
 .cv-tabs .cv-tag i{display:none}
 .cv-tabs .cv-tag{padding:2px 5px}
+/* Les cases a cocher n'ont pas besoin de grandir : on leur donne une largeur
+   fixe, et tout le reste va au nom. C'est lui qu'on lit. */
 .cv-tabs .cv-tab-h,.cv-tabs .cv-tab-l{gap:5px;
-  grid-template-columns:minmax(150px,2.2fr) repeat(var(--n),minmax(0,.85fr))}
+  grid-template-columns:minmax(110px,1fr) repeat(var(--n),56px)}
 .cv-tab{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
 .cv-tab-h,.cv-tab-l{display:grid;align-items:stretch;gap:7px;min-width:0;
   grid-template-columns:minmax(190px,1.45fr) repeat(var(--n),minmax(0,1fr))}
@@ -2074,6 +2097,15 @@ body.terrain-plein #pl-sortie-plein{display:block}
   .hubl-al{display:none}
   .fs-al{min-width:17px;height:17px;font-size:10.5px}
 }
+/* L'en-tete d'un bloc annonce son monde, avec un filet de sa couleur. */
+.cv-bloc-m{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:4px;padding:3px 8px;line-height:1.5;flex:0 0 auto}
+.cv-bloc-h.m-match .cv-bloc-m{background:rgba(249,115,22,.16);color:var(--or)}
+.cv-bloc-h.m-entrainement .cv-bloc-m{background:rgba(34,197,94,.16);color:var(--green)}
+.cv-bloc-h.m-match{border-left:3px solid var(--or)}
+.cv-bloc-h.m-entrainement{border-left:3px solid var(--green)}
+.cv-note.m-match{border-left:3px solid var(--or)}
+.cv-note.m-entrainement{border-left:3px solid var(--green)}
 /* ===== Le fil de la semaine ===== */
 .fs-blk{margin-bottom:16px}
 .fs-bc{font-size:12.5px;color:var(--gris2)}
@@ -2091,6 +2123,13 @@ body.terrain-plein #pl-sortie-plein{display:block}
 .fs-c{flex:1;min-width:0}
 .fs-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:9px;margin-bottom:3px}
 .fs-t{font-family:Anton,sans-serif;font-size:15px;letter-spacing:.3px;color:var(--gris)}
+/* Match ou entrainement : les deux mondes ne se melangent pas. */
+.fs-m{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  border-radius:4px;padding:2px 6px;line-height:1.5}
+.fs-m.match{background:rgba(249,115,22,.16);color:var(--or)}
+.fs-m.entrainement{background:rgba(34,197,94,.16);color:var(--green)}
+/* Le sujet de l'etape : de quel match, de quelle semaine on parle. */
+.fs-s{font-size:13px;font-weight:700;color:var(--gris2)}
 .fs-et{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
   color:var(--ec);border:1.3px solid var(--ec);border-radius:20px;padding:1.5px 8px;line-height:1.5}
 .fs-d{margin-left:auto;font-size:11.5px;color:var(--gris2);white-space:nowrap}
@@ -2863,7 +2902,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v112</b> · 09/10/2026<br>
+      AST COACH <b style="color:var(--or)">v113</b> · 12/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -8990,37 +9029,76 @@ function fsArchive(cle){
   try{ return ficheArchiveExistante?ficheArchiveExistante(cle):null; }catch(e){ return null; }
 }
 
+function fsMatchsEnAttente(){
+  // Tous les matchs passés dont le résultat n'est pas enregistré, du plus
+  // récent au plus ancien. S'il y en a plusieurs, c'est ça qu'il faut dire.
+  return (CALENDRIER||[]).map(function(c){ return {c:c, d:dvJourDe(c)}; })
+    .filter(function(o){
+      if(!o.d || dvEcartJours(o.d)>=0) return false;
+      var m=dvResultatEnregistre(o.c.adversaire);
+      return !(m && m.res);
+    })
+    .sort(function(a,b){ return b.d-a.d; });
+}
+
+// Combien de joueurs portent vraiment une note sur ce match.
+// Une ligne existe pour chaque convoqué dès que le match est enregistré,
+// banc compris : on ne compte que ceux qui ont joué.
+function fsNbNotes(m){
+  if(!m || !m.notes) return 0;
+  return m.notes.filter(function(n){
+    return n && n.statut!=='BN' && n.statut!=='ABS' && (n.note||0)>0;
+  }).length;
+}
+
 function fsEtapes(){
   var E=[], dernier=dvDernierMatch(), prochain=dvProchainMatch();
 
-  // ---------- ce qu'il reste à faire du dernier match
+  // ---------- 1. le dernier match : le score et les notes, au même endroit
   if(dernier){
-    var m=dvResultatEnregistre(dernier.c.adversaire);
+    var adv=dernier.c.adversaire||'?';
+    var m=dvResultatEnregistre(adv);
     var score=(m && m.res) ? ((m.ast!=null?m.ast:'?')+'-'+(m.adv!=null?m.adv:'?')
         +' · '+({V:'victoire',N:'nul',D:'défaite'}[m.res]||m.res)) : null;
-    E.push({cle:'resultat', t:'Le résultat', d:dernier.d,
-      fait:!!score, etat:fsEtat(!!score, dernier.d),
-      detail:score || ('Le match contre '+(dernier.c.adversaire||'?')+' n\'est pas encore enregistré.'),
-      ecran:'matchs', action:'fsAllerMatch('+JSON.stringify(dernier.c.adversaire||'')+')',
-      bouton:score?'Revoir le match':'Enregistrer le match'});
-
-    // Une ligne existe pour chaque joueur dès que le match est enregistré,
-    // banc compris. Seuls ceux qui ont joué portent une vraie note.
-    var notes=(m && m.notes) ? m.notes.filter(function(n){
-      return n && n.statut!=='BN' && n.statut!=='ABS' && (n.note||0)>0; }).length : 0;
-    E.push({cle:'notes', t:'Les notes des joueurs', d:dernier.d,
-      fait:notes>0, etat:fsEtat(notes>0, dernier.d),
-      detail:notes>0 ? (notes+' joueur'+(notes>1?'s':'')+' noté'+(notes>1?'s':''))
-                     : 'Personne n\'est noté : les joueurs ne verront rien de ce match.',
-      ecran:'matchs', action:'fsAllerMatch('+JSON.stringify(dernier.c.adversaire||'')+')',
-      bouton:notes>0?'Compléter les notes':'Noter les joueurs',
+    var notes=fsNbNotes(m);
+    var manque=[];
+    if(!score) manque.push('le score');
+    if(!notes)  manque.push('les notes des joueurs');
+    var attente=fsMatchsEnAttente();
+    var detail;
+    if(!manque.length){
+      detail=score+' · '+notes+' joueur'+(notes>1?'s':'')+' noté'+(notes>1?'s':'');
+    }else{
+      detail='Il manque '+manque.join(' et ')+'.';
+      if(score) detail=score+' — il manque les notes des joueurs.';
+      // Plusieurs matchs en attente : le dire, sinon on croit que le fil
+      // se trompe de match.
+      if(attente.length>1)
+        detail+=' Et '+(attente.length-1)+' autre'+(attente.length>2?'s':'')
+          +' match'+(attente.length>2?'s':'')+' passé'+(attente.length>2?'s':'')
+          +' attend'+(attente.length>2?'ent':'')+' aussi son résultat.';
+    }
+    E.push({cle:'dernier', monde:'match', t:'Le dernier match', sujet:'vs '+adv, d:dernier.d,
+      fait:(!!score && notes>0), etat:fsEtat(!!score && notes>0, dernier.d),
+      detail:detail,
+      ecran:'matchs', action:'fsAllerMatch('+JSON.stringify(adv)+')',
+      bouton:(!score?'Enregistrer le match':(notes?'Revoir le match':'Noter les joueurs')),
       doc:'obs_nous'});
   }
 
-  // ---------- les séances entre les deux matchs
+  // ---------- 2. les séances de la semaine, en une seule ligne
   var bornA=dernier?dernier.d:null, bornB=prochain?prochain.d:null;
+  //   Le planning ecrit ses dates en jj/mm/aaaa ; parseDateFr ne sait lire que
+  //   « 13 Octobre 2026 ». Depuis la premiere version du fil, il renvoyait null
+  //   et le fil annoncait « aucune seance au planning » quoi qu'il arrive.
+  //   fsDateSeance lit le format du planning ; parseDateFr reste en secours.
   var seances=(PLANNING_MENSUEL||[]).map(function(p){
-      return {p:p, d:fsDateSeance(p.date)};
+      var d=fsDateSeance(p.date);
+      if(!d && typeof parseDateFr==='function'){
+        var t=parseDateFr(p.date);
+        if(t) d=new Date(t);
+      }
+      return {p:p, d:d};
     })
     .filter(function(x){
       if(!x.d) return false;
@@ -9028,59 +9106,64 @@ function fsEtapes(){
       if(bornB && x.d>bornB) return false;
       return true;
     })
-    .sort(function(a,b){ return a.d-b.d; })
-    .slice(0,4);
+    .sort(function(a,b){ return a.d-b.d; });
 
-  seances.forEach(function(x,i){
-    var theme=(x.p.theme||'').trim();
-    E.push({cle:'seance'+i, t:seances.length>1?('La séance '+(i+1)):'La séance', d:x.d,
-      fait:!!theme, etat:fsEtat(!!theme, x.d),
-      detail:theme ? theme+((x.p.sousThemes&&x.p.sousThemes.length)?(' · '+x.p.sousThemes.join(', ')):'')
-                   : 'Aucun thème posé pour cette séance.',
-      ecran:'seances', action:'fsAllerRubrique(\'seances\',\''+(theme?'seance':'seances-cal')+'\')',
-      bouton:theme?'Préparer la séance':'Poser le thème',
+  if(seances.length){
+    var posees=seances.filter(function(x){ return (x.p.theme||'').trim(); });
+    var prochaineSansTheme=seances.filter(function(x){ return !(x.p.theme||'').trim(); })[0];
+    var tout=posees.length===seances.length;
+    E.push({cle:'seances', monde:'entrainement',
+      t:seances.length>1?('Les '+seances.length+' séances'):'La séance', sujet:'cette semaine',
+      d:prochaineSansTheme?prochaineSansTheme.d:seances[seances.length-1].d,
+      fait:tout, etat:fsEtat(tout, prochaineSansTheme?prochaineSansTheme.d:null),
+      detail:seances.map(function(x){
+        var th=(x.p.theme||'').trim();
+        return fsDateCourte(x.d)+' : '+(th||'thème à poser');
+      }).join(' · '),
+      ecran:'seances', action:'fsAllerRubrique(\'seances\',\''+(tout?'seance':'seances-cal')+'\')',
+      bouton:tout?'Préparer les séances':'Poser les thèmes',
       doc:'conception'});
-  });
-  if(!seances.length && prochain){
-    E.push({cle:'seance0', t:'Les séances', d:null, fait:false, etat:'afaire',
+  }else if(prochain){
+    E.push({cle:'seances', monde:'entrainement', t:'Les séances', sujet:'cette semaine',
+      d:null, fait:false, etat:'afaire',
       detail:'Aucune séance au planning entre les deux matchs.',
       ecran:'seances', action:'fsAllerRubrique(\'seances\',\'seances-cal\')',
       bouton:'Ouvrir le planning', doc:'conception'});
   }
 
-  // ---------- le groupe
   if(prochain){
+    var advP=prochain.c.adversaire||'ce match';
+    // ---------- 3. le groupe
     var cv=CONVOS||{};
     var memeAdv=cv.adv && (typeof fexNomsCorrespondent==='function')
       ? fexNomsCorrespondent(cv.adv, prochain.c.adversaire||'') : false;
     var nbA=(cv.a||[]).length, nbB=(cv.b||[]).length;
     var pose=memeAdv && (nbA+nbB)>0;
-    // La convocation se pose dans les jours qui précèdent : on la situe
-    // deux jours avant le match.
     var dConvoc=new Date(prochain.d.getTime()-2*86400000);
-    E.push({cle:'groupe', t:'Le groupe', d:dConvoc,
+    E.push({cle:'groupe', monde:'match', t:'Le groupe', sujet:'vs '+advP, d:dConvoc,
       fait:pose, etat:fsEtat(pose, dConvoc),
       detail:pose ? (nbA+nbB)+' convoqués — '+nbA+' en A, '+nbB+' en B'
-                  : 'La convocation n\'est pas posée pour '+(prochain.c.adversaire||'ce match')+'.',
+                  : 'La convocation n\'est pas posée.',
       ecran:'convos', bouton:pose?'Revoir le groupe':'Composer le groupe'});
 
-    // ---------- l'avant-match
+    // ---------- 4. l'avant-match
     var compo=(COMPOSITIONS||[]).length>0;
     var plateau=((SITUATIONS||[]).length>0)||((SCHEMAS_CPA||[]).length>0);
     var dossier=!!(DOSSIER && (DOSSIER.collectif || (DOSSIER.bulles && Object.keys(DOSSIER.bulles).length)));
     var faits=[compo&&'compo', plateau&&'plateau', dossier&&'dossier'].filter(Boolean).length;
     var dAvant=new Date(prochain.d.getTime()-1*86400000);
-    E.push({cle:'avant', t:'L\'avant-match', d:dAvant,
+    E.push({cle:'avant', monde:'match', t:'L\'avant-match', sujet:'vs '+advP, d:dAvant,
       fait:faits===3, etat:fsEtat(faits===3, dAvant),
       detail:[(compo?'compo faite':'compo à faire'),
               (plateau?'plateau posé':'plateau à poser'),
               (dossier?'dossier rempli':'dossier à remplir')].join(' · '),
       ecran:'avant-match', bouton:'Ouvrir le dossier', doc:'carte'});
 
-    // ---------- le match
+    // ---------- le rendez-vous
     var lieu=prochain.c.lieu==='E'?'à l\'extérieur':(prochain.c.lieu==='D'?'à domicile':'');
-    E.push({cle:'match', t:'Le match', d:prochain.d, fait:false, etat:'echeance',
-      detail:[prochain.c.adversaire, lieu, prochain.c.comp].filter(Boolean).join(' · '),
+    E.push({cle:'match', monde:'match', t:'Le match', sujet:'vs '+advP, d:prochain.d,
+      fait:false, etat:'echeance',
+      detail:[lieu, prochain.c.comp].filter(Boolean).join(' · '),
       ecran:'feuille-match', bouton:'La feuille de match', echeance:true});
   }
   return E;
@@ -9100,7 +9183,13 @@ function fsLigne(e){
   return '<div class="fs-e'+(e.echeance?' ech':'')+'" style="--ec:'+et.c+'">'
     +'<div class="fs-pt">'+(e.fait?ic('valide'):'')+'</div>'
     +'<div class="fs-c">'
-      +'<div class="fs-h"><span class="fs-t">'+esc2(e.t)+'</span>'
+      +'<div class="fs-h">'
+        +(e.monde?'<span class="fs-m '+e.monde+'">'
+            +(e.monde==='match'?'Match':'Entraînement')+'</span>':'')
+        +'<span class="fs-t">'+esc2(e.t)+'</span>'
+        // Nommer l'objet de l'etape : sans ca, « personne n'est note » tombe
+        // sur le mauvais match et on croit que l'appli se trompe.
+        +(e.sujet?'<span class="fs-s">'+esc2(e.sujet)+'</span>':'')
         +'<span class="fs-et">'+esc2(et.l)+'</span>'
         +(quand?'<span class="fs-d">'+esc2(quand)+(relatif?' · '+esc2(relatif):'')+'</span>':'')
       +'</div>'
@@ -10461,10 +10550,16 @@ function cvSeances(){
 }
 var CV_COULEURS_SEANCE=['#38bdf8','#22c55e','#0ea5e9','#eab308','#a855f7','#f59e0b'];
 
+// Deux mondes, pas trois etapes de meme nature : le samedi (le match) et la
+// semaine (l'entrainement). Chaque etape dit auquel elle appartient.
+var CV_MONDES={
+  match:       {lab:'Match',       c:'#F97316'},
+  entrainement:{lab:'Entraînement', c:'#22c55e'}
+};
 var CV_ETAPES=[
-  {n:1, ic:'🩹', t:'Indisponibles pour le match'},
-  {n:2, ic:'🏋️', t:"Qui s'entraîne ?"},
-  {n:3, ic:'⚽', t:'La convocation'}
+  {n:1, ic:'🩹', monde:'match',        t:'Qui est indisponible ?'},
+  {n:2, ic:'🏋️', monde:'entrainement', t:"Qui s'entraîne ?"},
+  {n:3, ic:'⚽', monde:'match',        t:'Qui est convoqué ?'}
 ];
 var CV_ETAPE=1, CV_EQ='a', CV_FILTRE='', CV_VUE1='tous';
 
@@ -10710,10 +10805,12 @@ function cvRendreFil(){
     conv?(conv+' convoqué'+(conv>1?'s':'')):'aucun convoqué'
   ];
   ct.innerHTML=CV_ETAPES.map(function(e,i){
-    return '<button class="cv-pas'+(CV_ETAPE===e.n?' on':'')+(CV_ETAPE>e.n?' faite':'')+'" '
-      +'onclick="cvAller('+e.n+')">'
-      +'<span class="cv-pas-n">'+e.n+'</span>'
-      +'<span class="cv-pas-t">'+e.ic+' '+e.t+'</span>'
+    var mo=CV_MONDES[e.monde]||CV_MONDES.match;
+    return '<button class="cv-pas m-'+e.monde+(CV_ETAPE===e.n?' on':'')
+      +(CV_ETAPE>e.n?' faite':'')+'" style="--mc:'+mo.c+'" onclick="cvAller('+e.n+')">'
+      +'<span class="cv-pas-h"><span class="cv-pas-n">'+e.n+'</span>'
+        +'<span class="cv-pas-m">'+e.ic+' '+mo.lab+'</span></span>'
+      +'<span class="cv-pas-t">'+e.t+'</span>'
       +'<span class="cv-pas-c">'+chiffres[i]+'</span>'
     +'</button>';
   }).join('<span class="cv-pas-fl">›</span>');
@@ -10746,7 +10843,7 @@ function cvEtape1(){
         +'<span class="cv-nom">'+echapForme(j.nom)+'</span>'
         +'<div class="cv-seg">'+CV_DISPOS.map(function(d){
             return '<button class="cv-seg-b'+(e.d===d.k?' on':'')+'" style="--c:'+d.c+'" '
-              +'title="'+d.lab+'" onclick="cvPoserDispo('+j.num+',\''+d.k+'\')">'
+              +'title="'+d.lab+'" data-k="'+d.k+'" onclick="cvPoserDispo('+j.num+',\''+d.k+'\')">'
               +'<span class="cv-seg-i">'+d.ic+'</span><span class="cv-seg-l">'+d.lab+'</span></button>';
           }).join('')+'</div>'
       +'</div>'
@@ -10756,14 +10853,16 @@ function cvEtape1(){
     +'</div>';
   }).join('');
   return '<div class="cv-bloc">'
-    +'<div class="cv-bloc-h">'
-      +'<span class="cv-bloc-t">① Qui est indisponible pour le match ?</span>'
+    +'<div class="cv-bloc-h m-match">'
+      +'<span class="cv-bloc-m">⚽ Match</span>'
+      +'<span class="cv-bloc-t">Qui est indisponible samedi ?</span>'
       +'<span class="cv-bloc-c"><b style="color:var(--green)">'+dispo+' disponibles</b>'
         +(indispo?(' · <b style="color:var(--red)">'+indispo+' indisponibles</b>'):'')+'</span>'
       +'<button class="cv-bloc-b" onclick="cvToutDispo()">↺ Tout remettre dispo</button>'
     +'</div>'
-    +'<div class="cv-note">Il s\'agit du <b>match</b> uniquement. Un suspendu ou un absent du '
-      +'boulot s\'entra\u00eene quand m\u00eame dans la semaine \u2014 \u00e7a se coche \u00e0 l\'\u00e9tape suivante.</div>'
+    +'<div class="cv-note m-match">On ne parle que du <b>match de samedi</b>. '
+      +'Un suspendu, un bless\u00e9 l\u00e9ger ou un absent du boulot s\'entra\u00eene quand m\u00eame '
+      +'dans la semaine : \u00e7a se coche \u00e0 l\'\u00e9tape 2, et \u00e7a ne d\u00e9pend pas d\'ici.</div>'
     +'<div class="cv-rech cv-rech-f">'
       +'<input class="fi" id="cv-rech" placeholder="\ud83d\udd0e Chercher un joueur dans les '+(JOUEURS||[]).length+'" '
         +'value="'+echapForme(CV_FILTRE)+'" oninput="cvFiltrer(this.value)">'
@@ -10933,8 +11032,12 @@ function cvBandeauReponses(){
 // personne et cassent la lecture.
 function cvPaquets(J){
   if(J.length<12) return [J];
-  var m=Math.ceil(J.length/2);
-  return [J.slice(0,m), J.slice(m)];
+  // Au-dela de dix-huit joueurs, trois paquets : c'est la meme lecture que le
+  // listing de l'etape 1. En dessous, deux suffisent.
+  var n=(J.length>=18)?3:2;
+  var m=Math.ceil(J.length/n), out=[];
+  for(var i=0;i<J.length;i+=m) out.push(J.slice(i,i+m));
+  return out;
 }
 
 function cvEtape2(){
@@ -10985,8 +11088,9 @@ function cvEtape2(){
     : '<div class="cv-tab"><div class="cv-vide2">Aucun joueur ne correspond.</div></div>';
   var hs=cvIndisponibles();
   return '<div class="cv-bloc">'
-    +'<div class="cv-bloc-h">'
-      +'<span class="cv-bloc-t">② Qui s\'entraîne cette semaine ?</span>'
+    +'<div class="cv-bloc-h m-entrainement">'
+      +'<span class="cv-bloc-m">🏋️ Entraînement</span>'
+      +'<span class="cv-bloc-t">Qui s\'entraîne cette semaine ?</span>'
       +'<span class="cv-bloc-c" style="opacity:.85">'
         +'<span style="color:#16a34a">✓</span> il a dit oui &nbsp;'
         +'<span style="color:#ca8a04">?</span> pas sûr &nbsp;'
@@ -10995,6 +11099,9 @@ function cvEtape2(){
           return echapForme(sc.lab)+' <b>'+cvCompteSeance(sc.k)+'</b>'; }).join(' · ')+'</span>'
       +'<button class="cv-bloc-b'+(CV_REGLAGES?' on':'')+'" onclick="cvReglages()">⚙ Mes séances</button>'
     +'</div>'
+    +'<div class="cv-note m-entrainement">On ne parle plus du match : c\'est la '
+      +'<b>semaine</b>. Tout le monde peut venir s\'entra\u00eener, y compris un '
+      +'suspendu ou un absent de samedi.</div>'
     +cvPanneauSeances()
     +cvBandeauReponses()
     +cvBarreRecherche('Chercher un joueur')
@@ -11038,8 +11145,9 @@ function cvEtape3(){
     : (n===places ? '<b style="color:var(--green)">au complet</b>'
                   : (places-n)+' place'+(places-n>1?'s':'')+' libre'+(places-n>1?'s':''));
   return '<div class="cv-bloc">'
-    +'<div class="cv-bloc-h">'
-      +'<span class="cv-bloc-t">③ Qui est convoqué ?</span>'
+    +'<div class="cv-bloc-h m-match">'
+      +'<span class="cv-bloc-m">⚽ Match</span>'
+      +'<span class="cv-bloc-t">Qui est convoqué samedi ?</span>'
       +'<span class="cv-bloc-c">'+cvDisponibles().length+' joueurs disponibles</span>'
     +'</div>'
     +'<div class="cv-eqs">'+CV_EQUIPES.map(function(q){
