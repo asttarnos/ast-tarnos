@@ -529,9 +529,37 @@ body.cv-plein #scr-convos.on{padding-top:0}
 /* min() : sans lui, une colonne de 360 px deborde un telephone de 390 — et
    la colonne passerait sous la largeur de l'ecran. */
 .cv-lignes{display:grid;gap:7px;padding:12px 14px 14px;
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));align-items:start}
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,318px),1fr));align-items:start}
 /* Au-dela, on s'arrete a trois : quatre colonnes de noms, l'oeil ne suit plus. */
 @media(min-width:1480px){ .cv-lignes{grid-template-columns:repeat(3,1fr)} }
+/* Colonne etroite : le prenom laisse son initiale, le nom de famille reste
+   entier. C'est lui qu'on cherche dans une liste de trente-huit. */
+.cv-ini{display:none;font-style:normal}
+@media(max-width:1540px){
+  .cv-lignes .cv-pre{display:none}
+  .cv-lignes .cv-ini{display:inline}
+}
+/* Les colonnes les plus etroites : on resserre encore, sans jamais rogner le
+   nom de famille. */
+/* Le regime « trois colonnes etroites » : de la ou la troisieme colonne
+   apparait jusqu'a la ou les noms entiers reviennent. */
+@media(min-width:1280px) and (max-width:1540px){
+  /* Le minimum du nom doit laisser les boutons sur la meme ligne : au-dela,
+     la ligne passe a deux niveaux et trois colonnes ne font plus gagner. */
+  /* Specificite egale a la regle generale : il faut donc une classe de plus,
+     sinon c'est le min-width large qui gagne et la ligne passe a deux niveaux. */
+  .cv-lignes .cv-ligne-h .cv-nom{min-width:92px}
+  .cv-lignes .cv-ligne-h{gap:7px 8px}
+  .cv-lignes .cv-nom{font-size:13.5px}
+  .cv-lignes .cv-seg{gap:2px}
+  /* Les cinq etats doivent tenir sur la meme ligne que le nom : sinon la
+     ligne double de hauteur et trois colonnes ne font plus rien gagner. */
+  /* Largeur fixe : les emojis d'etat n'ont pas la meme chasse, et c'est ce
+     qui faisait deborder la ligne d'un ou deux pixels selon le joueur. */
+  .cv-lignes .cv-seg-b{width:26px;padding:5px 0;justify-content:center}
+  .cv-lignes .cv-seg-i{font-size:11.5px}
+  .cv-lignes .cv-seg-b.on{width:auto;padding:5px 7px;font-size:10.5px}
+}
 .cv-ligne{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
   background:var(--voile);padding:9px 11px;min-width:0}
 .cv-ligne .cv-seg{gap:3px}
@@ -2902,7 +2930,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v113</b> · 12/10/2026<br>
+      AST COACH <b style="color:var(--or)">v114</b> · 12/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -10829,6 +10857,18 @@ function cvRendreEtape(){
 }
 
 // --- Etape 1 : qui est indisponible ? ---
+// Le prenom d'un cote, le reste de l'autre : a l'etroit, le prenom se reduit
+// a son initiale. On ecrit les deux formes, le style choisit celle qui tient.
+// Un nom d'un seul mot reste entier.
+function cvNomDeux(nom){
+  var t=String(nom||'').trim().split(/\s+/);
+  if(t.length<2) return '<span class="cv-fam">'+echapForme(nom)+'</span>';
+  var p=t.shift();
+  return '<i class="cv-pre">'+echapForme(p)+'</i>'
+    +'<em class="cv-ini">'+echapForme(p.charAt(0).toUpperCase())+'.</em> '
+    +'<span class="cv-fam">'+echapForme(t.join(' '))+'</span>';
+}
+
 function cvEtape1(){
   var dispo=cvDisponibles().length, indispo=cvIndisponibles().length;
   if(CV_VUE1==='hs' && !indispo) CV_VUE1='tous';
@@ -10840,7 +10880,7 @@ function cvEtape1(){
     return '<div class="cv-ligne'+(e.d==='ok'?'':' hs')+'" style="--c:'+inf.c+'">'
       +'<div class="cv-ligne-h">'
         +'<span class="cv-num">'+j.num+'</span>'
-        +'<span class="cv-nom">'+echapForme(j.nom)+'</span>'
+        +'<span class="cv-nom">'+cvNomDeux(j.nom)+'</span>'
         +'<div class="cv-seg">'+CV_DISPOS.map(function(d){
             return '<button class="cv-seg-b'+(e.d===d.k?' on':'')+'" style="--c:'+d.c+'" '
               +'title="'+d.lab+'" data-k="'+d.k+'" onclick="cvPoserDispo('+j.num+',\''+d.k+'\')">'
