@@ -468,7 +468,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
 
 /* --- Le fil des trois etapes --- */
 .cv-fil{flex:0 0 auto;display:flex;align-items:stretch;gap:4px;margin-bottom:12px}
-.cv-pas{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left;
+.cv-pas{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:1px;text-align:left;
   background:var(--carte);border:1.5px solid var(--line);border-radius:11px;
   padding:10px 14px 11px;cursor:pointer;transition:border-color .14s,background .14s;
   font-family:'Roboto Condensed',sans-serif}
@@ -521,14 +521,14 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-vue-b[disabled]{opacity:.45;cursor:default}
 .cv-vide2{padding:14px;font-size:13px;color:var(--gris2)}
 .cv-aide{font-size:12px;color:var(--gris2);line-height:1.55}
-.cv-note{margin:11px 14px 0;padding:9px 12px;border-radius:8px;font-size:12.5px;
+.cv-note{margin:7px 12px 0;padding:5px 10px;border-radius:6px;font-size:11.5px;
   line-height:1.55;color:var(--gris2);background:var(--voile);border:1px solid var(--line)}
 .cv-note b{color:var(--gris)}
 
 /* --- Etape 1 : une ligne par joueur, deux colonnes quand la place le permet --- */
 /* min() : sans lui, une colonne de 360 px deborde un telephone de 390 — et
    la colonne passerait sous la largeur de l'ecran. */
-.cv-lignes{display:grid;gap:7px;padding:12px 14px 14px;
+.cv-lignes{display:grid;gap:5px;padding:8px 12px 12px;
   grid-template-columns:repeat(auto-fill,minmax(min(100%,318px),1fr));align-items:start}
 /* Au-dela, on s'arrete a trois : quatre colonnes de noms, l'oeil ne suit plus. */
 @media(min-width:1480px){ .cv-lignes{grid-template-columns:repeat(3,1fr)} }
@@ -536,8 +536,8 @@ body.cv-plein #scr-convos.on{padding-top:0}
    entier. C'est lui qu'on cherche dans une liste de trente-huit. */
 .cv-ini{display:none;font-style:normal}
 @media(max-width:1540px){
-  .cv-lignes .cv-pre{display:none}
-  .cv-lignes .cv-ini{display:inline}
+  .cv-lignes .cv-pre,.cv-tabs .cv-pre{display:none}
+  .cv-lignes .cv-ini,.cv-tabs .cv-ini{display:inline}
 }
 /* Les colonnes les plus etroites : on resserre encore, sans jamais rogner le
    nom de famille. */
@@ -560,8 +560,15 @@ body.cv-plein #scr-convos.on{padding-top:0}
   .cv-lignes .cv-seg-i{font-size:11.5px}
   .cv-lignes .cv-seg-b.on{width:auto;padding:5px 7px;font-size:10.5px}
 }
-.cv-ligne{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
-  background:var(--voile);padding:9px 11px;min-width:0}
+/* Dense par defaut : trente-huit joueurs doivent tenir dans un ecran. Ce
+   n'est pas un reglage, c'est la seule facon de voir le groupe entier. */
+.cv-ligne{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:7px;
+  background:var(--voile);padding:3px 8px;min-width:0}
+/* La pastille d'etat donne sa hauteur a la rangee : on la fixe, et la rangee
+   ne depend plus de la police des emojis. Le telephone garde ses grandes
+   cibles, plus bas dans la feuille de style. */
+.cv-lignes .cv-seg-b{height:24px}
+.cv-lignes .cv-nom{line-height:1.25}
 .cv-ligne .cv-seg{gap:3px}
 .cv-ligne .cv-seg-b{padding:6px 7px}
 .cv-ligne .cv-seg-b.on{padding:6px 9px}
@@ -569,7 +576,7 @@ body.cv-plein #scr-convos.on{padding-top:0}
 /* Quand un etat sort de l'ordinaire, son libelle s'ecrit et la ligne peut
    manquer de place. Les boutons passent alors a la ligne : le nom reste
    entier, c'est lui qu'on cherche. */
-.cv-ligne-h{display:flex;flex-wrap:wrap;align-items:center;gap:9px 11px;min-width:0}
+.cv-ligne-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px;min-width:0}
 .cv-ligne-h .cv-nom{min-width:128px}
 .cv-ligne-h .cv-seg{margin-left:auto}
 .cv-num{flex:0 0 30px;text-align:center;font-family:'Roboto Condensed',sans-serif;font-size:13px;
@@ -603,7 +610,10 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-tabs{display:grid;gap:14px;padding:12px 14px 14px;align-items:start;
   /* La largeur qu'il faut a un tableau depend du nombre de seances : deux
      colonnes de deux seances tiennent la ou quatre ne tiendraient pas. */
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(236px + var(--n,4) * 58px)),1fr))}
+  /* Le nombre de colonnes vient du decoupage, pas de l'inverse : sinon un
+     paquet passe sous les autres et la liste double de hauteur. */
+  grid-template-columns:repeat(var(--cols,1),minmax(0,1fr))}
+@media(max-width:860px){ .cv-tabs{grid-template-columns:1fr} }
 .cv-tabs .cv-tab{padding:0}
 /* A deux tableaux, chaque colonne est deux fois plus etroite : le nom doit
    reprendre du poids, sinon les noms longs se font couper. */
@@ -618,32 +628,39 @@ body.cv-plein #scr-convos.on{padding-top:0}
 /* Les cases a cocher n'ont pas besoin de grandir : on leur donne une largeur
    fixe, et tout le reste va au nom. C'est lui qu'on lit. */
 .cv-tabs .cv-tab-h,.cv-tabs .cv-tab-l{gap:5px;
-  grid-template-columns:minmax(110px,1fr) repeat(var(--n),56px)}
-.cv-tab{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
+  grid-template-columns:minmax(138px,1fr) repeat(var(--n),46px)}
+.cv-tab{display:flex;flex-direction:column;gap:4px;padding:8px 12px 12px}
 .cv-tab-h,.cv-tab-l{display:grid;align-items:stretch;gap:7px;min-width:0;
   grid-template-columns:minmax(190px,1.45fr) repeat(var(--n),minmax(0,1fr))}
 .cv-tab-h{position:sticky;top:0;z-index:3;background:var(--carte);
-  padding:4px 0 8px;border-bottom:1px solid var(--line);align-items:end}
+  padding:2px 0 5px;border-bottom:1px solid var(--line);align-items:end}
 .cv-tab-h .cv-tab-nom{font-family:'Roboto Condensed',sans-serif;font-size:11.5px;
   font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gris2);
   align-self:end;padding-bottom:5px}
-.cv-tab-c{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;
-  padding:6px 6px 7px;border-radius:8px;background:var(--voile);
+/* Deux etages au lieu de quatre : le nom et l'horaire en haut, le compteur
+   et les deux boutons sur la meme ligne en dessous. */
+.cv-tab-c{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;
+  padding:4px 5px 5px;border-radius:7px;background:var(--voile);
   border:1px solid var(--line);border-top:3px solid var(--c)}
+.cv-tab-c .cv-tab-bas{display:flex;align-items:center;gap:6px}
 .cv-tab-t{font-family:'Roboto Condensed',sans-serif;font-size:12.5px;font-weight:800;
   color:var(--c);text-align:center;line-height:1.25;letter-spacing:.01em;
   overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.cv-tab-t i{display:block;font-style:normal;font-size:10.5px;font-weight:700;
-  color:var(--gris2);letter-spacing:.04em}
-.cv-tab-n{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:800;
+/* L'horaire se met a la suite du nom : une ligne de moins par colonne. */
+.cv-tab-t i{font-style:normal;font-size:10px;font-weight:700;
+  color:var(--gris2);letter-spacing:.04em;margin-left:4px}
+.cv-tab-n{font-family:'Roboto Condensed',sans-serif;font-size:13.5px;font-weight:800;
   color:var(--gris);line-height:1}
 .cv-tab-b{display:flex;gap:4px}
-.cv-tab-b button{font-size:11px;font-weight:800;width:24px;height:21px;border-radius:5px;
+.cv-tab-b button{font-size:10.5px;font-weight:800;width:22px;height:19px;border-radius:5px;
   border:1px solid var(--line);background:var(--champ);color:var(--gris2);cursor:pointer;
   line-height:1;padding:0}
 .cv-tab-b button:hover{border-color:var(--c);color:var(--c)}
-.cv-tab-l{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;
-  background:var(--voile);padding:5px 9px}
+/* Dense : trente-huit joueurs doivent tenir dans un ecran, ici aussi. */
+.cv-tab-l{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:7px;
+  background:var(--voile);padding:2px 8px}
+.cv-tab-l .cv-tab-x{height:26px}
+.cv-tab-l .cv-nom{line-height:1.25}
 .cv-tab-l.hs{background:rgba(148,163,184,.08)}
 .cv-tab-nom{display:flex;align-items:center;gap:9px;min-width:0}
 .cv-tag{flex:0 0 auto;font-family:'Roboto Condensed',sans-serif;font-size:10.5px;
@@ -695,11 +712,11 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .cv-bloc-b.on{background:rgba(249,115,22,.15);border-color:var(--or);color:var(--or)}
 
 /* Une case par joueur : coche, numero, nom entier. */
-.cv-cases{display:grid;gap:6px;padding:10px 11px 12px;
+.cv-cases{display:grid;gap:4px;padding:8px 11px 10px;
   grid-template-columns:repeat(auto-fill,minmax(216px,1fr));align-items:stretch}
 .cv-cases .cv-vide2{grid-column:1/-1;padding:8px 2px}
-.cv-case{display:flex;align-items:center;gap:8px;min-width:0;text-align:left;
-  padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--champ);
+.cv-case{display:flex;align-items:center;gap:7px;min-width:0;text-align:left;
+  padding:4px 9px;min-height:30px;border-radius:7px;border:1px solid var(--line);background:var(--champ);
   cursor:pointer;transition:all .12s;font-family:inherit}
 .cv-case:hover{border-color:var(--or)}
 .cv-case.on{background:rgba(249,115,22,.13);border-color:var(--or)}
@@ -2125,6 +2142,29 @@ body.terrain-plein #pl-sortie-plein{display:block}
   .hubl-al{display:none}
   .fs-al{min-width:17px;height:17px;font-size:10.5px}
 }
+/* Les compteurs rejoignent la barre d'outils : le titre de l'etape est deja
+   ecrit dans le fil, trois centimetres plus haut. */
+.cv-cpt{flex:0 0 auto;font-size:12px;color:var(--gris2);white-space:nowrap}
+.cv-outils .cv-bloc-b{flex:0 0 auto}
+.cv-outils .cv-rep{flex:1 1 180px;margin:0;padding:4px 9px;font-size:11.5px}
+/* Les trois equipes : une barre de choix, pas trois gros boutons. */
+.cv-eqs-serre .cv-eq{padding:7px 11px}
+/* Recherche, vues et rappel sur une seule ligne : trois bandeaux empiles,
+   c'etaient trois rangees de joueurs en moins a l'ecran. */
+.cv-outils{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:7px 12px 0}
+.cv-outils .cv-rech{flex:1 1 200px;margin:0;padding:0}
+.cv-outils .cv-ch{flex:1 1 180px;min-width:150px;font-size:12.5px;padding:6px 10px}
+.cv-outils .cv-vues{flex:0 0 auto}
+.cv-rappel{flex:1 1 240px;min-width:0;font-size:10.5px;line-height:1.4;color:var(--gris2);
+  border-left:3px solid var(--line);padding-left:8px}
+.cv-rappel.m-match{border-left-color:var(--or)}
+.cv-rappel.m-entrainement{border-left-color:var(--green)}
+@media(max-width:900px){ .cv-rappel{flex-basis:100%} }
+/* Replie : il ne reste que l'en-tete, qui sert de bouton. */
+.cv-retours.replie .cv-retours-ct{display:none}
+.cv-retours-h{cursor:pointer;user-select:none}
+.cv-retours-fl{font-size:11px;color:var(--gris2);flex:0 0 auto}
+.cv-retours .cv-bloc-h{padding-top:7px;padding-bottom:7px}
 /* L'en-tete d'un bloc annonce son monde, avec un filet de sa couleur. */
 .cv-bloc-m{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
   border-radius:4px;padding:3px 8px;line-height:1.5;flex:0 0 auto}
@@ -2930,7 +2970,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v115</b> · 12/10/2026<br>
+      AST COACH <b style="color:var(--or)">v116</b> · 12/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -10759,6 +10799,37 @@ function cvCompteSeance(cle){
 }
 
 // ---------- Regler sa semaine ----------
+// Ce qui n'est pas la liste des joueurs se replie : la liste doit tenir dans
+// l'ecran, c'est elle qu'on vient voir.
+var CV_RETOURS_OUVERT={};
+// Quand une reponse arrive, on ouvre : sinon le coach clique sur Charger et
+// ne voit rien se passer.
+function cvRetoursOuvrir(cle){
+  if(CV_RETOURS_OUVERT[cle]) return;
+  CV_RETOURS_OUVERT[cle]=true;
+  cvRendreEtape();
+}
+function cvRetoursBascule(cle){
+  CV_RETOURS_OUVERT[cle]=!CV_RETOURS_OUVERT[cle];
+  cvRendreEtape();
+}
+// Un bloc qui a recu quelque chose s'ouvre tout seul : le replier alors
+// reviendrait a cacher la reponse qu'on venait de demander.
+function cvRetoursPlein(id){
+  var e=document.getElementById(id);
+  return !!(e && !e.querySelector('.cv-aide') && e.textContent.trim());
+}
+function cvBlocRetours(cle, titre, bouton, idListe, aide){
+  var ouvert=!!CV_RETOURS_OUVERT[cle];
+  return '<div class="cv-bloc cv-retours'+(ouvert?'':' replie')+'">'
+    +'<div class="cv-bloc-h cv-retours-h" onclick="cvRetoursBascule(\''+cle+'\')">'
+      +'<span class="cv-retours-fl">'+(ouvert?'\u25be':'\u25b8')+'</span>'
+      +'<span class="cv-bloc-t">'+titre+'</span>'
+      +'<button class="cv-bloc-b" onclick="event.stopPropagation();'+bouton+'">\u21bb Charger</button></div>'
+    +'<div id="'+idListe+'" class="cv-retours-ct"><div class="cv-aide">'+aide+'</div></div>'
+  +'</div>';
+}
+
 var CV_REGLAGES=false;
 function cvReglages(){ CV_REGLAGES=!CV_REGLAGES; cvRendreEtape(); }
 function cvSeanceNom(i, v){
@@ -10856,6 +10927,20 @@ function cvBarreRecherche(placeholder){
   return '<div class="cv-rech"><input class="fi" id="cv-rech" placeholder="🔎 '+placeholder+'" '
     +'value="'+echapForme(CV_FILTRE)+'" oninput="cvFiltrer(this.value)"></div>';
 }
+// La largeur decide du decoupage : si la fenetre change, l'etape 2 se refait.
+var CV_LARGEUR=0;
+function cvSurRedimension(){
+  var ct=document.getElementById('cv-etape-ct');
+  if(!ct || !ct.clientWidth) return;
+  if(Math.abs(ct.clientWidth-CV_LARGEUR)<40) return;
+  CV_LARGEUR=ct.clientWidth;
+  if(CV_ETAPE===2) cvRendreEtape();
+}
+window.addEventListener('resize', function(){
+  clearTimeout(window._cvRedim);
+  window._cvRedim=setTimeout(cvSurRedimension, 180);
+});
+
 function cvRendreEtape(){
   var ct=document.getElementById('cv-etape-ct'); if(!ct) return;
   if(CV_ETAPE===1) ct.innerHTML=cvEtape1();
@@ -10902,33 +10987,26 @@ function cvEtape1(){
     +'</div>';
   }).join('');
   return '<div class="cv-bloc">'
-    +'<div class="cv-bloc-h m-match">'
-      +'<span class="cv-bloc-m">⚽ Match</span>'
-      +'<span class="cv-bloc-t">Qui est indisponible samedi ?</span>'
-      +'<span class="cv-bloc-c"><b style="color:var(--green)">'+dispo+' disponibles</b>'
-        +(indispo?(' · <b style="color:var(--red)">'+indispo+' indisponibles</b>'):'')+'</span>'
-      +'<button class="cv-bloc-b" onclick="cvToutDispo()">↺ Tout remettre dispo</button>'
-    +'</div>'
-    +'<div class="cv-note m-match">On ne parle que du <b>match de samedi</b>. '
-      +'Un suspendu, un bless\u00e9 l\u00e9ger ou un absent du boulot s\'entra\u00eene quand m\u00eame '
-      +'dans la semaine : \u00e7a se coche \u00e0 l\'\u00e9tape 2, et \u00e7a ne d\u00e9pend pas d\'ici.</div>'
-    +'<div class="cv-rech cv-rech-f">'
-      +'<input class="fi" id="cv-rech" placeholder="\ud83d\udd0e Chercher un joueur dans les '+(JOUEURS||[]).length+'" '
+    +'<div class="cv-outils">'
+      +'<span class="cv-cpt"><b style="color:var(--green)">'+dispo+'</b> dispo'
+        +(indispo?(' · <b style="color:var(--red)">'+indispo+'</b> indispo'):'')+'</span>'
+      +'<input class="fi cv-ch" id="cv-rech" placeholder="\ud83d\udd0e Chercher dans les '+(JOUEURS||[]).length+'" '
         +'value="'+echapForme(CV_FILTRE)+'" oninput="cvFiltrer(this.value)">'
       +'<div class="cv-vues">'
         +'<button class="cv-vue-b'+(CV_VUE1==='tous'?' on':'')+'" onclick="cvVue1(\'tous\')">'
           +'Tout le groupe <b>'+(JOUEURS||[]).length+'</b></button>'
         +'<button class="cv-vue-b'+(CV_VUE1==='hs'?' on':'')+'" onclick="cvVue1(\'hs\')"'
           +(indispo?'':' disabled')+'>Les indisponibles <b>'+indispo+'</b></button>'
-      +'</div></div>'
+      +'</div>'
+      +'<button class="cv-bloc-b" onclick="cvToutDispo()">↺ Tout remettre dispo</button>'
+      +'<span class="cv-rappel m-match">Seulement le <b>match de samedi</b> — un suspendu '
+        +'s\'entra\u00eene quand m\u00eame, \u00e7a se coche \u00e0 l\'\u00e9tape 2.</span>'
+    +'</div>'
     +'<div class="cv-lignes">'+(lignes||'<div class="cv-vide2">Aucun joueur ne correspond.</div>')+'</div>'
     +'</div>'
-    +'<div class="cv-bloc cv-retours">'
-      +'<div class="cv-bloc-h"><span class="cv-bloc-t">📲 Ce que les joueurs ont déclaré</span>'
-        +'<button class="cv-bloc-b" onclick="chargerDisponibilites()">↻ Charger</button></div>'
-      +'<div id="dispo-list" class="cv-retours-ct"><div class="cv-aide">Renseigne la date et l\'adversaire en haut, '
-        +'puis « Charger » pour voir qui s\'est déclaré disponible.</div></div>'
-    +'</div>';
+    +cvBlocRetours('dispo','📲 Ce que les joueurs ont déclaré','chargerDisponibilites()',
+       'dispo-list','Renseigne la date et l\'adversaire en haut, '
+       +'puis « Charger » pour voir qui s\'est déclaré disponible.');
 }
 
 // --- Etape 2 : qui s'entraine ? ---
@@ -11079,11 +11157,21 @@ function cvBandeauReponses(){
 // Couper la liste en deux paquets d'egale hauteur. En dessous de douze
 // joueurs, un seul tableau : deux colonnes de cinq lignes ne font gagner
 // personne et cassent la lecture.
-function cvPaquets(J){
-  if(J.length<12) return [J];
-  // Au-dela de dix-huit joueurs, trois paquets : c'est la meme lecture que le
-  // listing de l'etape 1. En dessous, deux suffisent.
-  var n=(J.length>=18)?3:2;
+// Combien de tableaux tiennent vraiment cote a cote, a cette largeur et avec
+// ce nombre de seances. C'est la meme formule que la grille : si les deux
+// divergent, un paquet passe sous les autres et la liste double de hauteur.
+function cvColonnesTableau(nbSeances){
+  var ct=document.getElementById('cv-etape-ct');
+  var large=ct?ct.clientWidth:0;
+  if(!large) return 1;
+  // Le minimum tient compte du nom : trois colonnes qui coupent les noms,
+  // c'est pire que deux colonnes propres.
+  var mini=222+(nbSeances||4)*46;
+  return Math.max(1, Math.min(3, Math.floor((large-24+14)/(mini+14))));
+}
+function cvPaquets(J, nbCol){
+  var n=Math.max(1, nbCol||1);
+  if(J.length<12 || n<2) return [J];
   var m=Math.ceil(J.length/n), out=[];
   for(var i=0;i<J.length;i+=m) out.push(J.slice(i,i+m));
   return out;
@@ -11097,10 +11185,12 @@ function cvEtape2(){
     +L.map(function(sc){
         return '<span class="cv-tab-c" style="--c:'+sc.c+'">'
           +'<span class="cv-tab-t">'+echapForme(sc.lab)+(sc.h?'<i>'+echapForme(sc.h)+'</i>':'')+'</span>'
-          +'<span class="cv-tab-n">'+cvCompteSeance(sc.k)+'</span>'
-          +'<span class="cv-tab-b">'
-            +'<button onclick="cvTousLeJour(\''+sc.k+'\',1)" title="Tout cocher">✓</button>'
-            +'<button onclick="cvTousLeJour(\''+sc.k+'\',0)" title="Vider">✕</button></span>'
+          +'<span class="cv-tab-bas">'
+            +'<span class="cv-tab-n">'+cvCompteSeance(sc.k)+'</span>'
+            +'<span class="cv-tab-b">'
+              +'<button onclick="cvTousLeJour(\''+sc.k+'\',1)" title="Tout cocher">✓</button>'
+              +'<button onclick="cvTousLeJour(\''+sc.k+'\',0)" title="Vider">✕</button></span>'
+          +'</span>'
         +'</span>'; }).join('')
   +'</div>';
   function ligne(jo){
@@ -11108,7 +11198,7 @@ function cvEtape2(){
     return '<div class="cv-tab-l'+(e.d==='ok'?'':' hs')+'" style="--n:'+L.length+';--c:'+inf.c+'">'
       +'<span class="cv-tab-nom">'
         +'<span class="cv-num">'+jo.num+'</span>'
-        +'<span class="cv-nom">'+echapForme(jo.nom)+'</span>'
+        +'<span class="cv-nom">'+cvNomDeux(jo.nom)+'</span>'
         +(e.d==='ok'?'':'<span class="cv-tag" style="--c:'+inf.c+'" title="'
             +(e.m?echapForme(e.m):inf.lab)+'">'+inf.ic+'<i>'+inf.lab+'</i></span>')
       +'</span>'
@@ -11129,31 +11219,30 @@ function cvEtape2(){
             +'<span class="cv-tab-xl">'+echapForme(sc.lab)+'</span></button>'; }).join('')
     +'</div>';
   }
-  var paquets=cvPaquets(J);
+  var nbCol=cvColonnesTableau(L.length);
+  var paquets=cvPaquets(J, nbCol);
   var tableaux=J.length
-    ? '<div class="cv-tabs" style="--n:'+L.length+'">'+paquets.map(function(paquet){
+    ? '<div class="cv-tabs" style="--n:'+L.length+';--cols:'+paquets.length+'">'
+      +paquets.map(function(paquet){
         return '<div class="cv-tab">'+entete+paquet.map(ligne).join('')+'</div>';
       }).join('')+'</div>'
     : '<div class="cv-tab"><div class="cv-vide2">Aucun joueur ne correspond.</div></div>';
   var hs=cvIndisponibles();
   return '<div class="cv-bloc">'
-    +'<div class="cv-bloc-h m-entrainement">'
-      +'<span class="cv-bloc-m">🏋️ Entraînement</span>'
-      +'<span class="cv-bloc-t">Qui s\'entraîne cette semaine ?</span>'
-      +'<span class="cv-bloc-c" style="opacity:.85">'
-        +'<span style="color:#16a34a">✓</span> il a dit oui &nbsp;'
-        +'<span style="color:#ca8a04">?</span> pas sûr &nbsp;'
-        +'<span style="color:#dc2626">✕</span> il a dit non</span>'
-      +'<span class="cv-bloc-c">'+L.map(function(sc){
-          return echapForme(sc.lab)+' <b>'+cvCompteSeance(sc.k)+'</b>'; }).join(' · ')+'</span>'
-      +'<button class="cv-bloc-b'+(CV_REGLAGES?' on':'')+'" onclick="cvReglages()">⚙ Mes séances</button>'
-    +'</div>'
-    +'<div class="cv-note m-entrainement">On ne parle plus du match : c\'est la '
-      +'<b>semaine</b>. Tout le monde peut venir s\'entra\u00eener, y compris un '
-      +'suspendu ou un absent de samedi.</div>'
     +cvPanneauSeances()
-    +cvBandeauReponses()
-    +cvBarreRecherche('Chercher un joueur')
+    +'<div class="cv-outils">'
+      +cvBarreRecherche('Chercher un joueur')
+      +'<span class="cv-cpt">'+L.map(function(sc){
+          return echapForme(sc.lab)+' <b>'+cvCompteSeance(sc.k)+'</b>'; }).join(' · ')+'</span>'
+      +'<span class="cv-cpt" style="opacity:.8">'
+        +'<span style="color:#16a34a">✓</span> oui &nbsp;'
+        +'<span style="color:#ca8a04">?</span> pas sûr &nbsp;'
+        +'<span style="color:#dc2626">✕</span> non</span>'
+      +'<button class="cv-bloc-b'+(CV_REGLAGES?' on':'')+'" onclick="cvReglages()">⚙ Mes séances</button>'
+      +cvBandeauReponses()
+      +'<span class="cv-rappel m-entrainement">La <b>semaine</b>, plus le match — '
+        +'tout le monde peut s\'entra\u00eener, suspendus compris.</span>'
+    +'</div>'
     +tableaux
     +(hs.length
       ? '<div class="cv-ecartes">ℹ️ <b>'+hs.length+' joueur'+(hs.length>1?'s':'')
@@ -11194,12 +11283,7 @@ function cvEtape3(){
     : (n===places ? '<b style="color:var(--green)">au complet</b>'
                   : (places-n)+' place'+(places-n>1?'s':'')+' libre'+(places-n>1?'s':''));
   return '<div class="cv-bloc">'
-    +'<div class="cv-bloc-h m-match">'
-      +'<span class="cv-bloc-m">⚽ Match</span>'
-      +'<span class="cv-bloc-t">Qui est convoqué samedi ?</span>'
-      +'<span class="cv-bloc-c">'+cvDisponibles().length+' joueurs disponibles</span>'
-    +'</div>'
-    +'<div class="cv-eqs">'+CV_EQUIPES.map(function(q){
+    +'<div class="cv-eqs cv-eqs-serre">'+CV_EQUIPES.map(function(q){
         var c=cvDans(q.k).length;
         return '<button class="cv-eq'+(CV_EQ===q.k?' on':'')+'" style="--c:'+q.c+'" '
           +'onclick="cvChoisirEquipe(\''+q.k+'\')">'
@@ -11220,12 +11304,9 @@ function cvEtape3(){
       +'<textarea class="fta cv-mot" id="c-mot" placeholder="RDV 45 min avant, tenue blanche…" '
         +'oninput="cvMot(this.value)">'+echapForme((CONVOS||{}).mot||'')+'</textarea>'
     +'</div>'
-    +'<div class="cv-bloc cv-retours">'
-      +'<div class="cv-bloc-h"><span class="cv-bloc-t">✅ Qui a confirmé</span>'
-        +'<button class="cv-bloc-b" onclick="chargerConfirmations()">↻ Charger</button></div>'
-      +'<div id="confirmations-list" class="cv-retours-ct"><div class="cv-aide">Une fois la convocation enregistrée, '
-        +'« Charger » pour voir qui a confirmé ou décliné.</div></div>'
-    +'</div>';
+    +cvBlocRetours('confirm','✅ Qui a confirmé','chargerConfirmations()',
+       'confirmations-list','Une fois la convocation enregistrée, '
+       +'« Charger » pour voir qui a confirmé ou décliné.');
 }
 function cvMot(v){ if(!CONVOS) CONVOS={}; CONVOS.mot=String(v||''); sauvegardeAuto(); }
 

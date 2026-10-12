@@ -23,7 +23,7 @@ try{
   });
 }catch(e){ /* config pas encore complétée, on ignore */ }
 
-const CACHE_NAME = 'ast-tarnos-v115-j46';
+const CACHE_NAME = 'ast-tarnos-v116-j46';
 const URLS_TO_CACHE = [
   './',
   './index.html',
