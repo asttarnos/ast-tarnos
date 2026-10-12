@@ -2970,7 +2970,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v116</b> · 12/10/2026<br>
+      AST COACH <b style="color:var(--or)">v117</b> · 12/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -6716,12 +6716,12 @@ function goNav(elOrS){
 var NAV_HISTO=[];          // les ecrans traverses, dans l'ordre
 var NAV_SANS_HISTO=false;  // vrai quand c'est le bouton retour qui pilote
 
-function navMemoriser(s){
-  try{ localStorage.setItem('ast-dernier-ecran', s); }catch(e){}
-}
-function navDernierEcran(){
-  try{ return localStorage.getItem('ast-dernier-ecran')||''; }catch(e){ return ''; }
-}
+// L'ecran ouvert n'est plus retenu d'une session a l'autre : on repart du
+// tableau de bord. Les deux fonctions restent, vides, parce que d'autres
+// endroits les appellent encore et qu'un appel a une fonction absente
+// arreterait la navigation net.
+function navMemoriser(s){}
+function navDernierEcran(){ return ''; }
 
 // Ce qui est ouvert par-dessus l'ecran, du plus superficiel au plus profond.
 function navFermerCouche(){
@@ -26852,11 +26852,12 @@ window.addEventListener('load',function(){
   document.body.classList.remove('terrain-plein');
   // Un cran de rabiot dans la pile : le premier retour a de quoi se poser.
   try{ history.pushState({ast:1}, ''); }catch(e){}
-  // On rouvre la ou le coach s'est arrete, sauf s'il n'a encore rien ouvert.
-  var dernier=navDernierEcran();
-  if(dernier && document.getElementById('scr-'+dernier)){
-    setTimeout(function(){ goNav(dernier); }, 40);
-  }
+  // On rouvre toujours sur le tableau de bord. Rouvrir la ou on s'etait
+  // arrete, c'est tomber au milieu d'un ecran de saisie trois jours plus
+  // tard, sans savoir ou on en est. Le tableau de bord porte le fil de la
+  // semaine : c'est le seul point de depart qui dise quelque chose.
+  try{ localStorage.removeItem('ast-dernier-ecran'); }catch(e){}
+  setTimeout(function(){ goNav('dash'); }, 40);
   appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();renderAnciensJoueurs();renderBarreDuJour();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
