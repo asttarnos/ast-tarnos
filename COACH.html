@@ -3122,7 +3122,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v122</b> · 13/10/2026<br>
+      AST COACH <b style="color:var(--or)">v123</b> · 13/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -23855,6 +23855,7 @@ function genererDossierPresentation(){
     pages.push(dpPage('sit'+i,'⚽ <span data-ed="'+dpAdr('t',s.id)+'">'+dpEsc(s.titre||('Situation '+(i+1)))+'</span>',
       '<div class="sit" data-sit="'+i+'">'
       +'<div class="sit-t" id="sit-t-'+i+'">'+dpTerrainSituation(s.plateau, pleines.length?pleines[0]:null, false)+'</div>'
+
       +'<div class="sit-c">'
         +dpEd(dpAdr('u',s.id), s.sous, 'sit-sous')
         +(pleines.length>1
@@ -27349,6 +27350,13 @@ function genererFeuilleMatchPDF(){
       +'border:2px solid var(--trait);border-radius:10px;padding:7px;background:#fbfcfd}'
     +'.sit-c svg,.sit-c img{max-width:100%;max-height:100%;display:block}'
     +'.sit-p{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}'
+    +'.sit-bs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));'
+      +'gap:9px;margin-top:11px}'
+    +'.sit-b{border:2px solid var(--trait);border-left:6px solid var(--or);border-radius:9px;'
+      +'padding:9px 12px;break-inside:avoid}'
+    +'.sit-b-t{display:block;font-family:Anton,sans-serif;font-size:13px;letter-spacing:.05em;'
+      +'text-transform:uppercase;color:#7c3a06;margin-bottom:4px}'
+    +'.sit-b p{font-size:16px;line-height:1.4;font-weight:700;white-space:pre-wrap}'
     +'.sit-p span{font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;'
       +'border:1.5px solid var(--or);color:#7c3a06;background:#fff7ed}'
 
@@ -27475,12 +27483,23 @@ function genererFeuilleMatchPDF(){
           catch(e){ dessin=''; }
         }
         if(!dessin) return;
+        // Ce que le coach a ecrit a cote du terrain. L'appli du joueur les
+        // affichait deja ; la sienne, non. Elles sont pourtant la, dans la
+        // situation, depuis le debut.
+        var bl=(st.plateau&&st.plateau.blocs)||{};
+        var BL=[['setup','Mise en place'],['consignes','Les consignes'],['cles','Les points clés']];
+        var blHtml=BL.filter(function(x){ return (bl[x[0]]||'').trim(); })
+          .map(function(x){
+            return '<div class="sit-b"><span class="sit-b-t">'+esc(x[1])+'</span>'
+              +'<p>'+esc(bl[x[0]].trim())+'</p></div>'; }).join('');
+
         out+='<div class="page">'
           +titrePage('La situation '+(i+1), rappel)
           +'<div class="sit">'
             +'<div class="sit-t">'+esc(st.titre||('Situation '+(i+1)))+'</div>'
             +(st.sous?'<div class="sit-s">'+esc(st.sous)+'</div>':'')
             +'<div class="sit-c">'+dessin+'</div>'
+            +(blHtml?'<div class="sit-bs">'+blHtml+'</div>':'')
             +((st.principes||[]).length
               ? '<div class="sit-p">'+st.principes.map(function(pc){
                   var pr=(typeof pjParCode==='function')?pjParCode(pc):null;
