@@ -142,10 +142,14 @@ body{background:var(--fond)}
 .bt::before{content:'';display:inline-block;width:4px;height:15px;background:var(--or);margin-right:9px;vertical-align:middle;border-radius:2px;box-shadow:0 0 8px rgba(217,119,6,.5)}
 .bt.g::before{background:var(--green)}.bt.go::before{background:var(--gold)}.bt.r::before{background:var(--red)}.bt.b::before{background:var(--blue)}.bt.p::before{background:var(--purple)}
 .bc{font-size:12px;color:var(--gris2)}
-.ph{padding:18px 0 14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;position:relative;z-index:2}
+.ph{padding:9px 0 9px 15px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;position:relative;z-index:2}
 .ph::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:5px;border-radius:3px;background:var(--or);box-shadow:0 0 12px rgba(217,119,6,.6)}
-.ph-title{font-family:'Roboto Condensed',sans-serif;font-size:48px;font-weight:900;letter-spacing:-.015em;color:var(--gris);line-height:1;text-shadow:0 2px 22px rgba(217,119,6,.3)}
-.ph-sub{font-size:13.5px;color:var(--gris2);margin-top:5px;font-weight:600}
+/* 48 px passaient sur deux lignes des qu'un titre faisait trois mots : a lui
+   seul l'en-tete mangeait un tiers d'ecran de telephone, sur les trente
+   ecrans. La lueur orange vient d'une ancienne passe « trop flashy » qu'on
+   avait deja retiree ailleurs. */
+.ph-title{font-family:'Roboto Condensed',sans-serif;font-size:28px;font-weight:900;letter-spacing:-.015em;color:var(--gris);line-height:1.08}
+.ph-sub{font-size:12.5px;color:var(--gris2);margin-top:3px;font-weight:600;line-height:1.35}
 .dash-watermark{display:none}
 .hero-band{position:relative;overflow:hidden;border-radius:9px;padding:18px 20px;margin-bottom:14px;background:linear-gradient(160deg,rgba(217,119,6,.12),rgba(217,119,6,.02) 65%);border:1px solid rgba(217,119,6,.25)}
 .hero-eyebrow{font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--or)}
@@ -408,11 +412,44 @@ input:checked+.tslider:before{transform:translateX(20px);background:var(--or)}
 .bench-label{margin-top:4px;font-size:12px;color:var(--gris);white-space:normal;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;line-height:1.2}
 
 /* ===== RECAP GLOBAL ===== */
-.recap-card{background:var(--carte3);border:1px solid var(--line);border-radius:8px;margin:0 14px 10px;overflow:hidden}
-.recap-card-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(217,119,6,.06);border-bottom:1px solid var(--line)}
+/* ---- Le Recap global : une ligne par joueur, le detail a la demande ---- */
+.recap-outils{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 14px 12px}
+.recap-outils .fi{flex:1 1 220px;min-width:0}
+.recap-b{flex:0 0 auto;border:1px solid var(--line);background:var(--carte);color:var(--gris);
+  border-radius:8px;padding:9px 14px;font-family:'Roboto Condensed',sans-serif;font-size:12.5px;
+  font-weight:800;cursor:pointer;min-height:38px}
+.recap-b:hover{border-color:var(--or);color:var(--or)}
+.recap-cpt{flex:0 0 auto;font-size:12px;color:var(--gris2);font-weight:700}
+.recap-vide{margin:0 14px;padding:18px;text-align:center;font-size:13px;color:var(--gris2)}
+.recap-card{background:var(--carte3);border:1px solid var(--line);border-radius:8px;margin:0 14px 7px;overflow:hidden}
+.recap-card-hdr{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:9px 12px;background:rgba(217,119,6,.06);cursor:pointer;min-height:44px}
+.recap-card.ouverte .recap-card-hdr{border-bottom:1px solid var(--line)}
+.recap-card-hdr:hover{background:rgba(217,119,6,.12)}
+.rh-g{display:flex;align-items:center;gap:10px;min-width:0}
+.rh-d{display:flex;align-items:center;gap:13px;flex:0 0 auto}
+.rh-c{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+.rh-c i{font-style:normal;font-size:9.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--gris2)}
+.rh-c b{font-family:'Roboto Condensed',sans-serif;font-size:13.5px;font-weight:800;color:var(--gris)}
+.rh-x{font-size:17px;color:var(--gris2);transition:transform .15s}
+.recap-card.ouverte .rh-x{transform:rotate(90deg);color:var(--or)}
+/* Les treize chiffres ne s'affichent qu'a la demande : c'est tout l'objet. */
+.recap-grid{display:none}
+.recap-card.ouverte .recap-grid{display:grid}
+/* Le nom cede avant les chiffres : c'est pour comparer qu'on vient ici. */
+.recap-nom{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rh-g{flex:1 1 auto}
+@media(max-width:560px){
+  /* Sur un telephone, on garde les presences — le chiffre qu'on compare le
+     plus — et le temps de jeu passe dans le detail. */
+  .rh-c.tps{display:none}
+  .rh-d{gap:9px}
+  .recap-nom{font-size:14.5px}
+}
 .recap-nom{font-weight:700;font-size:16px;color:var(--gris)}
 .recap-note{font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--gold)}
-.recap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:1px;background:var(--line)}
+.recap-card.ouverte .recap-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:1px;background:var(--line)}
 .recap-chip{background:var(--fond2);padding:8px 5px;text-align:center}
 .rc-lbl{font-size:10px;color:var(--gris2);text-transform:uppercase;letter-spacing:.02em;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc-val{font-size:13px;font-weight:700;color:var(--gris)}
@@ -1188,6 +1225,16 @@ body.cv-plein #scr-convos.on{padding-top:0}
 }
 /* ===== Feuille de match : quatre colonnes côte à côte, rien empilé ===== */
 /* Trois encarts de meme hauteur en haut, rien d'ecrase. */
+/* ---- Les quatre temps de la feuille de match ---- */
+.fm-temps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:760px){ .fm-temps{grid-template-columns:repeat(2,1fr)} }
+.fm-t{border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:10px;
+  padding:10px 12px;font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:800;
+  cursor:pointer;min-height:44px;text-align:left;line-height:1.2}
+.fm-t:hover{border-color:var(--or)}
+.fm-t.on{border-color:var(--or);color:var(--or);
+  box-shadow:inset 0 0 0 1px var(--or);background:color-mix(in srgb,var(--or) 7%,var(--carte))}
+#scr-feuille-match .fm-cache{display:none!important}
 .fm-colonnes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
   align-items:stretch;margin-bottom:12px}
 .fm-colonnes>.blk{margin:0;display:flex;flex-direction:column}
@@ -1214,6 +1261,13 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .photos-bandeau .pb-ic{font-size:21px;line-height:1;flex:0 0 auto}
 .photos-bandeau .pb-t{flex:1 1 300px;min-width:0;font-size:13.5px;line-height:1.5;color:var(--gris)}
 .photos-bandeau .pb-t b{color:var(--or)}
+.photos-bandeau .pb-d{font-style:normal}
+@media(max-width:760px){
+  /* L'explication se lit une fois. Le compte et le bouton, chaque semaine. */
+  .photos-bandeau .pb-d{display:none}
+  .photos-bandeau.on{padding:9px 13px;gap:10px}
+  .photos-bandeau .pb-t{flex:1 1 170px;font-size:13px}
+}
 .photos-bandeau .pb-b{flex:0 0 auto;font-family:'Roboto Condensed',sans-serif;font-size:13px;
   font-weight:800;letter-spacing:.03em;padding:10px 16px;border-radius:9px;cursor:pointer;
   border:1.5px solid var(--or);background:var(--or);color:#1a0d02;white-space:nowrap}
@@ -1785,6 +1839,17 @@ body.cv-plein #scr-convos.on{padding-top:0}
 /* la bannière posée en haut des écrans concernés */
 /* Sur un écran entièrement sombre, un cadre orange sur fond sombre se lit comme
    une décoration. Plein orange, texte noir : c'est la seule chose qui ressort. */
+/* L'intitule qui annonce les documents, une fois le travail passe. */
+.doc-apres{margin:18px 0 9px;padding-left:2px;font-family:'Roboto Condensed',sans-serif;
+  font-size:11.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gris2)}
+@media(max-width:760px){
+  /* Sur un telephone, le paragraphe de presentation fait la moitie de la
+     carte. L'icone, le titre et le bouton disent deja ce que c'est. */
+  .doc-bandeau .d{display:none}
+  .doc-bandeau{padding:13px 15px}
+  .doc-bandeau .gros{font-size:28px}
+}
 .doc-bandeau{display:flex;align-items:center;gap:17px;flex-wrap:wrap;
   background:linear-gradient(100deg,#f0a41f 0%,#d97706 52%,#b45309 100%);
   border:none;border-radius:13px;padding:17px 20px;margin-bottom:16px;cursor:pointer;
@@ -2304,6 +2369,14 @@ body.terrain-plein #pl-sortie-plein{display:block}
 .ico{width:1em;height:1em;flex:0 0 auto;display:inline-block;vertical-align:-.13em;
   fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ph-title .ico{font-size:.92em;margin-right:.3em;color:var(--or);stroke-width:1.9}
+/* Debout au bord du terrain, chaque pixel d'en-tete est un pixel de travail
+   en moins. Le fil d'Ariane, lui, reste affiche en haut : on sait ou on est
+   sans que le titre le repete en grand. */
+@media(max-width:760px){
+  .ph{padding:6px 0 6px 12px;margin-bottom:6px}
+  .ph-title{font-size:20px;line-height:1.12}
+  .ph-sub{font-size:11.5px;margin-top:2px}
+}
 .bt .ico{font-size:1.02em;margin-right:.34em;color:var(--or);stroke-width:2.1}
 .rub-b .ico{font-size:1.02em;margin-right:.34em;vertical-align:-.15em}
 .ni-ic .ico{width:17px;height:17px}
@@ -3049,7 +3122,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v120</b> · 13/10/2026<br>
+      AST COACH <b style="color:var(--or)">v121</b> · 13/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -3756,18 +3829,6 @@ Chez le président"></textarea>
 <!-- ADVERSAIRES -->
 <div class="scr-grille scr" id="scr-adversaires">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-loupe"/></svg>Adversaires</div><div class="ph-sub">Fiche permanente par équipe — se remplit match après match</div></div></div>
-  <div class="doc-bandeau" onclick="genererFicheObservationEquipe(document.getElementById('adv-sel').value)">
-    <span class="gros">🔍</span>
-    <div class="coeur"><div class="t">Fiche d'observation équipe</div>
-      <div class="d">Leur dispositif sur deux terrains, avec et sans le ballon, les transitions, les coups de pied arrêtés, les hommes à surveiller, leur force et leur faille — et notre plan contre eux.</div></div>
-    <span class="cta">Ouvrir ›</span>
-  </div>
-  <div class="doc-bandeau" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">
-    <span class="gros">👁</span>
-    <div class="coeur"><div class="t">Fiche d'observation joueur</div>
-      <div class="d">Poste, système et rôle dedans, les 12 zones du terrain à entourer, avec et sans le ballon, coups de pied arrêtés, 22 critères notés de 1 à 5. Une fiche par joueur que tu vas voir.</div></div>
-    <span class="cta">Ouvrir ›</span>
-  </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Sélectionner un adversaire</span></div>
     <div style="padding:14px"><select class="fi" id="adv-sel" onchange="renderAdversaires()"></select></div>
   </div>
@@ -3797,6 +3858,22 @@ Chez le président"></textarea>
       <textarea class="fi" id="adv-infos" rows="2" style="margin:6px 0 12px;resize:vertical" placeholder="Forme du moment, blessés connus, particularités du club..."></textarea>
       <button class="btn" onclick="ajouterFicheAdversaireManuelle()">+ AJOUTER LA FICHE</button>
     </div>
+  </div>
+
+  <!-- Les fiches à emporter : on les propose une fois l'adversaire choisi,
+       pas avant de l'avoir choisi. -->
+  <div class="doc-apres">Les fiches à emporter pour l'observer</div>
+  <div class="doc-bandeau" onclick="genererFicheObservationEquipe(document.getElementById('adv-sel').value)">
+    <span class="gros">🔍</span>
+    <div class="coeur"><div class="t">Fiche d'observation équipe</div>
+      <div class="d">Leur dispositif sur deux terrains, avec et sans le ballon, les transitions, les coups de pied arrêtés, les hommes à surveiller, leur force et leur faille — et notre plan contre eux.</div></div>
+    <span class="cta">Ouvrir ›</span>
+  </div>
+  <div class="doc-bandeau" onclick="genererFicheObservation(document.getElementById('adv-sel').value)">
+    <span class="gros">👁</span>
+    <div class="coeur"><div class="t">Fiche d'observation joueur</div>
+      <div class="d">Poste, système et rôle dedans, les 12 zones du terrain à entourer, avec et sans le ballon, coups de pied arrêtés, 22 critères notés de 1 à 5. Une fiche par joueur que tu vas voir.</div></div>
+    <span class="cta">Ouvrir ›</span>
   </div>
 </div>
 
@@ -4163,7 +4240,12 @@ Chez le président"></textarea>
 
 <!-- RECAP GLOBAL -->
 <div class="scr" id="scr-recap">
-  <div class="ph"><div><div class="ph-title">Récap Global</div><div class="ph-sub">Toutes les stats de l'effectif</div></div></div>
+  <div class="ph"><div><div class="ph-title">Récap Global</div><div class="ph-sub">Toutes les stats de l'effectif — touche une ligne pour le détail</div></div></div>
+  <div class="recap-outils">
+    <input class="fi" id="recap-q" placeholder="Chercher un joueur…" oninput="recapChercher(this.value)">
+    <button class="recap-b" id="recap-tout" onclick="recapTout()">Tout déplier</button>
+    <span class="recap-cpt" id="recap-cpt"></span>
+  </div>
   <div id="recap-body"></div>
 </div>
 
@@ -4376,14 +4458,17 @@ Chez le président"></textarea>
 <div class="scr" id="scr-feuille-match">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Feuille de Match</div><div class="ph-sub">Compo, CPA et consignes — exportable en PDF via impression</div></div></div>
   <div class="photos-bandeau" id="photos-bandeau-feuille"></div>
-  <div class="doc-bandeau" onclick="genererCarteMentaleMatch()">
-    <span class="gros">🧠</span>
-    <div class="coeur"><div class="t">Carte mentale d'avant-match</div>
-      <div class="d">Huit branches autour du logo : adversaire, groupe, plan de jeu, coups de pied arrêtés, objectifs, discours, logistique, après-match. Déjà pré-remplie avec ton prochain match.</div></div>
-    <span class="cta">Ouvrir ›</span>
+
+  <!-- Quatre temps : on remplit une chose, puis la suivante. La page entiere
+       faisait six hauteurs d'ecran de telephone. -->
+  <div class="fm-temps">
+    <button class="fm-t on" data-m="match"   onclick="fmTemps('match')">1. Le match</button>
+    <button class="fm-t"    data-m="cpa"     onclick="fmTemps('cpa')">2. Coups de pied arrêtés</button>
+    <button class="fm-t"    data-m="adv"     onclick="fmTemps('adv')">3. Leur terrain</button>
+    <button class="fm-t"    data-m="joueurs" onclick="fmTemps('joueurs')">4. Les joueurs</button>
   </div>
 
-  <div class="fm-colonnes">
+  <div class="fm-colonnes" data-fmv="match">
 
     <!-- ① LE MATCH -->
     <div class="blk"><div class="bh"><span class="bt">① Le match</span></div>
@@ -4398,14 +4483,8 @@ Chez le président"></textarea>
       </div>
     </div>
 
-    <!-- ② COUPS DE PIED ARRÊTÉS -->
-    <div class="blk"><div class="bh"><span class="bt">② Coups de pied arrêtés</span>
-      <span class="bc" style="font-weight:400">Qui s'en charge, et comment</span></div>
-      <div id="fm-cpa-ct" class="fm-cpa"></div>
-    </div>
-
-    <!-- ③ CONSIGNES GÉNÉRALES -->
-    <div class="blk"><div class="bh"><span class="bt">③ Consignes générales</span></div>
+    <!-- CONSIGNES GÉNÉRALES : elles vont avec la compo, c'est le même temps -->
+    <div class="blk"><div class="bh"><span class="bt">① bis Consignes générales</span></div>
       <div style="padding:12px">
         <div class="fg"><label class="fl" style="color:var(--green)">✅ Possession</label>
           <textarea class="fi" id="fm-consignes-off" rows="7" style="margin-top:6px;resize:vertical" placeholder="Une consigne par ligne"></textarea></div>
@@ -4416,8 +4495,14 @@ Chez le président"></textarea>
 
   </div>
 
+  <!-- ② LE RESPONSABLE ET LE SCHÉMA -->
+  <div class="blk fm-indiv-blk" data-fmv="cpa"><div class="bh"><span class="bt">② Qui s'en charge, et comment</span>
+    <span class="bc" style="font-weight:400">Le responsable, sa consigne, son schéma</span></div>
+    <div id="fm-cpa-ct" class="fm-cpa"></div>
+  </div>
+
   <!-- ②bis QUI FAIT QUOI SUR CHAQUE COUP DE PIED ARRÊTÉ -->
-  <div class="blk fm-indiv-blk"><div class="bh"><span class="bt go">②bis Qui fait quoi sur chaque coup de pied arrêté</span>
+  <div class="blk fm-indiv-blk" data-fmv="cpa"><div class="bh"><span class="bt go">②bis Qui fait quoi sur chaque coup de pied arrêté</span>
     <span class="bc" style="font-weight:400">Chaque joueur placé reçoit sa phrase dans son appli</span></div>
     <div data-cpp>
       <div class="cpp-tabs"></div>
@@ -4426,7 +4511,7 @@ Chez le président"></textarea>
   </div>
 
   <!-- ⑤ LES REPÈRES SUR LEUR TERRAIN -->
-  <div class="blk fm-indiv-blk"><div class="bh"><span class="bt go">⑤ Ce qu'on marque sur leur terrain</span>
+  <div class="blk fm-indiv-blk" data-fmv="adv"><div class="bh"><span class="bt go">③ Ce qu'on marque sur leur terrain</span>
     <span class="bc" style="font-weight:400">Un signe et un mot par poste — ils sortent en grand sur la feuille</span></div>
     <div style="padding:12px 13px 0"><input class="fi" id="fm-adv-general"
       placeholder="Le mot sur l'adversaire, en une ligne — ex. « Bloc bas, ils sortent en contre par leur droite »"
@@ -4435,9 +4520,19 @@ Chez le président"></textarea>
   </div>
 
   <!-- ④ CONSIGNES INDIVIDUELLES : pleine largeur, une carte par joueur -->
-  <div class="blk fm-indiv-blk"><div class="bh"><span class="bt go">④ Consignes individuelles</span>
+  <div class="blk fm-indiv-blk" data-fmv="joueurs"><div class="bh"><span class="bt go">④ Consignes individuelles</span>
     <span class="bc" style="font-weight:400">2-3 par joueur · une par ligne</span></div>
     <div id="fm-consignes-indiv" class="fm-indiv"><div class="fm-vide">Choisis d'abord une composition, encart ①.</div></div>
+  </div>
+
+  <!-- Les documents à imprimer : une offre, pas du travail. Ils passent donc
+       après ce qu'on est venu remplir. -->
+  <div class="doc-apres">À imprimer quand tu as fini</div>
+  <div class="doc-bandeau" onclick="genererCarteMentaleMatch()">
+    <span class="gros">🧠</span>
+    <div class="coeur"><div class="t">Carte mentale d'avant-match</div>
+      <div class="d">Huit branches autour du logo : adversaire, groupe, plan de jeu, coups de pied arrêtés, objectifs, discours, logistique, après-match. Déjà pré-remplie avec ton prochain match.</div></div>
+    <span class="cta">Ouvrir ›</span>
   </div>
 </div>
 
@@ -5723,9 +5818,31 @@ function retirerPresence(i){
   updateDash();
   notif('✓ Présence retirée pour '+JOUEURS[i].nom+' ('+s.pres+'/'+s.seances+')');
 }
+// Qui est deplie, et ce qu'on cherche. Rien n'est retenu d'une visite a
+// l'autre : on rouvre toujours sur la liste complete et repliee.
+var RECAP_OUVERT={};
+var RECAP_Q='';
+function recapBascule(i){
+  if(RECAP_OUVERT[i]) delete RECAP_OUVERT[i]; else RECAP_OUVERT[i]=1;
+  renderRecap();
+}
+function recapChercher(q){ RECAP_Q=q||''; renderRecap(); }
+function recapTout(){
+  // Si au moins une ligne est fermee, on ouvre tout ; sinon on referme tout.
+  var fermees=JOUEURS.some(function(_,i){ return !RECAP_OUVERT[i]; });
+  RECAP_OUVERT={};
+  if(fermees) JOUEURS.forEach(function(_,i){ RECAP_OUVERT[i]=1; });
+  renderRecap();
+}
 function renderRecap(){
   var totalButsEquipe = MATCHS.reduce(function(sum,m){return sum+(m.ast||0);},0);
+  var norm=function(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); };
+  var qn=norm(RECAP_Q.trim());
+  var vus=0;
   document.getElementById('recap-body').innerHTML = JOUEURS.map(function(j,i){
+    if(qn && norm(j.num+' '+j.nom).indexOf(qn)===-1) return '';
+    vus++;
+    var ouvert=!!RECAP_OUVERT[i];
     var s=STATS[i];
     var pres=(s.pres||0)+'/'+(s.seances||0);
     var ba=(s.buts||0)+(s.pd||0);
@@ -5735,12 +5852,24 @@ function renderRecap(){
       return '<div class="recap-chip"><div class="rc-lbl">'+lbl+'</div><div class="rc-val"'+(color?' style="color:'+color+'"':'')+'>'+val+'</div></div>';
     }
     var photoHdr=PHOTOS[i]?'<img src="'+PHOTOS[i]+'" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ffffff;box-shadow:0 0 0 2px var(--or);flex-shrink:0">':'';
-    return '<div class="recap-card">'
-      +'<div class="recap-card-hdr"><div style="display:flex;align-items:center;gap:10px">'+photoHdr+'<div class="recap-nom">'+j.num+'. '+j.nom+'</div></div><div class="recap-note">'+note+'/100</div></div>'
+    return '<div class="recap-card'+(ouvert?' ouverte':'')+'">'
+      +'<div class="recap-card-hdr" onclick="recapBascule('+i+')" '
+        +'title="Touche pour voir tous ses chiffres">'
+        +'<div class="rh-g">'+photoHdr+'<div class="recap-nom">'+j.num+'. '+j.nom+'</div></div>'
+        // Les trois chiffres qu'on vient chercher neuf fois sur dix : ils
+        // restent visibles ligne fermee, donc trente-huit joueurs se
+        // comparent sans rien ouvrir.
+        +'<div class="rh-d">'
+          +'<span class="rh-c"><i>Prés.</i><b style="color:var(--green)">'+pres+'</b></span>'
+          +'<span class="rh-c tps"><i>Temps</i><b>'+(s.tpsTotal||0)+'\u2032</b></span>'
+          +'<div class="recap-note">'+note+'/100</div>'
+          +'<span class="rh-x">\u203a</span>'
+        +'</div>'
+      +'</div>'
       +'<div class="recap-grid">'
       +chip('Points','<span style="color:var(--gold)">'+(s.pts||0)+' pts</span>')
       +chip('Amendes','<span style="color:var(--red)">'+(s.amendes||0)+' €</span>')
-      +chip('Présences','<span style="color:var(--green)">'+pres+'</span> <span style="cursor:pointer;color:var(--red);font-weight:700" title="Retirer une présence" onclick="retirerPresence('+i+')">➖</span>')
+      +chip('Présences','<span style="color:var(--green)">'+pres+'</span> <span style="cursor:pointer;color:var(--red);font-weight:700" title="Retirer une présence" onclick="event.stopPropagation();retirerPresence('+i+')">➖</span>')
       +chip('Titu',s.titu||0)
       +chip('Rempl',s.rempl||0)
       +chip('Matchs A','<span style="color:var(--or)">'+(s.matchsA||0)+'</span>')
@@ -5752,7 +5881,13 @@ function renderRecap(){
       +chip('But+Assist','<span style="color:var(--gold)">'+ba+'</span>')
       +chip('% équipe','<span style="color:var(--green)">'+ratio+'%</span>')
       +'</div></div>';
-  }).join('');
+  }).join('') || '<div class="recap-vide">Aucun joueur ne correspond à « '+esc2(RECAP_Q)+' ».</div>';
+
+  var cpt=document.getElementById('recap-cpt');
+  if(cpt) cpt.textContent=vus+' joueur'+(vus>1?'s':'')+(qn?(' sur '+JOUEURS.length):'');
+  var bt=document.getElementById('recap-tout');
+  if(bt) bt.textContent=JOUEURS.some(function(_,i){ return !RECAP_OUVERT[i]; })
+    ? 'Tout déplier' : 'Tout replier';
 }
 
 function renderPresList(){
@@ -14265,8 +14400,8 @@ function majBandeauPhotos(){
     h='<span class="pb-ic">📷</span>'
       +'<span class="pb-t"><b>'+manque+' joueur'+(manque>1?'s n\'ont pas leur':' n\'a pas sa')
       +' photo sur cet appareil.</b> '
-      +'Les photos ne voyagent pas dans la sauvegarde de saison — trop lourdes. '
-      +'Elles sont rangées une par une dans le cloud : un clic et elles reviennent.</span>'
+      +'<i class="pb-d">Les photos ne voyagent pas dans la sauvegarde de saison — trop lourdes. '
+      +'Elles sont rangées une par une dans le cloud : un clic et elles reviennent.</i></span>'
       +'<button class="pb-b" id="pb-b" onclick="photosRecupererBandeau()">📥 Récupérer les photos</button>'
       +'<button class="pb-x" title="Ranger ce bandeau" onclick="photosBandeauRanger()">✕</button>';
   }
@@ -25535,6 +25670,23 @@ function renderAdvFeuille(){
   }).join('');
 }
 
+// Les quatre temps de la feuille de match. Meme principe que l'ecran des
+// coups de pied arretes : une chose a l'ecran, pas six hauteurs a derouler.
+var FM_VUE='match';
+function fmTemps(m){
+  var scr=document.getElementById('scr-feuille-match'); if(!scr) return;
+  FM_VUE=m||'match';
+  var vues=scr.querySelectorAll('[data-fmv]');
+  for(var i=0;i<vues.length;i++)
+    vues[i].classList.toggle('fm-cache', vues[i].getAttribute('data-fmv')!==FM_VUE);
+  var bs=scr.querySelectorAll('.fm-t');
+  for(var j=0;j<bs.length;j++)
+    bs[j].classList.toggle('on', bs[j].getAttribute('data-m')===FM_VUE);
+  // L'encart des postes se redessine : il porte un terrain dont la taille
+  // depend de la place disponible.
+  if(FM_VUE==='cpa' && typeof renderCpaPostes==='function') renderCpaPostes();
+}
+
 function renderFeuilleMatch(){
   var selCompo=document.getElementById('fm-compo');
   selCompo.innerHTML='<option value="">— Choisir une composition enregistrée —</option>'
@@ -25560,6 +25712,7 @@ function renderFeuilleMatch(){
   renderCpaFeuille();
   renderCpaPostes();
   renderAdvFeuille();
+  fmTemps(FM_VUE);
 
   onAdversaireChangeFeuille();
   renderConsignesIndivFeuille();
