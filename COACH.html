@@ -2331,7 +2331,10 @@ body.terrain-plein #pl-sortie-plein{display:block}
   font-family:Inter,sans-serif;font-size:11px;font-weight:800;line-height:1;
   background:var(--ac);color:#0b0e12}
 .ni .fs-al{margin-left:auto}
-.ni-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Un nom d'ecran tient sur deux lignes plutot que de se faire couper : la
+   colonne du menu est etroite, et « Corriger des stats suspectes » doit se
+   lire en entier. */
+.ni-l{flex:1;min-width:0;white-space:normal;line-height:1.22;overflow-wrap:break-word}
 .ni.alerte{color:var(--gris)}
 .hubl-al{font-size:11.5px;font-weight:700;white-space:nowrap;margin-right:8px}
 @media(max-width:760px){
@@ -3174,7 +3177,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v125</b> · 13/10/2026<br>
+      AST COACH <b style="color:var(--or)">v126</b> · 13/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
