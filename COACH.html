@@ -3122,7 +3122,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v121</b> · 13/10/2026<br>
+      AST COACH <b style="color:var(--or)">v122</b> · 13/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -25687,7 +25687,46 @@ function fmTemps(m){
   if(FM_VUE==='cpa' && typeof renderCpaPostes==='function') renderCpaPostes();
 }
 
+// Ce que l'appli sait deja du prochain match. Le dossier d'abord — c'est le
+// coach qui l'a rempli — puis le calendrier. On ne touche jamais a un champ
+// qu'il a renseigne : fmPrefill ne comble que les vides.
+function fmPrefill(){
+  var D=(typeof DOSSIER!=='undefined' && DOSSIER)?DOSSIER:null;
+  var cal=(typeof docPrefillCarte==='function')?docPrefillCarte():{};
+
+  function poser(champ, valeur){
+    if(!valeur) return;
+    if(FEUILLE_MATCH[champ]) return;      // le coach a deja decide
+    FEUILLE_MATCH[champ]=valeur;
+  }
+  poser('adversaireNom', (D&&D.adv) || cal.adversaire);
+  poser('dateMatch',     (D&&D.date)|| cal.date);
+  poser('lieuMatch',     (D&&D.lieu)|| cal.lieu);
+
+  // Le systeme adverse : le dossier le porte, sinon la derniere fiche qu'on
+  // a ecrite sur cette equipe.
+  if(FEUILLE_MATCH.adversaireFormation==='4-4-2'){
+    var sys=(D&&D.advFormation) || null;
+    if(!sys && FEUILLE_MATCH.adversaireNom && typeof ADVERSAIRES!=='undefined'){
+      var a=(ADVERSAIRES||[]).filter(function(x){
+        return (x.nom||'').toLowerCase()===(FEUILLE_MATCH.adversaireNom||'').toLowerCase(); })[0];
+      if(a && a.fiches && a.fiches.length) sys=a.fiches[0].dispoPoss||null;
+    }
+    if(sys && typeof FORMATIONS!=='undefined' && FORMATIONS[sys])
+      FEUILLE_MATCH.adversaireFormation=sys;
+  }
+
+  // La composition : celle du dossier, sinon la derniere enregistree. Une
+  // feuille sans compo ne s'imprime pas, autant proposer la plus probable.
+  if(FEUILLE_MATCH.compoIdx===null || FEUILLE_MATCH.compoIdx===undefined){
+    if(D && D.compoIdx!==null && D.compoIdx!==undefined && COMPOSITIONS[D.compoIdx])
+      FEUILLE_MATCH.compoIdx=D.compoIdx;
+    else if((COMPOSITIONS||[]).length) FEUILLE_MATCH.compoIdx=0;
+  }
+}
+
 function renderFeuilleMatch(){
+  fmPrefill();
   var selCompo=document.getElementById('fm-compo');
   selCompo.innerHTML='<option value="">— Choisir une composition enregistrée —</option>'
     +COMPOSITIONS.map(function(c,i){return '<option value="'+i+'"'+(FEUILLE_MATCH.compoIdx===i?' selected':'')+'>'+(c.nom||'Sans nom')+' ('+c.formation+')</option>';}).join('');
@@ -25712,6 +25751,13 @@ function renderFeuilleMatch(){
   renderCpaFeuille();
   renderCpaPostes();
   renderAdvFeuille();
+  // Une compo pre-remplie doit faire apparaitre ses joueurs : sans ca,
+  // l'encart des consignes individuelles reste vide jusqu'a ce qu'on
+  // reselectionne la meme compo a la main.
+  if(FEUILLE_MATCH.compoIdx!==null && FEUILLE_MATCH.compoIdx!==undefined
+     && typeof onCompoChangeFeuille==='function'){
+    try{ onCompoChangeFeuille(); }catch(e){}
+  }
   fmTemps(FM_VUE);
 
   onAdversaireChangeFeuille();
@@ -26993,7 +27039,32 @@ function genererFeuilleMatchPDF(){
         : '<div class="col-v">'+vide+'</div>')
     +'</div>';
   }
-  var indivHtml=titulaires.map(function(o){
+  // ---------- Ce que le dossier d'avant-match a deja rassemble
+  // Les situations posees au plateau et les captures d'ecran : elles vivaient
+  // dans le dossier sans jamais arriver sur la feuille qu'on affiche.
+  function dossierSituations(){
+    if(typeof dmSituationsSaines!=='function') return [];
+    try{ return dmSituationsSaines()||[]; }catch(e){ return []; }
+  }
+  // Le mot du coach sur chaque branche : l'adversaire, le groupe, le plan,
+  // les objectifs, le discours. On ne garde que ce qui est ecrit.
+  function dossierBranches(){
+    var D=(typeof DOSSIER!=='undefined' && DOSSIER)?DOSSIER:null;
+    if(!D || !D.bulles || typeof DOC_BRANCHES==='undefined') return [];
+    return DOC_BRANCHES.map(function(br){
+      var b=D.bulles[br.cle]||{};
+      var lignes=(br.lignes||[]).map(function(l){
+        var v=(b[l.lab]||'').trim();
+        return v?{lab:l.lab, val:v}:null;
+      }).filter(Boolean);
+      return lignes.length?{br:br, lignes:lignes}:null;
+    }).filter(Boolean);
+  }
+
+  var titulairesAvecConsigne=titulaires.filter(function(o){
+    return (FEUILLE_MATCH.consignesIndiv[o.i]||[]).length>0;
+  });
+  var indivHtml=titulairesAvecConsigne.map(function(o){
     var s=o.s;
     var cons=(FEUILLE_MATCH.consignesIndiv[o.i]||[]);
     return '<div class="ind'+(cons.length?'':' ind-vide')+'">'
@@ -27208,71 +27279,231 @@ function genererFeuilleMatchPDF(){
       +'.page.p2{min-height:0}'
       +'.page:last-child{break-after:auto}'
       +'.ind,.cpa,.col-bloc{break-inside:avoid}}'
+    // ================= LES TAILLES DU VESTIAIRE =================
+    // Un document punaise se lit debout, a un metre cinquante, parfois par
+    // un joueur qui passe. Ces valeurs remplacent celles du haut, qui
+    // etaient calees pour une lecture a bout de bras.
+    +'.page{page-break-after:always}'
+    +'.page:last-child{page-break-after:auto}'
+    // Le terrain prend la page : c'est lui qu'on vient voir.
+    +'.page-compo .terrains,.page-eux .terrains{grid-template-columns:1fr}'
+    +'.page-compo .pitch{min-height:196mm}'
+    +'.page-eux .pitch{min-height:150mm}'
+    +'.page-compo .tcol-h .n,.page-eux .tcol-h .n{font-size:22px}'
+    +'.page-compo .tcol-h .y,.page-eux .tcol-h .y{font-size:17px}'
+    // Le nom d'un joueur : 7,5 px ne se lit pas a un metre.
+    +'.page-compo .nm{font-size:15px;line-height:1.1}'
+    +'.page-compo .nm-moyen{font-size:13.5px}'
+    +'.page-compo .nm-long{font-size:12px}'
+    +'.page-compo .pr{font-size:11px}'
+    +'.page-compo .po{font-size:11px}'
+    +'.page-compo .dot{font-size:17px}'
+    // L'etiquette etait calee sur un nom de 7,5 px. Le terrain prend
+    // desormais la page : la place est la, on la prend.
+    +'.page-compo .pl{width:104px}'
+    // Et surtout : un nom qui ne tient pas passe a la ligne. Il n'est
+    // jamais coupe — c'est son nom que le joueur vient chercher.
+    +'.page-compo .nm{white-space:normal;overflow:visible;text-overflow:clip;'
+      +'overflow-wrap:break-word}'
+    +'.page-compo .pr{white-space:normal;overflow:visible;text-overflow:clip}'
+    // Le mot pose sur un joueur adverse — « n°4, gagne tout de la tete » —
+    // etait coupe a 84 px alors qu'il en demandait 134. Leur terrain prend
+    // la page lui aussi : on elargit, et ce qui depasse passe a la ligne.
+    +'.page-eux .pl.opp{width:118px}'
+    +'.page-eux .pl .nm,.page-eux .opp-n{white-space:normal;overflow:visible;'
+      +'text-overflow:clip;overflow-wrap:break-word}'
+    +'.page-eux .dot{font-size:16px}'
+    +'.page-eux .opp-n{font-size:13px}'
+    +'.page-eux .sg{font-size:15px}'
+    // Le banc, les reperes, la fiche
+    +'.banc-t{font-size:14px}.banc-n{font-size:13px}.banc-j b{font-size:14px}'
+    +'.banc-j i{font-size:11.5px}'
+    +'.col-h{font-size:16px}.col-v{font-size:14px}'
+    +'.rep-t{font-size:16px}.rep-s{font-size:16px}.rep-p{font-size:14px}'
+    // Les coups de pied arretes : c'est ce qu'on relit le plus
+    +'.cpa-h{font-size:15px;margin-bottom:9px}'
+    +'.cpa-q{font-size:19px}.cpa-n{font-size:16px;margin-top:8px}'
+    +'.cpa-s{font-size:13px}.cpa-pen{font-size:16px}'
+    +'.cpa-r-l{font-size:14px;line-height:1.5}'
+    +'.cpa-r-l b{min-width:20px}'
+    // Les consignes : une par ligne, grosses
+    +'.col-l li{font-size:19px;line-height:1.45;margin-bottom:7px}'
+    +'.ind-n{font-size:18px}.ind-m{font-size:13px}'
+    +'.ind-l li{font-size:16px;line-height:1.45}'
+    +'.mot-t{font-size:19px}.mot-e{font-size:13px}'
+    +'.tete-g .c{font-size:30px}.tete-d .a{font-size:30px}'
+    +'.tete-d .m{font-size:15px}.tete-g .s{font-size:13px}'
+    +'.p2-tete .t{font-size:30px}.p2-tete .s{font-size:14px}'
+
+    // ---- Le titre d'une page qui n'en avait pas
+    +'.pg-t{display:flex;align-items:baseline;justify-content:space-between;gap:12px;'
+      +'border-bottom:3px solid var(--encre);padding-bottom:7px;margin-bottom:14px}'
+    +'.pg-t .t{font-family:Anton,sans-serif;font-size:30px;line-height:1.05}'
+    +'.pg-t .s{font-size:14px;color:var(--gris);font-weight:700;text-align:right}'
+
+    // ---- Les situations venues du dossier
+    +'.sit{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}'
+    +'.sit-t{font-family:Anton,sans-serif;font-size:26px;line-height:1.1;margin-bottom:3px}'
+    +'.sit-s{font-size:15px;color:var(--gris);font-weight:700;margin-bottom:11px}'
+    +'.sit-c{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;'
+      +'border:2px solid var(--trait);border-radius:10px;padding:7px;background:#fbfcfd}'
+    +'.sit-c svg,.sit-c img{max-width:100%;max-height:100%;display:block}'
+    +'.sit-p{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}'
+    +'.sit-p span{font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;'
+      +'border:1.5px solid var(--or);color:#7c3a06;background:#fff7ed}'
+
+    // ---- Le dossier, branche par branche
+    +'.brs{display:grid;grid-template-columns:1fr 1fr;gap:11px}'
+    +'.br{border:2px solid var(--trait);border-left:6px solid var(--bc,var(--gris));'
+      +'border-radius:10px;padding:11px 13px;break-inside:avoid}'
+    +'.br-t{font-family:Anton,sans-serif;font-size:18px;color:var(--bc);margin-bottom:7px}'
+    +'.br-l{margin-bottom:8px}'
+    +'.br-l:last-child{margin-bottom:0}'
+    +'.br-lab{display:block;font-size:11.5px;font-weight:800;letter-spacing:.07em;'
+      +'text-transform:uppercase;color:var(--gris)}'
+    +'.br-v{display:block;font-size:17px;font-weight:700;line-height:1.35}'
     +'@page{size:A4 portrait;margin:9mm}'
     +'</style></head><body>'
 
-    // ===================== PAGE 1 =====================
-    +'<div class="page">'
-    +'<div class="tete">'
-      +'<div class="tete-g">'
-        +(logoClub?'<img class="tete-logo" src="'+logoClub+'" alt="">':'')
-        +'<div><div class="c">'+esc(NOM_CLUB)+'</div>'
-        +'<div class="s">Séniors R2 · '+esc(compo.formation||'')+'</div></div></div>'
-      +'<div class="tete-d"><div class="v">Feuille de match — vs</div>'
-        +'<div class="a">'+esc(FEUILLE_MATCH.adversaireNom||'—')+'</div>'
-        +'<div class="m">'+esc(FEUILLE_MATCH.dateMatch||'')
-          +(FEUILLE_MATCH.lieuMatch?' · '+esc(FEUILLE_MATCH.lieuMatch):'')+'</div></div>'
-    +'</div>'
-    +((FEUILLE_MATCH.advGeneral||'').trim()
-      ? '<div class="mot"><span class="mot-e">🔍 Leur match</span>'
-        +'<span class="mot-t">'+esc(FEUILLE_MATCH.advGeneral)+'</span></div>'
-      : '')
-    +'<div class="terrains">'
-      +'<div class="tcol"><div class="tcol-h nous"><span class="n">'+esc(NOM_CLUB)+'</span>'
-        +'<span class="y">'+esc(compo.formation||'')+'</span></div>'
-        +'<div class="pitch"><div class="median"></div><div class="surf"></div>'+joueursHtml+'</div></div>'
-      +'<div class="tcol"><div class="tcol-h eux"><span class="n">'
-        +esc(FEUILLE_MATCH.adversaireNom||'ADVERSAIRE')+'</span>'
-        +'<span class="y">'+esc(FEUILLE_MATCH.adversaireFormation||'')+'</span></div>'
-        +'<div class="pitch eux"><div class="median"></div><div class="surf"></div>'+advHtml+'</div></div>'
-    +'</div>'
-    +bancHtml
-    +'<div class="sous">'
-      +'<div class="col-bloc adv"><div class="col-h">⚠ Leurs repères</div>'+reperesHtml+'</div>'
-      +'<div class="col-bloc"><div class="col-h">📌 Leur fiche</div>'
-        +(fA
-          ? '<div class="rep">'
-            +(fA.dispoPoss||fA.dispoDef
-              ? '<div class="rep-l" style="--c:#2a2f36"><span class="rep-s">▦</span>'
-                +'<span class="rep-t"><b>'+esc(fA.dispoPoss||'?')+'</b> en possession · '
-                +'<b>'+esc(fA.dispoDef||'?')+'</b> à la perte</span></div>' : '')
-            +(fA.joueursSurveiller
-              ? '<div class="rep-l" style="--c:#dc2626"><span class="rep-s">★</span>'
-                +'<span class="rep-t">'+esc(fA.joueursSurveiller)+'</span></div>' : '')
-            +(fA.infosParticulieres
-              ? '<div class="rep-l" style="--c:#6b7480"><span class="rep-s">ℹ</span>'
-                +'<span class="rep-t">'+esc(fA.infosParticulieres)+'</span></div>' : '')
-            +'</div>'
-          : '<div class="col-v">Aucune fiche enregistrée pour cet adversaire.</div>')
-      +'</div>'
-    +'</div>'
-    +'<div class="cpas">'+cpaHtml+'</div>'
-    +'</div>'
+    // Le rappel du match, repris en tete de chaque page : on doit savoir de
+    // quel match il s'agit sans avoir a chercher la premiere feuille.
+    +(function(){
+      var rappel=esc(NOM_CLUB)+' vs '+esc(FEUILLE_MATCH.adversaireNom||'—')
+        +(FEUILLE_MATCH.dateMatch?' · '+esc(FEUILLE_MATCH.dateMatch):'')
+        +(FEUILLE_MATCH.lieuMatch?' · '+esc(FEUILLE_MATCH.lieuMatch):'');
+      function titrePage(t, droite){
+        return '<div class="pg-t"><span class="t">'+t+'</span>'
+          +'<span class="s">'+(droite||rappel)+'</span></div>';
+      }
 
-    // ===================== PAGE 2 =====================
-    +'<div class="page p2">'
-    +'<div class="p2-tete"><span class="t">Les consignes</span>'
-      +'<span class="s">'+esc(NOM_CLUB)+' vs '+esc(FEUILLE_MATCH.adversaireNom||'—')
-      +(FEUILLE_MATCH.dateMatch?' · '+esc(FEUILLE_MATCH.dateMatch):'')+'</span></div>'
-    +'<div class="sous">'
-      +bloc('✅ En possession','poss',offL,'À remplir dans l\'encart ③.')
-      +bloc('🛡 À la perte','def',defL,'À remplir dans l\'encart ③.')
-    +'</div>'
-    +'<div class="p2-tete" style="border-bottom-width:2px;margin-top:4px">'
-      +'<span class="t" style="font-size:19px">Joueur par joueur</span>'
-      +'<span class="s">'+titulaires.length+' titulaires</span></div>'
-    +'<div class="inds">'+indivHtml+'</div>'
-    +'</div>'
+      // ============== PAGE 1 — NOTRE COMPO ==============
+      var out='<div class="page page-compo">'
+        +'<div class="tete">'
+          +'<div class="tete-g">'
+            +(logoClub?'<img class="tete-logo" src="'+logoClub+'" alt="">':'')
+            +'<div><div class="c">'+esc(NOM_CLUB)+'</div>'
+            +'<div class="s">Séniors R2 · '+esc(compo.formation||'')+'</div></div></div>'
+          +'<div class="tete-d"><div class="v">Feuille de match — vs</div>'
+            +'<div class="a">'+esc(FEUILLE_MATCH.adversaireNom||'—')+'</div>'
+            +'<div class="m">'+esc(FEUILLE_MATCH.dateMatch||'')
+              +(FEUILLE_MATCH.lieuMatch?' · '+esc(FEUILLE_MATCH.lieuMatch):'')+'</div></div>'
+        +'</div>'
+        +'<div class="terrains">'
+          +'<div class="tcol"><div class="tcol-h nous"><span class="n">'+esc(NOM_CLUB)+'</span>'
+            +'<span class="y">'+esc(compo.formation||'')+'</span></div>'
+            +'<div class="pitch"><div class="median"></div><div class="surf"></div>'
+            +joueursHtml+'</div></div>'
+        +'</div>'
+        +bancHtml
+        +'</div>';
+
+      // ============== PAGE 2 — EN FACE ==============
+      out+='<div class="page page-eux">'
+        +titrePage('En face', esc(FEUILLE_MATCH.adversaireNom||'Adversaire')
+            +' · '+esc(FEUILLE_MATCH.adversaireFormation||''))
+        +((FEUILLE_MATCH.advGeneral||'').trim()
+          ? '<div class="mot"><span class="mot-e">🔍 Leur match</span>'
+            +'<span class="mot-t">'+esc(FEUILLE_MATCH.advGeneral)+'</span></div>'
+          : '')
+        +'<div class="terrains">'
+          +'<div class="tcol"><div class="tcol-h eux"><span class="n">'
+            +esc(FEUILLE_MATCH.adversaireNom||'ADVERSAIRE')+'</span>'
+            +'<span class="y">'+esc(FEUILLE_MATCH.adversaireFormation||'')+'</span></div>'
+            +'<div class="pitch eux"><div class="median"></div><div class="surf"></div>'
+            +advHtml+'</div></div>'
+        +'</div>'
+        +'<div class="sous">'
+          +'<div class="col-bloc adv"><div class="col-h">⚠ Leurs repères</div>'+reperesHtml+'</div>'
+          +'<div class="col-bloc"><div class="col-h">📌 Leur fiche</div>'
+            +(fA
+              ? '<div class="rep">'
+                +(fA.dispoPoss||fA.dispoDef
+                  ? '<div class="rep-l" style="--c:#2a2f36"><span class="rep-s">▦</span>'
+                    +'<span class="rep-t"><b>'+esc(fA.dispoPoss||'?')+'</b> en possession · '
+                    +'<b>'+esc(fA.dispoDef||'?')+'</b> à la perte</span></div>' : '')
+                +(fA.joueursSurveiller
+                  ? '<div class="rep-l" style="--c:#dc2626"><span class="rep-s">★</span>'
+                    +'<span class="rep-t">'+esc(fA.joueursSurveiller)+'</span></div>' : '')
+                +(fA.infosParticulieres
+                  ? '<div class="rep-l" style="--c:#6b7480"><span class="rep-s">ℹ</span>'
+                    +'<span class="rep-t">'+esc(fA.infosParticulieres)+'</span></div>' : '')
+                +'</div>'
+              : '<div class="col-v">Aucune fiche enregistrée pour cet adversaire.</div>')
+          +'</div>'
+        +'</div>'
+        +'</div>';
+
+      // ============== PAGE 3 — LE PLAN ==============
+      var branches=dossierBranches();
+      out+='<div class="page p2">'
+        +titrePage('Le plan')
+        +'<div class="sous">'
+          +bloc('✅ En possession','poss',offL,'À remplir dans l\'encart ① bis.')
+          +bloc('🛡 À la perte','def',defL,'À remplir dans l\'encart ① bis.')
+        +'</div>'
+        +(branches.length
+          ? '<div class="brs" style="margin-top:14px">'+branches.map(function(o){
+              return '<div class="br" style="--bc:'+o.br.coul+'">'
+                +'<div class="br-t">'+o.br.ic+' '+esc(o.br.titre)+'</div>'
+                +o.lignes.map(function(l){
+                    return '<div class="br-l"><span class="br-lab">'+esc(l.lab)+'</span>'
+                      +'<span class="br-v">'+esc(l.val)+'</span></div>'; }).join('')
+              +'</div>'; }).join('')+'</div>'
+          : '')
+        +'</div>';
+
+      // ============== PAGE 4 — LES COUPS DE PIED ARRÊTÉS ==============
+      out+='<div class="page p2">'
+        +titrePage('Coups de pied arrêtés')
+        +'<div class="cpas">'+cpaHtml+'</div>'
+        +'</div>';
+
+      // ============== PAGES 5+ — CE QU'ON A POSÉ AU PLATEAU ==============
+      // Les situations du dossier d'avant-match : un terrain par page, assez
+      // grand pour etre lu de loin.
+      var sits=dossierSituations();
+      sits.forEach(function(st, i){
+        var dessin='';
+        if(st.type==='image'){
+          dessin='<img src="'+st.image+'" alt="'+esc(st.titre||'')+'">';
+        }else if(typeof dpTerrainSituation==='function'){
+          // Meme appel que le dossier : la premiere etape remplie, et on
+          // garde les bulles — ce sont les annotations du coach.
+          var pleines=[];
+          try{ ((st.plateau&&st.plateau.sequence)||[]).forEach(function(e,k){ if(e) pleines.push(k); }); }catch(e){}
+          try{ dessin=dpTerrainSituation(st.plateau, pleines.length?pleines[0]:null, false); }
+          catch(e){ dessin=''; }
+        }
+        if(!dessin) return;
+        out+='<div class="page">'
+          +titrePage('La situation '+(i+1), rappel)
+          +'<div class="sit">'
+            +'<div class="sit-t">'+esc(st.titre||('Situation '+(i+1)))+'</div>'
+            +(st.sous?'<div class="sit-s">'+esc(st.sous)+'</div>':'')
+            +'<div class="sit-c">'+dessin+'</div>'
+            +((st.principes||[]).length
+              ? '<div class="sit-p">'+st.principes.map(function(pc){
+                  var pr=(typeof pjParCode==='function')?pjParCode(pc):null;
+                  return '<span>'+esc(pr&&pr.titre?pr.titre:pc)+'</span>'; }).join('')+'</div>'
+              : '')
+          +'</div>'
+          +'</div>';
+      });
+
+      // ============== DERNIÈRE PAGE — JOUEUR PAR JOUEUR ==============
+      // Onze cartes dont neuf disent « pas de consigne », ca n'aide personne :
+      // seuls ceux qui ont quelque chose a lire y sont.
+      if(indivHtml){
+        out+='<div class="page p2">'
+          +titrePage('Joueur par joueur',
+             titulairesAvecConsigne.length+' joueur'
+             +(titulairesAvecConsigne.length>1?'s':'')+' concerné'
+             +(titulairesAvecConsigne.length>1?'s':''))
+          +'<div class="inds">'+indivHtml+'</div>'
+          +'</div>';
+      }
+      return out;
+    })()
 
     +'</body></html>';
 
