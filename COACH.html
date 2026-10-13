@@ -1605,6 +1605,52 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .dm-b{width:6px;height:6px;background:#fff;border:1px solid var(--fond2)}
 /* Le mot sur une capture : deux lignes suffisent, il sort en grand sur la
    feuille affichee au vestiaire. */
+/* Le bas de chaque etape : une seule porte, celle d'apres. */
+.mpn{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;
+  border-top:1.5px dashed var(--bord);margin-top:22px;padding-top:15px}
+.mpn-l{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--gris)}
+.mpn-b{padding:11px 18px;font-size:14px;font-weight:800}
+.ni-ok{margin-left:auto;flex:0 0 auto;font-size:13px;font-weight:900;color:var(--green);
+  opacity:.85}
+@media(max-width:760px){
+  .mpn{justify-content:stretch;margin-top:18px;padding-top:12px}
+  .mpn-b{flex:1 1 auto;text-align:center}
+}
+
+/* Le bandeau du match prepare. Il est sobre : il n'a rien a vendre, il
+   rappelle seulement pour qui on travaille. */
+.mpb{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  flex-wrap:wrap;border:1.5px solid var(--bord);border-left:5px solid #38bdf8;
+  border-radius:12px;background:var(--carte);padding:10px 14px;margin-bottom:14px}
+.mpb-l{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gris);margin-bottom:2px}
+.mpb-m{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  font-family:Anton,sans-serif;font-size:19px;letter-spacing:.01em;line-height:1.15}
+.mpb-vs{font-family:inherit;font-size:12px;font-weight:700;color:var(--gris)}
+.mpb-a{color:#38bdf8}
+.mpb-d{font-size:12.5px;font-weight:600;color:var(--gris);margin-top:3px}
+.mpb-sel{background:var(--fond);color:var(--txt);border:1.5px solid var(--bord);
+  border-radius:9px;padding:8px 10px;font-size:13px;font-weight:700;max-width:250px}
+.mpb-vide{display:block}
+.mpb-vide p{font-size:13.5px;line-height:1.45;color:var(--gris);margin:4px 0 9px}
+@media(max-width:760px){
+  .mpb{padding:9px 11px;gap:9px}
+  .mpb-m{font-size:16px}
+  .mpb-d{font-size:11.5px}
+  .mpb-d2{width:100%}
+  .mpb-sel{max-width:100%;width:100%}
+}
+
+/* Quand le dossier n'est pas celui du match prepare : on le dit en grand,
+   on ne decide pas a la place du coach. */
+.dm-autre{border:2px solid #f59e0b;border-left:7px solid #f59e0b;border-radius:12px;
+  background:rgba(245,158,11,.09);padding:13px 15px;margin-bottom:14px}
+.dm-autre-t{font-family:Anton,sans-serif;font-size:16px;letter-spacing:.02em;
+  color:#b45309;margin-bottom:5px}
+.dm-autre p{font-size:14px;line-height:1.45;margin:0 0 10px}
+.dm-autre-b{display:flex;flex-wrap:wrap;gap:8px}
+.dm-autre-b .fa-o{padding:8px 13px;font-size:13px;font-weight:700}
 .dm-sit-c{width:100%;margin-top:6px;font-size:12.5px;line-height:1.4;resize:vertical;
   min-height:46px}
 .dm-sit-t{font-size:13px;padding:6px 8px;margin-bottom:5px}
@@ -2076,6 +2122,8 @@ body.terrain-plein #barre-jour,
 body.terrain-plein #scr-plateau .ph,
 body.terrain-plein #scr-plateau .pl-droite,
 body.terrain-plein #scr-plateau .etapes,
+body.terrain-plein [data-mpb],
+body.terrain-plein .mpn,
 body.terrain-plein .topbar,
 body.terrain-plein #mobile-head{display:none!important}
 body.terrain-plein .main{padding:6px!important;margin:0!important;width:100%!important;max-width:none!important}
@@ -3126,7 +3174,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v124</b> · 13/10/2026<br>
+      AST COACH <b style="color:var(--or)">v125</b> · 13/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -4289,6 +4337,7 @@ Chez le président"></textarea>
 <!-- COMPOSITIONS & SCHEMA TACTIQUE -->
 <div class="scr" id="scr-compos">
     <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-cible"/></svg>Compositions</div><div class="ph-sub">Place tes joueurs sur le terrain, enregistre, réutilise</div></div></div>
+  <div data-mpb></div>
 
     <div class="cp-grille">
 
@@ -4337,6 +4386,7 @@ Chez le président"></textarea>
 <!-- CORNERS & COUPS FRANCS -->
 <div class="scr" id="scr-cpa">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-fanion"/></svg>Corners &amp; coups de pied arrêtés</div><div class="ph-sub">Dessine la situation, puis place tes joueurs dessus</div></div></div>
+  <div data-mpb></div>
 
   <!-- Deux temps, jamais les deux à la fois : l'écran tenait sur deux
        hauteurs et demie quand tout était empilé. -->
@@ -4461,6 +4511,7 @@ Chez le président"></textarea>
 <!-- FEUILLE DE MATCH -->
 <div class="scr" id="scr-feuille-match">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Feuille de Match</div><div class="ph-sub">Compo, CPA et consignes — exportable en PDF via impression</div></div></div>
+  <div data-mpb></div>
   <div class="photos-bandeau" id="photos-bandeau-feuille"></div>
 
   <!-- Quatre temps : on remplit une chose, puis la suivante. La page entiere
@@ -4543,6 +4594,7 @@ Chez le président"></textarea>
 <!-- PLATEAU TACTIQUE 4-2-2-2 -->
 <div class="scr" id="scr-avant-match">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-megaphone"/></svg>Dossier d'avant-match</div><div class="ph-sub">Tout est sur cet écran : tu remplis, tu regardes, tu envoies</div></div></div>
+  <div data-mpb></div>
 
   <!-- La barre de pilotage : toujours visible, toujours à jour -->
   <div class="dm-pilote">
@@ -4627,6 +4679,7 @@ Chez le président"></textarea>
 
 <div class="scr" id="scr-plateau">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-cerveau"/></svg>Plateau Tactique</div><div class="ph-sub">Un seul terrain — tu poses, tu nommes, tu envoies</div></div></div>
+  <div data-mpb></div>
 
   <div class="pl-grille">
 
@@ -6781,9 +6834,13 @@ function renderSideNav(){
       +'<div class="pole-title-active" style="color:'+couleurPole(pole)+'">'+ic(pole.icon)+esc2(pole.label)+'</div>'
       +pole.screens.map(function(sc){
         var a=fsAlerteEcran(AL, sc.s);
+        // Dans le pole Match, le menu dit aussi ce qui est deja fait.
+        var coche='';
+        if(pole.id==='match' && typeof mpFait==='function' && mpFait(sc.s))
+          coche='<span class="ni-ok" title="déjà rempli">✓</span>';
         return '<div class="ni'+(a?' alerte':'')+'" data-s="'+sc.s+'" onclick="goNav(this)">'
           +'<span class="ni-ic">'+ic(sc.ic)+'</span><span class="ni-l">'+esc2(sc.l)+'</span>'
-          +fsPastille(a,'fs-al-ni')+'</div>';
+          +coche+fsPastille(a,'fs-al-ni')+'</div>';
       }).join('');
   }
   // Un re-rendu ne doit pas effacer le surlignage de l'écran ouvert.
@@ -6941,6 +6998,9 @@ function goNav(elOrS){
   // Les convocations occupent toute la fenêtre : rien ne défile à la molette
   document.body.classList.toggle('cv-plein', s==='convos');
   rendreEcran(s);
+  try{ mpMajBandeaux(); }catch(e){}
+  try{ mpMajSuivant(); }catch(e){}
+  try{ if(POLE_ACTIF==='match') renderSideNav(); }catch(e){}
   // L'historique : on n'empile pas quand c'est le retour lui-meme qui navigue,
   // et on n'empile pas deux fois le meme ecran d'affilee.
   if(!NAV_SANS_HISTO && s){
@@ -14221,6 +14281,8 @@ function appliquerDonnees(p,silencieux){
   if(p.BIBLIOTHEQUE_GENERALE)BIBLIOTHEQUE_GENERALE=p.BIBLIOTHEQUE_GENERALE;
   if(p.EXOS_IMPORTES)EXOS_IMPORTES=p.EXOS_IMPORTES;
   if(p.DOSSIER)DOSSIER=Object.assign(dmVide(), p.DOSSIER);
+  if(p.MATCH_PREP!==undefined)MATCH_PREP=p.MATCH_PREP;
+  if(p.DOSSIERS_ARCHIVE)DOSSIERS_ARCHIVE=p.DOSSIERS_ARCHIVE;
   if(p.A_CREUSER)A_CREUSER=p.A_CREUSER;
   if(p.FICHES_ARCHIVE)FICHES_ARCHIVE=p.FICHES_ARCHIVE;
   if(p.STAFF_CLUB)STAFF_CLUB=p.STAFF_CLUB;
@@ -14339,7 +14401,7 @@ function donneesSaisonSansPhotos(){
     return copie;
   });
   return {PHOTOS_REF, ENTRETIENS_JOUEURS:entretiensParJoueur(),
-  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS,SITUATIONS};
+  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS,SITUATIONS};
 }
 // ===== Les photos des joueurs, jusqu'à leur téléphone =====
 // Elles vivaient uniquement sur l'ordinateur du coach : l'appli joueur affichait
@@ -22868,14 +22930,151 @@ function docLogoClub(){
   }catch(e){ DOC_LOGO_PRET=src; }
   return DOC_LOGO_PRET;
 }
+// Le match que le coach a choisi de preparer. Null tant qu'il n'a rien
+// choisi : l'appli prend alors le prochain du calendrier, comme avant.
+var MATCH_PREP=null;
+// Les dossiers des matchs precedents, gardes au cas ou. Huit suffisent.
+var DOSSIERS_ARCHIVE=[];
+
+// L'identite d'un match tient en deux choses : sa date et son adversaire.
+function mpCle(m){ return m ? ((m.date||'')+'|'+(m.adversaire||'')) : ''; }
+
+function mpJoue(c){
+  if(!c) return false;
+  var k=(c.adversaire||'').toLowerCase()+'|'+(c.lieu||'');
+  return (MATCHS||[]).some(function(m){
+    return ((m.adversaire||'').toLowerCase()+'|'+(m.lieu||''))===k; });
+}
+
+// Les matchs encore a jouer, dans l'ordre du calendrier.
+function mpListe(){
+  return (CALENDRIER||[]).filter(function(c){ return c.adversaire && !mpJoue(c); });
+}
+
+// Le prochain du calendrier pas encore joue — l'ancien comportement.
+function docMatchCalendrier(){ return mpListe()[0]||null; }
+
+// Le match prepare : celui que le coach a choisi tant qu'il tient encore
+// debout, sinon le prochain du calendrier. Tout le reste de l'appli passe
+// par ici, donc tout suit son choix sans avoir a le repeter.
 function docProchainMatch(){
-  // Le prochain match du calendrier, en repartant de ce qui a déjà été joué
-  var joues={};
-  (MATCHS||[]).forEach(function(m){ joues[(m.adversaire||'').toLowerCase()+'|'+(m.lieu||'')]=true; });
-  var suivant=(CALENDRIER||[]).find(function(c){
-    return c.adversaire && !joues[(c.adversaire||'').toLowerCase()+'|'+(c.lieu||'')];
+  if(MATCH_PREP){
+    var c=(CALENDRIER||[]).filter(function(x){ return mpCle(x)===mpCle(MATCH_PREP); })[0];
+    if(c && !mpJoue(c)) return c;
+    MATCH_PREP=null;            // joue ou disparu du calendrier : on oublie
+  }
+  return docMatchCalendrier();
+}
+
+// L'ordre de preparation, celui qu'annoncent les numeros du menu.
+var MP_ETAPES=[
+  {s:'compos',       l:'Compositions',        n:1},
+  {s:'plateau',      l:'Plateau tactique',    n:2},
+  {s:'cpa',          l:'Corners & coups francs', n:3},
+  {s:'avant-match',  l:"Dossier d'avant-match", n:4},
+  {s:'feuille-match',l:'Feuille de match',    n:5}
+];
+
+// Une etape est faite quand elle porte vraiment quelque chose. Une coche qui
+// ment est pire que pas de coche : on ne coche que sur du contenu.
+function mpFait(ecran){
+  try{
+    if(ecran==='compos')  return (COMPOSITIONS||[]).length>0;
+    if(ecran==='plateau') return ((typeof SITUATIONS!=='undefined'?SITUATIONS:[])||[]).length>0
+                              || ((DOSSIER&&DOSSIER.situations)||[]).length>0;
+    if(ecran==='cpa')     return Object.keys((FEUILLE_MATCH&&FEUILLE_MATCH.cpaRoles)||{}).length>0
+                              || Object.keys((FEUILLE_MATCH&&FEUILLE_MATCH.cpaQui)||{}).length>0;
+    if(ecran==='avant-match'){
+      var b=(DOSSIER&&DOSSIER.bulles)||{};
+      var plein=Object.keys(b).some(function(k){
+        var o=b[k]||{};
+        return Object.keys(o).some(function(x){ return String(o[x]||'').trim(); }); });
+      return plein || ((DOSSIER&&DOSSIER.situations)||[]).length>0;
+    }
+    if(ecran==='feuille-match'){
+      var F=FEUILLE_MATCH||{};
+      return !!String(F.consignesOff||'').trim() || !!String(F.consignesDef||'').trim()
+        || Object.keys(F.consignesIndiv||{}).some(function(k){
+             return String(F.consignesIndiv[k]||'').trim(); });
+    }
+  }catch(e){}
+  return false;
+}
+
+// Le bouton de bas de page : il emmene a l'etape d'apres, dans l'ordre des
+// numeros. Pose par le script, pour ne rien deranger dans les ecrans.
+function mpMajSuivant(){
+  MP_ETAPES.forEach(function(e, i){
+    var scr=document.getElementById('scr-'+e.s);
+    if(!scr) return;
+    var z=scr.querySelector(':scope > .mpn');
+    var suiv=MP_ETAPES[i+1];
+    if(!suiv){ if(z) z.remove(); return; }
+    if(!z){ z=document.createElement('div'); z.className='mpn'; scr.appendChild(z); }
+    else scr.appendChild(z);        // toujours en dernier, meme apres un re-rendu
+    z.innerHTML='<span class="mpn-l">Étape '+suiv.n+' sur 5</span>'
+      +'<button class="btn mpn-b" onclick="goNav(\''+suiv.s+'\')">'
+        +esc2(suiv.l)+' ›</button>';
   });
-  return suivant||null;
+}
+
+// Le bandeau de tous les ecrans du pole MATCH. Il repond a une seule
+// question, celle que l'appli ne posait jamais : pour quel match je travaille ?
+function mpMajBandeaux(){
+  var zones=document.querySelectorAll('[data-mpb]');
+  if(!zones.length) return;
+  var m=docProchainMatch();
+  var L=mpListe();
+  var html;
+  if(!m){
+    html='<div class="mpb mpb-vide">'
+      +'<div class="mpb-l">Aucun match à venir</div>'
+      +'<p>Ajoute-le au calendrier, et tout le pôle Match saura pour qui tu travailles.</p>'
+      +'<button class="fa-o" onclick="goNav(\'classement\')">Ouvrir le calendrier ›</button>'
+      +'</div>';
+  } else {
+    var lieu=(m.lieu==='D'?'À domicile':(m.lieu==='E'?'À l\'extérieur':''));
+    var choix='';
+    if(L.length>1){
+      choix='<select class="mpb-sel" onchange="mpChoisir(this.value)" '
+        +'title="Changer le match que tu prépares">'
+        +L.map(function(c){
+          return '<option value="'+esc2(mpCle(c))+'"'
+            +(mpCle(c)===mpCle(m)?' selected':'')+'>'
+            +esc2((c.adversaire||'')+(c.date?' · '+c.date:''))+'</option>'; }).join('')
+        +'</select>';
+    }
+    html='<div class="mpb">'
+      +'<div class="mpb-g">'
+        +'<div class="mpb-l">Tu prépares</div>'
+        +'<div class="mpb-m"><b>'+esc2(NOM_CLUB)+'</b>'
+          +'<span class="mpb-vs">vs</span>'
+          +'<b class="mpb-a">'+esc2(m.adversaire||'—')+'</b></div>'
+        +'<div class="mpb-d">'+esc2(m.date||'')
+          +(lieu?' · '+esc2(lieu):'')+(m.comp?' · '+esc2(m.comp):'')+'</div>'
+      +'</div>'
+      +(choix?('<div class="mpb-d2">'+choix+'</div>'):'')
+      +'</div>';
+  }
+  zones.forEach(function(z){ z.innerHTML=html; });
+}
+
+// Le coach change de match depuis le bandeau.
+function mpChoisir(cle){
+  var c=(CALENDRIER||[]).filter(function(x){ return mpCle(x)===cle; })[0];
+  MATCH_PREP=c?{adversaire:c.adversaire, date:c.date, lieu:c.lieu, comp:c.comp}:null;
+  try{ sauvegardeAuto(); }catch(e){}
+  try{ mpMajBandeaux(); }catch(e){}
+  // La feuille reprend l'adversaire du nouveau match, pas celui d'avant.
+  try{
+    FEUILLE_MATCH.adversaireNom=''; FEUILLE_MATCH.dateMatch=''; FEUILLE_MATCH.lieuMatch='';
+    if(typeof renderFeuilleMatch==='function'
+       && document.getElementById('scr-feuille-match').classList.contains('on'))
+      renderFeuilleMatch();
+  }catch(e){}
+  try{ if(document.getElementById('scr-avant-match').classList.contains('on'))
+         renderAvantMatch(); }catch(e){}
+  try{ notif('✓ Tu prépares '+((c&&c.adversaire)||'le prochain match')); }catch(e){}
 }
 // Un document ne part plus dans une pop-up : il s'ouvre par-dessus l'appli.
 // Le navigateur ne peut plus le bloquer, et en appli installee ca marche aussi.
@@ -23639,6 +23838,39 @@ async function dmRetirer(){
     notif('✓ Retiré de l\'appli des joueurs');
   }catch(e){ notif('⚠ Retrait impossible'); }
 }
+// Le dossier porte son match. S'il a ete prepare pour un autre, on ne touche
+// a rien : on le dit, et le coach tranche.
+function dmMatchAutre(){
+  var m=docProchainMatch(); if(!m) return null;
+  var a=(DOSSIER.adv||'').trim(); if(!a) return null;
+  if(a.toLowerCase()===(m.adversaire||'').toLowerCase()) return null;
+  return {dossier:a, prepare:m.adversaire||''};
+}
+
+// Repartir a zero : l'ancien dossier n'est pas jete, il va aux archives.
+function dmArchiverEtVider(){
+  try{
+    if((DOSSIER.adv||'').trim() || (DOSSIER.situations||[]).length){
+      DOSSIERS_ARCHIVE.unshift(JSON.parse(JSON.stringify(DOSSIER)));
+      DOSSIERS_ARCHIVE=DOSSIERS_ARCHIVE.slice(0,8);
+    }
+  }catch(e){}
+  DOSSIER=dmVide();
+  dmPreremplir(true);
+  renderAvantMatch(); sauvegardeAuto();
+  notif('✓ Nouveau dossier — l\'ancien est rangé dans les archives');
+}
+
+// Garder le travail deja fait, mais le rattacher au match qu'on prepare.
+function dmRattacher(){
+  var m=docProchainMatch(); if(!m) return;
+  DOSSIER.adv=m.adversaire||''; DOSSIER.date=m.date||'';
+  DOSSIER.lieu=(m.lieu==='D'?'À domicile':(m.lieu==='E'?'À l\'extérieur':''));
+  DOSSIER.comp=m.comp||'';
+  renderAvantMatch(); sauvegardeAuto();
+  notif('✓ Dossier rattaché à '+(m.adversaire||'ce match'));
+}
+
 function dmNouveau(){
   if(!confirm('Repartir d\'un dossier vide pour le prochain match ?\n\nCe qui est publié côté joueurs reste en ligne jusqu\'à la prochaine publication.')) return;
   DOSSIER=dmVide();
@@ -24586,11 +24818,33 @@ function renderAvantMatch(){
     selC.value=(DOSSIER.compoIdx==null?'':String(DOSSIER.compoIdx));
   }
 
+  dmEncartAutreMatch();
   dmRemplirBiblio();
   dmRendreSituations();
   dmRendreVideos();
   dmMajEtat();
   if(typeof fichPeuplerApercus==='function') fichPeuplerApercus(document.getElementById('scr-avant-match'));
+}
+
+// ---------- ce dossier n'est pas celui du match qu'on prepare ----------
+function dmEncartAutreMatch(){
+  var z=document.getElementById('dm-autre-match');
+  if(!z){
+    var ct=document.getElementById('dm-sits-ct');
+    if(!ct || !ct.parentNode) return;
+    z=document.createElement('div'); z.id='dm-autre-match';
+    ct.parentNode.insertBefore(z, ct.parentNode.firstChild);
+  }
+  var d=dmMatchAutre();
+  if(!d){ z.innerHTML=''; z.style.display='none'; return; }
+  z.style.display='';
+  z.innerHTML='<div class="dm-autre">'
+    +'<div class="dm-autre-t">⚠ Ce dossier a été préparé pour '+esc2(d.dossier)+'</div>'
+    +'<p>Tu prépares <b>'+esc2(d.prepare)+'</b>. Qu\'est-ce qu\'on en fait ?</p>'
+    +'<div class="dm-autre-b">'
+      +'<button class="btn" onclick="dmArchiverEtVider()">Repartir d\'un dossier vide</button>'
+      +'<button class="fa-o" onclick="dmRattacher()">Garder ce travail pour '+esc2(d.prepare)+'</button>'
+    +'</div></div>';
 }
 
 // ---------- les situations prises au plateau ----------
@@ -25714,9 +25968,12 @@ function fmPrefill(){
     if(FEUILLE_MATCH[champ]) return;      // le coach a deja decide
     FEUILLE_MATCH[champ]=valeur;
   }
-  poser('adversaireNom', (D&&D.adv) || cal.adversaire);
-  poser('dateMatch',     (D&&D.date)|| cal.date);
-  poser('lieuMatch',     (D&&D.lieu)|| cal.lieu);
+  // L'adversaire vient du match qu'on prepare, jamais du dossier : le dossier
+  // peut etre reste sur la semaine d'avant, et c'est ainsi qu'on se retrouvait
+  // avec le mauvais nom en haut de la feuille affichee au vestiaire.
+  poser('adversaireNom', cal.adversaire || (D&&D.adv));
+  poser('dateMatch',     cal.date       || (D&&D.date));
+  poser('lieuMatch',     cal.lieu       || (D&&D.lieu));
 
   // Le systeme adverse : le dossier le porte, sinon la derniere fiche qu'on
   // a ecrite sur cette equipe.
@@ -27584,7 +27841,7 @@ function supprimerSchemaCPA(i){
 }
 
 // Les données gardées sur cet appareil : une seule liste, utilisée partout
-function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
+function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
 
 // ===== L'enregistrement automatique =====
 // Une donnée modifiée mais pas enregistrée vit uniquement en mémoire : la
@@ -27658,7 +27915,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
