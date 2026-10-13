@@ -351,6 +351,22 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .cons-2{display:grid;gap:9px}
 @media (min-width:430px){ .cons-2{grid-template-columns:1fr 1fr} }
 
+/* Sa place sur coup de pied arrete. La phrase passe avant tout le reste :
+   c'est elle qu'il relit sur le banc, pas le nom du poste. */
+.sect-cpa{--sc2:#F97316}
+.cpaj{display:grid;gap:9px}
+@media (min-width:560px){ .cpaj{grid-template-columns:1fr 1fr} }
+.cpaj-c{border:1px solid var(--hair);border-left:4px solid var(--cc);border-radius:11px;
+  padding:11px 13px;background:var(--surface)}
+.cpaj-s{display:block;font-size:10.5px;font-weight:800;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--cc);margin-bottom:5px}
+.cpaj-c b{display:block;font-size:17px;font-weight:600;line-height:1.35;color:var(--ink)}
+.cpaj-c i{display:inline-block;margin-top:6px;font-style:normal;font-size:11.5px;
+  font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--cc);
+  background:color-mix(in srgb,var(--cc) 13%,transparent);border-radius:20px;padding:3px 9px}
+.cpaj-n{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--hair);
+  font-size:13px;line-height:1.4;color:var(--mute)}
+
 .jm-prat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
 .jm-prat a,.jm-prat .jm-prat-b{display:flex;flex-direction:column;align-items:center;gap:5px;
   text-decoration:none;cursor:pointer;background:var(--voile);border:1px solid var(--hair);
@@ -2408,7 +2424,7 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v46</b> · 09/10/2026<br>'
+    +'AST JOUEUR <b style="color:var(--or)">v47</b> · 12/10/2026<br>'
     +'<span style="opacity:.8">Les chiffres disent ce qu\'ils valent</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
@@ -5205,6 +5221,24 @@ function renderJourDeMatch(){
           +'<span class="l">\u00c0 la perte</span><p>'+esc(feuille.consignesDef)+'</p></div>':'')
       +'</div>';
     }
+  }
+
+  // --- 2bis. Sur coup de pied arrete : sa place a lui
+  // Les phrases sont calculees par l'appli du coach et rangees par numero :
+  // on ne recopie pas ici le dictionnaire des postes, qui finirait par ne
+  // plus dire la meme chose que le sien.
+  var mesCpa=(feuille.cpaTextes||{})[String(MON_NUM)]||[];
+  if(mesCpa.length){
+    html+='<div class="sect sect-cpa"><span class="sect-n">Sur coup de pied arr\u00eat\u00e9</span>'
+      +'<span class="sect-t">'+ic('cible')+'O\u00f9 tu vas</span></div>'
+      +'<div class="cpaj">'+mesCpa.map(function(x){
+        return '<div class="cpaj-c" style="--cc:'+esc(x.c||'#F97316')+'">'
+          +'<span class="cpaj-s">'+esc(x.ic||'')+' '+esc(x.lab||'')+'</span>'
+          +'<b>'+esc(x.j||'')+'</b>'
+          +'<i>'+esc(x.p||'')+'</i>'
+          +(x.n?'<span class="cpaj-n">'+esc(x.n)+'</span>':'')
+        +'</div>';
+      }).join('')+'</div>';
   }
 
   // --- 3. Avec qui
