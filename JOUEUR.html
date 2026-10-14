@@ -1239,6 +1239,85 @@ var CH_CSS=''
   +'.ch-lab{margin-top:6px;font-size:14px;font-weight:800;min-height:19px}';
 (function(){ try{ var s=document.createElement('style'); s.textContent=CH_CSS; document.head.appendChild(s); }catch(e){} })();
 
+// ===== Aperçu coach de l'appli joueur (v49) =====
+//
+//   Le coach ne connaît pas le code PIN de ses joueurs : impossible d'ouvrir
+//   leur appli pour voir ce qu'ils voient. Depuis l'espace coach (connecté
+//   sur ce navigateur), JOUEUR.html?vue=coach&num=7 ouvre l'appli comme le
+//   joueur n°7, sans code, en LECTURE SEULE : rien n'est envoyé en son nom.
+//   Sans session coach sur l'appareil, l'adresse ne donne rien de plus que
+//   l'écran de connexion habituel.
+var APERCU_COACH=(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    if(q.get('vue')!=='coach') return null;
+    var a=JSON.parse(localStorage.getItem('ast_auth_coach')||'null');
+    if(!a || !a.refreshToken) return {refuse:true};
+    return {num:q.get('num')||''};
+  }catch(e){ return null; }
+})();
+
+(function(){
+  if(!APERCU_COACH) return;
+  window.addEventListener('DOMContentLoaded', function(){
+    document.documentElement.classList.add('apercu-coach');
+    var st=document.createElement('style');
+    st.textContent='.apc{position:sticky;top:0;z-index:9999;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:#1b1d21;color:#fff;font:600 13px "Roboto Condensed",sans-serif}'
+      +'.apc b{color:#f2a35c}.apc select{background:#2b2e34;color:#fff;border:1px solid #4a4f57;border-radius:7px;padding:4px 6px;font:700 13px "Roboto Condensed",sans-serif;max-width:190px}'
+      +'.apc i{font-style:normal;color:#c9cdd3;margin-left:auto}'
+      +'@media (min-width:700px){html.apercu-coach body{background:#d9d4cc}html.apercu-coach #app,html.apercu-coach #scr-login{max-width:430px;margin:0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.12),0 20px 60px rgba(0,0,0,.25);min-height:100vh;background:var(--bg,#f4f2ee)}html.apercu-coach #jtabs{max-width:430px;margin:0 auto}}';
+    document.head.appendChild(st);
+  });
+})();
+
+function apcBandeau(){
+  if(!APERCU_COACH || APERCU_COACH.refuse) return;
+  var b=document.getElementById('apc'); if(!b){ b=document.createElement('div'); b.id='apc'; b.className='apc'; document.body.insertBefore(b, document.body.firstChild); }
+  var J=((typeof SAISON!=='undefined' && SAISON && SAISON.JOUEURS)||[]).slice().sort(function(a,b){ return (a.num||0)-(b.num||0); });
+  b.innerHTML='<span>Aperçu coach · <b>lecture seule</b></span>'
+    +'<select onchange="apcChanger(this.value)">'+J.map(function(j){ return '<option value="'+j.num+'"'+(j.num===MON_NUM?' selected':'')+'>'+j.num+'. '+esc(j.nom)+'</option>'; }).join('')+'</select>'
+    +'<i>rien n’est envoyé en son nom</i>';
+}
+function apcChanger(num){
+  var u=new URL(location.href); u.searchParams.set('num', num); location.href=u.toString();
+}
+
+window.addEventListener('load', function(){
+  if(!APERCU_COACH) return;
+  if(APERCU_COACH.refuse){
+    var e=document.getElementById('login-err');
+    if(e){ e.textContent='Aperçu coach : connecte-toi d’abord dans l’espace coach sur ce navigateur, puis reviens par « Voir son appli ».'; e.classList.remove('hidden'); }
+    return;
+  }
+  // Les écritures ne partent pas : le coach regarde, il ne répond pas à la place du joueur
+  var f=window.fbFetch;
+  window.fbFetch=function(url, opts){
+    var m=((opts&&opts.method)||'GET').toUpperCase();
+    if(m!=='GET'){
+      try{ notif('Aperçu coach : rien n’est envoyé'); }catch(e){}
+      return Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}));
+    }
+    return f.apply(this, arguments);
+  };
+  // Ni code PIN, ni mémorisation sur cet appareil
+  window.lancerEtapePin=function(){ document.getElementById('scr-login').classList.add('hidden'); try{ localStorage.setItem('ast_onboarding_'+MON_NUM,'1'); }catch(e){} demarrerApp().then(apcBandeau); };
+  var d=window.demarrerApp;
+  window.demarrerApp=function(){ var r=d.apply(this, arguments); Promise.resolve(r).then(apcBandeau); return r; };
+  // Le joueur demandé est choisi tout seul dès que la liste est là
+  var essais=0;
+  var t=setInterval(function(){
+    essais++;
+    var sel=document.getElementById('login-select');
+    if(sel && sel.options.length>1){
+      clearInterval(t);
+      var want=APERCU_COACH.num;
+      var opt=Array.prototype.filter.call(sel.options, function(o){ return want && o.value.split('|')[0]===String(want); })[0] || sel.options[1];
+      sel.value=opt.value; validerLogin();
+    }
+    if(essais>100) clearInterval(t);
+  }, 100);
+});
+
 </script>
 <style>
 /* ===== Densite cote joueur (v48b) ===== */
@@ -1987,7 +2066,7 @@ function majBandeauHorsLigne(){
 function init(){
   document.getElementById('login-crest').src=PHOTO_LOGO;
   document.getElementById('pin-crest').src=PHOTO_LOGO;
-  var savedNum=localStorage.getItem('ast_joueur_num');
+  var savedNum=(typeof APERCU_COACH!=='undefined' && APERCU_COACH)?null:localStorage.getItem('ast_joueur_num');
   var savedNom=localStorage.getItem('ast_joueur_nom');
   if(savedNum!==null && savedNom){
     MON_NUM=parseInt(savedNum); MON_NOM=savedNom;
@@ -2796,7 +2875,7 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v48c</b> · 14/10/2026<br>'
+    +'AST JOUEUR <b style="color:var(--or)">v49</b> · 14/10/2026<br>'
     +'<span style="opacity:.8">Les chiffres disent ce qu\'ils valent</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();

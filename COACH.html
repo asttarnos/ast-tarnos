@@ -5268,6 +5268,11 @@ function renderReglages(){
       +'<p>Nouveau menu en 3 portes (La semaine, Les joueurs, Le fond de jeu) ou ancien menu en 5 pôles. Les écrans sont les mêmes.</p>'
       +'<div class="n3-seg"><button class="on">Nouveau menu</button><button onclick="nav3Basculer(false)">Revenir à l’ancien</button></div>'
     +'</div></div>'
+    +'<div class="blk"><div class="bh"><span class="bt">L’appli des joueurs</span><span class="bc">lecture seule, sans leur code</span></div><div class="n3-reg-c">'
+      +'<p>Ouvre l’appli exactement comme la voit un joueur. Rien n’est envoyé en son nom.</p>'
+      +'<div style="display:flex;gap:6px"><select class="fi" id="n3-apj">'+(JOUEURS||[]).map(function(j){ return '<option value="'+j.num+'">'+j.num+'. '+nav3Esc(j.nom)+'</option>'; }).join('')+'</select>'
+      +'<button class="btn" style="width:auto;margin:0;white-space:nowrap" onclick="window.open(\'JOUEUR.html?vue=coach&num=\'+document.getElementById(\'n3-apj\').value,\'ast_joueur\')">Voir son appli</button></div>'
+    +'</div></div>'
     +'<div class="blk"><div class="bh"><span class="bt">Sur cet appareil, je suis</span></div><div class="n3-reg-c">'
       +'<p>Sert au filtre « Moi » de la semaine et signe tes notes rapides.</p><div class="n3-chips">'
       +M.map(function(m){ return '<button class="'+(m.nom===moi?'on':'')+'" onclick="nav3PoserMoi('+nav3Esc(JSON.stringify(m.nom))+')"><span class="n3-qui" style="--qc:'+m.c+'">'+nav3Esc(nav3Initiales(m.nom))+'</span>'+nav3Esc(m.nom)+'</button>'; }).join('')
@@ -5540,6 +5545,7 @@ function jfBlocResume(i){
       +'<button class="jf-b2" onclick="jfOnglet(\'objectifs\')">Entretien &amp; objectifs</button>'
       +'<button class="jf-b2" onclick="goNav(\'medical\')">Signaler une blessure</button>'
       +'<button class="jf-b2" onclick="fjBasculerReglages()">Photo, poste, attributs</button>'
+      +'<button class="jf-b2" onclick="window.open(\'JOUEUR.html?vue=coach&num='+j.num+'\',\'ast_joueur\')">Voir son appli</button>'
     +'</div>';
   return jfBloc('jf-resume','Son signal du moment','blessure · charge · forme · notes', corps, 'resume');
 }
