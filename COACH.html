@@ -4799,6 +4799,31 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
 .jf-ecran .fj-note-v{font-size:38px}
 .jf-ecran .fj-cle{padding:5px 6px}
 @media (max-width:860px){ .jf-ecran .fj-photo{width:56px;height:56px;flex-basis:56px} .jf-ecran .fj-photo span{font-size:20px} }
+/* ===== Phase 3 : fusions et parcours (v137) ===== */
+.fus-suite{margin-top:18px}
+.rub-p.fus-suite:not(.on){display:none}
+.fus-titre{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:0 0 10px;font:400 20px 'Anton',sans-serif;letter-spacing:.01em;color:var(--gris)}
+.fus-titre::after{content:'';flex:1;height:1px;background:var(--line)}
+.fus-constats{margin-bottom:14px}
+.fus-constats #constats-ct{padding:10px 14px 14px!important}
+
+.pg{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:7px 10px;margin:0 0 12px;position:sticky;top:0;z-index:6}
+.pg-h{display:flex;flex-direction:column;line-height:1.1;flex:0 0 auto}
+.pg-h b{font:400 17px 'Anton',sans-serif;letter-spacing:.01em;color:var(--gris)}
+.pg-h span{font:600 12px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pg-l{display:flex;align-items:center;flex:1;min-width:0;overflow-x:auto;gap:0}
+.pg-e{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:none;border-radius:20px;padding:4px 8px 4px 4px;cursor:pointer;color:var(--gris2);white-space:nowrap;font:700 13px 'Roboto Condensed',sans-serif}
+.pg-e:hover{background:var(--voile2);color:var(--gris)}
+.pg-n{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font:800 11.5px 'Roboto Condensed',sans-serif;flex:0 0 auto}
+.pg-e.fait .pg-n{background:var(--green);border-color:var(--green);color:#fff}
+.pg-e.fait{color:var(--gris)}
+.pg-e.on{border-color:var(--or);background:var(--orfond);color:var(--or)}
+.pg-e.on .pg-n{border-color:var(--or)}
+.pg-q{width:20px;height:20px;border-radius:50%;background:var(--qc);color:#fff;font:800 9.5px 'Roboto Condensed',sans-serif;display:inline-flex;align-items:center;justify-content:center}
+.pg-f{flex:1 1 8px;min-width:6px;max-width:28px;height:2px;background:var(--line)}
+.pg-bas{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pg-bas .btn{width:auto;margin:0;padding:9px 16px}
+@media (max-width:860px){ .pg-h{display:none} .pg-t{display:none} .pg-e.on .pg-t{display:inline} }
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -4849,8 +4874,7 @@ var NAV3_POLES=[
     {s:'videos',ic:'clap',l:'Vidéos'},
     {s:'biblio-generale',ic:'dossier',l:'Documentation'},
     {s:'classement',ic:'barres',l:'Classement',g:'La saison en chiffres'},
-    {s:'bilan',ic:'coupe',l:'Bilan de saison'},
-    {s:'constats',ic:'chiffres',l:'Ce que disent tes chiffres'}
+    {s:'bilan',ic:'coupe',l:'Bilan & constats'}
   ]},
   {id:'clubr',label:'Club & réglages',sous:'Ce qu’on ouvre rarement',icon:'maison',color:'#94a3b8',screens:[
     {s:'club-vie',ic:'cible',l:'La vie du club'},
@@ -5654,6 +5678,171 @@ window.addEventListener('load', function(){
   if(nrv) window.nrRafraichirVues=function(){ var r=nrv.apply(this, arguments); jfRafraichir(); return r; };
 });
 
+// ===== Phase 3 : moins d'écrans, un parcours (v137) =====
+//
+//   1. Les doublons fusionnent : deux onglets qui parlent de la même chose
+//      n'en font plus qu'un, l'un sous l'autre. Rien n'est réécrit : on
+//      déplace les panneaux existants, leurs fonctions les retrouvent par id.
+//   2. Avant le match devient un parcours : une barre d'étapes en tête des
+//      sept écrans, du rapport adversaire à la feuille de match.
+
+var FUSIONS=[
+  {hote:'seances',      a:'seance',      b:'generateur', l:'Préparer la séance',  tb:'Générer une séance'},
+  {hote:'seances',      a:'seances-cal', b:'planning',   l:'Planning',            tb:'Le planning du mois'},
+  {hote:'constructeur', a:'mes-exos',    b:'biblio',     l:'Mes exercices & séances passées', tb:'Les séances passées'},
+  {hote:'club-docs',    a:'acces',       b:'activite',   l:'Accès & utilisation', tb:'Qui utilise l’appli'}
+];
+var FUS_DE={};   // b -> fusion
+var FUS_PRET=false;
+
+function fusInstaller(){
+  if(FUS_PRET) return; FUS_PRET=true;
+  FUSIONS.forEach(function(f){
+    var hote=document.getElementById('scr-'+f.hote); if(!hote) return;
+    var pa=hote.querySelector('.rub-p[data-r="'+f.a+'"]');
+    var pb=document.querySelector('.rub-p[data-r="'+f.b+'"]');
+    if(!pa || !pb) return;
+    // Le bouton du second onglet disparaît, celui du premier porte les deux noms
+    var bb=document.querySelector('.rub-b[data-r="'+f.b+'"]'); if(bb){ bb.style.display='none'; bb.parentNode.appendChild(bb); }
+    try{ if(localStorage.getItem('ast-rub-'+f.hote)===f.b) localStorage.setItem('ast-rub-'+f.hote, f.a); }catch(e){}
+    if(typeof RUBRIQUE_ACTIVE!=='undefined' && RUBRIQUE_ACTIVE[f.hote]===f.b) RUBRIQUE_ACTIVE[f.hote]=f.a;
+    var ba=hote.querySelector('.rub-b[data-r="'+f.a+'"]');
+    if(ba){
+      var svg=ba.querySelector('svg');
+      ba.textContent=''; if(svg) ba.appendChild(svg);
+      ba.appendChild(document.createTextNode(f.l));
+    }
+    // Le second panneau vient se ranger sous le premier, avec son titre
+    pa.parentNode.insertBefore(pb, pa.nextSibling);
+    pb.classList.add('fus-suite');
+    var t=document.createElement('div'); t.className='fus-titre plein'; t.textContent=f.tb;
+    pb.insertBefore(t, pb.firstChild);
+    FUS_DE[f.b]=f;
+    if(typeof RUBRIQUE_DE!=='undefined') RUBRIQUE_DE[f.b]=f.hote;
+  });
+  // Bilan + Ce que disent tes chiffres : les constats ouvrent le bilan
+  var bil=document.getElementById('scr-bilan'), cons=document.getElementById('constats-ct');
+  if(bil && cons){
+    var blk=document.createElement('div'); blk.className='blk plein fus-constats'; blk.id='fus-constats';
+    blk.innerHTML='<div class="bh"><span class="bt go">Ce que disent tes chiffres</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="renderConstats()">Recalculer</span></div>';
+    blk.appendChild(cons);
+    var ph=bil.querySelector(':scope > .ph');
+    bil.insertBefore(blk, ph?ph.nextSibling:bil.firstChild);
+  }
+}
+
+// ---------- Le parcours Avant le match ----------
+var PG_ETAPES=[
+  {s:'adversaires',  l:'Rapport adversaire', cle:'rapport'},
+  {s:'convos',       l:'Convocation',        cle:'groupe'},
+  {s:'compos',       l:'Composition',        cle:'compo'},
+  {s:'plateau',      l:'Plateau',            cle:'plateau'},
+  {s:'cpa',          l:'Coups de pied arrêtés', cle:'cpa'},
+  {s:'avant-match',  l:'Dossier',            cle:'dossier'},
+  {s:'feuille-match',l:'Feuille de match',   cle:'feuille'}
+];
+function pgFait(s){
+  try{
+    if(s==='adversaires'){
+      var m=docProchainMatch(); if(!m) return false;
+      var a=rapAdv(m.adversaire||''); return !!(a && a.rapport && rapARempli(a.rapport));
+    }
+    if(s==='convos'){
+      var g=null; fsEtapes().forEach(function(e){ if(e.cle==='groupe') g=e; });
+      return !!(g && g.fait);
+    }
+    return mpFait(s);
+  }catch(e){ return false; }
+}
+function pgAller(s){
+  if(s==='adversaires' && typeof nav3Adversaire==='function') return nav3Adversaire();
+  goNav(s);
+}
+function pgRendre(){
+  var on=document.querySelector('.scr.on'); if(!on) return;
+  var s=on.id.replace(/^scr-/,'');
+  var k=PG_ETAPES.map(function(e){ return e.s; }).indexOf(s);
+  if(k<0) return;
+  var z=on.querySelector(':scope > .pg');
+  if(!z){
+    z=document.createElement('div'); z.className='pg';
+    var ph=on.querySelector(':scope > .ph');
+    var mpb=on.querySelector(':scope > [data-mpb]');
+    var ref=mpb||ph;
+    on.insertBefore(z, ref?ref.nextSibling:on.firstChild);
+  }
+  var m=null; try{ m=docProchainMatch(); }catch(e){}
+  var faits=PG_ETAPES.filter(function(e){ return pgFait(e.s); }).length;
+  z.innerHTML='<div class="pg-h"><b>Avant le match</b><span>'+(m?('vs '+jfEsc(m.adversaire||'')):'')+' · '+faits+'/'+PG_ETAPES.length+' prêt'+(faits>1?'s':'')+'</span></div>'
+    +'<div class="pg-l">'+PG_ETAPES.map(function(e,i){
+      var fait=pgFait(e.s), qui=(typeof nav3Resp==='function')?nav3Resp(e.cle):'';
+      var mb=(typeof nav3Membre==='function')?nav3Membre(qui):null;
+      return '<button class="pg-e'+(i===k?' on':'')+(fait?' fait':'')+'" onclick="pgAller(\''+e.s+'\')" title="'+jfEsc(e.l+(qui?' — '+qui:''))+'">'
+        +'<span class="pg-n">'+(fait?'✓':(i+1))+'</span><span class="pg-t">'+jfEsc(e.l)+'</span>'
+        +(qui?'<span class="pg-q" style="--qc:'+(mb?mb.c:'var(--gris2)')+'">'+jfEsc(typeof nav3Initiales==='function'?nav3Initiales(qui):qui)+'</span>':'')
+      +'</button>'+(i<PG_ETAPES.length-1?'<span class="pg-f"></span>':'');
+    }).join('')+'</div>';
+  // En bas : l'étape d'après, dans l'ordre du parcours
+  var bas=on.querySelector(':scope > .pg-bas');
+  var suiv=PG_ETAPES[k+1];
+  if(!suiv || s==='convos'){ if(bas) bas.remove(); }
+  else{
+    if(!bas){ bas=document.createElement('div'); bas.className='pg-bas'; }
+    on.appendChild(bas);
+    bas.innerHTML='<span>Ensuite · étape '+(k+2)+'/'+PG_ETAPES.length+'</span><button class="btn" onclick="pgAller(\''+suiv.s+'\')">'+jfEsc(suiv.l)+' ›</button>';
+  }
+  var vieux=on.querySelector(':scope > .mpn'); if(vieux) vieux.style.display='none';
+}
+
+window.addEventListener('load', function(){
+  if(!(typeof nav3Actif==='function' && nav3Actif())) return;
+  document.body.classList.add('fus');
+  fusInstaller();
+  var gr=window.goRubrique;
+  window.goRubrique=function(hote, r){
+    var f=FUS_DE[r];
+    if(f){
+      var res=window.goRubrique(f.hote, f.a);
+      var pb=document.querySelector('.rub-p[data-r="'+r+'"]');
+      if(pb) setTimeout(function(){ pb.scrollIntoView({block:'start'}); }, 60);
+      return res;
+    }
+    var out=gr.apply(this, arguments);
+    FUSIONS.forEach(function(x){
+      if(x.hote===hote && x.a===r){
+        var p=document.querySelector('.rub-p[data-r="'+x.b+'"]');
+        if(p){ p.classList.add('on'); try{ rendreEcran(x.b); }catch(e){} }
+      }
+    });
+    return out;
+  };
+  var gn=window.goNav;
+  window.goNav=function(x){
+    var s=(typeof x==='string')?x:(x&&x.getAttribute?x.getAttribute('data-s'):'');
+    if(s==='constats'){
+      var r=gn.call(this, 'bilan');
+      setTimeout(function(){ var b=document.getElementById('fus-constats'); if(b) b.scrollIntoView({block:'start'}); }, 80);
+      return r;
+    }
+    var out=gn.apply(this, arguments);
+    try{ pgRendre(); }catch(e){}
+    return out;
+  };
+  var re=window.rendreEcran;
+  window.rendreEcran=function(s){
+    var r=re.apply(this, arguments);
+    if(s==='bilan'){ try{ renderConstats(); }catch(e){} }
+    return r;
+  };
+  // Une sauvegarde, un rapport rempli : les coches du parcours suivent
+  var sa=window.sauvegardeAuto;
+  if(sa) window.sauvegardeAuto=function(){
+    var r=sa.apply(this, arguments);
+    clearTimeout(window._pgT); window._pgT=setTimeout(function(){ try{ pgRendre(); }catch(e){} }, 400);
+    return r;
+  };
+});
+
 </script>
 </head><body>
 <div class="bg"></div>
@@ -6082,8 +6271,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v136</b> · 14/10/2026<br>
-      <span style="opacity:.7">Fiche joueur unique</span>
+      AST COACH <b style="color:var(--or)">v137</b> · 14/10/2026<br>
+      <span style="opacity:.7">Fusions · parcours avant-match</span>
     </div>
   </div>
 </div>
