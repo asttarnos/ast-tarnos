@@ -3834,6 +3834,37 @@ var CHG_CSS=''
   /* Le banc n'est plus dessous : le terrain reprend la hauteur */
   #compo-pitch{width:min(100%, calc((100vh - 250px) * 0.739))}
 }
+/* ===== Dossier d'avant-match (v133) =====
+   Trois colonnes de hauteurs tres differentes laissaient des trous de 150 a
+   270 px. Les blocs coulent maintenant en colonnes equilibrees, l'etiquette
+   passe devant son champ, et le bandeau du haut tient sur deux lignes. */
+@media (min-width:1281px){
+  #scr-avant-match .dm-pilote{padding:9px 14px;gap:12px;margin-bottom:8px;align-items:center}
+  #scr-avant-match .dm-p-adv{font-size:22px;padding-bottom:2px}
+  #scr-avant-match .dm-p-l{margin-top:6px}
+  #scr-avant-match .dm-p-l .fi{padding:5px 8px}
+  #scr-avant-match .dm-p-droite{flex-direction:row;flex-wrap:wrap;align-items:center;min-width:0;max-width:52%;gap:6px 10px}
+  #scr-avant-match .dm-voir{padding:9px 16px;font-size:13.5px}
+  #scr-avant-match .dm-p-etat{font-size:12px;line-height:1.35}
+  #scr-avant-match .dm-etapes{margin-bottom:9px;gap:6px}
+  #scr-avant-match .dm-et{flex-direction:row;justify-content:center;gap:7px;padding:6px 8px;border-radius:9px}
+  #scr-avant-match .dm-et-i{font-size:15px}
+  #scr-avant-match .dm-grille{display:block;column-count:3;column-gap:12px;margin-bottom:10px}
+  #scr-avant-match .dm-col{display:contents}
+  #scr-avant-match .dm-grille .dm-bloc{break-inside:avoid;display:block;margin:0 0 12px}
+  #scr-avant-match .dm-sous{font-size:12px;line-height:1.45;margin-bottom:8px}
+  #scr-avant-match .dm-grille .dm-q{gap:5px}
+  #scr-avant-match .dm-grille .dm-q+.dm-q{margin-top:6px}
+  #scr-avant-match .dm-grille .dm-qi{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:8px}
+  #scr-avant-match .dm-grille .dm-qi label{margin:0;font-size:10.5px;line-height:1.2;letter-spacing:.05em}
+  #scr-avant-match .dm-grille .fi{padding:6px 9px;font-size:13px}
+  #scr-avant-match .dm-grille textarea.fi{min-height:0}
+  #scr-avant-match .dm-src-grille{padding:9px 12px 11px;gap:9px}
+}
+@media (min-width:1281px){
+  /* Leur onze : un apercu, pas une affiche — 250 px suffisent pour lire le systeme */
+  #scr-avant-match #dm-apercu-adv{max-width:250px;margin-left:auto;margin-right:auto}
+}
 </style>
 <script>
 // ===== Densite (v130) : les grilles prennent toute la largeur =====
@@ -4334,8 +4365,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v132</b> · 14/10/2026<br>
-      <span style="opacity:.7">Banc à gauche du terrain</span>
+      AST COACH <b style="color:var(--or)">v133</b> · 14/10/2026<br>
+      <span style="opacity:.7">Dossier d’avant-match resserré</span>
     </div>
   </div>
 </div>
