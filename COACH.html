@@ -2760,6 +2760,58 @@ body.doc-ouvert{overflow:hidden}
   .scr{padding-top:48px}
 }
 </style>
+<script>
+// ===== Les points d'extension (v141) =====
+//
+//   Avant, chaque nouveauté « enveloppait » une fonction de l'appli au
+//   chargement : goNav l'était quatre fois, par quatre fichiers, dans un
+//   ordre que personne ne voyait. Désormais chaque fonction concernée a UN
+//   aiguillage, déclaré une fois, et les modules s'y inscrivent :
+//     EXT.apres('goNav', fn)   — après l'appel, avec les mêmes arguments
+//     EXT.avant('goNav', fn)   — avant ; renvoyer {fait:true, val:x} remplace l'appel
+//   EXT.liste() dit qui s'est branché où : c'est la carte des nouveautés.
+var EXT={
+  _apres:{}, _avant:{}, _qui:[],
+  apres:function(nom, fn, qui){ (this._apres[nom]=this._apres[nom]||[]).push(fn); this._qui.push((qui||'?')+' → après '+nom); },
+  avant:function(nom, fn, qui){ (this._avant[nom]=this._avant[nom]||[]).push(fn); this._qui.push((qui||'?')+' → avant '+nom); },
+  liste:function(){ return this._qui.slice(); },
+  appel:function(nom, base, ctx, args, asyn){
+    var A=this._avant[nom]||[];
+    for(var i=0;i<A.length;i++){
+      var r=null;
+      try{ r=A[i].apply(ctx, args); }catch(e){ console.error('EXT avant '+nom, e); }
+      if(r && r.fait) return r.val;
+    }
+    var res=base.apply(ctx, args);
+    var P=this._apres[nom]||[];
+    if(P.length){
+      var lancer=function(){ for(var k=0;k<P.length;k++){ try{ P[k].apply(ctx, args); }catch(e){ console.error('EXT après '+nom, e); } } };
+      if(asyn) Promise.resolve(res).then(lancer, lancer); else lancer();
+    }
+    return res;
+  }
+};
+
+// Une ligne par fonction : c est ici que les modules se branchent.
+function goNav(){ return EXT.appel('goNav', goNav__base, this, arguments, false); }
+function rendreEcran(){ return EXT.appel('rendreEcran', rendreEcran__base, this, arguments, false); }
+function goRubrique(){ return EXT.appel('goRubrique', goRubrique__base, this, arguments, false); }
+function majBreadcrumb(){ return EXT.appel('majBreadcrumb', majBreadcrumb__base, this, arguments, false); }
+function renderFicheCoach(){ return EXT.appel('renderFicheCoach', renderFicheCoach__base, this, arguments, false); }
+function renderBilanSaison(){ return EXT.appel('renderBilanSaison', renderBilanSaison__base, this, arguments, false); }
+function sauvegardeAuto(){ return EXT.appel('sauvegardeAuto', sauvegardeAuto__base, this, arguments, false); }
+function syncDepuisFirestore(){ return EXT.appel('syncDepuisFirestore', syncDepuisFirestore__base, this, arguments, true); }
+function renderFeuilleMatch(){ return EXT.appel('renderFeuilleMatch', renderFeuilleMatch__base, this, arguments, false); }
+function onAdversaireChangeFeuille(){ return EXT.appel('onAdversaireChangeFeuille', onAdversaireChangeFeuille__base, this, arguments, false); }
+function renderAdvFeuille(){ return EXT.appel('renderAdvFeuille', renderAdvFeuille__base, this, arguments, false); }
+function renderAvantMatch(){ return EXT.appel('renderAvantMatch', renderAvantMatch__base, this, arguments, false); }
+function cvAller(){ return EXT.appel('cvAller', cvAller__base, this, arguments, false); }
+function renderSideNav(){ return EXT.appel('renderSideNav', renderSideNav__base, this, arguments, false); }
+function renderBarreDuJour(){ return EXT.appel('renderBarreDuJour', renderBarreDuJour__base, this, arguments, false); }
+function nrRafraichirVues(){ return EXT.appel('nrRafraichirVues', nrRafraichirVues__base, this, arguments, false); }
+function nrMajPastille(){ return EXT.appel('nrMajPastille', nrMajPastille__base, this, arguments, false); }
+function nrFicheJoueur(){ return EXT.appel('nrFicheJoueur', nrFicheJoueur__base, this, arguments, false); }
+</script>
 <script>try{if(localStorage.getItem('ast-theme')!=='sombre')document.documentElement.classList.add('clair');}catch(e){}</script>
 <script>
 // ===== RAPPORT ADVERSAIRE — le meme dessin chez le coach et chez le joueur (v128) =====
@@ -3542,11 +3594,7 @@ function rapOuvrir(nom){
   setTimeout(function(){ var b=document.getElementById('rap-blk'); if(b && b.scrollIntoView) b.scrollIntoView({behavior:'smooth', block:'start'}); }, 80);
 }
 window.addEventListener('load', function(){
-  function apres(nom, fn){
-    var f=window[nom]; if(typeof f!=='function' || f._rap) return;
-    var g=function(){ var x=f.apply(this, arguments); try{ fn(); }catch(e){} return x; };
-    g._rap=true; window[nom]=g;
-  }
+  function apres(nom, fn){ EXT.apres(nom, function(){ fn(); }, 'rapport adversaire'); }
   // La feuille de match : l'encart « leur terrain » devient une lecture du rapport
   apres('renderFeuilleMatch', function(){
     var nom=(document.getElementById('fm-adversaire')||{}).value||FEUILLE_MATCH.adversaireNom||'';
@@ -4037,11 +4085,7 @@ function densGrilles(){
 }
 function densPlus(){ setTimeout(densGrilles, 0); setTimeout(densGrilles, 250); }
 (function(){
-  function envelopper(nom){
-    var f=window[nom]; if(typeof f!=='function' || f._dens) return;
-    var g=function(){ var r=f.apply(this, arguments); densPlus(); return r; };
-    g._dens=true; window[nom]=g;
-  }
+  function envelopper(nom){ EXT.apres(nom, densPlus, 'densité'); }
   window.addEventListener('load', function(){
     ['goNav','goRubrique','rendreEcran'].forEach(envelopper);
     densPlus();
@@ -4065,11 +4109,7 @@ function densReplier(id){
   el.appendChild(b);
 }
 window.addEventListener('load', function(){
-  var f=window.renderBilanSaison;
-  if(typeof f==='function' && !f._dens){
-    var g=function(){ var r=f.apply(this, arguments); densReplier('bilan-buteurs'); densReplier('bilan-passeurs'); return r; };
-    g._dens=true; window.renderBilanSaison=g;
-  }
+  EXT.apres('renderBilanSaison', function(){ densReplier('bilan-buteurs'); densReplier('bilan-passeurs'); }, 'densité');
 });
 
 </script>
@@ -4112,9 +4152,7 @@ function autoConvos(){
 }
 window.addEventListener('load', function(){
   function envelopper(nom, apres){
-    var f=window[nom]; if(typeof f!=='function' || f._auto) return;
-    var g=function(){ var r=f.apply(this, arguments); var a=arguments; setTimeout(function(){ apres.apply(null, a); }, 60); return r; };
-    g._auto=true; window[nom]=g;
+    EXT.apres(nom, function(){ var a=arguments; setTimeout(function(){ apres.apply(null, a); }, 60); }, 'chargement auto');
   }
   envelopper('goNav', function(s){ if(typeof s==='string') autoEcran(s); else if(s&&s.getAttribute) autoEcran(s.getAttribute('data-s')||''); });
   envelopper('goRubrique', function(h, r){ autoEcran(r); });
@@ -4534,7 +4572,7 @@ function renderNotesStaff(){
       :'<div class="nr-vide">Aucune note'+(NR_VUE.ouvertes?' à traiter':'')+'. Le bouton 🎙 en bas à droite est là sur tous les écrans : au bord du terrain, une phrase dite suffit.</div>');
 }
 // Sur la fiche du joueur : ce que le staff a note sur lui
-function nrFicheJoueur(){
+function nrFicheJoueur__base(){
   var sel=document.getElementById('fiche-sel'); if(!sel) return;
   var j=(JOUEURS||[])[parseInt(sel.value)];
   var scr=document.getElementById('scr-effectif'); if(!scr) return;
@@ -4553,12 +4591,12 @@ function nrFicheJoueur(){
     +(L.length?'<div class="nr-grille" style="padding:10px">'+L.slice(0,4).map(nrCarteHtml).join('')+'</div>'
       :'<div class="nr-aide" style="padding:12px">Rien de noté sur lui pour l’instant.</div>');
 }
-function nrRafraichirVues(){
+function nrRafraichirVues__base(){
   if(document.getElementById('nr-ecran')) renderNotesStaff();
   var e=document.getElementById('scr-effectif'); if(e && e.classList.contains('on')) nrFicheJoueur();
   nrMajPastille();
 }
-function nrMajPastille(){
+function nrMajPastille__base(){
   var n=(NR_NOTES||[]).filter(function(x){ return !x.traite; }).length;
   ['nr-fab','tab-note'].forEach(function(id){ var f=document.getElementById(id); if(f) f.setAttribute('data-n', n?String(n):''); });
 }
@@ -4584,11 +4622,7 @@ window.addEventListener('load', function(){
     t.innerHTML='\ud83c\udf99 Note'; t.onclick=f.onclick;
     var th=document.getElementById('tab-theme'); tb.insertBefore(t, th||null);
   }
-  function apres(nom, fn){
-    var g0=window[nom]; if(typeof g0!=='function' || g0._nr) return;
-    var g=function(){ var x=g0.apply(this, arguments); try{ fn.apply(null, arguments); }catch(err){} return x; };
-    g._nr=true; window[nom]=g;
-  }
+  function apres(nom, fn){ EXT.apres(nom, fn, 'notes du staff'); }
   apres('goNav', function(s){ if(s==='notes-staff'){ NR_NOTES=null; renderNotesStaff(); } if(s==='effectif') nrFicheJoueur(); });
   apres('renderFicheCoach', function(){ nrFicheJoueur(); });
   setTimeout(function(){ nrCharger().then(nrMajPastille).catch(function(){}); }, 2500);
@@ -5371,29 +5405,11 @@ window.addEventListener('load', function(){
   }
   document.body.classList.add('nav3');
   if(typeof POLES_CLAIR!=='undefined'){ POLES_CLAIR.semaine='#b45309'; POLES_CLAIR.joueurs='#7e22ce'; POLES_CLAIR.fond='#15803d'; POLES_CLAIR.clubr='#475569'; }
-  var orig=window.renderSideNav;
-  window.renderSideNav=function(){ if(!document.body.classList.contains('nav3')) return orig.apply(this, arguments); return nav3RenderSide(); };
-  var re=window.rendreEcran;
-  window.rendreEcran=function(s){
-    var r=re.apply(this, arguments);
-    if(s==='semaine') renderSemaine();
-    if(s==='reglages') renderReglages();
-    return r;
-  };
-  var gn=window.goNav;
-  window.goNav=function(x){
-    var r=gn.apply(this, arguments);
-    try{ nav3RenderSide(); }catch(e){}
-    return r;
-  };
-  var nrv=window.nrRafraichirVues;
-  if(nrv) window.nrRafraichirVues=function(){ var r=nrv.apply(this, arguments); if(nav3EcranOuvert()) renderSemaine(); return r; };
-  var sync=window.syncDepuisFirestore;
-  if(sync) window.syncDepuisFirestore=function(){
-    var r=sync.apply(this, arguments);
-    Promise.resolve(r).then(function(){ setTimeout(nav3Rafraichir, 300); });
-    return r;
-  };
+  EXT.avant('renderSideNav', function(){ return document.body.classList.contains('nav3')?{fait:true, val:nav3RenderSide()}:null; }, 'menu 3 portes');
+  EXT.apres('rendreEcran', function(s){ if(s==='semaine') renderSemaine(); if(s==='reglages') renderReglages(); }, 'menu 3 portes');
+  EXT.apres('goNav', function(){ try{ nav3RenderSide(); }catch(e){} }, 'menu 3 portes');
+  EXT.apres('nrRafraichirVues', function(){ if(nav3EcranOuvert()) renderSemaine(); }, 'menu 3 portes');
+  EXT.apres('syncDepuisFirestore', function(){ setTimeout(nav3Rafraichir, 300); }, 'menu 3 portes');
   nav3RenderSide();
 });
 
@@ -5735,23 +5751,14 @@ function jfInstaller(){
 
 window.addEventListener('load', function(){
   if(!(typeof nav3Actif==='function' && nav3Actif())) return;
-  var rf=window.renderFicheCoach;
-  if(rf) window.renderFicheCoach=function(){
-    var r=rf.apply(this, arguments);
-    try{ jfApres(); }catch(e){ console.error(e); }
-    return r;
-  };
-  var nf=window.nrFicheJoueur;
-  if(nf) window.nrFicheJoueur=function(){
-    var r=nf.apply(this, arguments);
+  EXT.apres('renderFicheCoach', jfApres, 'fiche joueur');
+  EXT.apres('nrFicheJoueur', function(){
     var b=document.getElementById('nr-fiche'), f=document.getElementById('jf-fiche');
     if(b && f && b.parentNode!==f) f.appendChild(b);
     if(b) b.setAttribute('data-jf','aucun');
-    try{ jfAppliquerOnglet(); }catch(e){}
-    return r;
-  };
-  var nrv=window.nrRafraichirVues;
-  if(nrv) window.nrRafraichirVues=function(){ var r=nrv.apply(this, arguments); jfRafraichir(); return r; };
+    jfAppliquerOnglet();
+  }, 'fiche joueur');
+  EXT.apres('nrRafraichirVues', jfRafraichir, 'fiche joueur');
 });
 
 // ===== Phase 3 : moins d'écrans, un parcours (v137) =====
@@ -5874,49 +5881,35 @@ window.addEventListener('load', function(){
   if(!(typeof nav3Actif==='function' && nav3Actif())) return;
   document.body.classList.add('fus');
   fusInstaller();
-  var gr=window.goRubrique;
-  window.goRubrique=function(hote, r){
-    var f=FUS_DE[r];
-    if(f){
-      var res=window.goRubrique(f.hote, f.a);
-      var pb=document.querySelector('.rub-p[data-r="'+r+'"]');
-      if(pb) setTimeout(function(){ pb.scrollIntoView({block:'start'}); }, 60);
-      return res;
-    }
-    var out=gr.apply(this, arguments);
+  // Un onglet fusionné ouvre son jumeau, puis descend jusqu'à lui
+  EXT.avant('goRubrique', function(hote, r){
+    var f=FUS_DE[r]; if(!f) return null;
+    var res=goRubrique(f.hote, f.a);
+    var pb=document.querySelector('.rub-p[data-r="'+r+'"]');
+    if(pb) setTimeout(function(){ pb.scrollIntoView({block:'start'}); }, 60);
+    return {fait:true, val:res};
+  }, 'fusions');
+  EXT.apres('goRubrique', function(hote, r){
     FUSIONS.forEach(function(x){
       if(x.hote===hote && x.a===r){
         var p=document.querySelector('.rub-p[data-r="'+x.b+'"]');
-        if(p){ p.classList.add('on'); try{ rendreEcran(x.b); }catch(e){} }
+        if(p){ p.classList.add('on'); rendreEcran(x.b); }
       }
     });
-    return out;
-  };
-  var gn=window.goNav;
-  window.goNav=function(x){
+  }, 'fusions');
+  EXT.avant('goNav', function(x){
     var s=(typeof x==='string')?x:(x&&x.getAttribute?x.getAttribute('data-s'):'');
-    if(s==='constats'){
-      var r=gn.call(this, 'bilan');
-      setTimeout(function(){ var b=document.getElementById('fus-constats'); if(b) b.scrollIntoView({block:'start'}); }, 80);
-      return r;
-    }
-    var out=gn.apply(this, arguments);
-    try{ pgRendre(); }catch(e){}
-    return out;
-  };
-  var re=window.rendreEcran;
-  window.rendreEcran=function(s){
-    var r=re.apply(this, arguments);
-    if(s==='bilan'){ try{ renderConstats(); }catch(e){} }
-    return r;
-  };
+    if(s!=='constats') return null;
+    var r=goNav('bilan');
+    setTimeout(function(){ var b=document.getElementById('fus-constats'); if(b) b.scrollIntoView({block:'start'}); }, 80);
+    return {fait:true, val:r};
+  }, 'fusions');
+  EXT.apres('goNav', pgRendre, 'parcours avant-match');
+  EXT.apres('rendreEcran', function(s){ if(s==='bilan') renderConstats(); }, 'fusions');
   // Une sauvegarde, un rapport rempli : les coches du parcours suivent
-  var sa=window.sauvegardeAuto;
-  if(sa) window.sauvegardeAuto=function(){
-    var r=sa.apply(this, arguments);
+  EXT.apres('sauvegardeAuto', function(){
     clearTimeout(window._pgT); window._pgT=setTimeout(function(){ try{ pgRendre(); }catch(e){} }, 400);
-    return r;
-  };
+  }, 'parcours avant-match');
 });
 
 // ===== Phase 4 : le bord du terrain (v138) =====
@@ -6083,24 +6076,18 @@ function mbOnglets(){
 
 window.addEventListener('load', function(){
   if(!(typeof nav3Actif==='function' && nav3Actif())) return;
-  var rb=window.renderBarreDuJour;
-  window.renderBarreDuJour=function(){
+  EXT.avant('renderBarreDuJour', function(){
     if(!mbActif()){
       document.body.classList.remove('mb');
       var bc=document.getElementById('breadcrumb'); if(bc) bc.classList.remove('mb-onglets');
-      return rb.apply(this, arguments);
+      return null;                       // la barre du jour d'origine fait son travail
     }
     document.body.classList.add('mb');
     mbBarre();
-  };
-  var mb=window.majBreadcrumb;
-  window.majBreadcrumb=function(){
-    var r=mb.apply(this, arguments);
-    if(mbActif()){ try{ mbOnglets(); }catch(e){} }
-    return r;
-  };
-  var np=window.nrMajPastille;
-  if(np) window.nrMajPastille=function(){ var r=np.apply(this, arguments); if(mbActif()) mbBarre(); return r; };
+    return {fait:true};
+  }, 'téléphone');
+  EXT.apres('majBreadcrumb', function(){ if(mbActif()) mbOnglets(); }, 'téléphone');
+  EXT.apres('nrMajPastille', function(){ if(mbActif()) mbBarre(); }, 'téléphone');
   try{ renderBarreDuJour(); }catch(e){}
   var on=document.querySelector('.scr.on'); if(on && mbActif()){ try{ mbOnglets(); }catch(e){} }
 });
@@ -6533,8 +6520,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v140</b> · 14/10/2026<br>
-      <span style="opacity:.7">Aperçu de l'appli joueur</span>
+      AST COACH <b style="color:var(--or)">v141</b> · 14/10/2026<br>
+      <span style="opacity:.7">Code consolidé</span>
     </div>
   </div>
 </div>
@@ -10289,7 +10276,7 @@ function renderHubListe(){
 }
 var POLE_ACTIF=null;
 var TAB_ACTIF='terrain';
-function renderSideNav(){
+function renderSideNav__base(){
   var ct=document.getElementById('side-nav-dynamic');
   if(!ct) return;
   var AL=fsAlertes();
@@ -10444,7 +10431,7 @@ function irVersEcranReel(s){
 function estModeTiroir(){
   return window.innerWidth<=760 || (window.innerHeight<=560 && window.innerWidth<=1100);
 }
-function goNav(elOrS){
+function goNav__base(elOrS){
   // On ne laisse jamais le mode plein terrain sur un autre ecran.
   if(document.body.classList.contains('terrain-plein')){
     var cible=(typeof elOrS==='string')?elOrS:(elOrS&&elOrS.dataset?elOrS.dataset.scr:'');
@@ -10683,7 +10670,7 @@ function barreDuJourItems(){
     {s:'effectif', ic:'👥', t:'Effectif'}]};
 }
 
-function renderBarreDuJour(){
+function renderBarreDuJour__base(){
   var bar=document.getElementById('barre-jour');
   if(!bar) return;
   if(!estModeTiroir()){ bar.style.display='none'; document.body.classList.remove('avec-barre'); return; }
@@ -11246,7 +11233,7 @@ function filtrerSituations(v){ SITU_FILTRE=v||''; renderSituations(); }
 // ===== Ce qu'il faut (re)dessiner quand un ecran ou une rubrique s'ouvre =====
 // Appele par la navigation ET par les rubriques : un panneau cache ne se
 // mesure pas, il faut le redessiner quand il revient sous les yeux.
-function rendreEcran(s){
+function rendreEcran__base(s){
   if(s==='dash') updateDash();
   if(s==='imprimer') renderDocsImprimer();
   if(s==='mes-exos') renderMesExercices();
@@ -11320,7 +11307,7 @@ var RUBRIQUE_DE={'hub':'club-vie','reunions':'club-vie','calendrier-annuel':'clu
   'planning':'seances','seances-cal':'seances',
   'mes-exos':'constructeur','biblio':'constructeur','biblio-generale':'constructeur','videos':'constructeur'};
 var RUBRIQUE_ACTIVE={};
-function goRubrique(hote, r){
+function goRubrique__base(hote, r){
   var sc=document.getElementById('scr-'+hote);
   if(!sc) return;
   RUBRIQUE_ACTIVE[hote]=r;
@@ -11343,7 +11330,7 @@ function trouverPoleDeEcran(s){
   }
   return null;
 }
-function majBreadcrumb(s, rub){
+function majBreadcrumb__base(s, rub){
   var bc=document.getElementById('breadcrumb');
   if(!bc) return;
   var info=ECRANS_INFO[s]||{ic:'',l:s};
@@ -13685,7 +13672,7 @@ function fjBasculerReglages(){
   if(b) b.textContent=FJ_REGLAGES?'✕ Fermer les réglages':'⚙ Réglages de la fiche';
 }
 
-function renderFicheCoach(){
+function renderFicheCoach__base(){
   var idx=parseInt(document.getElementById('fiche-sel').value)||0;
   var j=JOUEURS[idx]; var s=STATS[idx]; var am=ATTRS_MANUELS[idx];
   if(!j || !s || !am) return;
@@ -14828,7 +14815,7 @@ function cvVisible(j){
   if(!CV_FILTRE) return true;
   return (j.nom||'').toLowerCase().indexOf(CV_FILTRE)>=0 || String(j.num).indexOf(CV_FILTRE)===0;
 }
-function cvAller(n){
+function cvAller__base(n){
   if(n<1||n>3) return;
   CV_ETAPE=n; CV_FILTRE='';
   // L'etape 2, c'est celle qui se nourrit de ce que les joueurs ont declare.
@@ -18364,7 +18351,7 @@ async function chargerFirestore(){
   majBandeauCloud((principal&&principal.auteur)||'', (principal&&principal.updated)||'');
   return {data:data, updated:(principal&&principal.updated)||(staff&&staff.updated)||''};
 }
-async function syncDepuisFirestore(silencieux){
+async function syncDepuisFirestore__base(silencieux){
   var r=await chargerFirestore();
   if(r && r.data){
     appliquerDonnees(r.data,silencieux);
@@ -21328,7 +21315,7 @@ function renderConstats(){
     }).join('');
 }
 
-function renderBilanSaison(){
+function renderBilanSaison__base(){
   renderFormeRecente();
   // Homme du match
   var hdmCounts={};
@@ -28396,7 +28383,7 @@ function dmBloc(id, titre, sous, corps, coul){
     +corps+'</div></div>';
 }
 
-function renderAvantMatch(){
+function renderAvantMatch__base(){
   var ct=document.getElementById('dm-ct'); if(!ct) return;
   dmPreremplir(false);
   ['adv','date','lieu','comp'].forEach(function(k){
@@ -29551,7 +29538,7 @@ function fmPoserNote(i, v){
   n.t=String(v||'').trim();
   sauvegardeAuto();
 }
-function renderAdvFeuille(){
+function renderAdvFeuille__base(){
   var ct=document.getElementById('fm-adv-ct'); if(!ct) return;
   var g=document.getElementById('fm-adv-general');
   if(g && document.activeElement!==g) g.value=FEUILLE_MATCH.advGeneral||'';
@@ -29631,7 +29618,7 @@ function fmPrefill(){
   }
 }
 
-function renderFeuilleMatch(){
+function renderFeuilleMatch__base(){
   fmPrefill();
   if(typeof rapPrefillFeuille==='function') rapPrefillFeuille();
   var selCompo=document.getElementById('fm-compo');
@@ -29670,7 +29657,7 @@ function renderFeuilleMatch(){
   onAdversaireChangeFeuille();
   renderConsignesIndivFeuille();
 }
-function onAdversaireChangeFeuille(){
+function onAdversaireChangeFeuille__base(){
   _onAdvFeuilleBase();
   var _n=(document.getElementById('fm-adversaire')||{}).value||'';
   var _i=document.getElementById('fm-adv-info');
@@ -31503,7 +31490,7 @@ function sauvegardeLocale(){
     return false;
   }
 }
-function sauvegardeAuto(){
+function sauvegardeAuto__base(){
   // la copie locale est immédiate : même si le navigateur ferme, rien n'est perdu
   sauvegardeLocale();
   _autoEnAttente=true;

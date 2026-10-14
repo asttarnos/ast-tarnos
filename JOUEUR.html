@@ -886,6 +886,50 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 .dmj-banc{margin-top:11px;font-size:14px;color:var(--ink);line-height:1.5}
 .dmj-banc span{display:block;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:3px}
 </style>
+<script>
+// ===== Les points d'extension (v141) =====
+//
+//   Avant, chaque nouveauté « enveloppait » une fonction de l'appli au
+//   chargement : goNav l'était quatre fois, par quatre fichiers, dans un
+//   ordre que personne ne voyait. Désormais chaque fonction concernée a UN
+//   aiguillage, déclaré une fois, et les modules s'y inscrivent :
+//     EXT.apres('goNav', fn)   — après l'appel, avec les mêmes arguments
+//     EXT.avant('goNav', fn)   — avant ; renvoyer {fait:true, val:x} remplace l'appel
+//   EXT.liste() dit qui s'est branché où : c'est la carte des nouveautés.
+var EXT={
+  _apres:{}, _avant:{}, _qui:[],
+  apres:function(nom, fn, qui){ (this._apres[nom]=this._apres[nom]||[]).push(fn); this._qui.push((qui||'?')+' → après '+nom); },
+  avant:function(nom, fn, qui){ (this._avant[nom]=this._avant[nom]||[]).push(fn); this._qui.push((qui||'?')+' → avant '+nom); },
+  liste:function(){ return this._qui.slice(); },
+  appel:function(nom, base, ctx, args, asyn){
+    var A=this._avant[nom]||[];
+    for(var i=0;i<A.length;i++){
+      var r=null;
+      try{ r=A[i].apply(ctx, args); }catch(e){ console.error('EXT avant '+nom, e); }
+      if(r && r.fait) return r.val;
+    }
+    var res=base.apply(ctx, args);
+    var P=this._apres[nom]||[];
+    if(P.length){
+      var lancer=function(){ for(var k=0;k<P.length;k++){ try{ P[k].apply(ctx, args); }catch(e){ console.error('EXT après '+nom, e); } } };
+      if(asyn) Promise.resolve(res).then(lancer, lancer); else lancer();
+    }
+    return res;
+  }
+};
+
+// Une ligne par fonction : c est ici que les modules se branchent.
+function renderHub(){ return EXT.appel('renderHub', renderHub__base, this, arguments, false); }
+function jvBrancher(){ return EXT.appel('jvBrancher', jvBrancher__base, this, arguments, false); }
+function jRendreRubriques(){ return EXT.appel('jRendreRubriques', jRendreRubriques__base, this, arguments, false); }
+function jOnglet(){ return EXT.appel('jOnglet', jOnglet__base, this, arguments, false); }
+function renderMesMatchs(){ return EXT.appel('renderMesMatchs', renderMesMatchs__base, this, arguments, true); }
+function renderEffectif(){ return EXT.appel('renderEffectif', renderEffectif__base, this, arguments, false); }
+function renderSaison(){ return EXT.appel('renderSaison', renderSaison__base, this, arguments, false); }
+function fbFetch(){ return EXT.appel('fbFetch', fbFetch__base, this, arguments, true); }
+function lancerEtapePin(){ return EXT.appel('lancerEtapePin', lancerEtapePin__base, this, arguments, true); }
+function demarrerApp(){ return EXT.appel('demarrerApp', demarrerApp__base, this, arguments, true); }
+</script>
 <script>try{if(localStorage.getItem('ast-theme')!=='sombre')document.documentElement.classList.add('clair');}catch(e){}</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
@@ -1346,19 +1390,19 @@ window.addEventListener('load', function(){
     return;
   }
   // Les écritures ne partent pas : le coach regarde, il ne répond pas à la place du joueur
-  var f=window.fbFetch;
-  window.fbFetch=function(url, opts){
+  EXT.avant('fbFetch', function(url, opts){
     var m=((opts&&opts.method)||'GET').toUpperCase();
-    if(m!=='GET'){
-      try{ notif('Aperçu coach : rien n’est envoyé'); }catch(e){}
-      return Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}));
-    }
-    return f.apply(this, arguments);
-  };
+    if(m==='GET') return null;
+    try{ notif('Aperçu coach : rien n’est envoyé'); }catch(e){}
+    return {fait:true, val:Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}))};
+  }, 'aperçu coach');
   // Ni code PIN, ni mémorisation sur cet appareil
-  window.lancerEtapePin=function(){ document.getElementById('scr-login').classList.add('hidden'); try{ localStorage.setItem('ast_onboarding_'+MON_NUM,'1'); }catch(e){} demarrerApp().then(apcBandeau); };
-  var d=window.demarrerApp;
-  window.demarrerApp=function(){ var r=d.apply(this, arguments); Promise.resolve(r).then(apcBandeau); return r; };
+  EXT.avant('lancerEtapePin', function(){
+    document.getElementById('scr-login').classList.add('hidden');
+    try{ localStorage.setItem('ast_onboarding_'+MON_NUM,'1'); }catch(e){}
+    return {fait:true, val:demarrerApp()};
+  }, 'aperçu coach');
+  EXT.apres('demarrerApp', apcBandeau, 'aperçu coach');
   // Le joueur demandé est choisi tout seul dès que la liste est là
   var essais=0;
   var t=setInterval(function(){
@@ -1594,36 +1638,22 @@ window.addEventListener('load', function(){
     ONB_SLIDES[1]={ic:'🗂️',titre:'5 onglets en bas',texte:"Aujourd'hui, Match, Entraînement, Tactique, Moi. Dans chacun, les rubriques défilent en haut de l'écran. Les rubriques vides se cachent tant que le coach n'y a rien mis."};
     ONB_SLIDES[4]={ic:'🎴',titre:"C'est parti !",texte:"Ta carte perso est dans Moi › Ma carte. Bonne saison !"};
   }
-  window.renderHub=jxRenderHub;
-  var jb=window.jvBrancher;
-  window.jvBrancher=function(){
-    if(!jxConvoque()) return jb.apply(this, arguments);
+  EXT.avant('renderHub', function(){ return {fait:true, val:jxRenderHub()}; }, 'ma semaine');
+  EXT.avant('jvBrancher', function(){
+    if(!jxConvoque()) return null;
     var p=jvProchainMatch(); if(p && jvEcart(p.d)<=7) jvChargerMeteo(p.d).then(jvAfficherMeteo);
     chargerMaConfirmation(jxCleConv()).then(jxAfficherConfirmation);
-  };
-  var rr=window.jRendreRubriques;
-  window.jRendreRubriques=function(){ jxFiltrerRubriques(); return rr.apply(this, arguments); };
-  var jo=window.jOnglet;
-  window.jOnglet=function(){ jxFiltrerRubriques(); return jo.apply(this, arguments); };
-  var mm=window.renderMesMatchs;
-  if(mm) window.renderMesMatchs=function(){ var r=mm.apply(this, arguments); Promise.resolve(r).then(jxMesMatchsCompacter); return r; };
-  var re=window.renderEffectif;
-  if(re) window.renderEffectif=function(){ var r=re.apply(this, arguments); try{ jxEffectif(); jxPoints(); }catch(e){} return r; };
-  var rs=window.renderSaison;
-  if(rs) window.renderSaison=function(){
-    var r=rs.apply(this, arguments);
-    // Le calendrier a sa rubrique : on ne le répète pas sous le classement
+    return {fait:true};
+  }, 'une seule question');
+  EXT.avant('jRendreRubriques', function(){ jxFiltrerRubriques(); return null; }, 'rubriques vides');
+  EXT.avant('jOnglet', function(){ jxFiltrerRubriques(); return null; }, 'rubriques vides');
+  EXT.apres('renderMesMatchs', jxMesMatchsCompacter, 'mes matchs compacts');
+  EXT.apres('renderEffectif', function(){ jxEffectif(); jxPoints(); }, 'effectif en tableau');
+  // Le calendrier a sa rubrique : on ne le répète pas sous le classement
+  EXT.apres('renderSaison', function(){
     var ct=document.getElementById('scr-saison');
     if(ct) ct.querySelectorAll('.blk').forEach(function(b){ var t=(b.querySelector('.blk-h .t')||{}).textContent||''; if(t.indexOf('Calendrier de la saison')>=0) b.remove(); });
-    return r;
-  };
-  // La table des rendus garde les fonctions d'origine : on lui donne les nouvelles
-  if(typeof RENDER_MAP!=='undefined'){
-    RENDER_MAP.mesmatchs[0]=window.renderMesMatchs;
-    RENDER_MAP.effectif[0]=window.renderEffectif;
-    RENDER_MAP.entrainement[0]=window.renderEffectif;
-    RENDER_MAP.saison[0]=window.renderSaison;
-  }
+  }, 'doublons du calendrier');
 });
 
 </script>
@@ -1839,7 +1869,7 @@ function authConnecte(){ if(!SESSION) SESSION=authLire(); return !!SESSION; }
 
 // Tout appel à Firestore passe par ici : le jeton est ajouté, et une réponse 401/403
 // veut dire que la session est finie — on le dit plutôt que de laisser l'écran vide.
-async function fbFetch(url, opts){
+async function fbFetch__base(url, opts){
   opts=opts||{};
   var jeton=await authJeton();
   if(jeton){
@@ -2429,7 +2459,7 @@ async function hashPin(pin){
 }
 var PIN_MODE=null; // 'creer' ou 'verifier'
 var PIN_PREMIERE_SAISIE=null;
-async function lancerEtapePin(){
+async function lancerEtapePin__base(){
   document.getElementById('scr-login').classList.add('hidden');
   document.getElementById('scr-pin').classList.remove('hidden');
   document.getElementById('pin-nom-affiche').textContent=MON_NOM;
@@ -2569,7 +2599,7 @@ async function rendreEcran(s){
   if(!fns) return;
   for(var i=0;i<fns.length;i++){ await fns[i](); }
 }
-async function demarrerApp(){
+async function demarrerApp__base(){
   document.getElementById('scr-login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('jhdr-logo').src=PHOTO_LOGO;
@@ -2940,7 +2970,7 @@ async function jvRepondre(reponse){
   jvAfficherDispo(reponse);
 }
 
-function jvBrancher(){
+function jvBrancher__base(){
   if(!SAISON) return;
   var prochain=jvProchainMatch();
   if(!prochain) return;
@@ -3169,7 +3199,7 @@ function noPlusTard(){
   var el=document.getElementById('no-carte');
   if(el) el.remove();
 }
-function renderHub(){
+function renderHub__base(){
   var ct=document.getElementById('scr-hub');
   var hero=auBandeau() + jvHtml();
   var htmlHub=hero
@@ -3275,7 +3305,7 @@ function jRendreOnglets(){
       +ic(t.ic)+'<span class="lb">'+esc(t.l)+'</span></button>';
   }).join('');
 }
-function jRendreRubriques(){
+function jRendreRubriques__base(){
   var t=jOngletPar(ONGLET_ACTIF), b=document.getElementById('jrub');
   if(!b) return;
   b.style.setProperty('--tc', t.tc);
@@ -3314,7 +3344,7 @@ function jHdrTitre(){
   if(ti) ti.textContent=r?r.l:'';
   if(on){ on.textContent=t.l; on.style.setProperty('--tc', t.tc); }
 }
-function jOnglet(id){
+function jOnglet__base(id){
   var t=jOngletPar(id);
   ONGLET_ACTIF=t.id;
   jAller(jRubMemorisee(t));
@@ -3904,7 +3934,7 @@ async function confirmerConvocation(matchKey,reponse){
     notif('⚠ Envoi impossible — vérifie ta connexion');
   }
 }
-async function renderMesMatchs(){
+async function renderMesMatchs__base(){
   var ct=document.getElementById('scr-mesmatchs');
   if(!ct) return;
   var html='';
@@ -4567,7 +4597,7 @@ function photosRemplir(racine){
     });
   });
 }
-function renderEffectif(){
+function renderEffectif__base(){
   var ct=document.getElementById('scr-effectif');
   var joueurs=SAISON.JOUEURS||[], stats=SAISON.STATS||[];
   if(!joueurs.length){ ct.innerHTML='<div class="empty-txt">Aucun joueur dans l\'effectif pour le moment</div>'; return; }
@@ -5551,7 +5581,7 @@ function renderEvolutionClassement(){
     + resume + svg + legende + tableau;
 }
 
-function renderSaison(){
+function renderSaison__base(){
   var ct=document.getElementById('scr-saison');
   ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">'+ic('hausse')+'O\u00f9 on en est, journ\u00e9e par journ\u00e9e</span>'
       +'<span class="bc" id="classement-hist-nb" style="font-size:12.5px;color:var(--mute)">\u2014</span></div>'
