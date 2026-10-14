@@ -4864,6 +4864,34 @@ body.pt-ouvert #nr-fab,body.pt-ouvert #barre-jour{display:none!important}
 .pt-fin span{font:500 15px 'Roboto Condensed',sans-serif;color:var(--gris2)}
 .pt-b2{border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:10px;padding:12px;font:700 14px 'Roboto Condensed',sans-serif}
 .pt-lancer{margin-right:6px}
+/* ===== Le coach au téléphone (v139) ===== */
+body.mb #nr-fab{display:none!important}
+body.mb #barre-jour{padding-top:4px}
+body.mb .bj-b .ic .ico{width:21px;height:21px}
+body.mb .bj-b.on{background:none}
+body.mb .bj-b.on .ic{color:var(--or)}
+.mb-note{position:relative}
+.mb-rond{position:relative;width:52px;height:52px;margin-top:-24px;border-radius:50%;background:#d97706;color:#1a0f02;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(180,83,9,.45);border:3px solid var(--fond2)}
+.mb-rond .ico{width:24px;height:24px}
+.mb-rond b{position:absolute;top:-4px;right:-6px;min-width:19px;height:19px;border-radius:10px;background:var(--red);color:#fff;font:800 11px 'Roboto Condensed',sans-serif;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--fond2)}
+.mb-note .lb{color:var(--or)}
+/* Les onglets de la porte, sous le ☰ */
+body.mb .breadcrumb.mb-onglets{position:sticky;top:0;z-index:40;padding:6px 8px 6px 50px;min-height:46px;align-items:center;text-transform:none;letter-spacing:0}
+.mb-l{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex:1;min-width:0}
+.mb-l::-webkit-scrollbar{display:none}
+.mb-o{flex:0 0 auto;border:1px solid var(--line);background:var(--carte);color:var(--gris2);border-radius:16px;padding:6px 12px;font:700 13px 'Roboto Condensed',sans-serif;white-space:nowrap}
+.mb-o.on{border-color:var(--or);background:var(--or);color:#1a0f02}
+/* Le tiroir : les portes en 2 × 2, la liste a toute la place, le bas se fait discret */
+body.mb .n3-portes{display:flex;flex-direction:column;gap:4px;padding:6px 8px 0}
+body.mb .n3-porte{margin:0;padding:6px 8px;gap:8px}
+body.mb .n3-porte-ic{width:26px;height:26px}
+body.mb .n3-porte-t i{display:none}
+body.mb .n3-porte-t b{font-size:13.5px}
+body.mb .side-footer .gen-btn:not([onclick^="bdtOuvrir"]){display:none}
+body.mb .side-footer{max-height:none}
+body.mb #tab-note{display:none!important}
+body.mb .scr{padding-top:10px!important}
+@media (max-width:760px){ #rotation-grille{grid-template-columns:1fr!important} }
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -5305,7 +5333,7 @@ function nav3RenderSide(){
   if(!POLE_ACTIF) POLE_ACTIF='semaine';
   var on=document.querySelector('.scr.on'), sOn=on?on.id.replace(/^scr-/,''):'';
   var liste='';
-  ct.innerHTML=POLES.map(function(p){
+  ct.innerHTML='<div class="n3-portes">'+POLES.map(function(p){
     var ouvert=(p.id===POLE_ACTIF);
     var a=null; try{ a=fsAlertePole(AL, p); }catch(e){}
     var h='<div class="n3-porte'+(ouvert?' ouvert':'')+'" style="--pc:'+couleurPole(p)+'" onclick="ouvrirPole(\''+p.id+'\')">'
@@ -5322,7 +5350,7 @@ function nav3RenderSide(){
       }).join('')+'</div>';
     }
     return h;
-  }).join('')+liste;
+  }).join('')+'</div>'+liste;
 }
 
 // ---------- Branchements ----------
@@ -6002,6 +6030,73 @@ window.addEventListener('load', function(){
   }
 });
 
+// ===== Le coach au téléphone (v139) =====
+//
+//   Au téléphone, le menu tiroir obligeait à rouvrir ☰ pour chaque écran,
+//   et la barre du bas changeait selon le jour. Désormais :
+//   · une barre du bas fixe : La semaine · Joueurs · Note · Fond de jeu · Menu
+//   · sous le bouton ☰, les écrans de la porte ouverte, en onglets à faire
+//     défiler du pouce — on passe de l'un à l'autre sans rouvrir le menu.
+
+function mbActif(){ return document.body.classList.contains('nav3') && typeof estModeTiroir==='function' && estModeTiroir(); }
+function mbPorte(id){
+  var p=(POLES||[]).filter(function(x){ return x.id===id; })[0]; if(!p) return;
+  POLE_ACTIF=id;
+  goNav(p.screens[0].s);
+}
+function mbBarre(){
+  var bar=document.getElementById('barre-jour'); if(!bar) return;
+  var on=POLE_ACTIF||'semaine';
+  var n=0; try{ n=(NR_NOTES||[]).filter(function(x){ return !x.traite; }).length; }catch(e){}
+  var B=function(id, icone, l){
+    return '<button class="bj-b'+(on===id?' on':'')+'" onclick="mbPorte(\''+id+'\')"><span class="ic">'+ic(icone)+'</span><span class="lb">'+l+'</span></button>';
+  };
+  bar.innerHTML=B('semaine','calendrier','La semaine')+B('joueurs','groupe','Joueurs')
+    +'<button class="bj-b mb-note" onclick="nrOuvrir()" aria-label="Note rapide"><span class="mb-rond">'+ic('ecrire')+(n?'<b>'+n+'</b>':'')+'</span><span class="lb">Note</span></button>'
+    +B('fond','livres','Fond de jeu')
+    +'<button class="bj-b'+(on==='clubr'?' on':'')+'" onclick="toggleSideMobile(true)"><span class="ic">'+ic('liste')+'</span><span class="lb">Menu</span></button>';
+  bar.style.display='flex';
+  document.body.classList.add('avec-barre');
+}
+// Les écrans de la porte ouverte, en onglets sous le ☰
+function mbOnglets(){
+  var bc=document.getElementById('breadcrumb'); if(!bc) return;
+  var p=(POLES||[]).filter(function(x){ return x.id===POLE_ACTIF; })[0]; if(!p) return;
+  var scr=document.querySelector('.scr.on'), s=scr?scr.id.replace(/^scr-/,''):'';
+  bc.classList.add('mb-onglets');
+  bc.innerHTML='<div class="mb-l">'+p.screens.map(function(sc){
+    var hote=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[sc.s])?RUBRIQUE_DE[sc.s]:sc.s;
+    var on=(sc.s===s || (hote===s && !p.screens.some(function(x){ return x.s===s; })));
+    return '<button class="mb-o'+(on?' on':'')+'" onclick="goNav(\''+sc.s+'\')">'+jfEsc(sc.l)+'</button>';
+  }).join('')+'</div>';
+  var a=bc.querySelector('.mb-o.on');
+  if(a) a.scrollIntoView({inline:'center', block:'nearest'});
+}
+
+window.addEventListener('load', function(){
+  if(!(typeof nav3Actif==='function' && nav3Actif())) return;
+  var rb=window.renderBarreDuJour;
+  window.renderBarreDuJour=function(){
+    if(!mbActif()){
+      document.body.classList.remove('mb');
+      var bc=document.getElementById('breadcrumb'); if(bc) bc.classList.remove('mb-onglets');
+      return rb.apply(this, arguments);
+    }
+    document.body.classList.add('mb');
+    mbBarre();
+  };
+  var mb=window.majBreadcrumb;
+  window.majBreadcrumb=function(){
+    var r=mb.apply(this, arguments);
+    if(mbActif()){ try{ mbOnglets(); }catch(e){} }
+    return r;
+  };
+  var np=window.nrMajPastille;
+  if(np) window.nrMajPastille=function(){ var r=np.apply(this, arguments); if(mbActif()) mbBarre(); return r; };
+  try{ renderBarreDuJour(); }catch(e){}
+  var on=document.querySelector('.scr.on'); if(on && mbActif()){ try{ mbOnglets(); }catch(e){} }
+});
+
 </script>
 </head><body>
 <div class="bg"></div>
@@ -6430,8 +6525,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v138</b> · 14/10/2026<br>
-      <span style="opacity:.7">Présences mode terrain</span>
+      AST COACH <b style="color:var(--or)">v139</b> · 14/10/2026<br>
+      <span style="opacity:.7">Le coach au téléphone</span>
     </div>
   </div>
 </div>
