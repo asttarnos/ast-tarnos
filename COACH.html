@@ -4673,7 +4673,7 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
 .n3-carte-h span{margin-left:auto;font:600 12px 'Roboto Condensed',sans-serif;color:var(--gris2)}
 .n3-lien{cursor:pointer;color:var(--or)!important}
 .n3-qp{columns:2 200px;column-gap:14px}
-.n3-qp-l{break-inside:avoid;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:4px 0;border-bottom:1px solid var(--line)}
+.n3-qp-l{cursor:pointer;break-inside:avoid;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:4px 0;border-bottom:1px solid var(--line)}
 .n3-qp-l b{font:800 13.5px 'Roboto Condensed',sans-serif;color:var(--gris);margin-right:2px}
 .n3-qp-l span{font:700 11.5px 'Roboto Condensed',sans-serif;color:var(--rc);border:1px solid var(--rc);border-radius:8px;padding:0 6px}
 .n3-note-l{display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px solid var(--line);cursor:pointer;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
@@ -4712,6 +4712,93 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
   .n3-note{order:6;flex:1;justify-content:center}
   .n3-resp{grid-template-columns:1fr}
 }
+/* ===== Phase 2 : la fiche joueur unique (v136) ===== */
+.jf{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px;align-items:start}
+.jf-liste{position:sticky;top:0;background:var(--carte);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;max-height:calc(100vh - 120px);max-height:calc(100dvh - 120px);overflow:hidden}
+.jf-l-h{padding:8px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.jf-l-h .fi{padding:7px 9px;font-size:13.5px}
+.jf-vues{display:flex;gap:4px}
+.jf-vues button{flex:1;border:1px solid var(--line);background:var(--voile);color:var(--gris2);border-radius:7px;padding:4px 2px;font:700 12px 'Roboto Condensed',sans-serif;cursor:pointer}
+.jf-vues button b{color:var(--gris);margin-left:2px}
+.jf-vues button.on{border-color:var(--or);color:var(--or);background:var(--orfond)}
+.jf-l{overflow-y:auto;flex:1;padding:4px}
+.jf-j{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.jf-j:hover{background:var(--voile2)}
+.jf-j.on{background:var(--orfond);border-color:var(--or)}
+.jf-av{width:30px;height:30px;border-radius:50%;flex:0 0 auto;background:var(--carte4);color:var(--gris2);display:flex;align-items:center;justify-content:center;font:800 11px 'Roboto Condensed',sans-serif;overflow:hidden}
+.jf-av img{width:100%;height:100%;object-fit:cover}
+.jf-n{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.jf-n b{font:800 13.5px 'Roboto Condensed',sans-serif;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jf-n i{font:500 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jf-pts{display:flex;gap:3px}
+.jf-pts span{width:8px;height:8px;border-radius:50%}
+.jf-fiche{min-width:0;display:flex;flex-direction:column;gap:12px}
+.jf-fiche>.blk,.jf-fiche>div{margin:0}
+#fiche-coach-ct{display:flex;flex-direction:column;gap:12px}
+#fiche-coach-ct>.blk{margin:0}
+.jf-sel-blk>.bh,.jf-sel-blk>div:not(#fj-reglages){display:none!important}
+.jf-sel-blk:has(#fj-reglages[style*="none"]){display:none}
+.jf-cache{display:none!important}
+
+.jf-tabs{display:flex;gap:4px;flex-wrap:wrap;background:var(--carte);border:1px solid var(--line);border-radius:11px;padding:4px;position:sticky;top:0;z-index:5}
+.jf-tabs button{flex:1;min-width:110px;border:none;background:none;color:var(--gris2);border-radius:8px;padding:8px 10px;font:800 14px 'Roboto Condensed',sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.jf-tabs button:hover{color:var(--gris);background:var(--voile2)}
+.jf-tabs button.on{background:var(--or);color:#1a0f02}
+.jf-tabs button b{min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+
+.jf-b-c{padding:10px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.jf-sig{display:flex;flex-wrap:wrap;gap:6px}
+.jf-chip{border:1px solid var(--sc);color:var(--sc);background:var(--voile);border-radius:14px;padding:4px 11px;font:800 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.jf-ok{font:600 13.5px 'Roboto Condensed',sans-serif;color:var(--green)}
+.jf-act{display:flex;flex-wrap:wrap;gap:6px}
+.jf-act .btn{width:auto;margin:0;padding:8px 14px}
+.jf-b2{border:1px solid var(--line);background:var(--voile);color:var(--gris);border-radius:8px;padding:7px 12px;font:700 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.jf-b2:hover{border-color:var(--or);color:var(--or)}
+.jf-ks{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.jf-k{background:var(--carte3);border:1px solid var(--line);border-radius:9px;padding:8px 10px;display:flex;flex-direction:column}
+.jf-k b{font:400 24px 'Anton',sans-serif;color:var(--or);line-height:1.1}
+.jf-k span{font:600 12px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.jf-t{width:100%;border-collapse:collapse;font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.jf-t th{text-align:left;font:800 11px 'Roboto Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--gris2);padding:5px 6px;border-bottom:1px solid var(--line)}
+.jf-t td{padding:5px 6px;border-bottom:1px solid var(--line)}
+.jf-t td i{font-style:normal;color:var(--gris2);font-size:12px}
+.jf-t tr:hover td{background:var(--voile)}
+.jf-cj,.jf-cr{display:inline-block;width:11px;height:15px;border-radius:2px;margin-right:3px;font-size:0}
+.jf-cj{background:#e0b100}.jf-cr{background:var(--red)}
+.jf-barres{display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:4px}
+.jf-barres div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.jf-barres span{display:block;width:100%;max-width:46px;background:var(--or);border-radius:4px 4px 0 0;min-height:2px}
+.jf-barres i{font:600 11px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.jf-dern{display:flex;flex-wrap:wrap;gap:6px;font:600 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.jf-dern span{background:var(--voile2);border-radius:7px;padding:2px 8px;color:var(--gris)}
+.jf-med{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.jf-med-l{border:1px solid var(--line);border-left:3px solid var(--mc);border-radius:9px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;font:600 13px 'Roboto Condensed',sans-serif}
+.jf-med-l b{font-weight:800;color:var(--gris)}
+.jf-med-l span{color:var(--mc);font-weight:800;font-size:12.5px}
+.jf-med-l i{font-style:normal;color:var(--gris2);font-weight:500}
+.jf-sous{font:800 11.5px 'Roboto Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gris2)}
+.jf-vide{font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris2);padding:4px 0}
+#scr-effectif.jf-ecran .photos-bandeau{margin:0}
+
+@media (max-width:860px){
+  .jf{grid-template-columns:1fr}
+  .jf-liste{position:static;max-height:none}
+  .jf-l{display:flex;overflow-x:auto;overflow-y:hidden;gap:4px;padding:6px}
+  .jf-j{flex:0 0 auto;flex-direction:column;gap:3px;padding:6px 8px;width:76px;text-align:center}
+  .jf-n i{display:none}
+  .jf-n b{font-size:12px}
+  .jf-tabs button{min-width:0;flex:1 1 30%;padding:7px 4px;font-size:13px}
+}
+/* L'identité du joueur, plus ramassée : la place va aux onglets */
+.jf-ecran .fj-bandeau{margin-bottom:0;padding:12px 16px!important;gap:14px}
+.jf-ecran .fj-photo{width:76px;height:76px;flex:0 0 76px}
+.jf-ecran .fj-photo span{font-size:26px}
+.jf-ecran .fj-nom{font-size:22px}
+.jf-ecran .fj-actions{margin-top:6px}
+.jf-ecran .fj-actions>*{padding:5px 10px!important;font-size:12px!important}
+.jf-ecran .fj-note-v{font-size:38px}
+.jf-ecran .fj-cle{padding:5px 6px}
+@media (max-width:860px){ .jf-ecran .fj-photo{width:56px;height:56px;flex-basis:56px} .jf-ecran .fj-photo span{font-size:20px} }
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -4746,15 +4833,15 @@ var NAV3_POLES=[
     {s:'dash',ic:'barres',l:'Tableau de bord (ancien)',g:'Vue d’ensemble'}
   ]},
   {id:'joueurs',label:'Les joueurs',sous:'Chacun, son signal',icon:'groupe',color:'#a855f7',screens:[
-    {s:'effectif',ic:'groupe',l:'Effectif · fiches'},
-    {s:'recap',ic:'hausse',l:'Récap global'},
+    {s:'effectif',ic:'profil',l:'Fiches joueurs'},
+    {s:'recap',ic:'hausse',l:'Comparer le groupe',g:'Tout le groupe'},
     {s:'rotation',ic:'chrono',l:'Temps de jeu'},
-    {s:'forme-coach',ic:'thermo',l:'Forme joueurs'},
-    {s:'medical',ic:'hopital',l:'Suivi médical'},
-    {s:'entretien',ic:'parole',l:'Entretien joueur'},
-    {s:'suivi-objectifs',ic:'liste',l:'Objectifs joueurs'},
-    {s:'correction-buts',ic:'pansement',l:'Corriger des stats',g:'Le groupe'},
-    {s:'obj-coll',ic:'coupe',l:'Objectifs collectifs'}
+    {s:'forme-coach',ic:'thermo',l:'Forme du groupe'},
+    {s:'medical',ic:'hopital',l:'Infirmerie'},
+    {s:'suivi-objectifs',ic:'liste',l:'Objectifs de chacun'},
+    {s:'obj-coll',ic:'coupe',l:'Objectifs collectifs'},
+    {s:'entretien',ic:'parole',l:'Feuille d’entretien',g:'Outils'},
+    {s:'correction-buts',ic:'pansement',l:'Corriger des stats'}
   ]},
   {id:'fond',label:'Le fond de jeu',sous:'Ce qu’on construit une fois',icon:'livres',color:'#22c55e',screens:[
     {s:'jeu',ic:'equerre',l:'Le projet de jeu'},
@@ -5057,7 +5144,7 @@ function renderSemaine(){
   html+='<div class="n3-bas">'
     +'<div class="n3-carte"><div class="n3-carte-h"><b>À qui parler cette semaine</b><span>blessure, charge, forme, notes</span></div>'
       +(Q.length?'<div class="n3-qp">'+Q.slice(0,10).map(function(q){
-          return '<div class="n3-qp-l"><b>'+nav3Esc(q.nom)+'</b>'+q.R.map(function(r){ return '<span style="--rc:'+r.c+'">'+nav3Esc(r.r)+'</span>'; }).join('')+'</div>';
+          return '<div class="n3-qp-l" onclick="jfOuvrirNom('+nav3Esc(JSON.stringify(q.nom))+')"><b>'+nav3Esc(q.nom)+'</b>'+q.R.map(function(r){ return '<span style="--rc:'+r.c+'">'+nav3Esc(r.r)+'</span>'; }).join('')+'</div>';
         }).join('')+'</div>':'<div class="n3-vide">Aucun signal cette semaine.</div>')
     +'</div>'
     +'<div class="n3-carte"><div class="n3-carte-h"><b>Notes du staff à traiter</b><span onclick="goNav(\'notes-staff\')" class="n3-lien">toutes ›</span></div>'
@@ -5209,6 +5296,362 @@ window.addEventListener('load', function(){
     return r;
   };
   nav3RenderSide();
+});
+
+// ===== Phase 2 : la fiche joueur unique (v136) =====
+//
+//   L'écran Effectif devient la porte « Les joueurs » : la liste de tout le
+//   groupe à gauche, chacun avec son signal du moment, et sa fiche à droite
+//   en six onglets. Rien n'est réécrit : la fiche d'avant est découpée en
+//   onglets, et ce qui vivait sur d'autres écrans (forme, charge, médical,
+//   notes du staff, entretiens) y arrive filtré sur lui.
+
+var JF_ONGLETS=[
+  {k:'resume',   l:'Résumé'},
+  {k:'chiffres', l:'Chiffres'},
+  {k:'forme',    l:'Forme & charge'},
+  {k:'medical',  l:'Médical'},
+  {k:'notes',    l:'Notes du staff'},
+  {k:'objectifs',l:'Objectifs & entretiens'}
+];
+var JF_ONGLET=(function(){ try{ return localStorage.getItem('ast-jf-onglet')||'resume'; }catch(e){ return 'resume'; } })();
+var JF_FILTRE='', JF_VUE='tous', JF_PRET=false, JF_CHG=null, JF_NR_ENCOURS=false;
+
+function jfEsc(t){ return (typeof nav3Esc==='function')?nav3Esc(t):String(t==null?'':t); }
+function jfIdx(){ var s=document.getElementById('fiche-sel'); return s?(parseInt(s.value)||0):0; }
+function jfNomCourt(nom){
+  var m=String(nom||'').trim().split(/\s+/);
+  var maj=m.filter(function(x){ return x.length>1 && x===x.toUpperCase(); });
+  return maj.length?maj.join(' '):(m[m.length-1]||'');
+}
+function jfInitiales(nom){ return String(nom||'').split(/\s+/).map(function(m){ return m.charAt(0); }).join('').slice(0,2).toUpperCase(); }
+
+// ---------- Les signaux d'un joueur ----------
+function jfCharge(){
+  // Un seul calcul par rendu : chgAnalyse relit toutes les réponses
+  if(JF_CHG) return JF_CHG;
+  JF_CHG={};
+  try{
+    if(typeof CHG_ETAT!=='undefined' && CHG_ETAT==='charge'){
+      chgAnalyse().joueurs.forEach(function(x){ JF_CHG[x.j.num]=x; });
+    }
+  }catch(e){}
+  return JF_CHG;
+}
+function jfSignaux(i){
+  var j=JOUEURS[i]; if(!j) return [];
+  var S=[];
+  try{
+    var b=joueurBlessureActive(i);
+    if(b){
+      var st=(STATUTS_MEDICAL||[]).filter(function(s){ return s.id===b.statut; })[0];
+      S.push({k:'med', c:'var(--red)', t:(st?st.label.replace(/^\S+\s/,''):'Blessé')+(b.zone&&b.zone.indexOf('—')<0?' · '+b.zone:''), o:'medical'});
+    }
+  }catch(e){}
+  var x=jfCharge()[j.num];
+  if(x && x.ratio!==null){
+    if(x.ratio>=1.5) S.push({k:'chg', c:'var(--red)', t:'Charge '+x.ratio.toFixed(2).replace('.',','), o:'forme'});
+    else if(x.ratio>=1.3) S.push({k:'chg', c:'var(--gold)', t:'Charge '+x.ratio.toFixed(2).replace('.',','), o:'forme'});
+    else if(x.ratio<0.8) S.push({k:'chg', c:'var(--blue)', t:'Sous-chargé', o:'forme'});
+  }
+  try{
+    var H=(FORME_HISTORIQUE||[])[i]||[], der=H[H.length-1];
+    if(der && der.source==='joueur'){
+      var age=der.dateEnvoi?(Date.now()-new Date(der.dateEnvoi).getTime())/86400000:99;
+      if(age<=10){
+        if(der.valeur<=2) S.push({k:'forme', c:'var(--gold)', t:'Forme basse', o:'forme'});
+        if(der.bobo) S.push({k:'bobo', c:'var(--gold)', t:'Signale : '+der.bobo, o:'medical'});
+      }
+    }
+  }catch(e){}
+  try{
+    var n=(NR_NOTES||[]).filter(function(n){ return !n.traite && (n.joueurs||[]).some(function(q){ return q.num===j.num; }); });
+    var faire=n.filter(function(q){ return (q.tags||[]).indexOf('faire')>=0; }).length;
+    if(faire) S.push({k:'note', c:'var(--or)', t:faire+' note'+(faire>1?'s':'')+' « à faire »', o:'notes'});
+    else if(n.length) S.push({k:'note', c:'var(--gris2)', t:n.length+' note'+(n.length>1?'s':'')+' à lire', o:'notes'});
+  }catch(e){}
+  return S;
+}
+
+// ---------- La liste de gauche ----------
+function jfListe(){
+  var ct=document.getElementById('jf-liste'); if(!ct) return;
+  var sel=jfIdx(), q=(typeof normaliserTexte==='function')?normaliserTexte(JF_FILTRE):JF_FILTRE.toLowerCase();
+  var L=(JOUEURS||[]).map(function(j,i){ return {j:j, i:i, S:jfSignaux(i)}; });
+  var nSig=L.filter(function(x){ return x.S.some(function(s){ return s.c!=='var(--gris2)'; }); }).length;
+  var nMed=L.filter(function(x){ return x.S.some(function(s){ return s.k==='med'; }); }).length;
+  var vis=L.filter(function(x){
+    if(q && ((typeof normaliserTexte==='function')?normaliserTexte(x.j.nom):x.j.nom.toLowerCase()).indexOf(q)<0 && String(x.j.num)!==q) return false;
+    if(JF_VUE==='signal') return x.S.some(function(s){ return s.c!=='var(--gris2)'; });
+    if(JF_VUE==='med') return x.S.some(function(s){ return s.k==='med'; });
+    return true;
+  });
+  var champ=document.getElementById('jf-q');
+  var focus=champ && document.activeElement===champ;
+  ct.innerHTML='<div class="jf-l-h"><input class="fi" id="jf-q" placeholder="Chercher un joueur…" value="'+jfEsc(JF_FILTRE)+'" oninput="JF_FILTRE=this.value;jfListe()">'
+    +'<div class="jf-vues">'
+      +'<button class="'+(JF_VUE==='tous'?'on':'')+'" onclick="JF_VUE=\'tous\';jfListe()">Tous <b>'+L.length+'</b></button>'
+      +'<button class="'+(JF_VUE==='signal'?'on':'')+'" onclick="JF_VUE=\'signal\';jfListe()">Signal <b>'+nSig+'</b></button>'
+      +'<button class="'+(JF_VUE==='med'?'on':'')+'" onclick="JF_VUE=\'med\';jfListe()">Blessés <b>'+nMed+'</b></button>'
+    +'</div></div>'
+    +'<div class="jf-l">'+(vis.length?vis.map(function(x){
+      var ph=(typeof PHOTOS!=='undefined' && PHOTOS[x.i]);
+      return '<div class="jf-j'+(x.i===sel?' on':'')+'" onclick="jfChoisir('+x.i+')">'
+        +'<span class="jf-av">'+(ph?'<img src="'+ph+'" alt="">':jfEsc(jfInitiales(x.j.nom)))+'</span>'
+        +'<span class="jf-n"><b>'+jfEsc(jfNomCourt(x.j.nom))+'</b><i>'+x.j.num+(x.S.length?' · '+jfEsc(x.S[0].t):'')+'</i></span>'
+        +'<span class="jf-pts">'+x.S.slice(0,3).map(function(s){ return '<span style="background:'+s.c+'" title="'+jfEsc(s.t)+'"></span>'; }).join('')+'</span>'
+      +'</div>';
+    }).join(''):'<div class="jf-vide">Personne.</div>')+'</div>';
+  if(focus){ var c=document.getElementById('jf-q'); if(c){ c.focus(); c.setSelectionRange(c.value.length,c.value.length); } }
+  var on=ct.querySelector('.jf-j.on');
+  if(on && !focus){ var l=ct.querySelector('.jf-l'); if(l && (on.offsetTop<l.scrollTop || on.offsetTop>l.scrollTop+l.clientHeight-40)) l.scrollTop=on.offsetTop-80; }
+}
+function jfChoisir(i){
+  var s=document.getElementById('fiche-sel'); if(!s) return;
+  s.value=String(i);
+  renderFicheCoach();
+  var m=document.getElementById('main'); if(m) m.scrollTop=0;
+}
+// Depuis n'importe où : « ouvre-moi la fiche de X »
+function jfOuvrir(i, onglet){
+  if(onglet) JF_ONGLET=onglet;
+  goNav('effectif');
+  setTimeout(function(){ jfChoisir(i); }, 60);
+}
+function jfOuvrirNom(nom, onglet){
+  var i=(JOUEURS||[]).findIndex(function(j){ return j.nom===nom; });
+  if(i<0 && typeof fexNomsCorrespondent==='function') i=(JOUEURS||[]).findIndex(function(j){ return fexNomsCorrespondent(j.nom, nom); });
+  if(i>=0) jfOuvrir(i, onglet);
+}
+function jfOnglet(k){
+  JF_ONGLET=k;
+  try{ localStorage.setItem('ast-jf-onglet', k); }catch(e){}
+  jfAppliquerOnglet();
+}
+
+// ---------- Les blocs propres à la fiche ----------
+function jfBloc(id, titre, sous, corps, onglet){
+  return '<div class="blk plein jf-b" id="'+id+'" data-jf="'+onglet+'"><div class="bh"><span class="bt">'+titre+'</span>'
+    +(sous?'<span class="bc">'+sous+'</span>':'')+'</div><div class="jf-b-c">'+corps+'</div></div>';
+}
+function jfDateCourte(s){
+  var d=new Date(s); if(isNaN(d)) return String(s||'');
+  return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+}
+function jfBlocResume(i){
+  var j=JOUEURS[i], S=jfSignaux(i);
+  var corps='<div class="jf-sig">'+(S.length?S.map(function(s){
+      return '<button class="jf-chip" style="--sc:'+s.c+'" onclick="jfOnglet(\''+s.o+'\')">'+jfEsc(s.t)+' ›</button>';
+    }).join(''):'<span class="jf-ok">Aucun signal : rien à signaler cette semaine.</span>')+'</div>'
+    +'<div class="jf-act">'
+      +'<button class="btn" onclick="nrOuvrir('+j.num+')">Note sur lui</button>'
+      +'<button class="jf-b2" onclick="jfOnglet(\'objectifs\')">Entretien &amp; objectifs</button>'
+      +'<button class="jf-b2" onclick="goNav(\'medical\')">Signaler une blessure</button>'
+      +'<button class="jf-b2" onclick="fjBasculerReglages()">Photo, poste, attributs</button>'
+    +'</div>';
+  return jfBloc('jf-resume','Son signal du moment','blessure · charge · forme · notes', corps, 'resume');
+}
+function jfBlocChiffres(i){
+  var s=STATS[i]||{}, M=[];
+  try{ M=fjMatchs(i); }catch(e){}
+  var pres=s.seances>0?Math.round(s.pres/s.seances*100):null;
+  var k=function(v,l){ return '<div class="jf-k"><b>'+v+'</b><span>'+l+'</span></div>'; };
+  var corps='<div class="jf-ks">'
+    +k((s.matchsA||0)+' / '+(s.matchsB||0),'matchs A / B')
+    +k((s.titu||0)+' / '+(s.rempl||0),'titulaire / entré')
+    +k(s.tpsMoy?Math.round(s.tpsMoy)+'′':'—','minutes par match')
+    +k(s.noteMoy?(+s.noteMoy).toFixed(1).replace('.',','):'—','note moyenne')
+    +k(pres===null?'—':pres+' %','présence (' +(s.pres||0)+'/'+(s.seances||0)+')')
+    +k(s.pts||0,'points entraînement')
+  +'</div>';
+  corps+=M.length?'<table class="jf-t"><thead><tr><th>Date</th><th>Adversaire</th><th>Rés.</th><th>Statut</th><th>Min</th><th>Note</th><th>B</th><th>PD</th><th>Cartons</th></tr></thead><tbody>'
+    +M.map(function(m){
+      var rc=m.res==='V'?'var(--green)':(m.res==='D'?'var(--red)':'var(--gris2)');
+      return '<tr><td>'+jfEsc(m.date)+'</td><td><b>'+jfEsc(m.adv)+'</b>'+(m.lieu?' <i>'+jfEsc(m.lieu)+'</i>':'')+'</td>'
+        +'<td style="color:'+rc+';font-weight:800">'+jfEsc(m.res||'')+'</td><td>'+jfEsc(m.statut||'')+'</td>'
+        +'<td>'+(m.tps||0)+'</td><td><b>'+(m.note||'—')+'</b></td><td>'+(m.buts||'')+'</td><td>'+(m.pd||'')+'</td>'
+        +'<td>'+(m.cj?'<span class="jf-cj">'+m.cj+'</span>':'')+(m.cr?'<span class="jf-cr">'+m.cr+'</span>':'')+'</td></tr>';
+    }).join('')+'</tbody></table>'
+    :'<div class="jf-vide">Aucun match noté pour lui.</div>';
+  return jfBloc('jf-chiffres','Match par match', M.length+' match'+(M.length>1?'s':'')+' notés · <span style="cursor:pointer;color:var(--or)" onclick="goNav(\'recap\')">comparer au groupe ›</span>', corps, 'chiffres');
+}
+function jfBlocForme(i){
+  var j=JOUEURS[i];
+  var H=((FORME_HISTORIQUE||[])[i]||[]).slice(-8).reverse();
+  var lib={forme:'Forme',sommeil:'Sommeil',jambes:'Jambes',mental:'Moral',courbatures:'Courbatures',motivation:'Envie'};
+  var forme=H.length?'<table class="jf-t"><thead><tr><th>Date</th><th>Note /5</th>'+Object.keys(lib).map(function(k){ return '<th>'+lib[k]+'</th>'; }).join('')+'<th>Il dit</th></tr></thead><tbody>'
+    +H.map(function(e){
+      var d=e.detail||{};
+      var c=e.valeur<=2?'var(--red)':(e.valeur>=4?'var(--green)':'var(--gris)');
+      return '<tr><td>'+jfEsc(e.date||'')+'</td><td style="color:'+c+';font-weight:800">'+(e.valeur||'—')+'</td>'
+        +Object.keys(lib).map(function(k){ return '<td>'+(d[k]!=null?d[k]:'')+'</td>'; }).join('')
+        +'<td>'+jfEsc([e.bobo?('bobo : '+e.bobo):'', e.motCoach||''].filter(Boolean).join(' · '))+'</td></tr>';
+    }).join('')+'</tbody></table>'
+    :'<div class="jf-vide">Il n’a pas encore répondu au questionnaire de forme.</div>';
+
+  var x=jfCharge()[j.num], chg;
+  if(typeof CHG_ETAT==='undefined' || CHG_ETAT!=='charge'){
+    chg='<div class="jf-vide">Lecture des réponses…</div>';
+    if(typeof CHG_ETAT!=='undefined' && CHG_ETAT==='vide' && typeof chargerCharge==='function')
+      chargerCharge().then(function(){ JF_CHG=null; jfRafraichir(); });
+  }else if(!x || !x.L.length){
+    chg='<div class="jf-vide">Aucun « Ressenti de séance » envoyé par lui.</div>';
+  }else{
+    var z=(x.ratio!==null && typeof chgZone==='function')?chgZone(x.ratio):null;
+    var max=Math.max.apply(null, x.parSem.concat([1]));
+    chg='<div class="jf-ks">'
+      +'<div class="jf-k"><b style="color:'+(z?z.c:'var(--gris)')+'">'+(x.ratio!==null?x.ratio.toFixed(2).replace('.',','):'—')+'</b><span>'+(z?z.l:'ratio dans 3 semaines')+'</span></div>'
+      +'<div class="jf-k"><b>'+Math.round(x.aigue)+'</b><span>charge 7 jours</span></div>'
+      +'<div class="jf-k"><b>'+Math.round(x.chronique)+'</b><span>habituelle / semaine</span></div>'
+      +'<div class="jf-k"><b>'+(x.monotonie!==null?x.monotonie.toFixed(1).replace('.',','):'—')+'</b><span>monotonie</span></div>'
+    +'</div>'
+    +'<div class="jf-barres">'+x.parSem.map(function(v,k){
+        return '<div><span style="height:'+Math.round(v/max*100)+'%"></span><i>'+(k===x.parSem.length-1?'7 j':'S-'+(x.parSem.length-1-k))+'</i></div>';
+      }).join('')+'</div>'
+    +'<div class="jf-dern">Dernières réponses : '+x.L.slice(0,5).map(function(e){
+        return '<span>'+jfEsc(typeof chgFr==='function'?chgFr(e.date):e.date)+' · '+jfEsc(e.type||'')+' · '+e.rpe+'/10 × '+e.duree+'′</span>';
+      }).join('')+'</div>';
+  }
+  return jfBloc('jf-forme','Sa forme', 'questionnaire · 8 dernières réponses', forme, 'forme')
+       + jfBloc('jf-charge','Sa charge', 'effort ressenti × durée · <span style="cursor:pointer;color:var(--or)" onclick="goNav(\'charge\')">tout le groupe ›</span>', chg, 'forme');
+}
+function jfBlocMedical(i){
+  var B=(BLESSURES||[]).map(function(b,k){ return {b:b,k:k}; }).filter(function(x){ return x.b.joueurIdx===i; });
+  var corps=B.length?'<div class="jf-med">'+B.map(function(x){
+      var b=x.b, st=(STATUTS_MEDICAL||[]).filter(function(s){ return s.id===b.statut; })[0]||{label:b.statut||'',col:'var(--gris2)'};
+      return '<div class="jf-med-l" style="--mc:'+st.col+'"><b>'+jfEsc((b.zone&&b.zone.indexOf('—')<0)?b.zone:'Blessure')+(b.typeBlessure?' · '+jfEsc(b.typeBlessure):'')+'</b>'
+        +'<span>'+jfEsc(st.label)+'</span>'
+        +'<i>'+jfEsc(['le '+(b.dateBlessure||'?'), b.nature&&b.nature.indexOf('—')<0?b.nature:'', b.retourEstime?('retour estimé '+b.retourEstime):'', b.dateResolution?('rétabli le '+b.dateResolution):''].filter(Boolean).join(' · '))+'</i>'
+        +(b.note?'<i>'+jfEsc(b.note)+'</i>':'')+'</div>';
+    }).join('')+'</div>'
+    :'<div class="jf-vide">Aucune blessure enregistrée cette saison.</div>';
+  corps+='<div class="jf-act"><button class="btn" onclick="goNav(\'medical\')">Signaler / mettre à jour</button></div>';
+  var phy=[];
+  try{ phy=(NR_NOTES||[]).filter(function(n){ return (n.tags||[]).indexOf('phy')>=0 && (n.joueurs||[]).some(function(q){ return q.num===JOUEURS[i].num; }); }); }catch(e){}
+  if(phy.length) corps+='<div class="jf-sous">Ce que le staff a noté côté physique</div><div class="nr-grille">'+phy.slice(0,4).map(nrCarteHtml).join('')+'</div>';
+  return jfBloc('jf-medical','Son suivi médical', B.length+' blessure'+(B.length>1?'s':'')+' cette saison', corps, 'medical');
+}
+function jfBlocNotes(i){
+  var j=JOUEURS[i];
+  if(typeof NR_NOTES==='undefined') return '';
+  if(NR_NOTES===null){
+    if(typeof nrCharger==='function' && !JF_NR_ENCOURS){ JF_NR_ENCOURS=true; nrCharger().then(function(){ JF_NR_ENCOURS=false; jfRafraichir(); }, function(){ JF_NR_ENCOURS=false; }); }
+    return jfBloc('jf-notes','Notes du staff','', '<div class="jf-vide">Chargement…</div>','notes');
+  }
+  var L=NR_NOTES.filter(function(n){ return (n.joueurs||[]).some(function(q){ return q.num===j.num; }); });
+  var corps='<div class="jf-act"><button class="btn" onclick="nrOuvrir('+j.num+')">Nouvelle note sur lui (écrite ou vocale)</button></div>'
+    +(L.length?'<div class="nr-grille">'+L.map(nrCarteHtml).join('')+'</div>':'<div class="jf-vide">Rien de noté sur lui pour l’instant.</div>');
+  var ouv=L.filter(function(n){ return !n.traite; }).length;
+  return jfBloc('jf-notes','Notes du staff sur lui', L.length+' note'+(L.length>1?'s':'')+(ouv?' · '+ouv+' à traiter':''), corps, 'notes');
+}
+function jfBlocObjectifs(i){
+  var corps='<div class="jf-act"><button class="btn" onclick="jfVersEntretien('+i+')">Préparer un entretien</button>'
+    +'<button class="jf-b2" onclick="chargerReactionObjectifs()">Voir s’il a réagi à ses objectifs</button>'
+    +'<button class="jf-b2" onclick="goNav(\'suivi-objectifs\')">Objectifs de tout le groupe ›</button></div>';
+  return jfBloc('jf-obj','Entretiens et objectifs','ce qu’on s’est dit, ce qu’on vise', corps, 'objectifs');
+}
+function jfVersEntretien(i){
+  goNav('entretien');
+  setTimeout(function(){ var s=document.getElementById('entretien-sel'); if(s){ s.value=String(i); try{ s.onchange&&s.onchange(); }catch(e){} try{ renderEntretien(); }catch(e){} } }, 120);
+}
+
+// ---------- Le découpage en onglets ----------
+function jfClasser(el){
+  var t=((el.querySelector('.bt')||{}).textContent||'').toLowerCase();
+  if(t.indexOf('attribut')>=0 || t.indexOf('sa saison')>=0) return 'chiffres';
+  if(t.indexOf('médical')>=0) return 'medical';
+  if(t.indexOf('dit')>=0 || t.indexOf('objectif')>=0) return 'objectifs';
+  if(t.indexOf('forme')>=0) return 'forme';
+  return 'resume';
+}
+function jfApres(){
+  var scr=document.getElementById('scr-effectif');
+  if(!scr || !document.body.classList.contains('nav3')) return;
+  jfInstaller();
+  JF_CHG=null;
+  var i=jfIdx(), ct=document.getElementById('fiche-coach-ct'); if(!ct) return;
+  var band=ct.querySelector('.fj-bandeau');
+  // la barre d'onglets, juste sous l'identité du joueur
+  var barre=document.createElement('div'); barre.className='jf-tabs'; barre.id='jf-tabs';
+  barre.innerHTML=JF_ONGLETS.map(function(o){
+      var n=0;
+      if(o.k==='notes'){ try{ n=(NR_NOTES||[]).filter(function(x){ return !x.traite && (x.joueurs||[]).some(function(q){ return q.num===JOUEURS[i].num; }); }).length; }catch(e){} }
+      if(o.k==='medical'){ try{ n=joueurBlessureActive(i)?1:0; }catch(e){} }
+      return '<button data-k="'+o.k+'" onclick="jfOnglet(\''+o.k+'\')">'+o.l+(n?'<b>'+n+'</b>':'')+'</button>';
+    }).join('');
+  // les blocs d'avant : chacun dans son onglet
+  Array.prototype.forEach.call(ct.children, function(el){ if(el!==band) el.setAttribute('data-jf', jfClasser(el)); });
+  var neuf=document.createElement('div'); neuf.className='jf-neuf';
+  neuf.innerHTML=jfBlocResume(i)+jfBlocChiffres(i)+jfBlocForme(i)+jfBlocMedical(i)+jfBlocNotes(i)+jfBlocObjectifs(i);
+  var apres=band?band.nextSibling:ct.firstChild;
+  ct.insertBefore(barre, apres);
+  // nos blocs passent devant ceux d'avant, onglet par onglet
+  Array.prototype.slice.call(neuf.children).forEach(function(b){
+    var k=b.getAttribute('data-jf');
+    var premier=null;
+    Array.prototype.forEach.call(ct.children, function(el){ if(!premier && el.getAttribute('data-jf')===k && !el.classList.contains('jf-b')) premier=el; });
+    if(premier) ct.insertBefore(b, premier); else ct.appendChild(b);
+  });
+  // ce qui vit à côté de la fiche
+  var obj=document.getElementById('fiche-obj-ct'); if(obj) obj.setAttribute('data-jf','objectifs');
+  var rea=document.getElementById('fiche-obj-reaction-ct'); if(rea && rea.parentNode) rea.parentNode.setAttribute('data-jf','objectifs');
+  var nrf=document.getElementById('nr-fiche'); if(nrf) nrf.setAttribute('data-jf','aucun');
+  var anc=document.getElementById('anciens-ct'); if(anc && anc.parentNode) anc.parentNode.setAttribute('data-jf','resume');
+  jfAppliquerOnglet();
+  jfListe();
+}
+function jfAppliquerOnglet(){
+  var f=document.getElementById('jf-fiche'); if(!f) return;
+  if(!JF_ONGLETS.some(function(o){ return o.k===JF_ONGLET; })) JF_ONGLET='resume';
+  f.querySelectorAll('[data-jf]').forEach(function(el){ el.classList.toggle('jf-cache', el.getAttribute('data-jf')!==JF_ONGLET); });
+  f.querySelectorAll('#jf-tabs button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-k')===JF_ONGLET); });
+}
+function jfRafraichir(){
+  var s=document.getElementById('scr-effectif');
+  if(s && s.classList.contains('on')) renderFicheCoach();
+}
+function jfInstaller(){
+  if(JF_PRET) return;
+  var scr=document.getElementById('scr-effectif'); if(!scr) return;
+  JF_PRET=true;
+  scr.classList.remove('scr-grille'); scr.classList.add('jf-ecran');
+  var ph=scr.querySelector(':scope > .ph');
+  var wrap=document.createElement('div'); wrap.className='jf';
+  wrap.innerHTML='<aside class="jf-liste" id="jf-liste"></aside><section class="jf-fiche" id="jf-fiche"></section>';
+  var fiche=wrap.querySelector('#jf-fiche');
+  Array.prototype.slice.call(scr.children).forEach(function(el){
+    if(el===ph || el.classList.contains('etapes') || el.classList.contains('mpn')) return;
+    fiche.appendChild(el);
+  });
+  if(ph && ph.nextSibling) scr.insertBefore(wrap, ph.nextSibling); else scr.appendChild(wrap);
+  var sel=document.getElementById('fiche-sel');
+  var blk=sel?sel.closest('.blk'):null;
+  if(blk) blk.classList.add('jf-sel-blk');
+  if(ph){
+    var t=ph.querySelector('.ph-title'); if(t) t.textContent='Les joueurs';
+    var st=ph.querySelector('.ph-sub'); if(st) st.textContent='Tout le groupe à gauche, chacun avec son signal — sa fiche complète à droite';
+  }
+}
+
+window.addEventListener('load', function(){
+  if(!(typeof nav3Actif==='function' && nav3Actif())) return;
+  var rf=window.renderFicheCoach;
+  if(rf) window.renderFicheCoach=function(){
+    var r=rf.apply(this, arguments);
+    try{ jfApres(); }catch(e){ console.error(e); }
+    return r;
+  };
+  var nf=window.nrFicheJoueur;
+  if(nf) window.nrFicheJoueur=function(){
+    var r=nf.apply(this, arguments);
+    var b=document.getElementById('nr-fiche'), f=document.getElementById('jf-fiche');
+    if(b && f && b.parentNode!==f) f.appendChild(b);
+    if(b) b.setAttribute('data-jf','aucun');
+    try{ jfAppliquerOnglet(); }catch(e){}
+    return r;
+  };
+  var nrv=window.nrRafraichirVues;
+  if(nrv) window.nrRafraichirVues=function(){ var r=nrv.apply(this, arguments); jfRafraichir(); return r; };
 });
 
 </script>
@@ -5639,8 +6082,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v135</b> · 14/10/2026<br>
-      <span style="opacity:.7">Nouveau menu : 3 portes</span>
+      AST COACH <b style="color:var(--or)">v136</b> · 14/10/2026<br>
+      <span style="opacity:.7">Fiche joueur unique</span>
     </div>
   </div>
 </div>
