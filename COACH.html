@@ -3800,6 +3800,23 @@ var CHG_CSS=''
 .dens-repli>div:nth-child(n+9):not(.dens-plus){display:none!important}
 .dens-plus{display:block;width:100%;margin-top:6px;padding:6px;border:1px dashed var(--line);border-radius:6px;
   background:none;color:var(--or);font-weight:700;font-size:12px;cursor:pointer}
+/* Tableau de bord, colonne de droite : des cartes serrees, des boutons en
+   ligne. Elle ne doit jamais etre plus haute que le fil de la semaine. */
+@media (min-width:1100px){
+  #dash-vivant{grid-template-columns:minmax(0,1.9fr) minmax(280px,1fr)}
+  #dash-vivant>.dv-scene{gap:8px}
+  #dash-vivant .dv-carte{padding:8px 12px 10px;border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,.25)}
+  #dash-vivant .dv-carte h3{font-size:11.5px;margin:0 0 4px}
+  #dash-vivant .dv-l{padding:3px 0;font-size:13px}
+  #dash-vivant .dv-vide{font-size:12px;line-height:1.45}
+  #dash-vivant .dv-action{display:inline-block;width:auto;margin:7px 6px 0 0;padding:5px 10px;
+    font-size:10.5px;letter-spacing:.04em;border-radius:6px}
+  #dash-vivant .dv-meteo{padding:6px 12px}
+  #dash-vivant .dv-meteo .ic{font-size:22px}
+  #dash-vivant .dv-meteo .t{font-size:18px}
+}
+#dash-vivant .dv-l.dv-bl{padding:1px 0 1px 8px;border-bottom:none;font-size:12.5px}
+#dash-vivant .dv-l.dv-bl .k{color:var(--red)}
 </style>
 <script>
 // ===== Densite (v130) : les grilles prennent toute la largeur =====
@@ -4300,8 +4317,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v130</b> · 14/10/2026<br>
-      <span style="opacity:.7">Chasse aux espaces vides</span>
+      AST COACH <b style="color:var(--or)">v131</b> · 14/10/2026<br>
+      <span style="opacity:.7">Tableau de bord resserré</span>
     </div>
   </div>
 </div>
@@ -11135,16 +11152,19 @@ function dvScene(c, jours){
       +(nbB?dvLigne('Équipe B', nbB):'')
       +(cloud?dvLigne('Ont répondu', cloud.repondu+' joueur'+(cloud.repondu>1?'s':''), cloud.repondu>=nbA?'bon':'alerte'):'')
       +(cloud&&cloud.non?dvLigne('Se sont dits absents', cloud.non, 'mauvais'):'')
-      +dvLigne('À l\'infirmerie', blesses.length||'aucun', blesses.length?'alerte':'bon');
+      +dvLigne('À l\'infirmerie', blesses.length||'aucun', blesses.length?'alerte':'bon')
+      // Les noms des blesses vivent dans la carte du groupe : une carte de
+      // plus pour deux noms allongeait la colonne au-dela du fil.
+      +blesses.slice(0,4).map(function(n){ return '<div class="dv-l dv-bl"><span class="k">• '+esc2(n)+'</span></div>'; }).join('')
+      +(blesses.length>4?'<div class="dv-l dv-bl"><span class="k">+ '+(blesses.length-4)+' autres</span></div>':'');
     return dvCarte('👥 Le groupe','#b285e8', corpsGroupe,
-        '<button class="dv-action" onclick="goNav(\'convos\')">Ouvrir les convocations</button>')
+        '<button class="dv-action" onclick="goNav(\'convos\')">Convocations</button>'
+        +(blesses.length?'<button class="dv-action" onclick="goNav(\'medical\')">Suivi médical</button>':''))
       +dvCarte('🧠 Ce qu\'il reste à caler','#d97706',
         '<div class="dv-vide">La carte mentale rassemble l\'adversaire, le plan, les coups de pied arrêtés et ton discours sur une page.</div>',
         '<button class="dv-action" onclick="genererCarteMentaleMatch()">Ouvrir la carte mentale</button>'
         +'<button class="dv-action" onclick="goNav(\'compos\')">Préparer la compo</button>')
-      +(blesses.length?dvCarte('🏥 Indisponibles','#dc4444',
-        blesses.slice(0,5).map(function(n){ return dvLigne(n,'',''); }).join(''),
-        '<button class="dv-action" onclick="goNav(\'medical\')">Suivi médical</button>'):'');
+      ;
   }
 
   // ---------- J-4 à J-8 : l'adversaire ----------
