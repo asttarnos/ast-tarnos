@@ -1237,6 +1237,26 @@ var CH_CSS=''
 (function(){ try{ var s=document.createElement('style'); s.textContent=CH_CSS; document.head.appendChild(s); }catch(e){} })();
 
 </script>
+<style>
+/* ===== Densite cote joueur (v48b) ===== */
+/* L'effectif : 44 cartes de 200 px faisaient 9 000 px a faire defiler.
+   Huit chiffres sur deux rangees de quatre, la carte tombe a moitie. */
+.effectif-card{padding:8px 10px!important;margin-bottom:6px!important}
+.effectif-hdr{margin-bottom:5px!important;gap:8px!important}
+.effectif-hdr .eff-ph{width:28px!important;height:28px!important;font-size:11px!important}
+.effectif-nom{font-size:14.5px!important}
+.effectif-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:3px!important}
+.effectif-chip{padding:3px 2px!important;text-align:center}
+.effectif-chip .l{font-size:9.5px!important;letter-spacing:.02em!important;line-height:1.15}
+.effectif-chip .v{font-size:13px!important;line-height:1.2}
+/* Temps de jeu : un classement a la fois, on change d'onglet */
+.tj-ong{display:flex;gap:5px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.tj-ong button{flex:0 0 auto;padding:7px 11px;border-radius:18px;border:1.5px solid var(--hair);background:var(--voile2);
+  color:var(--ink);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tj-ong button.on{background:var(--or);border-color:var(--or);color:#1a0f02}
+.tj-b{display:none}.tj-b.on{display:block}
+.tj-b .blk-body>div{margin-bottom:6px!important}
+</style>
 </head>
 <body>
 <!-- Le jeu d'icones. Un seul dessin par idee, la meme grille de 24 et la
@@ -2773,7 +2793,7 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v48</b> · 14/10/2026<br>'
+    +'AST JOUEUR <b style="color:var(--or)">v48b</b> · 14/10/2026<br>'
     +'<span style="opacity:.8">Les chiffres disent ce qu\'ils valent</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
@@ -5191,9 +5211,17 @@ function renderTempsJeu(){
         +'<div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px"></div></div>'
         +'</div>';
     }).join('');
-    return '<div class="blk"><div class="blk-h"><span class="t">'+ic(cfg.ic)+esc(cfg.titre)+'</span></div><div class="blk-body">'+explication+liste+'</div></div>';
+    return '<div class="blk tj-b'+(cfg.k===TJ_ONGLET?' on':'')+'" data-tj="'+cfg.k+'"><div class="blk-h"><span class="t">'+ic(cfg.ic)+esc(cfg.titre)+'</span></div><div class="blk-body">'+explication+liste+'</div></div>';
   }).join('');
+  // Cinq classements de quarante noms les uns sous les autres : huit mille
+  // pixels a faire defiler. Un seul a la fois, on passe de l'un a l'autre.
+  ct.insertAdjacentHTML('afterbegin', '');
+  var premier=ct.querySelector('.tj-b');
+  if(premier) premier.insertAdjacentHTML('beforebegin', '<div class="tj-ong">'+configs.map(function(cfg){
+    return '<button class="'+(cfg.k===TJ_ONGLET?'on':'')+'" onclick="tjOnglet(\''+cfg.k+'\')">'+esc(cfg.titre)+'</button>'; }).join('')+'</div>');
 }
+var TJ_ONGLET='temps_total';
+function tjOnglet(k){ TJ_ONGLET=k; renderTempsJeu(); }
 
 // ===== Écran protégé "Coach" (plateau tactique + suivi médical) =====
 function joursEntre(dateStr){

@@ -3648,6 +3648,231 @@ var CHG_CSS=''
 (function(){ try{ var s=document.createElement('style'); s.textContent=CHG_CSS; document.head.appendChild(s); }catch(e){} })();
 
 </script>
+<style>
+/* ===== Convocations — vue dense (v129) =====
+   Le coach veut voir tout le groupe d'un coup. Ce qui prenait la hauteur :
+   le titre et son sous-titre, les trois grandes cartes d'etapes, la barre du
+   bas et le bandeau « Et apres ? », plus une deuxieme ligne par blesse qui
+   etirait toute la rangee de la grille. On rend tout ca a la liste. */
+@media (min-width:701px){
+  #scr-convos .ph{margin-bottom:4px;padding:2px 0 2px 12px}
+  #scr-convos .ph-title{font-size:21px}
+  #scr-convos .ph-sub{display:none}
+
+  /* Le match : une ligne, l'etiquette devant le champ */
+  #scr-convos .cv-barre{gap:8px;margin-bottom:6px}
+  #scr-convos .cv-barre .fg{display:flex;align-items:center;gap:6px;min-width:0}
+  #scr-convos .cv-barre .fl{font-size:9px;margin:0;flex:0 0 auto;white-space:nowrap}
+  #scr-convos .cv-barre .fi{font-size:12.5px;padding:6px 9px;flex:1;min-width:0}
+
+  /* Les trois etapes : des onglets d'une ligne, pas des cartes de trois */
+  #scr-convos .cv-fil{margin-bottom:6px;gap:4px}
+  #scr-convos .cv-pas{flex-direction:row;align-items:center;gap:8px;padding:6px 12px;border-radius:9px}
+  #scr-convos .cv-pas-h{flex:0 0 auto}
+  #scr-convos .cv-pas-m{display:none}
+  #scr-convos .cv-pas-t{font-size:13.5px;flex:0 1 auto}
+  #scr-convos .cv-pas-c{font-size:12px;flex:1 1 auto;text-align:right}
+  #scr-convos .cv-pas-fl{font-size:14px}
+
+  /* La barre du bas : une ligne fine */
+  #scr-convos .cv-nav{padding:6px 2px 6px;margin-top:6px;gap:8px}
+  #scr-convos .cv-nav-info{font-size:12px}
+  #scr-convos .cv-nav-b{padding:7px 14px;font-size:12.5px;border-radius:8px}
+  #scr-convos .cv-nav-b.lien{background:none;border-color:transparent;color:var(--gris2);padding:7px 8px}
+  #scr-convos .cv-nav-b.lien:hover{color:var(--or)}
+  #scr-convos > .etapes{display:none}
+
+  #scr-convos .cv-etape-ct{gap:8px}
+  #scr-convos .cv-outils{padding:6px 10px 0;gap:6px}
+  #scr-convos .cv-outils .cv-ch{padding:5px 9px;font-size:12px}
+  #scr-convos .cv-vue-b{padding:6px 10px;font-size:11.5px}
+  #scr-convos .cv-bloc-b{padding:5px 9px}
+
+  /* --- Etape 1 : des colonnes qui se remplissent de haut en bas ---
+     En grille, la rangee prenait la hauteur de son blesse le plus bavard.
+     En colonnes, chaque joueur ne prend que sa place, et l'ordre des numeros
+     se lit comme une liste. */
+  #scr-convos .cv-lignes{display:block;column-width:272px;column-gap:6px;padding:6px 10px 10px}
+  #scr-convos .cv-lignes>.cv-ligne{break-inside:avoid;margin-bottom:4px}
+  #scr-convos .cv-ligne{padding:2px 5px 2px 6px;border-radius:6px}
+  #scr-convos .cv-ligne-h{flex-wrap:nowrap;gap:5px}
+  #scr-convos .cv-ligne-h .cv-nom{min-width:0;font-size:13.5px}
+  #scr-convos .cv-num{flex:0 0 24px;font-size:11.5px;padding:2px 0;border-radius:5px}
+  #scr-convos .cv-ligne .cv-seg{gap:2px}
+  #scr-convos .cv-ligne .cv-seg-b,
+  #scr-convos .cv-ligne .cv-seg-b.on{width:23px;height:22px;padding:0;justify-content:center;border-radius:5px}
+  #scr-convos .cv-ligne .cv-seg-i{font-size:11.5px}
+  /* L'etat pose se voit a la couleur de la ligne et de sa case : le libelle
+     reste dans l'infobulle, la place va au nom. */
+  #scr-convos .cv-ligne .cv-seg-b .cv-seg-l{display:none}
+  #scr-convos .cv-ligne .cv-seg-b.on:not([data-k="ok"]){background:var(--c);border-color:var(--c)}
+  #scr-convos .cv-ligne.hs{background:color-mix(in srgb,var(--c) 9%,transparent)}
+  /* Le motif : une ligne fine sous le nom, qui ne ressemble a un champ qu'au survol */
+  #scr-convos .cv-lignes .cv-pre{display:none}
+  #scr-convos .cv-lignes .cv-ini{display:inline}
+  #scr-convos .cv-motif{display:block;text-align:left;width:calc(100% - 29px);margin:1px 0 1px 29px;padding:2px 6px;
+    font-size:11.5px;height:22px;border:1px dashed transparent;background:transparent;color:var(--gris)}
+  #scr-convos .cv-motif:hover{border-color:var(--line)}
+  #scr-convos .cv-motif:focus{border-color:var(--or);border-style:solid;background:var(--champ)}
+  #scr-convos .cv-motif::placeholder{color:var(--gris2);font-style:italic}
+
+  /* --- Etape 2 : des lignes plus serrees --- */
+  #scr-convos .cv-tabs{gap:10px;padding:8px 10px 10px}
+  #scr-convos .cv-tab{gap:3px}
+  #scr-convos .cv-tab-l{padding:1px 6px}
+  #scr-convos .cv-tab-l .cv-tab-x{height:23px;padding:3px}
+  #scr-convos .cv-tab-c{padding:3px 4px 4px}
+
+  /* --- Etape 3 : plus de cases par ligne --- */
+  #scr-convos .cv-eqs{padding:8px 10px 0;gap:7px}
+  #scr-convos .cv-eq-barre{padding:7px 10px 0}
+  #scr-convos .cv-cases{gap:3px;padding:6px 10px 8px}
+  #scr-convos .cv-cases-eq{grid-template-columns:repeat(auto-fill,minmax(226px,1fr))}
+  #scr-convos .cv-case{padding:4px 8px}
+}
+@media (min-width:701px){ #scr-convos .cv-ligne input.cv-motif{text-align:left!important} }
+/* Etape 2 : dans une colonne de 46 px, le compteur et ses deux boutons se
+   chevauchaient. Le compteur au-dessus, les boutons en dessous. */
+@media (min-width:1001px){
+  #scr-convos .cv-tabs .cv-tab-c .cv-tab-bas{flex-direction:column;gap:3px}
+  #scr-convos .cv-tabs .cv-tab-b button{width:19px;height:17px;font-size:10px}
+  #scr-convos .cv-tabs .cv-tab-t{font-size:10.5px;line-height:1.15}
+}
+</style>
+<style>
+/* ===== Densite (v130) : une belle appli ne perd pas de place =====
+   Regles communes a tous les ecrans, sur ordinateur et tablette. Le
+   telephone garde ses reglages : sous 861 px, rien ne change. */
+@media (min-width:861px){
+  .scr{padding:11px 16px 14px}
+  /* Le titre et sa phrase sur la meme ligne : une ligne de gagnee partout */
+  .ph{padding:3px 0 3px 13px;margin-bottom:7px}
+  .ph>div:first-child{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:14px;row-gap:0}
+  .ph-title{font-size:23px}
+  .ph-sub{margin-top:0;font-size:12px}
+  .bh{padding:8px 12px}
+  .blk{margin-bottom:10px}
+  .scr-grille.on,.scr-grille,.rub-p.on.scr-grille{gap:10px}
+  .rub-barre{margin-bottom:8px}
+  /* « Et apres ? » : une rangee discrete, pas un pied de page */
+  .etapes{margin:10px 0 0;padding-top:8px}
+  .etapes-b{padding:6px 11px}
+
+  /* Recap global : trois colonnes de joueurs au lieu d'une pleine largeur */
+  #recap-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:6px;align-items:start}
+  #recap-body>.recap-card{margin:0}
+  #recap-body>.recap-vide{grid-column:1/-1}
+
+  /* Presences : trois colonnes, une ligne par joueur, les menus serres */
+  #pres-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));column-gap:8px;padding:6px 8px}
+  #pres-list .jr{grid-template-columns:26px minmax(0,1fr) 104px 70px 74px !important;gap:5px;padding:3px 6px;border-radius:5px}
+  #pres-list .jr .jnom{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pres-list .jr .sel{padding:3px 4px;font-size:12px}
+  .rub-p[data-r="pres"] #pres-list{border-top:1px solid var(--line)}
+  .rub-p[data-r="pres"] .blk>div[style*="grid-template-columns:28px"]{display:none!important}
+}
+/* Tableau de bord : le bandeau du match se tasse, le fil de la semaine et
+   les cartes passent cote a cote au lieu de s'empiler au centre. */
+@media (min-width:1100px){
+  #dash-vivant{max-width:none;padding:0 0 10px;display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);column-gap:12px;align-items:start}
+  #dash-vivant>.dv-hero{grid-column:1/-1;padding:10px 20px;gap:18px;margin-bottom:10px}
+  #dash-vivant>#fil-semaine{grid-column:1;grid-row:2/span 4}
+  #dash-vivant>#fil-semaine .fs-blk{margin-bottom:0}
+  #dash-vivant>.dv-scene{grid-column:2;grid-template-columns:1fr;gap:10px}
+  .dv-logo{width:64px}
+  .dv-centre{display:grid;grid-template-columns:auto 1fr;column-gap:20px;align-items:center}
+  .dv-etiq{grid-column:1/-1;justify-self:start;margin-bottom:4px}
+  .dv-jx{font-size:62px;grid-row:2/span 2}
+  .dv-adv{font-size:27px;margin-top:0;align-self:end}
+  .dv-meta{margin-top:2px;align-self:start}
+  .dv-meteo{padding:8px 14px}
+  .dv-carte{padding:11px 14px}
+  /* Le fil : la phrase et ses boutons sur la meme ligne */
+  .fs-l{padding:2px 14px 10px}
+  .fs-e{padding:6px 0;gap:11px}
+  .fs-c{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center}
+  .fs-h{grid-column:1/-1}
+  .fs-dt{margin:0;font-size:13px}
+  .fs-a{justify-content:flex-end}
+  .fs-b,.fs-doc{padding-top:5px;padding-bottom:5px}
+}
+/* Les longues listes du bilan : les huit premiers, le reste a la demande */
+.dens-repli>div:nth-child(n+9):not(.dens-plus){display:none!important}
+.dens-plus{display:block;width:100%;margin-top:6px;padding:6px;border:1px dashed var(--line);border-radius:6px;
+  background:none;color:var(--or);font-weight:700;font-size:12px;cursor:pointer}
+</style>
+<script>
+// ===== Densite (v130) : les grilles prennent toute la largeur =====
+// Les ecrans en grille calculaient leurs colonnes pour la largeur de la
+// fenetre, pas pour le nombre de blocs : trois blocs sur quatre colonnes
+// laissaient un quart de l'ecran vide, un bloc seul en laissait les trois
+// quarts. On compte les blocs, et on fait autant de colonnes qu'il en faut.
+function densCompterBlocs(g){
+  var n=0;
+  function compter(el){
+    for(var i=0;i<el.children.length;i++){
+      var c=el.children[i], cs=getComputedStyle(c);
+      if(cs.display==='contents'){ compter(c); continue; }
+      if(cs.display==='none' || cs.position==='absolute' || cs.position==='fixed') continue;
+      if(c.tagName==='STYLE' || c.tagName==='SCRIPT') continue;
+      var deb=cs.gridColumnStart, fin=cs.gridColumnEnd;
+      if(fin==='-1' || /span/.test(fin) || /span/.test(deb)) continue;  // ceux qui prennent toute la ligne
+      n++;
+    }
+  }
+  compter(g);
+  return n;
+}
+function densGrilles(){
+  var grilles=document.querySelectorAll('.scr-grille');
+  for(var i=0;i<grilles.length;i++){
+    var g=grilles[i];
+    if(window.innerWidth<=860){ g.style.gridTemplateColumns=''; continue; }
+    if(!g.offsetParent) continue;
+    var n=densCompterBlocs(g);
+    var max=Math.max(1, Math.floor((g.clientWidth+10)/(328+10)));
+    var c=Math.max(1, Math.min(n, max));
+    g.style.gridTemplateColumns='repeat('+c+',minmax(0,1fr))';
+  }
+}
+function densPlus(){ setTimeout(densGrilles, 0); setTimeout(densGrilles, 250); }
+(function(){
+  function envelopper(nom){
+    var f=window[nom]; if(typeof f!=='function' || f._dens) return;
+    var g=function(){ var r=f.apply(this, arguments); densPlus(); return r; };
+    g._dens=true; window[nom]=g;
+  }
+  window.addEventListener('load', function(){
+    ['goNav','goRubrique','rendreEcran'].forEach(envelopper);
+    densPlus();
+  });
+  var t=null;
+  window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(densGrilles, 150); });
+})();
+// Les listes du bilan (buteurs, passeurs) faisaient la hauteur de l'effectif.
+function densReplier(id){
+  var el=document.getElementById(id); if(!el) return;
+  var anc=el.querySelector(':scope > .dens-plus'); if(anc) anc.remove();
+  var n=el.children.length;
+  if(n<=9){ el.classList.remove('dens-repli'); return; }
+  el.classList.add('dens-repli');
+  var b=document.createElement('button');
+  b.className='dens-plus'; b.textContent='＋ Les '+(n-8)+' autres';
+  b.onclick=function(){
+    var ouvert=el.classList.toggle('dens-repli');
+    b.textContent=ouvert?('＋ Les '+(n-8)+' autres'):'− Replier';
+  };
+  el.appendChild(b);
+}
+window.addEventListener('load', function(){
+  var f=window.renderBilanSaison;
+  if(typeof f==='function' && !f._dens){
+    var g=function(){ var r=f.apply(this, arguments); densReplier('bilan-buteurs'); densReplier('bilan-passeurs'); return r; };
+    g._dens=true; window.renderBilanSaison=g;
+  }
+});
+
+</script>
 </head><body>
 <div class="bg"></div>
 <!-- Le jeu d'icones, preleve tel quel de l'appli joueur : un seul dessin par
@@ -4075,8 +4300,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v128</b> · 14/10/2026<br>
-      <span style="opacity:.7">Rapport adversaire · charge d'entraînement</span>
+      AST COACH <b style="color:var(--or)">v130</b> · 14/10/2026<br>
+      <span style="opacity:.7">Chasse aux espaces vides</span>
     </div>
   </div>
 </div>
@@ -5202,6 +5427,8 @@ Chez le président"></textarea>
     <button class="cv-nav-b" id="cv-prec" onclick="cvAller(CV_ETAPE-1)">‹ Précédent</button>
     <div class="cv-nav-info" id="cv-nav-info"></div>
     <button class="cv-nav-b suite" id="cv-suiv" onclick="cvAller(CV_ETAPE+1)">Suivant ›</button>
+    <button class="cv-nav-b lien" id="cv-l-compo" onclick="goNav('compos')" style="display:none">Poser la compo ›</button>
+    <button class="cv-nav-b lien" id="cv-l-fm" onclick="goNav('feuille-match')" style="display:none">La feuille de match ›</button>
     <button class="cv-nav-b garder" onclick="cvEnregistrer()">💾 Enregistrer</button>
   </div>
 </div>
@@ -12785,6 +13012,7 @@ function cvRendreNav(){
   var p=document.getElementById('cv-prec'), su=document.getElementById('cv-suiv'),
       inf=document.getElementById('cv-nav-info');
   if(p) p.style.visibility=(CV_ETAPE>1)?'visible':'hidden';
+  ['cv-l-compo','cv-l-fm'].forEach(function(id){ var b=document.getElementById(id); if(b) b.style.display=(CV_ETAPE===3)?'':'none'; });
   if(su){
     su.style.visibility=(CV_ETAPE<3)?'visible':'hidden';
     su.textContent=(CV_ETAPE===1)?"Qui s'entraîne ›":'La convocation ›';
@@ -18645,7 +18873,7 @@ function renderPlanning(){
   var manques=THEMES_PLANNING.filter(function(t){return !counts[t];});
   var manqueHtml=manques.length
     ?'<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:8px">⚠ Pas encore travaillé ce mois-ci</div>'
-      +manques.map(function(t){return '<div style="font-size:13px;color:var(--gris);padding:3px 0">• '+t+'</div>';}).join('')+'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px">'+manques.map(function(t){return '<span style="font-size:12px;color:var(--gris);padding:3px 9px;border:1px solid var(--line);border-radius:12px">'+t+'</span>';}).join('')+'</div></div>'
     :'<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);color:var(--green);font-size:13px">✓ Tous les thèmes clés ont été abordés ce mois-ci</div>';
 
   document.getElementById('planning-recap').innerHTML=recapHtml+manqueHtml;
