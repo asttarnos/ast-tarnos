@@ -1605,6 +1605,17 @@ body.cv-plein #scr-convos.on{padding-top:0}
 .dm-b{width:6px;height:6px;background:#fff;border:1px solid var(--fond2)}
 /* Le mot sur une capture : deux lignes suffisent, il sort en grand sur la
    feuille affichee au vestiaire. */
+/* Une ligne de retour s'ouvre d'un clic sur son ecran : c'est la porte vers
+   le pole ou ce sujet est range, pas une copie de son contenu. */
+.rj-l{cursor:pointer;border-radius:7px;margin:0 -5px;padding-left:5px;padding-right:5px;
+  transition:background .13s}
+.rj-l:hover{background:var(--voile)}
+.rj-l .v{display:inline-flex;align-items:center;gap:5px}
+.rj-f{font-style:normal;opacity:.45;font-size:13px}
+.rj-note{margin-top:9px;padding-top:8px;border-top:1px solid var(--line);
+  font-size:11.5px;line-height:1.4;color:var(--gris2)}
+.dv-l .v.gris{color:var(--gris2);opacity:.75}
+
 /* Le bas de chaque etape : une seule porte, celle d'apres. */
 .mpn{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;
   border-top:1.5px dashed var(--bord);margin-top:22px;padding-top:15px}
@@ -3177,7 +3188,7 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v126</b> · 13/10/2026<br>
+      AST COACH <b style="color:var(--or)">v127</b> · 13/10/2026<br>
       <span style="opacity:.7">Le fil ouvre le bon match</span>
     </div>
   </div>
@@ -3505,9 +3516,9 @@ Chez le président"></textarea>
 
 <!-- DOCUMENTS : infos-club, imprimer, a-creuser -->
 <div class="scr" id="scr-club-docs">
-<div class="rub-barre rub-haut"><button class="rub-b on" data-r="infos-club" onclick="goRubrique('club-docs','infos-club')"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Docs & contacts club</button><button class="rub-b" data-r="imprimer" onclick="goRubrique('club-docs','imprimer')"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Docs à imprimer</button><button class="rub-b" data-r="a-creuser" onclick="goRubrique('club-docs','a-creuser')"><svg class="ico" aria-hidden="true"><use href="#i-adn"/></svg>À creuser</button></div>
+<div class="rub-barre rub-haut"><button class="rub-b on" data-r="infos-club" onclick="goRubrique('club-docs','infos-club')"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Règlement &amp; contacts</button><button class="rub-b" data-r="imprimer" onclick="goRubrique('club-docs','imprimer')"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Docs à imprimer</button><button class="rub-b" data-r="acces" onclick="goRubrique('club-docs','acces')">🔑 Accès des joueurs</button><button class="rub-b" data-r="archives" onclick="goRubrique('club-docs','archives')"><svg class="ico" aria-hidden="true"><use href="#i-hausse"/></svg>Archives des saisons</button><button class="rub-b" data-r="a-creuser" onclick="goRubrique('club-docs','a-creuser')"><svg class="ico" aria-hidden="true"><use href="#i-adn"/></svg>À creuser</button></div>
 <div class="rub-p on scr-grille" data-r="infos-club">
-  <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Docs & contacts club</div><div class="ph-sub">Visible par les joueurs</div></div></div>
+  <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-document"/></svg>Règlement &amp; contacts</div><div class="ph-sub">Les deux documents du club que les joueurs voient dans leur appli</div></div></div>
   <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt">Règlement intérieur / infos pratiques</span></div>
     <div style="padding:14px">
       <textarea class="fta" id="infos-reglement" style="min-height:200px" placeholder="Règles de vie du groupe, horaires, adresse du terrain, consignes de retard..."></textarea>
@@ -3522,6 +3533,11 @@ Chez le président"></textarea>
     </div>
     <div id="contacts-club-list" style="padding:0 14px 14px"></div>
   </div>
+</div>
+
+<!-- Archiver une saison n'est pas un document : c'est ranger une annee. -->
+<div class="rub-p scr-grille" data-r="archives">
+  <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-hausse"/></svg>Archives des saisons</div><div class="ph-sub">Range une saison entière pour la retrouver plus tard — rien n'est effacé</div></div></div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-hausse"/></svg>Historique des saisons</span></div>
     <div style="padding:14px">
       <div style="font-size:12.5px;color:var(--gris2);margin-bottom:10px">Archive un instantané complet de l'effectif (stats, notes, présences) pour le retrouver les saisons suivantes — sans effacer les données actuelles.</div>
@@ -3530,6 +3546,11 @@ Chez le président"></textarea>
     </div>
     <div id="historique-saisons-list" style="padding:0 14px 14px"></div>
   </div>
+</div>
+
+<!-- Un code PIN n'est pas un document : c'est la cle d'entree d'un joueur. -->
+<div class="rub-p scr-grille" data-r="acces">
+  <div class="ph"><div><div class="ph-title">🔑 Accès des joueurs</div><div class="ph-sub">Qui peut ouvrir l'appli, et quoi faire quand un joueur a oublié son code</div></div></div>
   <div class="blk plein"><div class="bh"><span class="bt go">🔑 Codes PIN joueurs</span></div>
     <div style="padding:14px">
       <div style="font-size:12.5px;color:var(--gris2);margin-bottom:10px">Chaque joueur crée son propre code à 4 chiffres à sa première connexion. Si un joueur l'a oublié, réinitialise-le ici — il en recréera un nouveau à sa prochaine connexion.</div>
@@ -6782,8 +6803,10 @@ var RUBRIQUES_INFO={
   'chat':{ic:'bulle',l:"Messagerie joueurs"},
   'notifs-push':{ic:'cloche',l:"Notifications push"},
   'sondage':{ic:'barres',l:"Sondages"},
-  'infos-club':{ic:'document',l:"Docs & contacts club"},
+  'infos-club':{ic:'document',l:"Règlement & contacts"},
   'imprimer':{ic:'document',l:"Docs à imprimer"},
+  'acces':{ic:'🔑',l:"Accès des joueurs"},
+  'archives':{ic:'hausse',l:"Archives des saisons"},
   'a-creuser':{ic:'adn',l:"À creuser"}
 };
 Object.keys(RUBRIQUES_INFO).forEach(function(k){ if(!ECRANS_INFO[k]) ECRANS_INFO[k]=RUBRIQUES_INFO[k]; });
@@ -7835,6 +7858,7 @@ function rendreEcran(s){
 // ===== Les rubriques : plusieurs sujets dans un seul ecran =====
 // L'ancien nom d'ecran devient le nom de la rubrique : tous les liens marchent.
 var RUBRIQUE_DE={'hub':'club-vie','reunions':'club-vie','calendrier-annuel':'club-vie','activite':'club-vie','message':'club-com','chat':'club-com','notifs-push':'club-com','sondage':'club-com','infos-club':'club-docs','imprimer':'club-docs','a-creuser':'club-docs',
+  'acces':'club-docs','archives':'club-docs',
   'projet-jeu':'jeu','couverture':'jeu',
   'generateur':'seances','seance':'seances','pres':'seances','chrono':'seances',
   'planning':'seances','seances-cal':'seances',
@@ -9343,6 +9367,146 @@ async function dvChargerCloud(adversaire){
   return DV_CLOUD;
 }
 
+// ===== Ce que les joueurs renvoient =====
+//
+//   Huit canaux, huit collections qui existent deja. Chacun garde sa place
+//   dans son pole ; cette carte ne fait que les compter au meme endroit et
+//   donner la porte vers chacun.
+// La dispo du prochain match est deja lue plus haut, et plus precisement :
+// elle ne compte que le match a venir. On ne la recompte pas ici.
+var RJ_CANAUX=[
+  {k:'forme',    l:'Bien-être',             coll:'forme',                            vers:'forme-coach',     surEffectif:true},
+  {k:'blessure', l:'Blessures à traiter',    coll:'blessures_declarees',              vers:'medical',         urgent:true},
+  {k:'sondage',  l:'Réponses aux sondages', coll:'sondage_reponses',                 vers:'sondage'},
+  {k:'objind',   l:'Objectifs individuels', coll:'objectifs_individuels_demandes',   vers:'suivi-objectifs', surEffectif:true},
+  {k:'objcoll',  l:'Votes objectifs collectifs', coll:'votes_objectifs_collectifs',  vers:'obj-coll',        surEffectif:true},
+  {k:'hdm',      l:'Homme du match',        coll:'homme_du_match',                   vers:'matchs'},
+  {k:'debrief',  l:'Débriefs de match',     coll:'debriefs_matchs',                  vers:'matchs'}
+];
+var RJ_DATA=null, RJ_ETAT='vide';   // vide | charge | encours | erreur
+
+// Le nom du joueur ne porte pas le meme nom de champ partout : dispo et
+// blessures disent « joueurNom », les objectifs disent « joueur », l'homme
+// du match dit « voteur ». On prend le premier qui repond.
+function rjNomDe(f){
+  var c=['joueurNom','joueur','voteur','nom'];
+  for(var i=0;i<c.length;i++){
+    var v=(f[c[i]]||{}).stringValue;
+    if(v) return v;
+  }
+  return '';
+}
+
+// Une declaration de blessure transferee au suivi medical reste dans le
+// cloud : rien ne l'efface. Si on comptait les documents, le ⚠ resterait
+// allume pour toujours. On ne compte que celles qu'on ne retrouve pas deja
+// dans BLESSURES — et dans le doute on compte : rater une blessure coute
+// plus cher qu'une alerte de trop.
+function rjBlessuresATraiter(docs){
+  var vus={}, n=0;
+  (docs||[]).forEach(function(d){
+    var f=d.fields||{};
+    var nom=rjNomDe(f);
+    var num=parseInt((f.joueurNum||{}).integerValue||(f.joueurNum||{}).stringValue||'',10);
+    var zone=((f.zone||{}).stringValue||'').toLowerCase();
+    var date=(f.dateBlessure||{}).stringValue||'';
+    var cle=(isNaN(num)?nom:num)+'|'+zone+'|'+date;
+    if(vus[cle]) return;
+    vus[cle]=1;
+    var dejaLa=(BLESSURES||[]).some(function(b){
+      var j=(JOUEURS||[])[b.joueurIdx]||{};
+      var memeJoueur=(!isNaN(num) && j.num===num) || (nom && j.nom===nom);
+      if(!memeJoueur) return false;
+      var memeZone=((b.zone||'').toLowerCase()===zone);
+      var memeDate=((b.dateBlessure||'')===date);
+      return memeZone && (memeDate || !date);
+    });
+    if(!dejaLa) n++;
+  });
+  return {tetes:n, lignes:(docs||[]).length};
+}
+
+// Un joueur qui repond trois fois reste un joueur : on compte les tetes.
+function rjCompter(docs){
+  var vus={}, n=0;
+  (docs||[]).forEach(function(d){
+    var nom=rjNomDe(d.fields||{});
+    if(nom && !vus[nom]){ vus[nom]=1; n++; }
+  });
+  return {tetes:n, lignes:(docs||[]).length};
+}
+
+async function rjCharger(){
+  if(RJ_ETAT==='encours') return;
+  RJ_ETAT='encours'; rjMajCorps();
+  if(typeof FIREBASE_PROJECT_ID!=='undefined' && FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI'){
+    RJ_ETAT='erreur'; rjMajCorps(); return;
+  }
+  var out={};
+  await Promise.all(RJ_CANAUX.map(async function(c){
+    try{
+      var r=await fbFetch(FIRESTORE_BASE+'/'+c.coll+'?pageSize=300');
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var d=await r.json();
+      out[c.k]=(c.k==='blessure')
+        ? rjBlessuresATraiter(d.documents||[])
+        : rjCompter(d.documents||[]);
+    }catch(e){ out[c.k]=null; }
+  }));
+  RJ_DATA=out;
+  RJ_ETAT=Object.keys(out).some(function(k){ return out[k]; })?'charge':'erreur';
+  rjMajCorps();
+}
+
+function rjCorps(){
+  var nb=((JOUEURS||[]).length)||0;
+  if(RJ_ETAT==='encours')
+    return '<div class="dv-vide">Lecture des retours…</div>';
+  if(RJ_ETAT==='erreur')
+    return '<div class="dv-vide">Rien n\'a pu être lu — vérifie ta connexion, '
+      +'puis réessaie.</div>';
+  if(RJ_ETAT!=='charge')
+    return '<div class="dv-vide">Huit canaux où tes joueurs te répondent — '
+      +'dispo, bien-être, blessures, sondages, objectifs, votes, homme du match, '
+      +'débriefs. Charge-les pour voir ce qui est revenu.</div>';
+
+  var lignes='', rien=true;
+  RJ_CANAUX.forEach(function(c){
+    var d=RJ_DATA[c.k];
+    if(!d){
+      lignes+=rjLigne(c, '—', 'gris'); return;
+    }
+    if(d.tetes) rien=false;
+    var v=c.surEffectif && nb ? (d.tetes+' sur '+nb) : String(d.tetes);
+    var cl='';
+    if(c.urgent && d.tetes) cl='mauvais';
+    else if(!d.tetes) cl='gris';
+    else if(c.surEffectif && nb && d.tetes>=nb) cl='bon';
+    else if(c.surEffectif) cl='alerte';
+    lignes+=rjLigne(c, v, cl);
+  });
+  return lignes
+    +(rien
+      ? '<div class="dv-vide">Rien n\'est encore revenu.</div>'
+      : '<div class="rj-note">Nombre de joueurs ayant répondu. Les dates et le '
+        +'détail sont sur chaque écran — clique une ligne.</div>');
+}
+
+function rjLigne(c, v, classe){
+  return '<div class="dv-l rj-l" onclick="goNav(\''+c.vers+'\')" '
+    +'title="Ouvrir : '+esc2(c.l)+'">'
+    +'<span class="k">'+(c.urgent?'⚠ ':'')+esc2(c.l)+'</span>'
+    +'<span class="v'+(classe?(' '+classe):'')+'">'+v+'<i class="rj-f">›</i></span></div>';
+}
+
+function rjMajCorps(){
+  var z=document.getElementById('rj-corps');
+  if(z) z.innerHTML=rjCorps();
+  var b=document.getElementById('rj-bouton');
+  if(b) b.textContent=(RJ_ETAT==='encours')?'Lecture…'
+    :((RJ_ETAT==='charge')?'Actualiser':'Charger les retours');
+}
+
 function dvCarte(titre, couleur, corps, action){
   return '<div class="dv-carte" style="--tc:'+couleur+'"><h3>'+titre+'</h3>'+corps+(action||'')+'</div>';
 }
@@ -9818,12 +9982,15 @@ function dvScene(c, jours){
           }).length)
         +dvLigne('Fiches en bibliothèque', (FICHES_EXERCICES||[]).length),
         '<button class="dv-action" onclick="goNav(\'seances-cal\')">Calendrier des séances</button>')
-      +dvCarte('📲 Les réponses des joueurs','#4ea8de',
-        cloud2
-          ? dvLigne('Ont donné leur disponibilité', cloud2.repondu+(nbGroupe?(' sur '+nbGroupe):''), (nbGroupe&&cloud2.repondu>=nbGroupe)?'bon':'alerte')
+      +dvCarte('📲 Ce que les joueurs renvoient','#4ea8de',
+        // La dispo du prochain match est deja lue au chargement : on la
+        // montre tout de suite. Les sept autres canaux arrivent a la demande.
+        (cloud2
+          ? dvLigne('Dispo pour le prochain match', cloud2.repondu+(nbGroupe?(' sur '+nbGroupe):''), (nbGroupe&&cloud2.repondu>=nbGroupe)?'bon':'alerte')
             +(cloud2.non?dvLigne('Indisponibles', cloud2.non, 'mauvais'):'')
-          : '<div class="dv-vide">Réponses non chargées — vérifie ta connexion, ou ouvre l\'écran des convocations.</div>',
-        '<button class="dv-action" onclick="goNav(\'convos\')">Relancer le groupe</button>');
+          : '')
+        +'<div id="rj-corps">'+rjCorps()+'</div>',
+        '<button class="dv-action" id="rj-bouton" onclick="rjCharger()">Charger les retours</button>');
   }
 
   // ---------- Plus loin : la saison ----------
