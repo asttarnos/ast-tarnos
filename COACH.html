@@ -5360,6 +5360,8 @@ function nav3RenderSide(){
 
 // ---------- Branchements ----------
 window.addEventListener('load', function(){
+  // Marque l'appareil comme celui d'un coach : l'appli joueur proposera l'aperçu
+  try{ localStorage.setItem('ast_coach_appareil', String(Date.now())); }catch(e){}
   if(!nav3Actif()){
     // Ancien menu : une porte de retour en bas du menu
     var f=document.querySelector('.side-footer');
@@ -6531,8 +6533,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v139</b> · 14/10/2026<br>
-      <span style="opacity:.7">Le coach au téléphone</span>
+      AST COACH <b style="color:var(--or)">v140</b> · 14/10/2026<br>
+      <span style="opacity:.7">Aperçu de l'appli joueur</span>
     </div>
   </div>
 </div>

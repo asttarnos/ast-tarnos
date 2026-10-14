@@ -1292,8 +1292,10 @@ var APERCU_COACH=(function(){
   try{
     var q=new URLSearchParams(location.search);
     if(q.get('vue')!=='coach') return null;
+    // L'espace coach a déjà été ouvert sur cet appareil (connecté ou non)
     var a=JSON.parse(localStorage.getItem('ast_auth_coach')||'null');
-    if(!a || !a.refreshToken) return {refuse:true};
+    var vu=localStorage.getItem('ast_coach_appareil');
+    if(!(a && a.refreshToken) && !vu) return {refuse:true};
     return {num:q.get('num')||''};
   }catch(e){ return null; }
 })();
@@ -1324,10 +1326,23 @@ function apcChanger(num){
 }
 
 window.addEventListener('load', function(){
-  if(!APERCU_COACH) return;
+  // Sur un appareil où l'espace coach a déjà servi, l'écran de connexion
+  // propose directement l'aperçu : le coach n'a pas le code de ses joueurs.
+  if(!APERCU_COACH){
+    var vu=null; try{ vu=localStorage.getItem('ast_coach_appareil'); }catch(e){}
+    var btn=document.getElementById('login-btn');
+    if(vu && btn && !document.getElementById('apc-entrer')){
+      var b=document.createElement('button'); b.id='apc-entrer'; b.className='btn-or';
+      b.style.cssText='margin-top:10px;background:#1b1d21;color:#fff';
+      b.textContent='Coach : voir l’appli comme un joueur';
+      b.onclick=function(){ var sel=document.getElementById('login-select'); var n=sel&&sel.value?sel.value.split('|')[0]:''; location.href='JOUEUR.html?vue=coach'+(n?'&num='+n:''); };
+      btn.parentNode.insertBefore(b, btn.nextSibling);
+    }
+    return;
+  }
   if(APERCU_COACH.refuse){
     var e=document.getElementById('login-err');
-    if(e){ e.textContent='Aperçu coach : connecte-toi d’abord dans l’espace coach sur ce navigateur, puis reviens par « Voir son appli ».'; e.classList.remove('hidden'); }
+    if(e){ e.textContent='Aperçu coach : ouvre d’abord l’espace coach une fois sur ce navigateur, puis reviens par « Voir son appli ».'; e.classList.remove('hidden'); }
     return;
   }
   // Les écritures ne partent pas : le coach regarde, il ne répond pas à la place du joueur
