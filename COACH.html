@@ -4595,6 +4595,623 @@ window.addEventListener('load', function(){
 });
 
 </script>
+<style>
+/* ===== Phase 1 : les trois portes (v135) ===== */
+/* Le menu */
+.n3-porte{position:relative;display:flex;align-items:center;gap:9px;margin:5px 10px 0;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--carte3);cursor:pointer;transition:border-color .15s,background .15s}
+.n3-porte::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:9px 0 0 9px;background:var(--pc)}
+.n3-porte:hover{border-color:var(--pc)}
+.n3-porte.ouvert{background:var(--voile2);border-color:var(--pc)}
+.n3-porte-ic{width:28px;height:28px;border-radius:8px;background:var(--voile2);display:flex;align-items:center;justify-content:center;color:var(--pc);flex:0 0 auto}
+.n3-porte-ic .ico{width:19px;height:19px}
+.n3-porte-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.n3-porte-t b{font:700 14px 'Roboto Condensed',sans-serif;color:var(--gris);line-height:1.15}
+.n3-porte-t i{font:500 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.n3-liste{padding:4px 0 6px;margin-top:8px;border-top:1px solid var(--line)}
+.n3-liste .ni{padding:7px 14px 7px 18px;font-size:13.5px}
+.n3-g{padding:9px 16px 3px 18px;font:800 10.5px 'Roboto Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--or)}
+body.nav3 .side-footer .gen-btn2{display:none!important}
+body.nav3 .side-footer .gen-btn{padding:8px;font-size:12.5px}
+
+/* La semaine */
+#scr-semaine{padding-top:14px}
+.n3-bandeau{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 16px;border-radius:12px;background:#1b1d21;color:#fff;margin-bottom:12px;border:1px solid var(--line)}
+.n3-logo{width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(217,119,6,.35))}
+.n3-club{display:flex;flex-direction:column;line-height:1.1}
+.n3-club b{font:400 22px 'Anton',sans-serif;letter-spacing:.02em}
+.n3-club span{font:600 12px 'Roboto Condensed',sans-serif;color:#c9cdd3}
+.n3-sep{width:1px;align-self:stretch;background:rgba(255,255,255,.18)}
+.n3-j{font:400 34px 'Anton',sans-serif;color:#f2a35c;line-height:1}
+.n3-match{display:flex;flex-direction:column;gap:2px}
+.n3-match b{font:800 17px 'Roboto Condensed',sans-serif}
+.n3-match span{font:500 13px 'Roboto Condensed',sans-serif;color:#c9cdd3}
+.n3-moi{display:flex;align-items:center;gap:8px;font:600 13px 'Roboto Condensed',sans-serif;color:#c9cdd3}
+.n3-moi select{background:#2b2e34;color:#fff;border:1px solid #4a4f57;border-radius:8px;padding:5px 8px;font:700 13px 'Roboto Condensed',sans-serif}
+.n3-seg{display:inline-flex;border:1px solid rgba(127,127,127,.45);border-radius:9px;overflow:hidden}
+.n3-seg button{border:none;background:none;color:inherit;padding:6px 11px;font:700 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.n3-seg button.on{background:#d97706;color:#1a0f02}
+.n3-note{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:9px;background:#d97706;color:#1a0f02;padding:9px 14px;font:800 14px 'Roboto Condensed',sans-serif;cursor:pointer}
+.n3-note .ico{width:17px;height:17px}
+
+.n3-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+.n3-col{display:flex;flex-direction:column;gap:7px;min-width:0}
+.n3-col-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;padding:0 2px 2px}
+.n3-col-h b{font:400 20px 'Anton',sans-serif;letter-spacing:.01em;color:var(--gris)}
+.n3-col-h em{font:800 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--or);background:var(--orfond);border-radius:9px;padding:1px 8px}
+.n3-col-h span{flex-basis:100%;font:600 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.n3-e{position:relative;padding-right:42px!important;background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--ec);border-radius:10px;padding:9px 10px 9px 11px;display:flex;flex-direction:column;gap:4px}
+.n3-e.libre{border-left-color:var(--line)}
+.n3-e.ech{background:var(--voile2);border-style:dashed;border-left-style:solid;border-left-color:var(--blue)}
+.n3-e-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.n3-pt{width:9px;height:9px;border-radius:50%;background:var(--ec);flex:0 0 auto}
+.n3-e.libre .n3-pt{background:transparent;border:2px solid var(--gris2);width:7px;height:7px}
+.n3-e-h b{font:800 14.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.n3-e-h i{font:600 12.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.n3-e-h em{font:700 11px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--ec);border:1px solid var(--ec);border-radius:8px;padding:0 6px;line-height:16px}
+.n3-e-h .n3-qui{position:absolute;top:8px;right:8px}
+.n3-e-c{display:flex;align-items:flex-end;gap:8px}
+.n3-e-c .n3-e-d{flex:1;min-width:0}
+.n3-e-c .n3-e-b{flex:0 0 auto;white-space:nowrap}
+.n3-e-d{font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris2);line-height:1.3}
+.n3-e-b{align-self:flex-start;border:1px solid var(--line);background:var(--voile);color:var(--gris);border-radius:8px;padding:4px 10px;font:700 12.5px 'Roboto Condensed',sans-serif;cursor:pointer}
+.n3-e-b:hover{border-color:var(--or);color:var(--or)}
+.n3-e.afaire .n3-e-b,.n3-e.retard .n3-e-b{background:var(--or);border-color:var(--or);color:#1a0f02}
+.n3-vide{font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris2);padding:8px 4px}
+
+.n3-qui{--qc:var(--gris2);display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--qc);color:#fff;border:none;font:800 11px 'Roboto Condensed',sans-serif;letter-spacing:.02em;flex:0 0 auto;cursor:pointer;padding:0}
+button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
+.n3-pop{position:fixed;z-index:9999;width:230px;background:var(--modal);border:1px solid var(--line);border-radius:11px;box-shadow:0 10px 30px rgba(0,0,0,.35);padding:6px;display:flex;flex-direction:column;gap:2px}
+.n3-pop-t{font:700 12px 'Roboto Condensed',sans-serif;color:var(--gris2);padding:4px 6px 6px}
+.n3-pop button{display:flex;align-items:center;gap:8px;border:none;background:none;color:var(--gris);padding:5px 6px;border-radius:7px;font:700 13.5px 'Roboto Condensed',sans-serif;cursor:pointer;text-align:left}
+.n3-pop button i{font-style:normal;font-weight:500;font-size:11.5px;color:var(--gris2);margin-left:auto}
+.n3-pop button:hover,.n3-pop button.on{background:var(--voile2)}
+
+.n3-bas{display:grid;grid-template-columns:1.3fr 1.3fr 1fr;gap:12px;margin-top:14px;align-items:start}
+.n3-carte{background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.n3-carte-h{display:flex;align-items:baseline;gap:8px}
+.n3-carte-h b{font:400 18px 'Anton',sans-serif;letter-spacing:.01em;color:var(--gris)}
+.n3-carte-h span{margin-left:auto;font:600 12px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.n3-lien{cursor:pointer;color:var(--or)!important}
+.n3-qp{columns:2 200px;column-gap:14px}
+.n3-qp-l{break-inside:avoid;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:4px 0;border-bottom:1px solid var(--line)}
+.n3-qp-l b{font:800 13.5px 'Roboto Condensed',sans-serif;color:var(--gris);margin-right:2px}
+.n3-qp-l span{font:700 11.5px 'Roboto Condensed',sans-serif;color:var(--rc);border:1px solid var(--rc);border-radius:8px;padding:0 6px}
+.n3-note-l{display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px solid var(--line);cursor:pointer;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.n3-note-l i{display:block;font-style:normal;font-weight:500;color:var(--gris2);font-size:12.5px;line-height:1.3}
+.n3-st{display:flex;align-items:center;gap:8px;padding:3px 0;font:600 13px 'Roboto Condensed',sans-serif}
+.n3-st b{color:var(--gris);font-weight:800}
+.n3-st i{font-style:normal;color:var(--gris2);font-size:12px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.n3-st em{font-style:normal;font-weight:800;font-size:12px;color:var(--or)}
+.n3-st em.zero{color:var(--gris2);font-weight:600}
+
+/* Réglages */
+.n3-reg{column-width:330px;column-gap:12px}
+@media (min-width:1200px){.n3-reg{column-count:3}}
+.n3-reg .blk{margin:0 0 12px;break-inside:avoid;display:inline-block;width:100%}
+.n3-reg .btn{align-self:flex-start;width:auto}
+.n3-reg-c{padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.n3-reg-c p{margin:0;font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.n3-reg .n3-seg{color:var(--gris);align-self:flex-start}
+.n3-chips{display:flex;flex-wrap:wrap;gap:6px}
+.n3-chips button{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--voile);color:var(--gris);border-radius:20px;padding:3px 12px 3px 3px;font:700 13.5px 'Roboto Condensed',sans-serif;cursor:pointer}
+.n3-chips button.on{border-color:var(--or);background:var(--orfond);color:var(--or)}
+.n3-reg .n3-st .fi{flex:1;min-width:0;padding:6px 8px}
+.n3-x{border:none;background:none;color:var(--gris2);cursor:pointer;font-size:14px}
+.n3-resp{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.n3-resp label{display:flex;flex-direction:column;gap:2px;font:600 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.n3-resp .fi{padding:5px 8px}
+.n3-sauv .gen-btn,.n3-sauv .gen-btn2{display:block;width:100%;margin:0}
+
+@media (max-width:1250px){ .n3-cols{grid-template-columns:repeat(2,minmax(0,1fr))} .n3-bas{grid-template-columns:1fr 1fr} }
+@media (max-width:760px){
+  .n3-cols,.n3-bas{grid-template-columns:1fr}
+  .n3-bandeau{gap:10px;padding:10px 12px}
+  .n3-logo{width:38px;height:38px}
+  .n3-sep{display:none}
+  .n3-moi{flex-basis:100%;order:5}
+  .n3-note{order:6;flex:1;justify-content:center}
+  .n3-resp{grid-template-columns:1fr}
+}
+</style>
+<script>
+// ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
+//
+//   Le menu ne range plus par thème mais par moment : la semaine (ce qu'il y
+//   a à faire), les joueurs, le fond de jeu, et le club. Chaque bouton ouvre
+//   l'écran d'avant, sans rien changer dedans. L'ancien menu reste à un clic
+//   (Club & réglages), le temps de prendre ses marques.
+
+function nav3Actif(){
+  try{ return localStorage.getItem('ast-menu')!=='ancien'; }catch(e){ return true; }
+}
+function nav3Basculer(nouveau){
+  try{ localStorage.setItem('ast-menu', nouveau?'nouveau':'ancien'); }catch(e){}
+  location.reload();
+}
+
+var NAV3_POLES=[
+  {id:'semaine',label:'La semaine',sous:'Ce qu’il y a à faire',icon:'calendrier',color:'#F97316',screens:[
+    {s:'semaine',ic:'liste',l:'Cette semaine'},
+    {s:'matchs',ic:'ballon',l:'Matchs · score et notes',g:'Après le match'},
+    {s:'notes-staff',ic:'memo',l:'Notes du staff'},
+    {s:'seances',ic:'halteres',l:'La séance',g:'Les entraînements'},
+    {s:'charge',ic:'hausse',l:"Charge d'entraînement"},
+    {s:'adversaires',ic:'loupe',l:'Rapport adversaire',g:'Avant le match'},
+    {s:'convos',ic:'liste',l:'Convocations'},
+    {s:'compos',ic:'cible',l:'Compositions'},
+    {s:'plateau',ic:'cerveau',l:'Plateau tactique'},
+    {s:'cpa',ic:'fanion',l:'Corners & coups francs'},
+    {s:'avant-match',ic:'megaphone',l:"Dossier d'avant-match"},
+    {s:'feuille-match',ic:'document',l:'Feuille de match',g:'Le jour J'},
+    {s:'dash',ic:'barres',l:'Tableau de bord (ancien)',g:'Vue d’ensemble'}
+  ]},
+  {id:'joueurs',label:'Les joueurs',sous:'Chacun, son signal',icon:'groupe',color:'#a855f7',screens:[
+    {s:'effectif',ic:'groupe',l:'Effectif · fiches'},
+    {s:'recap',ic:'hausse',l:'Récap global'},
+    {s:'rotation',ic:'chrono',l:'Temps de jeu'},
+    {s:'forme-coach',ic:'thermo',l:'Forme joueurs'},
+    {s:'medical',ic:'hopital',l:'Suivi médical'},
+    {s:'entretien',ic:'parole',l:'Entretien joueur'},
+    {s:'suivi-objectifs',ic:'liste',l:'Objectifs joueurs'},
+    {s:'correction-buts',ic:'pansement',l:'Corriger des stats',g:'Le groupe'},
+    {s:'obj-coll',ic:'coupe',l:'Objectifs collectifs'}
+  ]},
+  {id:'fond',label:'Le fond de jeu',sous:'Ce qu’on construit une fois',icon:'livres',color:'#22c55e',screens:[
+    {s:'jeu',ic:'equerre',l:'Le projet de jeu'},
+    {s:'constructeur',ic:'palette',l:'Exercices & bibliothèque'},
+    {s:'videos',ic:'clap',l:'Vidéos'},
+    {s:'biblio-generale',ic:'dossier',l:'Documentation'},
+    {s:'classement',ic:'barres',l:'Classement',g:'La saison en chiffres'},
+    {s:'bilan',ic:'coupe',l:'Bilan de saison'},
+    {s:'constats',ic:'chiffres',l:'Ce que disent tes chiffres'}
+  ]},
+  {id:'clubr',label:'Club & réglages',sous:'Ce qu’on ouvre rarement',icon:'maison',color:'#94a3b8',screens:[
+    {s:'club-vie',ic:'cible',l:'La vie du club'},
+    {s:'club-com',ic:'bulle',l:'Communication'},
+    {s:'club-docs',ic:'document',l:'Documents'},
+    {s:'reglages',ic:'reglement',l:'Réglages & sauvegarde'},
+    {s:'aide',ic:'livres',l:"Mode d'emploi"}
+  ]}
+];
+
+// ---------- Le staff et qui fait quoi (partagé dans le cloud) ----------
+var NAV_STAFF={membres:[], resp:{}};
+var NAV3_STAFF_DEFAUT=[
+  {nom:'Vincent',  role:'Entraîneur principal',  c:'#d97706'},
+  {nom:'Romain',   role:'Adjoint',               c:'#1d6fa5'},
+  {nom:'Francisco',role:'Adjoint',               c:'#157f52'},
+  {nom:'Yannick',  role:'Entraîneur des gardiens',c:'#7c4fc0'},
+  {nom:'Nicolas',  role:'Entraîneur des gardiens',c:'#0f766e'}
+];
+var NAV3_COULEURS=['#d97706','#1d6fa5','#157f52','#7c4fc0','#0f766e','#be123c','#a16207','#475569'];
+
+function nav3Membres(){
+  if(!NAV_STAFF || typeof NAV_STAFF!=='object') NAV_STAFF={membres:[], resp:{}};
+  if(!NAV_STAFF.membres || !NAV_STAFF.membres.length)
+    NAV_STAFF.membres=NAV3_STAFF_DEFAUT.map(function(m){ return Object.assign({}, m); });
+  if(!NAV_STAFF.resp) NAV_STAFF.resp={};
+  return NAV_STAFF.membres;
+}
+function nav3Membre(nom){ return nav3Membres().filter(function(m){ return m.nom===nom; })[0]||null; }
+function nav3Initiales(nom){
+  var m=String(nom||'').trim(); if(!m) return '?';
+  var mots=m.split(/\s+/);
+  return (mots.length>1 ? mots[0][0]+mots[1][0] : m.slice(0,2)).toUpperCase();
+}
+function nav3Moi(){ try{ return localStorage.getItem('ast-moi')||''; }catch(e){ return ''; } }
+function nav3PoserMoi(nom){
+  try{ localStorage.setItem('ast-moi', nom); localStorage.setItem('ast_nr_auteur', nom); }catch(e){}
+  nav3Rafraichir();
+}
+var NAV3_FILTRE_MOI=false;
+function nav3Esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+// Les étapes de la semaine, leur responsable par défaut
+var NAV3_ETAPES_DEF={
+  dernier:'Vincent', notes:'Vincent', videos:'Romain',
+  seances:'Romain', pres:'Nicolas', charge:'Francisco', forme:'Yannick',
+  rapport:'Romain', groupe:'Vincent', compo:'Vincent', plateau:'Vincent', cpa:'Francisco', dossier:'Romain',
+  feuille:'Vincent', bdt:'Vincent'
+};
+var NAV3_ETAPES_NOMS={
+  dernier:'Score et notes du match', notes:'Notes du staff à traiter', videos:'Clips vidéo du match',
+  seances:'Thèmes des séances', pres:'Présences', charge:'Charge et ressenti', forme:'Forme des joueurs',
+  rapport:'Rapport adversaire', groupe:'Convocation', compo:'Composition', plateau:'Plateau tactique',
+  cpa:'Coups de pied arrêtés', dossier:"Dossier d'avant-match", feuille:'Feuille de match', bdt:'Mode bord de touche'
+};
+function nav3Resp(cle){
+  nav3Membres();
+  var r=NAV_STAFF.resp[cle];
+  if(r===undefined) r=NAV3_ETAPES_DEF[cle]||'';
+  return r;
+}
+function nav3PoserResp(cle, nom){
+  nav3Membres();
+  NAV_STAFF.resp[cle]=nom;
+  nav3FermerPop();
+  try{ sauvegardeAuto(); }catch(e){}
+  nav3Rafraichir();
+}
+
+// ---------- Les colonnes de la semaine ----------
+function nav3Etat(fait, echeance){
+  if(fait) return 'fait';
+  if(echeance===null || echeance===undefined) return 'afaire';
+  return echeance<0 ? 'retard' : 'afaire';
+}
+var NAV3_ETATS={fait:{l:'fait',c:'var(--green)'}, afaire:{l:'à faire',c:'var(--or)'},
+  retard:{l:'en retard',c:'var(--red)'}, libre:{l:'',c:'var(--gris2)'}, echeance:{l:'',c:'var(--blue)'}};
+
+function nav3Colonnes(){
+  var E={};
+  try{ fsEtapes().forEach(function(e){ E[e.cle]=e; }); }catch(e){}
+  var prochain=null, dernier=null;
+  try{ prochain=dvProchainMatch(); dernier=dvDernierMatch(); }catch(e){}
+  var J=prochain?dvEcartJours(prochain.d):null;
+  var adv=prochain?(prochain.c.adversaire||''):'';
+  var mf=function(s){ try{ return mpFait(s); }catch(e){ return false; } };
+  var avant=function(n){ return J===null?null:(J-n); };   // jours restants avant l'échéance J-n
+  var col=[];
+
+  // 1. Après le match
+  var a=[];
+  if(E.dernier){
+    a.push({cle:'dernier', t:E.dernier.t, s:E.dernier.sujet, d:E.dernier.detail, etat:E.dernier.etat==='retard'?'retard':(E.dernier.fait?'fait':'afaire'),
+      act:E.dernier.action||"goNav('matchs')", b:E.dernier.bouton||'Ouvrir'});
+  }
+  var nOuv=(typeof NR_NOTES!=='undefined' && NR_NOTES)?NR_NOTES.filter(function(n){ return !n.traite; }).length:null;
+  a.push({cle:'notes', t:'Notes du staff', s:'à traiter',
+    d:nOuv===null?'Chargement…':(nOuv?nOuv+' note'+(nOuv>1?'s':'')+' en attente':'Tout est traité'),
+    etat:nOuv?'afaire':(nOuv===0?'fait':'libre'), act:"goNav('notes-staff')", b:'Écouter / lire'});
+  a.push({cle:'videos', t:'Clips vidéo', s:dernier?('vs '+(dernier.c.adversaire||'')):'', d:'Les moments à montrer au groupe',
+    etat:'libre', act:"goNav('videos')", b:'Ouvrir les vidéos'});
+  col.push({t:'Après le match', sous:dernier?('vs '+(dernier.c.adversaire||'?')):'', L:a});
+
+  // 2. Les entraînements
+  var e=[];
+  if(E.seances) e.push({cle:'seances', t:'Thèmes des séances', s:'', d:E.seances.detail, etat:E.seances.fait?'fait':(E.seances.etat==='retard'?'retard':'afaire'),
+      act:E.seances.action, b:E.seances.bouton});
+  e.push({cle:'pres', t:'Présences', s:'à chaque séance', d:'Un tap par joueur, au bord du terrain', etat:'libre', act:"goNav('pres')", b:'Pointer'});
+  var chg=nav3ChargeSignal();
+  e.push({cle:'charge', t:'Charge et ressenti', s:'', d:chg.d, etat:chg.etat, act:"goNav('charge')", b:'Voir la charge'});
+  e.push({cle:'forme', t:'Forme des joueurs', s:'questionnaire', d:'Sommeil, jambes, moral : qui décroche ?', etat:'libre', act:"goNav('forme-coach')", b:'Voir la forme'});
+  col.push({t:'Les entraînements', sous:'entre les deux matchs', L:e});
+
+  // 3. Avant le match
+  var v=[];
+  if(prochain){
+    var ra=null; try{ var A=rapAdv(adv); ra=A&&A.rapport?A.rapport:null; }catch(x){}
+    var rOk=!!(ra && typeof rapARempli==='function' && rapARempli(ra));
+    v.push({cle:'rapport', t:'Rapport adversaire', s:adv, d:rOk?(ra.diffuse?'Rempli et envoyé aux joueurs':'Rempli · pas encore envoyé aux joueurs'):'Système, forces, failles, joueurs à tenir',
+      etat:rOk?(ra.diffuse?'fait':'afaire'):nav3Etat(false, avant(3)), act:"nav3Adversaire()", b:rOk?'Revoir':'Compléter'});
+    if(E.groupe) v.push({cle:'groupe', t:'Convocation', s:'', d:E.groupe.detail, etat:E.groupe.fait?'fait':(E.groupe.etat==='retard'?'retard':'afaire'),
+      act:"goNav('convos')", b:E.groupe.fait?'Revoir':'Convoquer'});
+    v.push({cle:'compo', t:'Composition', s:'', d:mf('compos')?'Compo enregistrée':'Onze de départ et remplaçants', etat:nav3Etat(mf('compos'), avant(1)), act:"goNav('compos')", b:'Ouvrir'});
+    v.push({cle:'plateau', t:'Plateau tactique', s:'', d:mf('plateau')?'Situations posées':'Les situations à montrer', etat:mf('plateau')?'fait':'libre', act:"goNav('plateau')", b:'Ouvrir'});
+    v.push({cle:'cpa', t:'Coups de pied arrêtés', s:'', d:mf('cpa')?'Rôles distribués':'Qui tire, qui marque qui', etat:nav3Etat(mf('cpa'), avant(1)), act:"goNav('cpa')", b:'Ouvrir'});
+    v.push({cle:'dossier', t:"Dossier d'avant-match", s:'', d:mf('avant-match')?'Dossier rempli':'Ce qu’on dit au groupe', etat:nav3Etat(mf('avant-match'), avant(1)), act:"goNav('avant-match')", b:'Préparer'});
+  }
+  col.push({t:'Avant le match', sous:prochain?('vs '+adv):'pas de match au calendrier', L:v});
+
+  // 4. Le jour J
+  var j=[];
+  if(prochain){
+    j.push({cle:'feuille', t:'Feuille de match', s:'', d:mf('feuille-match')?'Consignes écrites':'Consignes collectives et individuelles', etat:nav3Etat(mf('feuille-match'), avant(0)), act:"goNav('feuille-match')", b:'Préparer / imprimer'});
+    j.push({cle:'bdt', t:'Mode bord de touche', s:'', d:'Chrono, changements, notes en direct', etat:'libre', act:"bdtOuvrir()", b:'Lancer'});
+    var lieu=prochain.c.lieu==='E'?'à l’extérieur':(prochain.c.lieu==='D'?'à domicile':'');
+    j.push({cle:'', t:'Le match', s:'vs '+adv, d:[nav3DateLongue(prochain.d), prochain.c.heure||'', lieu].filter(Boolean).join(' · '), etat:'echeance', act:"goNav('feuille-match')", b:'', ech:true});
+  }
+  col.push({t:'Le jour J', sous:prochain?nav3DateLongue(prochain.d):'', L:j});
+  return {col:col, prochain:prochain, J:J, adv:adv};
+}
+function nav3DateLongue(d){
+  try{ return d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'}); }catch(e){ return ''; }
+}
+function nav3Adversaire(){
+  var p=null; try{ p=dvProchainMatch(); }catch(e){}
+  goNav('adversaires');
+  if(p) setTimeout(function(){
+    var s=document.getElementById('adv-sel'); if(!s) return;
+    for(var i=0;i<s.options.length;i++){
+      if(typeof fexNomsCorrespondent==='function' && fexNomsCorrespondent(s.options[i].value||s.options[i].text, p.c.adversaire||'')){
+        s.selectedIndex=i; try{ renderAdversaires(); }catch(e){} break;
+      }
+    }
+  }, 120);
+}
+function nav3ChargeSignal(){
+  if(typeof CHG_ETAT==='undefined') return {d:'', etat:'libre'};
+  if(CHG_ETAT!=='charge'){
+    if(CHG_ETAT==='vide' && typeof chargerCharge==='function'){
+      chargerCharge().then(function(){ if(nav3EcranOuvert()) renderSemaine(); });
+    }
+    return {d:'Lecture des réponses…', etat:'libre'};
+  }
+  try{
+    var A=chgAnalyse();
+    var r=A.joueurs.filter(function(x){ return x.ratio!==null && x.ratio>=1.5; });
+    var g=A.joueurs.filter(function(x){ return x.ratio!==null && x.ratio>=1.3 && x.ratio<1.5; });
+    if(!(CHG_DATA||[]).length) return {d:'Pas encore de réponse des joueurs', etat:'libre'};
+    if(r.length) return {d:r.length+' en montée trop rapide : '+r.slice(0,3).map(function(x){ return x.j.nom; }).join(', '), etat:'afaire'};
+    if(g.length) return {d:g.length+' en vigilance : '+g.slice(0,3).map(function(x){ return x.j.nom; }).join(', '), etat:'afaire'};
+    return {d:A.repondants.length+' ont répondu sur 7 jours · personne dans le rouge', etat:'fait'};
+  }catch(e){ return {d:'', etat:'libre'}; }
+}
+
+// ---------- À qui parler ----------
+function nav3AQuiParler(){
+  var L={};
+  var ajoute=function(nom, raison, c){ if(!nom) return; (L[nom]=L[nom]||[]).push({r:raison, c:c}); };
+  try{
+    (BLESSURES||[]).filter(function(b){ return !b.dateRetour; }).forEach(function(b){
+      var j=JOUEURS[b.joueurIdx]; if(j) ajoute(j.nom, 'blessé'+(b.zone?' · '+b.zone:''), 'var(--red)');
+    });
+  }catch(e){}
+  try{
+    if(typeof CHG_ETAT!=='undefined' && CHG_ETAT==='charge'){
+      chgAnalyse().joueurs.forEach(function(x){
+        if(x.ratio!==null && x.ratio>=1.5) ajoute(x.j.nom, 'charge '+x.ratio.toFixed(2).replace('.',','), 'var(--red)');
+        else if(x.ratio!==null && x.ratio>=1.3) ajoute(x.j.nom, 'charge '+x.ratio.toFixed(2).replace('.',','), 'var(--gold)');
+      });
+    }
+  }catch(e){}
+  try{
+    (JOUEURS||[]).forEach(function(j, i){
+      var H=(FORME_HISTORIQUE||[])[i]||[]; var der=H[H.length-1];
+      if(!der || der.source!=='joueur') return;
+      var age=der.dateEnvoi?(Date.now()-new Date(der.dateEnvoi).getTime())/86400000:99;
+      if(age>10) return;
+      if(der.valeur<=2) ajoute(j.nom, 'forme basse', 'var(--gold)');
+      if(der.bobo) ajoute(j.nom, 'signale : '+der.bobo, 'var(--gold)');
+    });
+  }catch(e){}
+  try{
+    (NR_NOTES||[]).filter(function(n){ return !n.traite && (n.tags||[]).indexOf('faire')>=0; }).forEach(function(n){
+      (n.joueurs||[]).forEach(function(j){ ajoute(j.nom, 'note « à faire »', 'var(--or)'); });
+    });
+  }catch(e){}
+  return Object.keys(L).map(function(n){ return {nom:n, R:L[n]}; })
+    .sort(function(a,b){ return b.R.length-a.R.length; });
+}
+
+// ---------- Le rendu ----------
+function nav3EcranOuvert(){ var s=document.getElementById('scr-semaine'); return !!(s && s.classList.contains('on')); }
+function nav3Rafraichir(){
+  if(nav3EcranOuvert()) renderSemaine();
+  var r=document.getElementById('scr-reglages'); if(r && r.classList.contains('on')) renderReglages();
+}
+function nav3Chip(cle){
+  var nom=nav3Resp(cle), m=nav3Membre(nom);
+  return '<button class="n3-qui" style="--qc:'+(m?m.c:'var(--gris2)')+'" title="'+nav3Esc(nom?nom+' s’en occupe — changer':'Personne — choisir')+'" onclick="nav3Pop(event,\''+cle+'\')">'
+    +(nom?nav3Esc(nav3Initiales(nom)):'+')+'</button>';
+}
+function nav3Pop(ev, cle){
+  ev.stopPropagation();
+  nav3FermerPop();
+  var p=document.createElement('div'); p.className='n3-pop'; p.id='n3-pop';
+  var act=nav3Resp(cle);
+  p.innerHTML='<div class="n3-pop-t">'+nav3Esc(NAV3_ETAPES_NOMS[cle]||'')+' — qui s’en occupe ?</div>'
+    +nav3Membres().map(function(m){
+      return '<button class="'+(m.nom===act?'on':'')+'" onclick="nav3PoserResp(\''+cle+'\','+nav3Esc(JSON.stringify(m.nom))+')"><span class="n3-qui" style="--qc:'+m.c+'">'+nav3Esc(nav3Initiales(m.nom))+'</span>'+nav3Esc(m.nom)+'<i>'+nav3Esc(m.role||'')+'</i></button>';
+    }).join('')
+    +'<button onclick="nav3PoserResp(\''+cle+'\',\'\')"><span class="n3-qui" style="--qc:var(--gris2)">–</span>Personne</button>';
+  document.body.appendChild(p);
+  var r=ev.currentTarget.getBoundingClientRect();
+  var x=Math.min(r.left, window.innerWidth-240), y=r.bottom+6;
+  if(y+p.offsetHeight>window.innerHeight-8) y=Math.max(8, r.top-p.offsetHeight-6);
+  p.style.left=x+'px'; p.style.top=y+'px';
+}
+function nav3FermerPop(){ var p=document.getElementById('n3-pop'); if(p) p.remove(); }
+document.addEventListener('click', function(e){ if(!e.target.closest || !e.target.closest('#n3-pop')) nav3FermerPop(); });
+
+function renderSemaine(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  if(typeof NR_NOTES!=='undefined' && NR_NOTES===null && typeof nrCharger==='function' && !nav3EnChargement){
+    nav3EnChargement=true;
+    nrCharger().then(function(){ nav3EnChargement=false; if(typeof nrMajPastille==='function') nrMajPastille(); if(nav3EcranOuvert()) renderSemaine(); })
+      .catch(function(){ nav3EnChargement=false; });
+  }
+  var C=nav3Colonnes(), moi=nav3Moi(), filtre=NAV3_FILTRE_MOI && moi;
+  var logo=(typeof HUBL_LOGO!=='undefined'?HUBL_LOGO:'');
+  var club=(typeof NOM_CLUB!=='undefined' && NOM_CLUB)?NOM_CLUB:'AST TARNOS';
+  var J=C.J, jTxt=J===null?'—':(J===0?'Jour J':('J-'+J));
+  var p=C.prochain;
+  var lieu=p?(p.c.lieu==='E'?'à l’extérieur':(p.c.lieu==='D'?'à domicile':'')):'';
+  var html='<div class="n3-bandeau">'
+    +(logo?'<img class="n3-logo" src="'+logo+'" alt="'+nav3Esc(club)+'">':'')
+    +'<div class="n3-club"><b>'+nav3Esc(club)+'</b><span>Séniors R2</span></div>'
+    +'<span class="n3-sep"></span>'
+    +'<span class="n3-j">'+jTxt+'</span>'
+    +'<div class="n3-match"><b>'+(p?'vs '+nav3Esc(C.adv):'Pas de match au calendrier')+'</b><span>'+(p?nav3Esc([nav3DateLongue(p.d), p.c.heure||'', lieu, p.c.comp||''].filter(Boolean).join(' · ')):'')+'</span></div>'
+    +'<span style="flex:1"></span>'
+    +'<div class="n3-moi"><span>Je suis</span><select onchange="nav3PoserMoi(this.value)"><option value="">—</option>'
+      +nav3Membres().map(function(m){ return '<option'+(m.nom===moi?' selected':'')+'>'+nav3Esc(m.nom)+'</option>'; }).join('')+'</select>'
+      +'<div class="n3-seg"><button class="'+(!filtre?'on':'')+'" onclick="NAV3_FILTRE_MOI=false;renderSemaine()">Tout le staff</button>'
+      +'<button class="'+(filtre?'on':'')+'" onclick="'+(moi?'NAV3_FILTRE_MOI=true;renderSemaine()':'notif(\'Choisis d’abord qui tu es\')')+'">Moi</button></div></div>'
+    +'<button class="n3-note" onclick="nrOuvrir()">'+ic('ecrire')+'Note rapide</button>'
+  +'</div>';
+
+  html+='<div class="n3-cols">'+C.col.map(function(c){
+    var L=c.L.filter(function(x){ return !filtre || x.ech || nav3Resp(x.cle)===moi; });
+    var nf=L.filter(function(x){ return x.etat==='afaire'||x.etat==='retard'; }).length;
+    return '<div class="n3-col"><div class="n3-col-h"><b>'+nav3Esc(c.t)+'</b>'
+        +(nf?'<em>'+nf+' à faire</em>':'')+'<span>'+nav3Esc(c.sous||'')+'</span></div>'
+      +(L.length?L.map(function(x){
+        var et=NAV3_ETATS[x.etat]||NAV3_ETATS.libre;
+        return '<div class="n3-e'+(x.ech?' ech':'')+' '+x.etat+'" style="--ec:'+et.c+'">'
+          +'<div class="n3-e-h"><span class="n3-pt"></span><b>'+nav3Esc(x.t)+'</b>'
+            +(x.s?'<i>'+nav3Esc(x.s)+'</i>':'')
+            +(et.l?'<em>'+et.l+'</em>':'')
+            +(x.cle?nav3Chip(x.cle):'')+'</div>'
+          +'<div class="n3-e-c">'+(x.d?'<div class="n3-e-d">'+nav3Esc(x.d)+'</div>':'<div class="n3-e-d"></div>')
+          +(x.b?'<button class="n3-e-b" onclick="'+nav3Esc(x.act)+'">'+nav3Esc(x.b)+' ›</button>':'')+'</div>'
+        +'</div>';
+      }).join(''):'<div class="n3-vide">'+(filtre?'Rien pour toi ici.':'Rien à faire ici pour l’instant.')+'</div>')
+    +'</div>';
+  }).join('')+'</div>';
+
+  // La ligne du bas : à qui parler, les notes, le staff
+  var Q=nav3AQuiParler();
+  var notes=(typeof NR_NOTES!=='undefined' && NR_NOTES)?NR_NOTES.filter(function(n){ return !n.traite; }).slice(0,4):[];
+  var charge={}; C.col.forEach(function(c){ c.L.forEach(function(x){ if(x.cle && (x.etat==='afaire'||x.etat==='retard')){ var r=nav3Resp(x.cle)||'—'; charge[r]=(charge[r]||0)+1; } }); });
+  html+='<div class="n3-bas">'
+    +'<div class="n3-carte"><div class="n3-carte-h"><b>À qui parler cette semaine</b><span>blessure, charge, forme, notes</span></div>'
+      +(Q.length?'<div class="n3-qp">'+Q.slice(0,10).map(function(q){
+          return '<div class="n3-qp-l"><b>'+nav3Esc(q.nom)+'</b>'+q.R.map(function(r){ return '<span style="--rc:'+r.c+'">'+nav3Esc(r.r)+'</span>'; }).join('')+'</div>';
+        }).join('')+'</div>':'<div class="n3-vide">Aucun signal cette semaine.</div>')
+    +'</div>'
+    +'<div class="n3-carte"><div class="n3-carte-h"><b>Notes du staff à traiter</b><span onclick="goNav(\'notes-staff\')" class="n3-lien">toutes ›</span></div>'
+      +(notes.length?notes.map(function(n){
+        var qui=(n.joueurs||[]).map(function(j){ return j.nom; }).join(', ')||({joueur:'Joueur',groupe:'Groupe',seance:'Séance',match:'Match',idee:'Idée'}[n.sujet]||'');
+        return '<div class="n3-note-l" onclick="goNav(\'notes-staff\')"><span class="n3-qui" style="--qc:'+((nav3Membre(n.auteur)||{}).c||'var(--gris2)')+'">'+nav3Esc(nav3Initiales(n.auteur))+'</span>'
+          +'<span><b>'+nav3Esc(qui)+'</b>'+(n.audio?' · vocal '+(n.duree||'?')+' s':'')+'<i>'+nav3Esc((n.texte||'').slice(0,90))+'</i></span></div>';
+      }).join(''):'<div class="n3-vide">'+(NR_NOTES===null?'Chargement…':'Rien en attente.')+'</div>')
+    +'</div>'
+    +'<div class="n3-carte"><div class="n3-carte-h"><b>Le staff cette semaine</b><span>clic sur les initiales pour changer</span></div>'
+      +nav3Membres().map(function(m){
+        var n=charge[m.nom]||0;
+        return '<div class="n3-st"><span class="n3-qui" style="--qc:'+m.c+'">'+nav3Esc(nav3Initiales(m.nom))+'</span><b>'+nav3Esc(m.nom)+'</b><i>'+nav3Esc(m.role||'')+'</i>'
+          +'<em class="'+(n?'':'zero')+'">'+(n?n+' à faire':'rien en attente')+'</em></div>';
+      }).join('')
+    +'</div>'
+  +'</div>';
+  ct.innerHTML=html;
+}
+var nav3EnChargement=false;
+
+// ---------- Réglages ----------
+function renderReglages(){
+  var ct=document.getElementById('n3-reglages'); if(!ct) return;
+  var moi=nav3Moi();
+  var M=nav3Membres();
+  var html='<div class="n3-reg">'
+    +'<div class="blk"><div class="bh"><span class="bt">Le menu</span></div><div class="n3-reg-c">'
+      +'<p>Nouveau menu en 3 portes (La semaine, Les joueurs, Le fond de jeu) ou ancien menu en 5 pôles. Les écrans sont les mêmes.</p>'
+      +'<div class="n3-seg"><button class="on">Nouveau menu</button><button onclick="nav3Basculer(false)">Revenir à l’ancien</button></div>'
+    +'</div></div>'
+    +'<div class="blk"><div class="bh"><span class="bt">Sur cet appareil, je suis</span></div><div class="n3-reg-c">'
+      +'<p>Sert au filtre « Moi » de la semaine et signe tes notes rapides.</p><div class="n3-chips">'
+      +M.map(function(m){ return '<button class="'+(m.nom===moi?'on':'')+'" onclick="nav3PoserMoi('+nav3Esc(JSON.stringify(m.nom))+')"><span class="n3-qui" style="--qc:'+m.c+'">'+nav3Esc(nav3Initiales(m.nom))+'</span>'+nav3Esc(m.nom)+'</button>'; }).join('')
+    +'</div></div></div>'
+    +'<div class="blk"><div class="bh"><span class="bt">Le staff de l’équipe</span><span class="bc">partagé avec tout le staff</span></div><div class="n3-reg-c">'
+      +M.map(function(m,i){
+        return '<div class="n3-st"><span class="n3-qui" style="--qc:'+m.c+'">'+nav3Esc(nav3Initiales(m.nom))+'</span>'
+          +'<input class="fi" value="'+nav3Esc(m.nom)+'" onchange="nav3StaffModif('+i+',\'nom\',this.value)">'
+          +'<input class="fi" value="'+nav3Esc(m.role||'')+'" onchange="nav3StaffModif('+i+',\'role\',this.value)">'
+          +'<button class="n3-x" title="Retirer" onclick="nav3StaffRetirer('+i+')">✕</button></div>';
+      }).join('')
+      +'<button class="btn" style="margin-top:6px" onclick="nav3StaffAjouter()">+ Ajouter quelqu’un</button>'
+    +'</div></div>'
+    +'<div class="blk"><div class="bh"><span class="bt">Qui fait quoi par défaut</span><span class="bc">modifiable aussi sur la semaine</span></div><div class="n3-reg-c n3-resp">'
+      +Object.keys(NAV3_ETAPES_NOMS).map(function(k){
+        var r=nav3Resp(k);
+        return '<label><span>'+nav3Esc(NAV3_ETAPES_NOMS[k])+'</span><select class="fi" onchange="nav3PoserResp(\''+k+'\',this.value)"><option value="">Personne</option>'
+          +M.map(function(m){ return '<option'+(m.nom===r?' selected':'')+'>'+nav3Esc(m.nom)+'</option>'; }).join('')+'</select></label>';
+      }).join('')
+    +'</div></div>'
+    +'<div class="blk"><div class="bh"><span class="bt">Sauvegarde</span><span class="bc">automatique à chaque modification</span></div><div class="n3-reg-c n3-sauv">'
+      +'<button class="gen-btn" onclick="sauvegarder()">Sauvegarder &amp; publier</button>'
+      +'<button class="gen-btn2" onclick="exporterSauvegarde()">Exporter une copie</button>'
+      +'<label class="gen-btn2" style="text-align:center;cursor:pointer">Restaurer une copie<input type="file" accept="application/json" onchange="restaurerSauvegarde(this)" style="display:none"></label>'
+      +'<button class="gen-btn2" onclick="syncDepuisFirestore(false)">Synchroniser avec le cloud</button>'
+      +'<button class="gen-btn2" onclick="sauvegarderDonneesJoueursCloud()">Sauvegarder les données joueurs</button>'
+    +'</div></div>'
+  +'</div>';
+  ct.innerHTML=html;
+}
+function nav3StaffModif(i, k, v){
+  var M=nav3Membres(); if(!M[i]) return;
+  v=String(v||'').trim();
+  if(k==='nom'){
+    if(!v) return;
+    var ancien=M[i].nom;
+    Object.keys(NAV_STAFF.resp).forEach(function(c){ if(NAV_STAFF.resp[c]===ancien) NAV_STAFF.resp[c]=v; });
+    Object.keys(NAV3_ETAPES_DEF).forEach(function(c){ if(NAV_STAFF.resp[c]===undefined && NAV3_ETAPES_DEF[c]===ancien) NAV_STAFF.resp[c]=v; });
+    if(nav3Moi()===ancien) nav3PoserMoi(v);
+  }
+  M[i][k]=v;
+  try{ sauvegardeAuto(); }catch(e){}
+  renderReglages();
+}
+function nav3StaffAjouter(){
+  var M=nav3Membres();
+  M.push({nom:'Nouveau', role:'', c:NAV3_COULEURS[M.length%NAV3_COULEURS.length]});
+  try{ sauvegardeAuto(); }catch(e){}
+  renderReglages();
+}
+function nav3StaffRetirer(i){
+  var M=nav3Membres(); if(!M[i]) return;
+  if(!confirm('Retirer '+M[i].nom+' du staff ?')) return;
+  M.splice(i,1);
+  try{ sauvegardeAuto(); }catch(e){}
+  renderReglages();
+}
+
+// ---------- Le menu de gauche : les quatre portes, celle ouverte dépliée ----------
+function nav3RenderSide(){
+  var ct=document.getElementById('side-nav-dynamic'); if(!ct) return;
+  var AL={}; try{ AL=fsAlertes(); }catch(e){}
+  if(!POLE_ACTIF) POLE_ACTIF='semaine';
+  var on=document.querySelector('.scr.on'), sOn=on?on.id.replace(/^scr-/,''):'';
+  var liste='';
+  ct.innerHTML=POLES.map(function(p){
+    var ouvert=(p.id===POLE_ACTIF);
+    var a=null; try{ a=fsAlertePole(AL, p); }catch(e){}
+    var h='<div class="n3-porte'+(ouvert?' ouvert':'')+'" style="--pc:'+couleurPole(p)+'" onclick="ouvrirPole(\''+p.id+'\')">'
+      +'<span class="n3-porte-ic">'+ic(p.icon)+'</span><span class="n3-porte-t"><b>'+nav3Esc(p.label)+'</b><i>'
+      +nav3Esc((a&&a.resume)?a.resume:p.sous)+'</i></span>'+fsPastille(a,'fs-al-pole')+'</div>';
+    if(ouvert){
+      liste='<div class="n3-liste">'+p.screens.map(function(sc){
+        var al=null; try{ al=fsAlerteEcran(AL, sc.s); }catch(e){}
+        var hote=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[sc.s])?RUBRIQUE_DE[sc.s]:sc.s;
+        var coche=(typeof mpFait==='function' && ['compos','plateau','cpa','avant-match','feuille-match'].indexOf(sc.s)>=0 && mpFait(sc.s))?'<span class="ni-ok" title="déjà rempli">✓</span>':'';
+        return (sc.g?'<div class="n3-g">'+nav3Esc(sc.g)+'</div>':'')
+          +'<div class="ni'+(al?' alerte':'')+(sOn===sc.s?' on':'')+'" data-s="'+sc.s+'" onclick="goNav(this)">'
+          +'<span class="ni-ic">'+ic(sc.ic)+'</span><span class="ni-l">'+nav3Esc(sc.l)+'</span>'+coche+fsPastille(al,'fs-al-ni')+'</div>';
+      }).join('')+'</div>';
+    }
+    return h;
+  }).join('')+liste;
+}
+
+// ---------- Branchements ----------
+window.addEventListener('load', function(){
+  if(!nav3Actif()){
+    // Ancien menu : une porte de retour en bas du menu
+    var f=document.querySelector('.side-footer');
+    if(f){ var b=document.createElement('button'); b.className='gen-btn2'; b.textContent='Essayer le nouveau menu';
+      b.onclick=function(){ nav3Basculer(true); }; f.insertBefore(b, f.firstChild); }
+    return;
+  }
+  document.body.classList.add('nav3');
+  if(typeof POLES_CLAIR!=='undefined'){ POLES_CLAIR.semaine='#b45309'; POLES_CLAIR.joueurs='#7e22ce'; POLES_CLAIR.fond='#15803d'; POLES_CLAIR.clubr='#475569'; }
+  var orig=window.renderSideNav;
+  window.renderSideNav=function(){ if(!document.body.classList.contains('nav3')) return orig.apply(this, arguments); return nav3RenderSide(); };
+  var re=window.rendreEcran;
+  window.rendreEcran=function(s){
+    var r=re.apply(this, arguments);
+    if(s==='semaine') renderSemaine();
+    if(s==='reglages') renderReglages();
+    return r;
+  };
+  var gn=window.goNav;
+  window.goNav=function(x){
+    var r=gn.apply(this, arguments);
+    try{ nav3RenderSide(); }catch(e){}
+    return r;
+  };
+  var nrv=window.nrRafraichirVues;
+  if(nrv) window.nrRafraichirVues=function(){ var r=nrv.apply(this, arguments); if(nav3EcranOuvert()) renderSemaine(); return r; };
+  var sync=window.syncDepuisFirestore;
+  if(sync) window.syncDepuisFirestore=function(){
+    var r=sync.apply(this, arguments);
+    Promise.resolve(r).then(function(){ setTimeout(nav3Rafraichir, 300); });
+    return r;
+  };
+  nav3RenderSide();
+});
+
+</script>
 </head><body>
 <div class="bg"></div>
 <!-- Le jeu d'icones, preleve tel quel de l'appli joueur : un seul dessin par
@@ -5022,8 +5639,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v134</b> · 14/10/2026<br>
-      <span style="opacity:.7">Adversaire unique · note vocale</span>
+      AST COACH <b style="color:var(--or)">v135</b> · 14/10/2026<br>
+      <span style="opacity:.7">Nouveau menu : 3 portes</span>
     </div>
   </div>
 </div>
@@ -6008,6 +6625,15 @@ Chez le président"></textarea>
   <div class="blk"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-hausse"/></svg>Évolution semaine après semaine</span><span class="bc" id="forme-nb-suivis">—</span></div>
     <div id="forme-evolution-ct" style="padding:14px"><div style="font-size:12.5px;color:var(--gris2)">Une courbe par joueur, dès qu'il a répondu au moins deux fois.</div></div>
   </div>
+</div>
+
+<!-- LA SEMAINE -->
+<div class="scr" id="scr-semaine"><div id="n3-semaine"></div></div>
+
+<!-- REGLAGES -->
+<div class="scr" id="scr-reglages">
+  <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-reglement"/></svg>Réglages &amp; sauvegarde</div><div class="ph-sub">Le menu, le staff, qui fait quoi, et les copies de sécurité</div></div></div>
+  <div id="n3-reglages"></div>
 </div>
 
 <!-- NOTES DU STAFF -->
@@ -8716,8 +9342,10 @@ var POLES=[
   ]}
 ];
 // Aucun écran hors des cinq pôles : le menu n'a plus qu'un seul niveau.
+var POLES_ANCIENS=POLES;
+if(typeof nav3Actif==='function' && nav3Actif()) POLES=NAV3_POLES;
 var ECRANS_INFO={};
-POLES.forEach(function(p){p.screens.forEach(function(sc){ECRANS_INFO[sc.s]={ic:sc.ic,l:sc.l};});});
+POLES_ANCIENS.concat(POLES).forEach(function(p){p.screens.forEach(function(sc){ECRANS_INFO[sc.s]={ic:sc.ic,l:sc.l};});});
 // Les rubriques aussi : les enchainements et les fils d'ariane les nomment.
 var RUBRIQUES_INFO={
   'projet-jeu':{ic:'equerre',l:'Le projet de jeu'},   'couverture':{ic:'🔁',l:'On le travaille ?'},
@@ -16395,6 +17023,7 @@ function appliquerDonnees(p,silencieux){
   if(p.A_CREUSER)A_CREUSER=p.A_CREUSER;
   if(p.FICHES_ARCHIVE)FICHES_ARCHIVE=p.FICHES_ARCHIVE;
   if(p.STAFF_CLUB)STAFF_CLUB=p.STAFF_CLUB;
+  if(p.NAV_STAFF)NAV_STAFF=p.NAV_STAFF;
   if(p.CATEGORIES_CLUB)CATEGORIES_CLUB=p.CATEGORIES_CLUB;
   if(p.DECISIONS)DECISIONS=p.DECISIONS;
   if(p.REFL_CHOIX)REFL_CHOIX=p.REFL_CHOIX;
@@ -16510,7 +17139,7 @@ function donneesSaisonSansPhotos(){
     return copie;
   });
   return {PHOTOS_REF, ENTRETIENS_JOUEURS:entretiensParJoueur(),
-  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS,SITUATIONS};
+  JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,COMPOSITIONS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,PROJET_JEU,FICHES_ARCHIVE,STAFF_CLUB,NAV_STAFF,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,CLIPS:CLIPS_PUBLIES,NOM_CLUB,JOUEURS_BANNIS,SITUATIONS};
 }
 // ===== Les photos des joueurs, jusqu'à leur téléphone =====
 // Elles vivaient uniquement sur l'ordinateur du coach : l'appli joueur affichait
@@ -16718,7 +17347,7 @@ function entretiensParJoueur(){
 // atteinte et la sauvegarde échouait en silence. On répartit donc en deux documents :
 //   · saison/main  = ce dont les joueurs ont besoin (leur appli ne lit que celui-ci)
 //   · saison/staff = le matériel du staff, lourd et interne (exercices, biblio, entretiens)
-var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME','REFL_PERSO','EXOS_IMPORTES','DOSSIER','SITUATIONS'];
+var CLES_STAFF=['FEX_PROCEDES','FICHES_EXERCICES','SCHEMAS_CPA','BIBLIOTHEQUE_GENERALE','ENTRETIENS','A_CREUSER','FORME_HISTORIQUE','FICHES_ARCHIVE','STAFF_CLUB','NAV_STAFF','CATEGORIES_CLUB','DECISIONS','REFL_CHOIX','REFL_THEME','REFL_PERSO','EXOS_IMPORTES','DOSSIER','SITUATIONS'];
 var LIMITE_DOC_OCTETS=900*1024; // marge de sécurité sous la limite réelle de 1 Mo
 
 function poidsOctets(txt){
@@ -29961,7 +30590,7 @@ function supprimerSchemaCPA(i){
 }
 
 // Les données gardées sur cet appareil : une seule liste, utilisée partout
-function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
+function donneesLocales(){ return {JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,NAV_STAFF,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB}; }
 
 // ===== L'enregistrement automatique =====
 // Une donnée modifiée mais pas enregistrée vit uniquement en mémoire : la
@@ -30035,7 +30664,7 @@ function charger(){
 function exporterSauvegarde(){
   try{
     if(_fexInitialise) fexCapturerProcede();
-    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
+    var data={JOUEURS,STATS,MATCHS,VIDEOS,CONVOS,CONVOCATIONS_HISTORIQUE,CONVOC_MARDI,CONVOC_JEUDI,CONVOC_ETAT,CONVOC_SEANCES,SEANCE,MESSAGE,OBJECTIFS,OBJ_COLL,ATTRS_MANUELS,SEANCES_PHOTOS,COMPOSITIONS,PHOTOS,CALENDRIER,CLASSEMENT,CLASSEMENT_HISTORIQUE,BLESSURES,FORME_HISTORIQUE,NOTE_HISTORIQUE,AUTRES_RESULTATS,PLANNING_MENSUEL,ENTRETIENS,ADVERSAIRES,SCHEMAS_CPA,SONDAGES,ACTUALITES,FEUILLE_MATCH,FEX_PROCEDES,FICHES_EXERCICES,EVENEMENTS_PERSO,INFOS_CLUB,HISTORIQUE_SAISONS,AFFECTATIONS_CONVOC,BIBLIOTHEQUE_GENERALE,EXOS_IMPORTES,DOSSIER,MATCH_PREP,DOSSIERS_ARCHIVE,A_CREUSER,FICHES_ARCHIVE,STAFF_CLUB,NAV_STAFF,CATEGORIES_CLUB,DECISIONS,REFL_CHOIX,REFL_THEME,REFL_PERSO,GEN_PREFERENCE,NOM_CLUB,__export_date:new Date().toLocaleString('fr-FR')};
     var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
@@ -30204,7 +30833,7 @@ window.addEventListener('load',function(){
   // tard, sans savoir ou on en est. Le tableau de bord porte le fil de la
   // semaine : c'est le seul point de depart qui dise quelque chose.
   try{ localStorage.removeItem('ast-dernier-ecran'); }catch(e){}
-  setTimeout(function(){ goNav('dash'); }, 40);
+  setTimeout(function(){ goNav((typeof nav3Actif==='function' && nav3Actif())?'semaine':'dash'); }, 40);
   appliquerNomClub();renderSideNav();charger();renderFicheSel();renderPresList();renderNotifList();updateDash();renderObjColl();renderRecap();renderPointsEntrainement();renderBiblio();renderCompoList();renderCalendrier();renderMatchCalSelect();renderConvoCalSelect();renderFicheCoach();renderAnciensJoueurs();renderBarreDuJour();majEtatConnexion();renderAccesJoueurs();renderDecisions();renderStaffClub();renderCategoriesClub();renderReflexions();syncDepuisFirestore(true);});
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
