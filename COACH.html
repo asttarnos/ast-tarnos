@@ -4746,6 +4746,21 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
   .n3-note{order:6;flex:1;justify-content:center}
   .n3-resp{grid-template-columns:1fr}
 }
+/* Sécurité (v142) */
+.n3-cx{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;margin:-4px 0 12px;border:1px solid var(--red);border-radius:10px;background:color-mix(in srgb,var(--red) 8%,var(--carte));font:600 13.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.n3-cx .ico{width:18px;height:18px;color:var(--red)}
+.n3-cx span{flex:1;min-width:200px}
+.n3-cx button{border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:8px;padding:5px 10px;font:700 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.n3-cx button:first-of-type{background:var(--or);border-color:var(--or);color:#1a0f02}
+.sec-l{display:flex;gap:10px;align-items:baseline;font:500 13.5px 'Roboto Condensed',sans-serif;color:var(--gris);flex-wrap:wrap}
+.sec-k{font:800 11.5px 'Roboto Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gris2);min-width:52px}
+.sec-t{font:800 13px 'Roboto Condensed',sans-serif;color:var(--or);margin-top:8px}
+.sec-ol{margin:0;padding-left:20px;font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris);line-height:1.6}
+#sec-blk{column-span:all}
+#sec-blk .n3-st .fi{flex:1;min-width:0;padding:6px 8px}
+#sec-blk .n3-st{flex-wrap:wrap}
+#sec-blk .n3-st em{font-style:normal;font-size:12.5px;font-weight:700}
+#sec-blk .n3-st em[style]{flex-basis:100%;padding-left:34px}
 /* ===== Phase 2 : la fiche joueur unique (v136) ===== */
 .jf{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px;align-items:start}
 .jf-liste{position:sticky;top:0;background:var(--carte);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;max-height:calc(100vh - 120px);max-height:calc(100dvh - 120px);overflow:hidden}
@@ -5244,6 +5259,10 @@ function renderSemaine(){
     +'<button class="n3-note" onclick="nrOuvrir()">'+ic('ecrire')+'Note rapide</button>'
   +'</div>';
 
+  if(typeof authConnecte==='function' && !authConnecte()){
+    html+='<div class="n3-cx">'+ic('info')+'<span><b>Tu n’es pas connecté.</b> Bientôt, la base n’acceptera plus que les comptes : connecte-toi pour que ton travail parte dans le cloud.</span>'
+      +'<button onclick="ouvrirConnexion()">Me connecter</button><button onclick="goNav(\'reglages\')">Sécurité ›</button></div>';
+  }
   html+='<div class="n3-cols">'+C.col.map(function(c){
     var L=c.L.filter(function(x){ return !filtre || x.ech || nav3Resp(x.cle)===moi; });
     var nf=L.filter(function(x){ return x.etat==='afaire'||x.etat==='retard'; }).length;
@@ -5298,6 +5317,7 @@ function renderReglages(){
   var moi=nav3Moi();
   var M=nav3Membres();
   var html='<div class="n3-reg">'
+    +'<div class="blk" id="sec-blk"><div class="bh"><span class="bt">Sécurité de la base</span><span class="bc">comptes et règles</span></div><div class="n3-reg-c" id="sec-ct"></div></div>'
     +'<div class="blk"><div class="bh"><span class="bt">Le menu</span></div><div class="n3-reg-c">'
       +'<p>Nouveau menu en 3 portes (La semaine, Les joueurs, Le fond de jeu) ou ancien menu en 5 pôles. Les écrans sont les mêmes.</p>'
       +'<div class="n3-seg"><button class="on">Nouveau menu</button><button onclick="nav3Basculer(false)">Revenir à l’ancien</button></div>'
@@ -5336,6 +5356,7 @@ function renderReglages(){
     +'</div></div>'
   +'</div>';
   ct.innerHTML=html;
+  if(typeof secRendre==='function') secRendre();
 }
 function nav3StaffModif(i, k, v){
   var M=nav3Membres(); if(!M[i]) return;
@@ -6093,6 +6114,150 @@ window.addEventListener('load', function(){
 });
 
 </script>
+<script>
+// ===== Sécurité de la base, côté coach (v142) =====
+//
+//   Tout ce qu'il faut pour fermer la base, au même endroit (Réglages) :
+//   les comptes du staff, les joueurs déjà passés à leur compte, l'état de
+//   la base (ouverte ou fermée), et les règles prêtes à coller dans Firebase,
+//   déjà remplies avec les adresses du staff.
+
+var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
+var SEC_COMPTES=null, SEC_ETAT=null, SEC_MDP={};
+
+function secEmails(){
+  var L=[];
+  (typeof nav3Membres==='function'?nav3Membres():[]).forEach(function(m){ var e=String(m.email||'').trim().toLowerCase(); if(e && L.indexOf(e)<0) L.push(e); });
+  var moi=(typeof SESSION!=='undefined' && SESSION && SESSION.email)?String(SESSION.email).toLowerCase():'';
+  if(moi && L.indexOf(moi)<0 && moi.indexOf('@joueurs.asttarnos.fr')<0) L.unshift(moi);
+  return L;
+}
+function secRegles(){
+  var E=secEmails();
+  return SEC_REGLES.replace('__COACHS__', E.map(function(e){ return "'"+e.replace(/'/g,'')+"'"; }).join(', '));
+}
+async function secCharger(){
+  // La base est-elle encore ouverte ? On frappe à la porte sans compte.
+  try{ var r=await fetch(FIRESTORE_BASE+'/saison/main?mask.fieldPaths=x'); SEC_ETAT=r.ok?'ouverte':((r.status===403||r.status===401)?'fermee':'inconnue'); }
+  catch(e){ SEC_ETAT='inconnue'; }
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/comptes?pageSize=300');
+    var d=res.ok?await res.json():{};
+    SEC_COMPTES=(d.documents||[]).map(function(x){ var f=x.fields||{}; return {num:parseInt((f.num||{}).integerValue||'0',10), role:(f.role||{}).stringValue||''}; });
+  }catch(e){ SEC_COMPTES=[]; }
+  secRendre();
+}
+function secRendre(){
+  var ct=document.getElementById('sec-ct'); if(!ct) return;
+  if(SEC_ETAT===null){ ct.innerHTML='<p>Vérification de la base…</p>'; secCharger(); return; }
+  var co=(typeof authConnecte==='function') && authConnecte();
+  var moi=co?(SESSION.email||''):'';
+  var M=(typeof nav3Membres==='function')?nav3Membres():[];
+  var avecCompte={}; (SEC_COMPTES||[]).forEach(function(c){ if(c.role==='joueur') avecCompte[c.num]=1; });
+  var J=(JOUEURS||[]), nOk=J.filter(function(j){ return avecCompte[j.num]; }).length;
+  var sans=J.filter(function(j){ return !avecCompte[j.num]; });
+  var E=secEmails();
+  var etat=SEC_ETAT==='fermee'?'<b style="color:var(--green)">● Fermée</b> — sans compte, plus rien ne se lit'
+    :(SEC_ETAT==='ouverte'?'<b style="color:var(--red)">● Ouverte</b> — n’importe qui connaissant l’adresse peut tout lire':'<b>● État inconnu</b> (pas de réseau ?)');
+  ct.innerHTML=''
+    +'<div class="sec-l"><span class="sec-k">La base</span><span>'+etat+'</span></div>'
+    +'<div class="sec-l"><span class="sec-k">Toi</span><span>'+(co?'<b style="color:var(--green)">Connecté</b> · '+nav3Esc(moi)
+      :'<b style="color:var(--red)">Pas connecté</b> — une fois la base fermée, ton appli ne pourra plus rien envoyer ni recevoir. <button class="jf-b2" onclick="ouvrirConnexion()">Me connecter</button>')+'</span></div>'
+    +'<div class="sec-t">1 · Le staff : une adresse e-mail chacun</div>'
+    +M.map(function(m,i){
+      var e=String(m.email||'');
+      var cestMoi=co && e && e.toLowerCase()===String(moi).toLowerCase();
+      return '<div class="n3-st"><span class="n3-qui" style="--qc:'+m.c+'">'+nav3Esc(nav3Initiales(m.nom))+'</span><b style="min-width:70px">'+nav3Esc(m.nom)+'</b>'
+        +'<input class="fi" type="email" placeholder="son e-mail" value="'+nav3Esc(e)+'" onchange="secEmail('+i+',this.value)">'
+        +(cestMoi?'<em>c’est toi</em>':(e?'<button class="jf-b2" onclick="secCreerStaff('+i+')">Créer son compte</button>':''))
+        +(SEC_MDP[i]?'<em style="color:var(--green)">mot de passe à lui donner : <b>'+nav3Esc(SEC_MDP[i])+'</b></em>':'')+'</div>';
+    }).join('')
+    +'<p>Si quelqu’un a déjà un compte, « Créer son compte » le dira. Sans adresse, il n’aura pas accès une fois la base fermée.</p>'
+    +'<div class="sec-t">2 · Les joueurs : '+nOk+' / '+J.length+' ont déjà leur compte</div>'
+    +'<p>Rien à faire de ton côté : à la prochaine ouverture, l’appli leur redemande leur code une fois, et le compte est créé. '
+      +(sans.length?'Pas encore passés : '+sans.slice(0,40).map(function(j){ return nav3Esc(String(j.nom).split(' ').pop()); }).join(', ')+(sans.length>40?'…':''):'Tout le monde est passé.')+'</p>'
+    +'<div class="sec-t">3 · Fermer la base</div>'
+    +'<p>Les règles ci-dessous sont déjà remplies avec '+(E.length?E.length+' adresse'+(E.length>1?'s':'')+' du staff':'<b style="color:var(--red)">aucune adresse du staff — remplis d’abord l’étape 1</b>')+'.</p>'
+    +'<ol class="sec-ol"><li>Ouvre <b>console.firebase.google.com</b>, projet <b>'+nav3Esc(FIREBASE_PROJECT_ID)+'</b>.</li>'
+      +'<li>Menu <b>Firestore Database</b>, onglet <b>Règles</b>.</li>'
+      +'<li>Efface tout, colle les règles, clique <b>Publier</b>.</li>'
+      +'<li>Reviens ici : « La base » doit passer à <b>Fermée</b>.</li></ol>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" style="width:auto;margin:0" '+(E.length?'':'disabled ')+'onclick="secCopier()">Copier les règles</button>'
+      +'<button class="jf-b2" onclick="secVoir()">Voir les règles</button><button class="jf-b2" onclick="SEC_ETAT=null;secRendre()">Revérifier</button></div>'
+    +'<div id="sec-voir"></div>'
+    +'<p style="margin-top:6px">Si quelque chose ne marche plus après la fermeture : <span style="color:var(--or);cursor:pointer;font-weight:700" onclick="secSecours()">règles de secours</span> — elles remettent la base comme avant, le temps de me prévenir.</p>'
+    +'<div class="sec-t">4 · Plus tard : effacer les anciens codes</div>'
+    +'<p>Les anciens codes PIN restent lisibles pour permettre le passage au compte. Quand presque tout le monde est passé, efface-les : ceux qui restent choisiront simplement un code à la prochaine ouverture.</p>'
+    +'<button class="jf-b2" onclick="secEffacerPins()">Effacer les anciens codes</button>';
+}
+var SEC_SECOURS="rules_version = '2';\n// Règles de secours : la base redevient ouverte comme avant (à ne garder que le temps de corriger)\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}\n";
+function secSecours(){
+  var v=document.getElementById('sec-voir'); if(!v) return;
+  v.innerHTML='<textarea class="fi" readonly style="width:100%;height:150px;font:12px monospace;margin-top:8px">'+nav3Esc(SEC_SECOURS)+'</textarea>';
+}
+function secEmail(i, v){
+  var M=nav3Membres(); if(!M[i]) return;
+  M[i].email=String(v||'').trim();
+  try{ sauvegardeAuto(); }catch(e){}
+  secRendre();
+}
+async function secCreerStaff(i){
+  var m=nav3Membres()[i]; if(!m || !m.email) return;
+  if(!authConnecte()){ notif('⚠ Connecte-toi d’abord'); return; }
+  var mdp='ast-'+Math.random().toString(36).slice(2,8);
+  try{
+    await authCreationAutreCompte(m.email.trim(), mdp);
+    SEC_MDP[i]=mdp;
+    notif('✓ Compte créé pour '+m.nom+' — donne-lui son mot de passe');
+  }catch(e){
+    notif((e.message||'').indexOf('existe déjà')>=0?('✓ '+m.nom+' a déjà un compte'):('✗ '+(e.message||'Création impossible')));
+  }
+  secRendre();
+}
+function secVoir(){
+  var v=document.getElementById('sec-voir'); if(!v) return;
+  v.innerHTML=v.innerHTML?'':'<textarea class="fi" readonly style="width:100%;height:260px;font:12px monospace;margin-top:8px">'+nav3Esc(secRegles())+'</textarea>';
+}
+function secCopier(){
+  var t=secRegles();
+  var ok=function(){ notif('✓ Règles copiées — colle-les dans Firebase › Firestore › Règles'); };
+  try{ navigator.clipboard.writeText(t).then(ok, function(){ secVoir(); notif('Sélectionne le texte et copie-le'); }); }
+  catch(e){ secVoir(); }
+}
+async function secEffacerPins(){
+  if(!confirm('Effacer tous les anciens codes PIN ?\n\nCeux qui ont déjà leur compte ne verront rien. Les autres choisiront un code à la prochaine ouverture.')) return;
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/pins_joueurs?pageSize=300'); var d=res.ok?await res.json():{};
+    var L=d.documents||[], n=0;
+    for(var k=0;k<L.length;k++){ var id=L[k].name.split('/').pop(); var r=await fbFetch(FIRESTORE_BASE+'/pins_joueurs/'+id,{method:'DELETE'}); if(r.ok) n++; }
+    notif('✓ '+n+' ancien'+(n>1?'s':'')+' code'+(n>1?'s':'')+' effacé'+(n>1?'s':''));
+  }catch(e){ notif('✗ Effacement impossible'); }
+}
+
+// ---------- La liste des noms pour l'écran de connexion des joueurs ----------
+// Une fois la base fermée, un joueur pas encore connecté ne peut plus lire la
+// saison : on publie à part, en lecture libre, seulement « numéro + nom ».
+var SEC_EFF_T=null;
+function secPublierEffectif(){
+  clearTimeout(SEC_EFF_T);
+  SEC_EFF_T=setTimeout(async function(){
+    try{
+      if(typeof authConnecte==='function' && !authConnecte()) return;
+      var L=(JOUEURS||[]).map(function(j){ return {num:j.num, nom:j.nom}; });
+      var t=JSON.stringify(L);
+      if(localStorage.getItem('ast_effectif_publie')===t) return;
+      var r=await fbFetch(FIRESTORE_BASE+'/saison/effectif',{method:'PATCH',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({fields:{data:{stringValue:t}, maj:{stringValue:new Date().toISOString()}}})});
+      if(r.ok) localStorage.setItem('ast_effectif_publie', t);
+    }catch(e){}
+  }, 3000);
+}
+window.addEventListener('load', function(){
+  EXT.apres('sauvegardeAuto', secPublierEffectif, 'sécurité');
+  setTimeout(secPublierEffectif, 4000);
+});
+
+</script>
 </head><body>
 <div class="bg"></div>
 <!-- Le jeu d'icones, preleve tel quel de l'appli joueur : un seul dessin par
@@ -6520,8 +6685,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v141</b> · 14/10/2026<br>
-      <span style="opacity:.7">Code consolidé</span>
+      AST COACH <b style="color:var(--or)">v142</b> · 14/10/2026<br>
+      <span style="opacity:.7">Sécurité de la base</span>
     </div>
   </div>
 </div>

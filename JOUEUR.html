@@ -929,6 +929,9 @@ function renderSaison(){ return EXT.appel('renderSaison', renderSaison__base, th
 function fbFetch(){ return EXT.appel('fbFetch', fbFetch__base, this, arguments, true); }
 function lancerEtapePin(){ return EXT.appel('lancerEtapePin', lancerEtapePin__base, this, arguments, true); }
 function demarrerApp(){ return EXT.appel('demarrerApp', demarrerApp__base, this, arguments, true); }
+function validerPin(){ return EXT.appel('validerPin', validerPin__base, this, arguments, true); }
+function changerJoueur(){ return EXT.appel('changerJoueur', changerJoueur__base, this, arguments, false); }
+function initLogin(){ return EXT.appel('initLogin', initLogin__base, this, arguments, true); }
 </script>
 <script>try{if(localStorage.getItem('ast-theme')!=='sombre')document.documentElement.classList.add('clair');}catch(e){}</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1363,7 +1366,21 @@ function apcBandeau(){
   var J=((typeof SAISON!=='undefined' && SAISON && SAISON.JOUEURS)||[]).slice().sort(function(a,b){ return (a.num||0)-(b.num||0); });
   b.innerHTML='<span>Aperçu coach · <b>lecture seule</b></span>'
     +'<select onchange="apcChanger(this.value)">'+J.map(function(j){ return '<option value="'+j.num+'"'+(j.num===MON_NUM?' selected':'')+'>'+j.num+'. '+esc(j.nom)+'</option>'; }).join('')+'</select>'
-    +'<i>rien n’est envoyé en son nom</i>';
+    +'<i>'+(localStorage.getItem('ast_auth_coach')?'rien n’est envoyé en son nom':'connecte-toi dans l’espace coach pour voir ses données')+'</i>';
+}
+// Le jeton du coach connecté sur ce navigateur, renouvelé s'il a expiré
+async function apcJeton(){
+  var a=null; try{ a=JSON.parse(localStorage.getItem('ast_auth_coach')||'null'); }catch(e){}
+  if(!a || !a.refreshToken) return null;
+  if(a.idToken && Date.now()<a.expire) return a.idToken;
+  try{
+    var r=await fetch(AUTH_REFRESH,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(a.refreshToken)});
+    var d=await r.json(); if(!r.ok) return null;
+    a.idToken=d.id_token; a.refreshToken=d.refresh_token||a.refreshToken; a.expire=Date.now()+(parseInt(d.expires_in||3600,10)-120)*1000;
+    localStorage.setItem('ast_auth_coach', JSON.stringify(a));
+    return a.idToken;
+  }catch(e){ return null; }
 }
 function apcChanger(num){
   var u=new URL(location.href); u.searchParams.set('num', num); location.href=u.toString();
@@ -1392,9 +1409,17 @@ window.addEventListener('load', function(){
   // Les écritures ne partent pas : le coach regarde, il ne répond pas à la place du joueur
   EXT.avant('fbFetch', function(url, opts){
     var m=((opts&&opts.method)||'GET').toUpperCase();
-    if(m==='GET') return null;
-    try{ notif('Aperçu coach : rien n’est envoyé'); }catch(e){}
-    return {fait:true, val:Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}))};
+    var lecture=(m==='GET') || /:(runQuery|batchGet)/.test(String(url));
+    if(!lecture){
+      try{ notif('Aperçu coach : rien n’est envoyé'); }catch(e){}
+      return {fait:true, val:Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}))};
+    }
+    // On lit avec le compte du coach : la base le reconnaît comme staff
+    return {fait:true, val:apcJeton().then(function(j){
+      var o=Object.assign({}, opts||{}); o.headers=Object.assign({}, o.headers||{});
+      if(j) o.headers.Authorization='Bearer '+j;
+      return fetch(url, o);
+    })};
   }, 'aperçu coach');
   // Ni code PIN, ni mémorisation sur cet appareil
   EXT.avant('lancerEtapePin', function(){
@@ -1516,7 +1541,7 @@ function jxRenderHub(){
     +auChiffres()
     +auActu();
   html+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v50</b> · 14/10/2026<br><span style="opacity:.8">Ma semaine, sans le superflu</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v51</b> · 14/10/2026<br><span style="opacity:.8">Un vrai compte derrière ton code</span></div>';
   ct.innerHTML=html;
   try{ auPhotoPoser(); }catch(e){}
   jvBrancher();
@@ -1655,6 +1680,177 @@ window.addEventListener('load', function(){
     if(ct) ct.querySelectorAll('.blk').forEach(function(b){ var t=(b.querySelector('.blk-h .t')||{}).textContent||''; if(t.indexOf('Calendrier de la saison')>=0) b.remove(); });
   }, 'doublons du calendrier');
 });
+
+// ===== Sécurité côté joueur : un vrai compte derrière le code (v51) =====
+//
+//   Le joueur garde exactement ses gestes : il choisit son nom, tape ses
+//   4 chiffres. Mais derrière, ce code ouvre désormais un compte Firebase
+//   (« 12@joueurs.asttarnos.fr ») au lieu d'être comparé à une empreinte
+//   que n'importe qui pouvait lire. La base peut alors refuser tout ce qui
+//   n'a pas de compte.
+//
+//   · Code déjà créé avant : on le vérifie une dernière fois sur l'ancienne
+//     empreinte, puis le compte est créé avec ce même code. Rien à réapprendre.
+//   · Accès créé par le coach (code donné de la main à la main) : le code
+//     donné ouvre directement le compte.
+//   · Tout ce qu'il envoie porte sa signature (auteurNum), et il ne relit
+//     que ses propres réponses : la base le vérifie à chaque fois.
+
+function jsEmail(num){ return String(num)+'@joueurs.asttarnos.fr'; }
+function jsMdp(pin){ return 'ast-'+pin; }
+function jsApercu(){ return typeof APERCU_COACH!=='undefined' && APERCU_COACH && !APERCU_COACH.refuse; }
+// Un joueur déjà installé, mais sans compte : on lui redemande son code une fois
+function jsDoitSecuriser(){ return !jsApercu() && !authConnecte(); }
+function jsSecuriser(){
+  document.getElementById('scr-login').classList.add('hidden');
+  var app=document.getElementById('app'); if(app) app.classList.add('hidden');
+  lancerEtapePin().then(function(){
+    var t=document.getElementById('pin-titre'), s=document.getElementById('pin-sous-titre');
+    if(PIN_MODE==='verifier'){
+      if(t) t.textContent='Retape ton code';
+      if(s) s.textContent='Une seule fois : l’appli sécurise ton compte. Ensuite tu n’auras plus à le refaire.';
+    }
+  });
+}
+function authSessionPerdue(){ if(!jsApercu() && typeof MON_NUM!=='undefined' && MON_NUM!=null) jsSecuriser(); }
+
+async function jsErr(txt){
+  var e=document.getElementById('pin-err');
+  if(e){ e.textContent='⚠ '+txt; e.classList.remove('hidden'); }
+  var i=document.getElementById('pin-input'); if(i){ i.value=''; i.focus(); }
+}
+async function jsEssaiConnexion(pin){
+  try{ await authConnexion(jsEmail(MON_NUM), jsMdp(pin)); return true; }catch(e){ return false; }
+}
+async function jsAncienneEmpreinte(){
+  try{
+    var r=await fetch(FIRESTORE_BASE+'/pins_joueurs/'+MON_NUM);   // lecture publique, transitoire
+    if(!r.ok) return null;
+    var d=await r.json(); return ((d.fields||{}).pinHash||{}).stringValue||null;
+  }catch(e){ return null; }
+}
+async function jsCreerCompte(pin){
+  try{ await authCreation(jsEmail(MON_NUM), jsMdp(pin)); return 'ok'; }
+  catch(e){ return (e.message||'').indexOf('existe déjà')>=0 ? 'existe' : (e.message||'erreur'); }
+}
+async function jsFin(){
+  // La trace du compte, pour que le coach voie qui est passé au nouveau système
+  try{
+    await fbFetch(FIRESTORE_BASE+'/comptes/'+SESSION.uid,{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{num:{integerValue:String(MON_NUM)}, nom:{stringValue:MON_NOM||''}, role:{stringValue:'joueur'},
+        cree:{stringValue:new Date().toLocaleDateString('fr-FR')}}})});
+  }catch(e){}
+  finaliserConnexion();
+}
+async function jsValiderPin(){
+  var val=(document.getElementById('pin-input').value||'').trim();
+  var errEl=document.getElementById('pin-err'); errEl.classList.add('hidden');
+  if(!/^\d{4}$/.test(val)) return jsErr('Entre exactement 4 chiffres');
+  var b=document.querySelector('#scr-pin .btn-or'); if(b){ b.disabled=true; b.textContent='Vérification…'; }
+  try{
+    // 1. Le compte existe déjà avec ce code (lui-même, ou accès créé par le coach)
+    if(PIN_PREMIERE_SAISIE===null && await jsEssaiConnexion(val)) return jsFin();
+    if(PIN_MODE==='verifier'){
+      // 2. Ancien code : vérifié une dernière fois sur l'empreinte, puis le compte est créé avec
+      var h=await jsAncienneEmpreinte();
+      if(!h || h!==await hashPin(val)) return jsErr('Code incorrect');
+      var r=await jsCreerCompte(val);
+      if(r==='ok') return jsFin();
+      if(r==='existe') return jsErr('Ton compte existe avec un autre code : demande au coach de le réinitialiser');
+      return jsErr(r);
+    }
+    // 3. Premier passage : on fait taper le code deux fois
+    if(PIN_PREMIERE_SAISIE===null){
+      PIN_PREMIERE_SAISIE=val;
+      document.getElementById('pin-input').value='';
+      document.getElementById('pin-sous-titre').textContent='Retape le même code pour confirmer.';
+      document.getElementById('pin-input').focus();
+      return;
+    }
+    if(val!==PIN_PREMIERE_SAISIE){
+      PIN_PREMIERE_SAISIE=null;
+      document.getElementById('pin-sous-titre').textContent="Choisis 4 chiffres — ça évite qu'un coéquipier réponde à ta place.";
+      return jsErr('Les deux codes ne correspondent pas, recommence');
+    }
+    var r2=await jsCreerCompte(val);
+    if(r2==='ok') return jsFin();
+    PIN_PREMIERE_SAISIE=null;
+    if(r2==='existe') return jsErr('Ce numéro a déjà un compte : entre le code que le coach t’a donné');
+    return jsErr(r2);
+  }finally{
+    if(b){ b.disabled=false; b.textContent='Valider'; }
+  }
+}
+
+// ---------- Ce qu'il envoie porte sa signature ; il ne relit que le sien ----------
+var JS_A_MOI={disponibilites:'joueurNum', confirmations_convocation:'joueurNum', debriefs_matchs:'joueurNum',
+  blessures_declarees:'joueurNum', moments_video:'joueurNum', homme_du_match:'auteurNum', votes:'auteurNum',
+  sondage_reponses:'auteurNum'};
+function jsCollection(url){
+  var i=url.indexOf('/documents/'); if(i<0) return null;
+  var reste=url.slice(i+11).split('?')[0];
+  if(reste.charAt(0)===':') return null;            // batchGet, runQuery…
+  return {coll:reste.split('/')[0], estListe:reste.indexOf('/')<0, requete:url.split('?')[1]||''};
+}
+async function jsMesDocs(coll, champ){
+  var q={structuredQuery:{from:[{collectionId:coll}],
+    where:{fieldFilter:{field:{fieldPath:champ}, op:'EQUAL', value:{integerValue:String(MON_NUM)}}}, limit:300}};
+  var res=await fbFetch(FIRESTORE_BASE+':runQuery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(q)});
+  if(!res.ok) return res;
+  var L=await res.json();
+  var docs=(L||[]).filter(function(x){ return x && x.document; }).map(function(x){ return x.document; });
+  return new Response(JSON.stringify({documents:docs}),{status:200,headers:{'Content-Type':'application/json'}});
+}
+
+// L'écran de connexion lit la liste publique « numéro + nom » ; la saison, elle, attend le compte
+async function jsInitLogin(){
+  var sel=document.getElementById('login-select');
+  try{
+    var r=await fetch(FIRESTORE_BASE+'/saison/effectif');
+    if(!r.ok) throw new Error('absent');
+    var d=await r.json();
+    var J=JSON.parse(((d.fields||{}).data||{}).stringValue||'[]');
+    if(!J.length) throw new Error('vide');
+    J.sort(function(a,b){ return (a.nom||'').localeCompare(b.nom||''); });
+    sel.innerHTML='<option value="">— Sélectionne ton nom —</option>'+J.map(function(j){
+      return '<option value="'+j.num+'|'+esc(j.nom)+'">'+esc(j.num)+'. '+esc(j.nom)+'</option>'; }).join('');
+    sel.disabled=false; document.getElementById('login-btn').disabled=false;
+  }catch(e){
+    return initLogin__base();          // liste pas encore publiée : l'ancienne façon
+  }
+}
+
+// Branché dès la lecture du fichier : l'écran de connexion s'affiche avant la fin du chargement
+(function(){
+  EXT.avant('initLogin', function(){ return {fait:true, val:jsInitLogin()}; }, 'sécurité');
+  EXT.avant('validerPin', function(){ return {fait:true, val:jsValiderPin()}; }, 'sécurité');
+  EXT.avant('fbFetch', function(url, opts){
+    var c=jsCollection(String(url||'')); if(!c) return null;
+    var m=((opts&&opts.method)||'GET').toUpperCase();
+    // Lecture d'une collection personnelle : seulement ses documents
+    if(m==='GET' && c.estListe && JS_A_MOI[c.coll] && MON_NUM!=null){
+      return {fait:true, val:jsMesDocs(c.coll, JS_A_MOI[c.coll])};
+    }
+    // Écriture : sa signature
+    if((m==='POST'||m==='PATCH') && opts && opts.body && MON_NUM!=null && c.coll!=='comptes'){
+      try{
+        var b=JSON.parse(opts.body);
+        if(b && b.fields){
+          b.fields.auteurNum={integerValue:String(MON_NUM)};
+          opts.body=JSON.stringify(b);
+        }
+      }catch(e){}
+    }
+    return null;
+  }, 'sécurité');
+  // Changer de joueur, c'est aussi fermer le compte de l'ancien sur ce téléphone
+  EXT.avant('changerJoueur', function(){
+    if(!confirm('Changer de joueur ? Tu devras te resélectionner dans la liste.')) return {fait:true};
+    try{ authDeconnexion(); }catch(e){}
+    localStorage.removeItem('ast_joueur_num'); localStorage.removeItem('ast_joueur_nom');
+    location.reload(); return {fait:true};
+  }, 'sécurité');
+})();
 
 </script>
 <style>
@@ -2408,13 +2604,14 @@ function init(){
   var savedNom=localStorage.getItem('ast_joueur_nom');
   if(savedNum!==null && savedNom){
     MON_NUM=parseInt(savedNum); MON_NOM=savedNom;
+    if(typeof jsDoitSecuriser==='function' && jsDoitSecuriser()){ jsSecuriser(); return; }
     demarrerApp();
   }else{
     initLogin();
   }
 }
 
-async function initLogin(){
+async function initLogin__base(){
   var sel=document.getElementById('login-select');
   try{
     await chargerSaison();
@@ -2444,7 +2641,7 @@ function validerLogin(){
   lancerEtapePin();
 }
 
-function changerJoueur(){
+function changerJoueur__base(){
   if(!confirm('Changer de joueur ? Tu devras te resélectionner dans la liste.')) return;
   localStorage.removeItem('ast_joueur_num');
   localStorage.removeItem('ast_joueur_nom');
@@ -2484,7 +2681,7 @@ async function lancerEtapePin__base(){
   }
   document.getElementById('pin-input').focus();
 }
-async function validerPin(){
+async function validerPin__base(){
   var val=document.getElementById('pin-input').value.trim();
   var errEl=document.getElementById('pin-err');
   errEl.classList.add('hidden');
