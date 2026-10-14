@@ -2851,9 +2851,11 @@ function rapCarteHtml(r, nomAdv){
       +'<b>'+rapEsc(nomAdv||'')+'</b></div>'
     +'<div class="rapc-h2">'
       +(r.systeme?'<span class="rapc-sys">'+rapEsc(r.systeme)+'</span>':'')
+      +(r.systemeDef&&r.systemeDef!==r.systeme?'<span class="rapc-cl">'+rapEsc(r.systemeDef)+' sans ballon</span>':'')
       +(r.classement?'<span class="rapc-cl">'+rapEsc(r.classement)+'</span>':'')
     +'</div>'
   +'</div>';
+  if((r.resume||'').trim()) h+='<div class="rapc-res">« '+rapEsc(r.resume.trim())+' »</div>';
   if(forme.length){
     h+='<div class="rapc-forme"><span>Leurs derniers matchs</span>'
       +forme.map(function(f){ return '<i class="rf-'+rapEsc(f)+'">'+rapEsc(f)+'</i>'; }).join('')
@@ -2919,6 +2921,7 @@ var RAP_CSS=''
   +'.rapc-h2{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}'
   +'.rapc-sys{font-family:Anton,Impact,sans-serif;font-size:19px;padding:2px 10px;border-radius:7px;background:var(--rc-or);color:#1a0f02}'
   +'.rapc-cl{font-size:12px;font-weight:700;color:#c7ccd3}'
+  +'.rapc-res{padding:10px 15px;font-size:15px;font-weight:700;font-style:italic;border-bottom:1px solid var(--rc-line)}'
   +'.rapc-forme{display:flex;align-items:center;gap:5px;padding:9px 15px;border-bottom:1px solid var(--rc-line);font-size:12px;color:var(--rc-mute);flex-wrap:wrap}'
   +'.rapc-forme span{margin-right:4px;font-weight:700}'
   +'.rapc-forme i{font-style:normal;width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;color:#fff}'
@@ -2973,7 +2976,7 @@ var RAP_NOM='';
 var RAP_SEL=null;   // le joueur adverse en cours d'edition sur le terrain
 
 function rapVide(){
-  return {systeme:'', forme:['','','','',''], classement:'', style:{}, marks:{},
+  return {systeme:'', systemeDef:'', resume:'', forme:['','','','',''], classement:'', style:{}, marks:{},
           forces:['','',''], failles:['','',''], cles:['','',''], cpa:'', video:'',
           diffuse:false, maj:'', terrain:[]};
 }
@@ -3019,6 +3022,7 @@ function rapEcrire(modif){
   r.terrain=rapTerrainDe(r);
   r.maj=new Date().toLocaleDateString('fr-FR');
   a.rapport=r;
+  rapPropager(RAP_NOM, r);
   sauvegardeAuto();
   rapMajEtat(r);
   return r;
@@ -3084,9 +3088,13 @@ function rapRender(nom){
     // --- Colonne 1 : qui ils sont
     +'<div class="rap-col">'
       +'<div class="rap-tt">① Qui ils sont</div>'
-      +'<div class="rap-l2"><div><label class="fl">Système</label>'
+      +'<div class="rap-l3"><div><label class="fl">Avec le ballon</label>'
         +'<select class="fi" onchange="rapSysteme(this.value)">'
         +Object.keys(FORMATIONS).map(function(f){ return '<option'+(f===r.systeme?' selected':'')+'>'+e(f)+'</option>'; }).join('')
+        +'</select></div>'
+      +'<div><label class="fl">Sans ballon</label>'
+        +'<select class="fi" onchange="rapChamp(\'systemeDef\',this.value)"><option value="">idem</option>'
+        +Object.keys(FORMATIONS).map(function(f){ return '<option'+(f===r.systemeDef?' selected':'')+'>'+e(f)+'</option>'; }).join('')
         +'</select></div>'
       +'<div><label class="fl">Classement</label><input class="fi" value="'+e(r.classement)+'" placeholder="ex. 3e · 18 pts" onchange="rapChamp(\'classement\',this.value)"></div></div>'
       +'<label class="fl">Leurs 5 derniers matchs <span class="rap-aide">touche pour changer · le plus récent à gauche</span></label>'
@@ -3107,6 +3115,8 @@ function rapRender(nom){
     // --- Colonne 3 : le plan
     +'<div class="rap-col">'
       +'<div class="rap-tt">③ Le plan</div>'
+      +'<label class="fl">Leur match en une phrase <span class="rap-aide">elle sort en tête de la feuille de match</span></label>'
+      +'<input class="fi rap-in" value="'+e(r.resume)+'" placeholder="ex. Bloc bas, ils sortent en contre par leur droite" onchange="rapChamp(\'resume\',this.value)">'
       +'<label class="fl" style="color:var(--or)">🔑 Comment on les bat — ce que les joueurs liront en premier</label>'
       +champs('cles',3,['ex. Les attirer à droite puis renverser','ex. Presser leur 6 dès la relance','ex. Gagner les deuxièmes ballons'],'k')
       +'<div class="rap-l2" style="margin-top:8px"><div><label class="fl" style="color:var(--green)">Leurs forces</label>'
@@ -3441,6 +3451,131 @@ function rapOuvrirDepuisFeuille(){
     var b=document.getElementById('rap-blk'); if(b && b.scrollIntoView) b.scrollIntoView({behavior:'smooth', block:'start'});
   }, 60);
 }
+
+// ===== UN SEUL ENDROIT (v134) =====
+// Le rapport est la seule saisie sur l'adversaire. Tout ce qui parlait de lui
+// ailleurs — la fiche lue par le tableau de bord et l'appli joueurs, l'encart
+// de la feuille de match, le bloc du dossier d'avant-match — en est une copie,
+// refaite a chaque modification. Ces ecrans l'affichent, ils ne la saisissent plus.
+function rapMarquesTexte(r){
+  return rapTerrainDe(r).filter(function(p){ return (p.t||'').trim(); })
+    .map(function(p){ return p.pos+' : '+p.t.trim(); }).join(' · ');
+}
+function rapStyleTexte(r){
+  return RAP_STYLE.filter(function(s){ var v=(r.style||{})[s.k]; return v!==null&&v!==undefined&&v!==''; })
+    .map(function(s){ var v=parseInt(r.style[s.k],10); return s.lab.toLowerCase()+' '+(v<=1?s.g:(v>=3?s.d:'entre les deux')).toLowerCase(); }).join(', ');
+}
+function rapPropager(nom, r){
+  if(!nom || !r) return;
+  var a=rapAdv(nom); if(!a) return;
+  // 1. La fiche que lisent le tableau de bord, l'appli joueurs et les documents
+  a.fiches=a.fiches||[];
+  var i=-1; for(var k=0;k<a.fiches.length;k++) if(a.fiches[k] && a.fiches[k].source==='rapport'){ i=k; break; }
+  var f=(i>=0)?a.fiches.splice(i,1)[0]:{source:'rapport'};
+  f.date=r.maj||new Date().toLocaleDateString('fr-FR');
+  f.dispoPoss=r.systeme||''; f.dispoDef=r.systemeDef||r.systeme||'';
+  f.joueursSurveiller=rapMarquesTexte(r);
+  f.infosParticulieres=[r.resume, rapListeTxt(r.cles).length?('Clés : '+rapListeTxt(r.cles).join(' / ')):''].filter(Boolean).join(' — ');
+  f.lienVideo=r.video||'';
+  a.fiches.unshift(f);
+  // 2. La feuille de match, si elle prepare ce match
+  if(typeof FEUILLE_MATCH!=='undefined' && FEUILLE_MATCH && FEUILLE_MATCH.adversaireNom
+     && fexNomsCorrespondent(FEUILLE_MATCH.adversaireNom, nom)){
+    if(r.systeme && FORMATIONS[r.systeme]) FEUILLE_MATCH.adversaireFormation=r.systeme;
+    FEUILLE_MATCH.advNotes={};
+    Object.keys(r.marks||{}).forEach(function(k){ var m=r.marks[k]; if(m&&(m.sg||(m.t||'').trim())) FEUILLE_MATCH.advNotes[k]={sg:m.sg||'',t:m.t||''}; });
+    FEUILLE_MATCH.advGeneral=r.resume||'';
+  }
+  // 3. Le dossier d'avant-match, s'il prepare ce match
+  if(typeof DOSSIER!=='undefined' && DOSSIER && DOSSIER.adv && fexNomsCorrespondent(DOSSIER.adv, nom)){
+    if(r.systeme && FORMATIONS[r.systeme]) DOSSIER.advFormation=r.systeme;
+    DOSSIER.bulles=DOSSIER.bulles||{}; DOSSIER.bulles.adv=DOSSIER.bulles.adv||{};
+    var b=DOSSIER.bulles.adv;
+    var st=rapStyleTexte(r);
+    b['Son système']=[r.systeme, r.systemeDef&&r.systemeDef!==r.systeme?(r.systemeDef+' sans ballon'):'', st].filter(Boolean).join(' · ');
+    b['Ce qui fait mal']=rapListeTxt(r.forces).join(' · ');
+    b['Sa faille']=rapListeTxt(r.failles).join(' · ');
+    var T=rapTerrainDe(r), dang=T.filter(function(p){ return p.sg==='danger' && (p.t||'').trim(); })[0]
+      || T.filter(function(p){ return (p.t||'').trim(); })[0];
+    b['Le joueur à tenir']=dang?(dang.pos+' — '+dang.t.trim()):'';
+  }
+}
+// Avant d'afficher la feuille ou le dossier : on repart du rapport, au cas ou
+// l'adversaire vient d'etre choisi ou le rapport modifie ailleurs.
+function rapSynchroniser(nom){
+  var a=rapAdv(nom); if(!a || !a.rapport) return null;
+  var r=rapReparer(a.rapport);
+  var avant=JSON.stringify([a.fiches&&a.fiches[0], typeof FEUILLE_MATCH!=='undefined'?[FEUILLE_MATCH.adversaireFormation,FEUILLE_MATCH.advNotes,FEUILLE_MATCH.advGeneral]:0,
+    typeof DOSSIER!=='undefined'?[DOSSIER.advFormation,(DOSSIER.bulles||{}).adv]:0]);
+  rapPropager(nom, r);
+  var apres=JSON.stringify([a.fiches&&a.fiches[0], typeof FEUILLE_MATCH!=='undefined'?[FEUILLE_MATCH.adversaireFormation,FEUILLE_MATCH.advNotes,FEUILLE_MATCH.advGeneral]:0,
+    typeof DOSSIER!=='undefined'?[DOSSIER.advFormation,(DOSSIER.bulles||{}).adv]:0]);
+  if(avant!==apres && typeof sauvegardeAuto==='function') sauvegardeAuto();
+  return r;
+}
+// Ce que voient la feuille et le dossier a la place des champs de saisie
+function rapLectureHtml(nom, r, opts){
+  opts=opts||{};
+  var bouton='<button class="rap-modif" data-n="'+rapEsc(String(nom||''))+'" onclick="rapOuvrir(this.dataset.n)">✏️ '
+    +(r?'Modifier le rapport':'Faire le rapport')+' dans Adversaires</button>';
+  if(!nom) return '<div class="rap-lect vide">Choisis d’abord l’adversaire.</div>';
+  if(!r || !rapARempli(r)) return '<div class="rap-lect vide"><b>Pas encore de rapport sur '+rapEsc(nom)+'.</b>'
+    +'<span>Tout ce qu’on sait d’eux se saisit à un seul endroit : l’écran Adversaires. Il remplira cette page tout seul.</span>'+bouton+'</div>';
+  var T=rapTerrainDe(r), marques=T.filter(function(p){ return p.sg||(p.t||'').trim(); });
+  var L=function(t,arr,c){ arr=rapListeTxt(arr); return arr.length?'<div class="rap-lect-l" style="--c:'+c+'"><b>'+t+'</b>'+arr.map(rapEsc).join(' · ')+'</div>':''; };
+  return '<div class="rap-lect">'
+    +'<div class="rap-lect-g"><div class="rap-lect-t">'+rapTerrainSvg(T)+'</div><div class="rap-lect-d">'
+      +'<div class="rap-lect-h"><span class="sys">'+rapEsc(r.systeme||'?')+'</span>'
+        +(r.systemeDef&&r.systemeDef!==r.systeme?'<span class="sys2">'+rapEsc(r.systemeDef)+' sans ballon</span>':'')
+        +'<span class="maj">'+(r.diffuse?'diffusé aux joueurs':'brouillon')+' · '+rapEsc(r.maj||'')+'</span></div>'
+      +(r.resume?'<div class="rap-lect-r">« '+rapEsc(r.resume)+' »</div>':'')
+      +L('🔑 Clés',r.cles,'var(--or)')+L('Forces',r.forces,'var(--green)')+L('Failles',r.failles,'var(--blue)')
+      +(marques.length?'<div class="rap-lect-m">'+marques.map(function(p){ var inf=rapSigne(p.sg);
+          return '<span style="--c:'+inf.c+'"><i>'+(p.sg?inf.ic:'•')+'</i>'+rapEsc(p.pos)+(p.t?' — '+rapEsc(p.t):'')+'</span>'; }).join('')+'</div>':'')
+    +'</div></div>'+bouton+'</div>';
+}
+function rapOuvrir(nom){
+  if(nom) trouverOuCreerAdversaire(nom);
+  var sel0=document.getElementById('adv-sel');
+  if(sel0 && nom){ sel0.innerHTML='<option value="'+rapEsc(nom)+'" selected>'+rapEsc(nom)+'</option>'; sel0.value=nom; }
+  goNav('adversaires');
+  setTimeout(function(){ var b=document.getElementById('rap-blk'); if(b && b.scrollIntoView) b.scrollIntoView({behavior:'smooth', block:'start'}); }, 80);
+}
+window.addEventListener('load', function(){
+  function apres(nom, fn){
+    var f=window[nom]; if(typeof f!=='function' || f._rap) return;
+    var g=function(){ var x=f.apply(this, arguments); try{ fn(); }catch(e){} return x; };
+    g._rap=true; window[nom]=g;
+  }
+  // La feuille de match : l'encart « leur terrain » devient une lecture du rapport
+  apres('renderFeuilleMatch', function(){
+    var nom=(document.getElementById('fm-adversaire')||{}).value||FEUILLE_MATCH.adversaireNom||'';
+    var r=nom?rapSynchroniser(nom):null;
+    var ct=document.getElementById('fm-adv-ct'), g=document.getElementById('fm-adv-general');
+    if(g) g.style.display='none';
+    if(ct) ct.innerHTML=rapLectureHtml(nom, r);
+    var sel=document.getElementById('fm-adv-formation');
+    if(sel){ sel.disabled=true; sel.title='Le système vient du rapport adversaire'; if(r && r.systeme) sel.value=r.systeme; }
+  });
+  apres('onAdversaireChangeFeuille', function(){
+    var nom=(document.getElementById('fm-adversaire')||{}).value||'';
+    if(typeof FEUILLE_MATCH!=='undefined') FEUILLE_MATCH.adversaireNom=nom;
+    var r=nom?rapSynchroniser(nom):null;
+    var ct=document.getElementById('fm-adv-ct'); if(ct) ct.innerHTML=rapLectureHtml(nom, r);
+    var sel=document.getElementById('fm-adv-formation'); if(sel && r && r.systeme) sel.value=r.systeme;
+  });
+  apres('renderAdvFeuille', function(){
+    var nom=(typeof FEUILLE_MATCH!=='undefined'&&FEUILLE_MATCH.adversaireNom)||'';
+    var ct=document.getElementById('fm-adv-ct'); if(ct) ct.innerHTML=rapLectureHtml(nom, nom?rapSynchroniser(nom):null);
+  });
+  // Le dossier d'avant-match : le bloc « L'adversaire » aussi
+  apres('renderAvantMatch', function(){
+    var nom=(typeof DOSSIER!=='undefined'&&DOSSIER.adv)||'';
+    var r=nom?rapSynchroniser(nom):null;
+    var b=document.querySelector('#dm-s-adversaire > div:last-child');
+    if(b) b.innerHTML=rapLectureHtml(nom, r);
+  });
+});
 
 // ===== CHARGE D'ENTRAINEMENT — l'ecran du coach (v128) =====
 // Charge d'une seance = effort ressenti (0-10) x duree en minutes (Foster, 2001).
@@ -3938,6 +4073,528 @@ window.addEventListener('load', function(){
 });
 
 </script>
+<script>
+// ===== Plus de bouton « Charger » (v134) =====
+// Ce que les joueurs renvoient (votes, forme, debriefs, dispos, blessures...)
+// arrive tout seul a l'ouverture de l'ecran. Un ecran vide faisait croire
+// qu'il n'y avait rien ; le bouton reste, rebaptise « Actualiser ».
+var AUTO_CHARGEURS={
+  'matchs':      ['chargerVotesJoueurs','chargerHommeDuMatch','chargerDebriefsMatchs','chargerStatsLive'],
+  'forme-coach': ['chargerFormeJoueurs'],
+  'medical':     ['chargerDeclarationsSante'],
+  'videos':      ['chargerMomentsVideoCoach'],
+  'effectif':    ['chargerReactionObjectifs'],
+  'dash':        ['rjCharger']
+};
+var AUTO_DERNIER={};
+function autoLancer(nom, cle){
+  var f=window[nom]; if(typeof f!=='function') return;
+  var k=nom+'|'+(cle||'');
+  var t=Date.now();
+  if(AUTO_DERNIER[k] && t-AUTO_DERNIER[k]<45000) return;   // pas plus d'une fois toutes les 45 s
+  AUTO_DERNIER[k]=t;
+  try{ var p=f(); if(p && p.catch) p.catch(function(){}); }catch(e){}
+}
+function autoEcran(s){
+  (AUTO_CHARGEURS[s]||[]).forEach(function(n){ autoLancer(n); });
+  if(s==='convos') autoConvos();
+}
+// Convocations : l'etape 1 montre les dispos declarees, l'etape 3 les confirmations
+function autoConvos(){
+  if(typeof CV_ETAPE==='undefined' || typeof CV_RETOURS_OUVERT==='undefined') return;
+  var cle=(CV_ETAPE===1)?'dispo':(CV_ETAPE===3?'confirm':null);
+  if(!cle) return;
+  if(!CV_RETOURS_OUVERT[cle]){ CV_RETOURS_OUVERT[cle]=true; try{ cvRendreEtape(); }catch(e){} }
+  setTimeout(function(){
+    autoLancer(cle==='dispo'?'chargerDisponibilites':'chargerConfirmations',
+      ((document.getElementById('c-date')||{}).value||'')+'|'+((document.getElementById('c-adv')||{}).value||''));
+  }, 30);
+}
+window.addEventListener('load', function(){
+  function envelopper(nom, apres){
+    var f=window[nom]; if(typeof f!=='function' || f._auto) return;
+    var g=function(){ var r=f.apply(this, arguments); var a=arguments; setTimeout(function(){ apres.apply(null, a); }, 60); return r; };
+    g._auto=true; window[nom]=g;
+  }
+  envelopper('goNav', function(s){ if(typeof s==='string') autoEcran(s); else if(s&&s.getAttribute) autoEcran(s.getAttribute('data-s')||''); });
+  envelopper('goRubrique', function(h, r){ autoEcran(r); });
+  envelopper('cvAller', function(){ autoConvos(); });
+  // Changer de joueur sur la fiche : ses objectifs demandes arrivent aussi
+  envelopper('renderFicheCoach', function(){ autoLancer('chargerReactionObjectifs', (document.getElementById('fiche-sel')||{}).value||''); });
+  // L'ecran ouvert au demarrage
+  setTimeout(function(){ autoEcran('dash'); }, 1500);
+});
+
+</script>
+<style>
+/* ===== Note rapide (v134) ===== */
+#nr-fab{display:none;position:fixed;right:16px;bottom:16px;z-index:8500;width:58px;height:58px;border-radius:50%;
+  border:none;background:var(--or);color:#1a0f02;font-size:26px;cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 0 4px rgba(217,119,6,.18)}
+#nr-fab:hover{filter:brightness(1.08)}
+#nr-fab[data-n]:not([data-n=""])::after{content:attr(data-n);position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;
+  padding:0 5px;border-radius:10px;background:var(--red);color:#fff;font:800 11px/20px 'Roboto Condensed',sans-serif;border:2px solid var(--fond)}
+body.doc-ouvert #nr-fab{display:none}
+.nr-modal{position:fixed;inset:0;z-index:9000;background:var(--scrim);display:none;align-items:flex-end;justify-content:center}
+.nr-modal.on{display:flex}
+@media (min-width:700px){.nr-modal{align-items:center}}
+.nr-p{width:100%;max-width:560px;max-height:94vh;overflow:auto;background:var(--fond2,var(--carte));border:1px solid var(--line);
+  border-radius:18px 18px 0 0;padding:14px 16px 18px;box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+@media (min-width:700px){.nr-p{border-radius:18px}}
+.nr-h{display:flex;justify-content:space-between;align-items:center;font-size:17px;margin-bottom:10px}
+.nr-x{cursor:pointer;padding:4px 8px;color:var(--gris2)}
+.nr-l{margin-bottom:10px}
+.nr-q{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gris2);margin-bottom:5px}
+.nr-chips{display:flex;flex-wrap:wrap;gap:5px}
+.nr-chips button{padding:7px 11px;border-radius:18px;border:1.5px solid var(--line);background:var(--voile2);color:var(--gris);font-size:13px;font-weight:700;cursor:pointer}
+.nr-chips button.on{background:var(--or);border-color:var(--or);color:#1a0f02}
+.nr-tags button.on{background:var(--c);border-color:var(--c);color:#fff}
+.nr-cherche{margin-bottom:6px;padding:7px 10px;font-size:13px}
+.nr-js{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:4px;max-height:168px;overflow:auto}
+.nr-js button{display:flex;gap:6px;align-items:center;padding:6px 7px;border-radius:7px;border:1px solid var(--line);background:var(--carte);
+  color:var(--gris);font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;overflow:hidden;white-space:nowrap}
+.nr-js button b{color:var(--gris2);font-size:11px;min-width:16px}
+.nr-js button.on{background:var(--or);border-color:var(--or);color:#1a0f02}
+.nr-js button.on b{color:#1a0f02}
+.nr-micro{display:flex;align-items:center;gap:14px;margin:12px 0 10px}
+.nr-mic{flex:0 0 auto;width:78px;height:78px;border-radius:50%;border:none;background:var(--or);color:#1a0f02;font-size:32px;cursor:pointer;
+  box-shadow:0 6px 18px rgba(217,119,6,.45)}
+.nr-mic.rec{background:var(--red);color:#fff;font-size:26px;animation:nrPulse 1.1s infinite}
+@keyframes nrPulse{0%{box-shadow:0 0 0 0 rgba(220,68,68,.55)}100%{box-shadow:0 0 0 18px rgba(220,68,68,0)}}
+.nr-mic-t{flex:1;min-width:0;font-size:13.5px;color:var(--gris);line-height:1.4}
+.nr-mic-t b{font-size:18px;color:var(--red)}
+.nr-ecoute{display:flex;align-items:center;gap:6px;margin-top:6px}
+.nr-ecoute audio{height:34px;max-width:100%}
+.nr-ecoute button{border:1px solid var(--line);background:none;color:var(--gris2);border-radius:6px;padding:4px 8px;cursor:pointer}
+.nr-txt{width:100%;font-size:14px;margin-bottom:8px}
+.nr-ok{width:100%;margin-top:12px}
+.nr-aide{font-size:12.5px;color:var(--gris2)}
+/* L'ecran des notes */
+.nr-barre{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.nr-barre .nr-nouv{width:auto;padding:8px 14px}
+.nr-selj{width:auto;max-width:220px;padding:6px 9px;font-size:12.5px}
+.nr-ouv{font-size:12.5px;color:var(--gris2);display:flex;align-items:center;gap:5px}
+.nr-ouv b{color:var(--or)}
+.nr-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px;align-items:start}
+.nr-c{background:var(--carte);border:1px solid var(--line);border-left:4px solid var(--or);border-radius:9px;padding:9px 11px}
+.nr-c.fait{opacity:.6;border-left-color:var(--green)}
+.nr-c-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;margin-bottom:4px}
+.nr-c-s{font-weight:800;font-size:13.5px;color:var(--gris)}
+.nr-c-d{font-size:11px;color:var(--gris2)}
+.nr-c-t{font-size:13.5px;line-height:1.45;color:var(--gris);white-space:pre-wrap}
+.nr-c-a{margin-top:6px}
+.nr-c-a button{border:1px solid var(--line);background:var(--voile2);color:var(--gris);border-radius:16px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer}
+.nr-c-a audio{height:34px;width:100%}
+.nr-c-b{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:7px}
+.nr-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid var(--c);color:var(--c)}
+.nr-c-act{margin-left:auto;display:flex;gap:4px}
+.nr-c-act button{border:1px solid var(--line);background:none;color:var(--gris2);border-radius:6px;padding:3px 8px;font-size:11.5px;cursor:pointer}
+.nr-c-act button:hover{border-color:var(--or);color:var(--or)}
+.nr-vide{padding:22px;border:1.5px dashed var(--line);border-radius:10px;font-size:13.5px;color:var(--gris2);line-height:1.6}
+
+/* Sur ordinateur, la note est un bouton du menu (a cote de Rechercher) : un
+   bouton flottant cacherait « Enregistrer » en bas a droite des ecrans. Sur
+   telephone, le menu est replie : le bouton flottant prend le relais. */
+@media (max-width:860px){ #nr-fab{display:block;width:54px;height:54px;font-size:24px} }
+.tab-bar .tab-note{background:var(--or)!important;color:#1a0f02!important;border-color:var(--or)!important;font-weight:800;position:relative}
+.tab-bar .tab-note[data-n]:not([data-n=""])::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;
+  border-radius:9px;background:var(--red);color:#fff;font:800 10.5px/18px 'Roboto Condensed',sans-serif}
+#fm-adv-ct{display:block}
+.tab-bar{flex-wrap:wrap}
+.tab-bar .tab-note{order:5;flex:1 1 100%;padding:7px 10px}
+</style>
+<script>
+// ===== NOTE RAPIDE (v134) =====
+// Au bord du terrain, on n'a pas le temps d'ecrire. Un bouton toujours la, en
+// bas a droite : on choisit sur quoi porte la note, on appuie sur le micro et
+// on parle. Le vocal est garde tel quel, et quand le telephone sait le faire,
+// il est aussi ecrit au fur et a mesure. Les notes partent dans le cloud du
+// staff (collection notes_staff) et se retrouvent sur la fiche du joueur.
+var NR_SUJETS=[
+  {k:'joueur', ic:'👤', l:'Un joueur'},
+  {k:'groupe', ic:'👥', l:'Le groupe'},
+  {k:'seance', ic:'🏋️', l:'La séance'},
+  {k:'match',  ic:'⚽', l:'Le match'},
+  {k:'idee',   ic:'💡', l:'Une idée'}
+];
+var NR_TAGS=[
+  {k:'pos',  ic:'👍', l:'Positif',    c:'#22a06b'},
+  {k:'cor',  ic:'⚠️', l:'À corriger', c:'#d97706'},
+  {k:'phy',  ic:'🩹', l:'Physique',   c:'#dc4444'},
+  {k:'men',  ic:'🧠', l:'Mental',     c:'#a855f7'},
+  {k:'faire',ic:'📋', l:'À faire', c:'#4ea8de'}
+];
+var NR_MAX_SEC=120;
+var NR={sujet:'joueur', joueurs:[], tags:[], texte:'', audio:null, mime:'', duree:0, filtre:''};
+var NR_REC=null, NR_RECO=null, NR_T0=0, NR_TIMER=null, NR_MORCEAUX=[];
+var NR_NOTES=null;        // les notes chargees (cloud + local)
+var NR_VUE={sujet:'', joueur:'', ouvertes:true};
+
+function nrEsc(t){ return (typeof rapEsc==='function')?rapEsc(t):String(t==null?'':t); }
+// « Sam PAPAIX BELLO » se lit PAPAIX BELLO : le nom de famille, celui qu'on crie au bord du terrain
+function nrNomCourt(nom){
+  var m=String(nom||'').trim().split(/\s+/);
+  var maj=m.filter(function(x){ return x.length>1 && x===x.toUpperCase(); });
+  return maj.length?maj.join(' '):m[m.length-1]||'';
+}
+function nrId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function nrAuteur(){
+  try{ var a=localStorage.getItem('ast_nr_auteur'); if(a) return a; }catch(e){}
+  var m=(typeof SESSION!=='undefined' && SESSION && SESSION.email)?SESSION.email.split('@')[0]:'';
+  return m||'Staff';
+}
+
+// ---------- Le stockage local (texte en localStorage, vocal en IndexedDB) ----------
+function nrLocalLire(){ try{ return JSON.parse(localStorage.getItem('ast_notes_rapides')||'[]'); }catch(e){ return []; } }
+function nrLocalEcrire(L){ try{ localStorage.setItem('ast_notes_rapides', JSON.stringify(L.slice(0,400))); }catch(e){} }
+function nrIdb(){
+  return new Promise(function(ok, ko){
+    try{
+      var r=indexedDB.open('ast_notes', 1);
+      r.onupgradeneeded=function(){ r.result.createObjectStore('audio'); };
+      r.onsuccess=function(){ ok(r.result); }; r.onerror=function(){ ko(r.error); };
+    }catch(e){ ko(e); }
+  });
+}
+function nrAudioPoser(id, b64, mime){
+  return nrIdb().then(function(db){ return new Promise(function(ok){
+    var tx=db.transaction('audio','readwrite'); tx.objectStore('audio').put({b64:b64,mime:mime}, id);
+    tx.oncomplete=function(){ ok(); }; tx.onerror=function(){ ok(); };
+  }); }).catch(function(){});
+}
+function nrAudioLireLocal(id){
+  return nrIdb().then(function(db){ return new Promise(function(ok){
+    var rq=db.transaction('audio').objectStore('audio').get(id);
+    rq.onsuccess=function(){ ok(rq.result||null); }; rq.onerror=function(){ ok(null); };
+  }); }).catch(function(){ return null; });
+}
+function nrAudioOter(id){
+  return nrIdb().then(function(db){ db.transaction('audio','readwrite').objectStore('audio').delete(id); }).catch(function(){});
+}
+
+// ---------- Le cloud ----------
+async function nrEnvoyer(n, b64){
+  var champs={data:{stringValue:JSON.stringify(n)}};
+  if(b64) champs.audio={stringValue:b64};
+  var res=await fbFetch(FIRESTORE_BASE+'/notes_staff/'+n.id,{method:'PATCH',
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:champs})});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+}
+async function nrChargerCloud(){
+  var L=[], jeton='';
+  for(var t=0;t<10;t++){
+    var res=await fbFetch(FIRESTORE_BASE+'/notes_staff?pageSize=300&mask.fieldPaths=data'+(jeton?'&pageToken='+encodeURIComponent(jeton):''));
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var d=await res.json();
+    (d.documents||[]).forEach(function(doc){ try{ L.push(JSON.parse(((doc.fields||{}).data||{}).stringValue||'null')); }catch(e){} });
+    jeton=d.nextPageToken||''; if(!jeton) break;
+  }
+  return L.filter(Boolean);
+}
+async function nrAudioCloud(id){
+  var res=await fbFetch(FIRESTORE_BASE+'/notes_staff/'+id+'?mask.fieldPaths=audio');
+  if(!res.ok) return null;
+  var d=await res.json();
+  return ((d.fields||{}).audio||{}).stringValue||null;
+}
+// Les notes : celles du cloud, plus celles restees sur ce telephone faute de reseau
+async function nrCharger(){
+  var loc=nrLocalLire();
+  try{
+    var cl=await nrChargerCloud();
+    var ids={}; cl.forEach(function(n){ ids[n.id]=1; });
+    // Ce qui n'est jamais parti repart maintenant
+    for(var i=0;i<loc.length;i++){
+      var n=loc[i];
+      if(!ids[n.id] && n.enAttente){
+        try{
+          var a=n.audio?await nrAudioLireLocal(n.id):null;
+          var copie=Object.assign({}, n); delete copie.enAttente;
+          await nrEnvoyer(copie, a?a.b64:null);
+          n.enAttente=false; cl.push(copie);
+        }catch(e){}
+      }
+    }
+    nrLocalEcrire(loc.filter(function(n){ return n.enAttente; }));
+    NR_NOTES=cl.concat(loc.filter(function(n){ return n.enAttente; }));
+  }catch(e){
+    NR_NOTES=loc;
+  }
+  NR_NOTES.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  return NR_NOTES;
+}
+
+// ---------- La fenetre de saisie ----------
+function nrOuvrir(prefJoueur){
+  NR={sujet:'joueur', joueurs:[], tags:[], texte:'', audio:null, mime:'', duree:0, filtre:''};
+  if(prefJoueur!=null){ var j=(JOUEURS||[]).filter(function(x){ return String(x.num)===String(prefJoueur); })[0]; if(j) NR.joueurs=[j.num]; }
+  var m=document.getElementById('nr-modal');
+  if(!m){
+    m=document.createElement('div'); m.id='nr-modal'; m.className='nr-modal';
+    m.addEventListener('click', function(ev){ if(ev.target===m) nrFermer(); });
+    document.body.appendChild(m);
+  }
+  m.classList.add('on');
+  nrRendre();
+}
+function nrFermer(){
+  nrStop(true);
+  var m=document.getElementById('nr-modal'); if(m) m.classList.remove('on');
+}
+function nrRendre(){
+  var m=document.getElementById('nr-modal'); if(!m) return;
+  var enreg=!!NR_REC;
+  var recoOk=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  var J=(JOUEURS||[]).filter(function(j){
+    if(!NR.filtre) return true;
+    var f=NR.filtre.toLowerCase();
+    return (j.nom||'').toLowerCase().indexOf(f)>=0 || String(j.num).indexOf(f)===0;
+  });
+  m.innerHTML='<div class="nr-p">'
+    +'<div class="nr-h"><b>🎙 Note rapide</b><span class="nr-x" onclick="nrFermer()">✕</span></div>'
+    +'<div class="nr-l"><span class="nr-q">C’est sur quoi ?</span><div class="nr-chips">'
+      +NR_SUJETS.map(function(s){ return '<button class="'+(NR.sujet===s.k?'on':'')+'" onclick="nrSujet(\''+s.k+'\')">'+s.ic+' '+s.l+'</button>'; }).join('')
+    +'</div></div>'
+    +(NR.sujet==='joueur'
+      ? '<div class="nr-l"><input class="fi nr-cherche" placeholder="🔎 Numéro ou nom" value="'+nrEsc(NR.filtre)+'" oninput="nrFiltre(this.value)">'
+        +'<div class="nr-js">'+J.map(function(j){
+          var on=NR.joueurs.indexOf(j.num)>=0;
+          return '<button class="'+(on?'on':'')+'" onclick="nrJoueur('+j.num+')"><b>'+nrEsc(j.num)+'</b>'+nrEsc(nrNomCourt(j.nom))+'</button>';
+        }).join('')+'</div></div>'
+      : '')
+    +'<div class="nr-micro">'
+      +'<button class="nr-mic'+(enreg?' rec':'')+'" onclick="'+(enreg?'nrStop()':'nrStart()')+'">'+(enreg?'■':'🎙')+'</button>'
+      +'<div class="nr-mic-t">'
+        +(enreg?'<b id="nr-chrono">0:00</b> — je t’écoute, touche pour arrêter'
+          :(NR.audio?'✓ Vocal enregistré ('+NR.duree+' s)'
+            :'Touche et parle'+(recoOk?' — c’est écrit en même temps':' — le vocal est gardé tel quel')))
+        +(NR.audio&&!enreg?'<div class="nr-ecoute"><audio controls src="data:'+NR.mime+';base64,'+NR.audio+'"></audio>'
+          +'<button onclick="nrRefaire()">↺ Refaire</button></div>':'')
+      +'</div></div>'
+    +'<textarea class="fi nr-txt" id="nr-txt" rows="3" placeholder="… ou écris ici" oninput="NR.texte=this.value">'+nrEsc(NR.texte)+'</textarea>'
+    +'<div class="nr-chips nr-tags">'+NR_TAGS.map(function(t){
+        return '<button class="'+(NR.tags.indexOf(t.k)>=0?'on':'')+'" style="--c:'+t.c+'" onclick="nrTag(\''+t.k+'\')">'+t.ic+' '+t.l+'</button>'; }).join('')+'</div>'
+    +'<button class="btn nr-ok" onclick="nrEnregistrer()"'+(enreg?' disabled':'')+'>✓ Enregistrer la note</button>'
+  +'</div>';
+}
+function nrSujet(k){ NR.sujet=k; if(k!=='joueur') NR.joueurs=[]; nrRendre(); }
+function nrFiltre(v){ NR.filtre=v; nrRendre(); var i=document.querySelector('.nr-cherche'); if(i){ i.focus(); i.setSelectionRange(v.length,v.length); } }
+function nrJoueur(n){ var i=NR.joueurs.indexOf(n); if(i>=0) NR.joueurs.splice(i,1); else NR.joueurs.push(n); nrRendre(); }
+function nrTag(k){ var i=NR.tags.indexOf(k); if(i>=0) NR.tags.splice(i,1); else NR.tags.push(k); nrRendre(); }
+function nrRefaire(){ NR.audio=null; NR.duree=0; nrRendre(); }
+
+// ---------- Le micro ----------
+async function nrStart(){
+  if(!navigator.mediaDevices || !window.MediaRecorder){ notif('⚠ Ce navigateur ne sait pas enregistrer — écris la note'); return; }
+  var flux;
+  try{ flux=await navigator.mediaDevices.getUserMedia({audio:true}); }
+  catch(e){ notif('⚠ Micro refusé — autorise-le dans les réglages du navigateur'); return; }
+  var types=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  var mime=''; for(var i=0;i<types.length;i++){ try{ if(MediaRecorder.isTypeSupported(types[i])){ mime=types[i]; break; } }catch(e){} }
+  NR_MORCEAUX=[];
+  try{ NR_REC=new MediaRecorder(flux, mime?{mimeType:mime, audioBitsPerSecond:24000}:{audioBitsPerSecond:24000}); }
+  catch(e){ NR_REC=new MediaRecorder(flux); }
+  NR.mime=(NR_REC.mimeType||mime||'audio/webm').split(';')[0];
+  NR_REC.ondataavailable=function(ev){ if(ev.data && ev.data.size) NR_MORCEAUX.push(ev.data); };
+  NR_REC.onstop=function(){
+    flux.getTracks().forEach(function(t){ t.stop(); });
+    var blob=new Blob(NR_MORCEAUX, {type:NR.mime});
+    var fr=new FileReader();
+    fr.onload=function(){ NR.audio=String(fr.result).split(',')[1]||null; nrRendre(); };
+    fr.readAsDataURL(blob);
+  };
+  NR_REC.start(1000);
+  NR_T0=Date.now();
+  NR_TIMER=setInterval(function(){
+    var s=Math.round((Date.now()-NR_T0)/1000);
+    var c=document.getElementById('nr-chrono'); if(c) c.textContent=Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);
+    if(s>=NR_MAX_SEC) nrStop();
+  }, 300);
+  // L'ecriture en direct, quand le telephone sait faire
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    try{
+      var base=(NR.texte?NR.texte.trim()+' ':'');
+      NR_RECO=new SR(); NR_RECO.lang='fr-FR'; NR_RECO.continuous=true; NR_RECO.interimResults=true;
+      NR_RECO.onresult=function(ev){
+        var fin='', prov='';
+        for(var i=0;i<ev.results.length;i++){ var t=ev.results[i][0].transcript; if(ev.results[i].isFinal) fin+=t; else prov+=t; }
+        NR.texte=(base+fin+prov).replace(/\s+/g,' ').trim();
+        var ta=document.getElementById('nr-txt'); if(ta) ta.value=NR.texte;
+      };
+      NR_RECO.onerror=function(){};
+      NR_RECO.start();
+    }catch(e){ NR_RECO=null; }
+  }
+  nrRendre();
+}
+function nrStop(annuler){
+  if(NR_TIMER){ clearInterval(NR_TIMER); NR_TIMER=null; }
+  if(NR_RECO){ try{ NR_RECO.stop(); }catch(e){} NR_RECO=null; }
+  if(NR_REC){
+    NR.duree=Math.round((Date.now()-NR_T0)/1000);
+    var r=NR_REC; NR_REC=null;
+    if(annuler){ r.onstop=function(){ try{ r.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} }; }
+    try{ r.stop(); }catch(e){}
+  }
+  if(!annuler) nrRendre();
+}
+
+// ---------- Enregistrer ----------
+async function nrEnregistrer(){
+  var ta=document.getElementById('nr-txt'); if(ta) NR.texte=ta.value;
+  if(!NR.texte.trim() && !NR.audio){ notif('⚠ Parle ou écris quelque chose'); return; }
+  if(NR.sujet==='joueur' && !NR.joueurs.length){ notif('⚠ Choisis le ou les joueurs'); return; }
+  var n={id:nrId(), date:new Date().toISOString(), auteur:nrAuteur(), sujet:NR.sujet,
+    joueurs:NR.joueurs.map(function(num){ var j=(JOUEURS||[]).filter(function(x){ return x.num===num; })[0]; return {num:num, nom:j?j.nom:''}; }),
+    texte:NR.texte.trim(), tags:NR.tags.slice(), audio:!!NR.audio, mime:NR.mime, duree:NR.duree, traite:false};
+  if(NR.audio) await nrAudioPoser(n.id, NR.audio, NR.mime);
+  nrFermer();
+  try{
+    await nrEnvoyer(n, NR.audio);
+    notif('✓ Note enregistrée'+(n.joueurs.length?' — elle est sur la fiche de '+n.joueurs.map(function(j){ return j.nom; }).join(', '):''));
+  }catch(e){
+    var L=nrLocalLire(); n.enAttente=true; L.unshift(n); nrLocalEcrire(L);
+    notif('✓ Note gardée sur ce téléphone — elle partira au retour du réseau');
+  }
+  if(NR_NOTES){ NR_NOTES.unshift(n); }
+  nrRafraichirVues();
+}
+
+// ---------- L'ecran des notes ----------
+function nrCarteHtml(n){
+  var s=NR_SUJETS.filter(function(x){ return x.k===n.sujet; })[0]||NR_SUJETS[0];
+  var d=new Date(n.date);
+  var quand=isNaN(d)?'':(d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+  return '<div class="nr-c'+(n.traite?' fait':'')+'">'
+    +'<div class="nr-c-h"><span class="nr-c-s">'+s.ic+' '+(n.joueurs&&n.joueurs.length?n.joueurs.map(function(j){ return nrEsc(j.nom||('n°'+j.num)); }).join(', '):s.l)+'</span>'
+      +'<span class="nr-c-d">'+nrEsc(quand)+' · '+nrEsc(n.auteur||'')+(n.enAttente?' · <b style="color:var(--gold)">pas encore envoyée</b>':'')+'</span></div>'
+    +(n.texte?'<div class="nr-c-t">'+nrEsc(n.texte)+'</div>':'')
+    +(n.audio?'<div class="nr-c-a" id="nra-'+n.id+'"><button onclick="nrEcouter(\''+n.id+'\')">▶ Écouter le vocal ('+(n.duree||'?')+' s)</button></div>':'')
+    +'<div class="nr-c-b">'
+      +(n.tags||[]).map(function(k){ var t=NR_TAGS.filter(function(x){ return x.k===k; })[0]; return t?'<span class="nr-tag" style="--c:'+t.c+'">'+t.ic+' '+t.l+'</span>':''; }).join('')
+      +'<span class="nr-c-act"><button onclick="nrTraiter(\''+n.id+'\')">'+(n.traite?'↺ Rouvrir':'✓ Traitée')+'</button>'
+      +'<button onclick="nrSupprimer(\''+n.id+'\')">🗑</button></span></div>'
+  +'</div>';
+}
+async function nrEcouter(id){
+  var ct=document.getElementById('nra-'+id); if(!ct) return;
+  ct.innerHTML='<span class="nr-aide">Chargement…</span>';
+  var a=await nrAudioLireLocal(id);
+  var n=(NR_NOTES||[]).filter(function(x){ return x.id===id; })[0]||{};
+  var b64=a?a.b64:null, mime=a?a.mime:(n.mime||'audio/webm');
+  if(!b64){ try{ b64=await nrAudioCloud(id); if(b64) nrAudioPoser(id, b64, mime); }catch(e){} }
+  ct.innerHTML=b64?'<audio controls autoplay src="data:'+mime+';base64,'+b64+'"></audio>':'<span class="nr-aide">Vocal introuvable</span>';
+}
+async function nrTraiter(id){
+  var n=(NR_NOTES||[]).filter(function(x){ return x.id===id; })[0]; if(!n) return;
+  n.traite=!n.traite;
+  nrRafraichirVues();
+  try{ var copie=Object.assign({}, n); delete copie.enAttente;
+    await fbFetch(FIRESTORE_BASE+'/notes_staff/'+id+'?updateMask.fieldPaths=data',{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(copie)}}})}); }catch(e){}
+}
+async function nrSupprimer(id){
+  if(!confirm('Supprimer cette note ?')) return;
+  NR_NOTES=(NR_NOTES||[]).filter(function(x){ return x.id!==id; });
+  nrLocalEcrire(nrLocalLire().filter(function(x){ return x.id!==id; }));
+  nrAudioOter(id);
+  nrRafraichirVues();
+  try{ await fbFetch(FIRESTORE_BASE+'/notes_staff/'+id,{method:'DELETE'}); }catch(e){}
+}
+function nrFiltrees(){
+  return (NR_NOTES||[]).filter(function(n){
+    if(NR_VUE.ouvertes && n.traite) return false;
+    if(NR_VUE.sujet && n.sujet!==NR_VUE.sujet) return false;
+    if(NR_VUE.joueur && !(n.joueurs||[]).some(function(j){ return String(j.num)===String(NR_VUE.joueur); })) return false;
+    return true;
+  });
+}
+function renderNotesStaff(){
+  var ct=document.getElementById('nr-ecran'); if(!ct) return;
+  if(NR_NOTES===null){
+    ct.innerHTML='<div class="nr-aide" style="padding:14px">Chargement des notes…</div>';
+    nrCharger().then(renderNotesStaff);
+    return;
+  }
+  var L=nrFiltrees();
+  var ouvertes=(NR_NOTES||[]).filter(function(n){ return !n.traite; }).length;
+  ct.innerHTML='<div class="nr-barre">'
+      +'<button class="btn nr-nouv" onclick="nrOuvrir()">🎙 Nouvelle note</button>'
+      +'<div class="nr-chips">'
+        +'<button class="'+(!NR_VUE.sujet?'on':'')+'" onclick="NR_VUE.sujet=\'\';renderNotesStaff()">Tout</button>'
+        +NR_SUJETS.map(function(s){ return '<button class="'+(NR_VUE.sujet===s.k?'on':'')+'" onclick="NR_VUE.sujet=\''+s.k+'\';renderNotesStaff()">'+s.ic+' '+s.l+'</button>'; }).join('')
+      +'</div>'
+      +'<select class="fi nr-selj" onchange="NR_VUE.joueur=this.value;renderNotesStaff()"><option value="">Tous les joueurs</option>'
+        +(JOUEURS||[]).map(function(j){ return '<option value="'+j.num+'"'+(String(NR_VUE.joueur)===String(j.num)?' selected':'')+'>'+nrEsc(j.num+'. '+j.nom)+'</option>'; }).join('')+'</select>'
+      +'<label class="nr-ouv"><input type="checkbox"'+(NR_VUE.ouvertes?' checked':'')+' onchange="NR_VUE.ouvertes=this.checked;renderNotesStaff()"> à traiter seulement <b>'+ouvertes+'</b></label>'
+      +'<button class="cv-bloc-b" onclick="NR_NOTES=null;renderNotesStaff()">↻ Actualiser</button>'
+    +'</div>'
+    +(L.length?'<div class="nr-grille">'+L.map(nrCarteHtml).join('')+'</div>'
+      :'<div class="nr-vide">Aucune note'+(NR_VUE.ouvertes?' à traiter':'')+'. Le bouton 🎙 en bas à droite est là sur tous les écrans : au bord du terrain, une phrase dite suffit.</div>');
+}
+// Sur la fiche du joueur : ce que le staff a note sur lui
+function nrFicheJoueur(){
+  var sel=document.getElementById('fiche-sel'); if(!sel) return;
+  var j=(JOUEURS||[])[parseInt(sel.value)];
+  var scr=document.getElementById('scr-effectif'); if(!scr) return;
+  var b=document.getElementById('nr-fiche');
+  if(!b){
+    b=document.createElement('div'); b.id='nr-fiche'; b.className='blk plein';
+    var et=scr.querySelector(':scope > .etapes');
+    if(et) scr.insertBefore(b, et); else scr.appendChild(b);
+  }
+  if(!j){ b.innerHTML=''; return; }
+  if(NR_NOTES===null){ b.innerHTML='<div class="bh"><span class="bt">📝 Notes du staff</span></div><div class="nr-aide" style="padding:12px">Chargement…</div>'; nrCharger().then(nrFicheJoueur); return; }
+  var L=(NR_NOTES||[]).filter(function(n){ return (n.joueurs||[]).some(function(x){ return x.num===j.num; }); });
+  b.innerHTML='<div class="bh"><span class="bt">📝 Notes du staff sur '+nrEsc(j.nom)+'</span>'
+    +'<span class="bc"><span style="cursor:pointer;color:var(--or)" onclick="nrOuvrir('+j.num+')">🎙 Ajouter</span>'
+    +(L.length>4?' · <span style="cursor:pointer;color:var(--or)" onclick="NR_VUE.joueur=\''+j.num+'\';NR_VUE.ouvertes=false;goNav(\'notes-staff\')">Toutes ('+L.length+') ›</span>':'')+'</span></div>'
+    +(L.length?'<div class="nr-grille" style="padding:10px">'+L.slice(0,4).map(nrCarteHtml).join('')+'</div>'
+      :'<div class="nr-aide" style="padding:12px">Rien de noté sur lui pour l’instant.</div>');
+}
+function nrRafraichirVues(){
+  if(document.getElementById('nr-ecran')) renderNotesStaff();
+  var e=document.getElementById('scr-effectif'); if(e && e.classList.contains('on')) nrFicheJoueur();
+  nrMajPastille();
+}
+function nrMajPastille(){
+  var n=(NR_NOTES||[]).filter(function(x){ return !x.traite; }).length;
+  ['nr-fab','tab-note'].forEach(function(id){ var f=document.getElementById(id); if(f) f.setAttribute('data-n', n?String(n):''); });
+}
+
+// ---------- Le bouton flottant, sur tous les ecrans ----------
+window.addEventListener('load', function(){
+  var f=document.createElement('button');
+  f.id='nr-fab'; f.title='Note rapide (vocal ou écrit)';
+  f.innerHTML='🎙';
+  f.onclick=function(){
+    // Sur la fiche d'un joueur, la note est pour lui
+    var e=document.getElementById('scr-effectif'), sel=document.getElementById('fiche-sel');
+    var pre=null;
+    if(e && e.classList.contains('on') && sel){ var j=(JOUEURS||[])[parseInt(sel.value)]; if(j) pre=j.num; }
+    nrOuvrir(pre);
+  };
+  document.body.appendChild(f);
+  // Le meme bouton dans le menu, a cote de Rechercher
+  var tb=document.querySelector('.tab-bar');
+  if(tb){
+    var t=document.createElement('div');
+    t.className='tab-item tab-note'; t.id='tab-note'; t.title='Note rapide (vocal ou \u00e9crit)';
+    t.innerHTML='\ud83c\udf99 Note'; t.onclick=f.onclick;
+    var th=document.getElementById('tab-theme'); tb.insertBefore(t, th||null);
+  }
+  function apres(nom, fn){
+    var g0=window[nom]; if(typeof g0!=='function' || g0._nr) return;
+    var g=function(){ var x=g0.apply(this, arguments); try{ fn.apply(null, arguments); }catch(err){} return x; };
+    g._nr=true; window[nom]=g;
+  }
+  apres('goNav', function(s){ if(s==='notes-staff'){ NR_NOTES=null; renderNotesStaff(); } if(s==='effectif') nrFicheJoueur(); });
+  apres('renderFicheCoach', function(){ nrFicheJoueur(); });
+  setTimeout(function(){ nrCharger().then(nrMajPastille).catch(function(){}); }, 2500);
+});
+
+</script>
 </head><body>
 <div class="bg"></div>
 <!-- Le jeu d'icones, preleve tel quel de l'appli joueur : un seul dessin par
@@ -4365,8 +5022,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v133</b> · 14/10/2026<br>
-      <span style="opacity:.7">Dossier d’avant-match resserré</span>
+      AST COACH <b style="color:var(--or)">v134</b> · 14/10/2026<br>
+      <span style="opacity:.7">Adversaire unique · note vocale</span>
     </div>
   </div>
 </div>
@@ -5034,22 +5691,22 @@ Chez le président"></textarea>
     <div class="mt-retours">
       <div class="mt-sec">
         <div class="mt-sec-h"><span>⭐ Votes des joueurs</span>
-          <button class="mt-b" onclick="chargerVotesJoueurs()">🔄 Charger</button></div>
+          <button class="mt-b" onclick="chargerVotesJoueurs()">🔄 Actualiser</button></div>
         <div id="votes-joueurs-ct" class="mt-sec-c"><div class="mt-vide">Les auto-évaluations envoyées par les joueurs pour le prochain match convoqué.</div></div>
       </div>
       <div class="mt-sec">
         <div class="mt-sec-h"><span>🏅 Homme du match</span>
-          <button class="mt-b" onclick="chargerHommeDuMatch()">🔄 Charger</button></div>
+          <button class="mt-b" onclick="chargerHommeDuMatch()">🔄 Actualiser</button></div>
         <div id="hdm-ct" class="mt-sec-c"><div class="mt-vide">Vote réservé aux convoqués du match en cours.</div></div>
       </div>
       <div class="mt-sec">
         <div class="mt-sec-h"><span>📝 Debriefs express</span>
-          <button class="mt-b" onclick="chargerDebriefsMatchs()">🔄 Charger</button></div>
+          <button class="mt-b" onclick="chargerDebriefsMatchs()">🔄 Actualiser</button></div>
         <div id="debriefs-matchs-list" class="mt-sec-c"><div class="mt-vide">Ce que les joueurs retiennent eux-mêmes après un match.</div></div>
       </div>
       <div class="mt-sec">
         <div class="mt-sec-h"><span>🔢 Stats live</span>
-          <button class="mt-b" onclick="chargerStatsLive()">🔄 Charger</button></div>
+          <button class="mt-b" onclick="chargerStatsLive()">🔄 Actualiser</button></div>
         <div id="stats-live-list" class="mt-sec-c"><div class="mt-vide">Passes, frappes, ballons récupérés ou perdus et duels, comptés en direct par un remplaçant.</div></div>
       </div>
     </div>
@@ -5136,6 +5793,25 @@ Chez le président"></textarea>
 .rap-tel-h{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--gris2);padding:2px 4px 10px}
 .rap-x{cursor:pointer;font-size:16px;padding:2px 8px;color:var(--gris)}
 .rap-fm{margin-top:10px;padding:9px 11px;border:1px solid var(--line);border-left:3px solid var(--or);border-radius:7px;font-size:12.5px;line-height:1.5}
+.rap-l3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+/* La lecture du rapport, dans la feuille de match et le dossier */
+.rap-lect{padding:10px 12px 12px}
+.rap-lect.vide{display:flex;flex-direction:column;gap:6px;align-items:flex-start;font-size:13px;color:var(--gris2);line-height:1.5}
+.rap-lect.vide b{color:var(--gris)}
+.rap-lect-g{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:12px;align-items:start}
+.rap-lect-t{border-radius:8px;overflow:hidden;line-height:0}
+.rap-lect-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-bottom:6px}
+.rap-lect-h .sys{font-family:Anton,Impact,sans-serif;font-size:17px;padding:1px 9px;border-radius:6px;background:var(--or);color:#1a0f02}
+.rap-lect-h .sys2{font-size:12px;font-weight:700;color:var(--gris2)}
+.rap-lect-h .maj{font-size:11px;color:var(--gris2);margin-left:auto}
+.rap-lect-r{font-size:13.5px;font-style:italic;font-weight:600;margin-bottom:6px;color:var(--gris)}
+.rap-lect-l{font-size:12.5px;line-height:1.45;padding:3px 0 3px 8px;border-left:3px solid var(--c);margin-bottom:4px;color:var(--gris)}
+.rap-lect-l b{color:var(--c);margin-right:6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.rap-lect-m{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.rap-lect-m span{font-size:11.5px;padding:2px 7px 2px 3px;border-radius:12px;border:1px solid var(--line);display:inline-flex;align-items:center;gap:4px}
+.rap-lect-m i{font-style:normal;width:16px;height:16px;border-radius:50%;background:var(--c);color:#fff;font-size:9.5px;display:inline-flex;align-items:center;justify-content:center}
+.rap-modif{margin-top:10px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--or);background:rgba(217,119,6,.1);color:var(--or);font-weight:800;font-size:12px;cursor:pointer}
+@media (max-width:600px){.rap-lect-g{grid-template-columns:1fr}.rap-lect-t{max-width:200px}}
 </style>
 <!-- ADVERSAIRES -->
 <div class="scr-grille scr" id="scr-adversaires">
@@ -5147,10 +5823,10 @@ Chez le président"></textarea>
   <div class="blk plein" id="rap-blk" style="margin-bottom:14px;display:none"><div class="bh"><span class="bt go">📋 Rapport adversaire</span><span class="bc">un par équipe — il resservira au retour</span></div>
     <div id="rap-ct"></div>
   </div>
-  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">Historique des fiches</span></div>
+  <div class="blk plein" style="margin-bottom:14px"><div class="bh"><span class="bt go">Anciennes fiches</span><span class="bc">avant le rapport — en lecture</span></div>
     <div id="adv-content" style="padding:14px"></div>
   </div>
-  <div class="blk"><div class="bh"><span class="bt">+ Ajouter une fiche</span><span class="bc">nouvel adversaire ou complément</span></div>
+  <div class="blk" style="display:none"><div class="bh"><span class="bt">+ Ajouter une fiche</span><span class="bc">nouvel adversaire ou complément</span></div>
     <div style="padding:14px">
       <div style="font-size:13px;color:var(--gris2,#9a9ea3);margin-bottom:14px;line-height:1.5">À remplir quand tu veux, pas besoin d'attendre la semaine du match.</div>
       <div class="fg"><label class="fl">Nom de l'adversaire (si nouveau)</label><input class="fi" id="adv-nouveau-nom" placeholder="Laisse vide pour compléter l'adversaire sélectionné ci-dessus"></div>
@@ -5323,7 +5999,7 @@ Chez le président"></textarea>
 <!-- FORME JOUEURS -->
 <div class="scr-grille scr" id="scr-forme-coach">
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-thermo"/></svg>Forme joueurs</div><div class="ph-sub">Bien-être : la dernière réponse, et surtout l'évolution</div></div></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Formulaires</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerFormeJoueurs()">🔄 Charger</span></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt">Formulaires</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerFormeJoueurs()">🔄 Actualiser</span></div>
     <div id="forme-coach-ct" style="padding:14px"><div style="font-size:12.5px;color:var(--gris2)">Clique sur "Charger" pour récupérer les réponses envoyées par les joueurs. Tout critère ≤5 est signalé en rouge.</div></div>
   </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt r">📉 Baisses à surveiller</span><span class="bc" id="forme-nb-baisses">—</span></div>
@@ -5332,6 +6008,12 @@ Chez le président"></textarea>
   <div class="blk"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-hausse"/></svg>Évolution semaine après semaine</span><span class="bc" id="forme-nb-suivis">—</span></div>
     <div id="forme-evolution-ct" style="padding:14px"><div style="font-size:12.5px;color:var(--gris2)">Une courbe par joueur, dès qu'il a répondu au moins deux fois.</div></div>
   </div>
+</div>
+
+<!-- NOTES DU STAFF -->
+<div class="scr" id="scr-notes-staff">
+  <div class="ph"><div><div class="ph-title">📝 Notes du staff</div><div class="ph-sub">Ce qu'on a dit ou écrit au bord du terrain — par joueur, par séance, par match</div></div></div>
+  <div id="nr-ecran"></div>
 </div>
 
 <!-- CHARGE D'ENTRAINEMENT -->
@@ -5346,7 +6028,7 @@ Chez le président"></textarea>
   <div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-hopital"/></svg>Suivi médical</div><div class="ph-sub">Blessures en cours et historique</div></div>
   </div>
   <div style="padding:0 14px 14px"><button class="btn" onclick="ouvrirNouvelleBlessure()">🩹 SIGNALER UNE NOUVELLE BLESSURE</button></div>
-  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-entrant"/></svg>Déclarations reçues des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDeclarationsSante()">🔄 Charger</span></div>
+  <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-entrant"/></svg>Déclarations reçues des joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerDeclarationsSante()">🔄 Actualiser</span></div>
     <div id="declarations-sante-list" style="padding:12px"><div style="font-size:12.5px;color:var(--gris2)">Clique sur "Charger" pour voir les blessures déclarées par les joueurs depuis leur appli.</div></div>
   </div>
   <div class="blk" style="margin-bottom:14px"><div class="bh"><span class="bt r">🧹 Anciennes fiches santé</span></div>
@@ -5551,7 +6233,7 @@ Chez le président"></textarea>
   </div>
   <div id="fiche-coach-ct" class="plein"></div>
   <div id="fiche-obj-ct" class="plein"></div>
-  <div class="blk"><div class="bh"><span class="bt">Objectifs demandés par le joueur</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerReactionObjectifs()">🔄 Charger</span></div>
+  <div class="blk"><div class="bh"><span class="bt">Objectifs demandés par le joueur</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerReactionObjectifs()">🔄 Actualiser</span></div>
     <div id="fiche-obj-reaction-ct" style="padding:14px"><div style="font-size:12.5px;color:var(--gris2)">Clique sur "Charger" pour voir si le joueur a réagi à ses objectifs.</div></div>
   </div>
   <!-- La purge de l'effectif : une fois par saison, pas entre deux fiches. -->
@@ -6499,7 +7181,7 @@ Chez le président"></textarea>
     <div class="cl-liste" id="cl-liste"></div>
   </div>
 
-  <div class="blk"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-lieu"/></svg>Moments marqués par les joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerMomentsVideoCoach()">🔄 Charger</span></div>
+  <div class="blk"><div class="bh"><span class="bt go"><svg class="ico" aria-hidden="true"><use href="#i-lieu"/></svg>Moments marqués par les joueurs</span><span class="bc" style="cursor:pointer;color:var(--or)" onclick="chargerMomentsVideoCoach()">🔄 Actualiser</span></div>
     <div id="moments-video-coach-list" style="padding:12px"><div style="font-size:12.5px;color:var(--gris2)">Clique sur "Charger" pour voir les instants marqués par les joueurs sur les vidéos.</div></div>
   </div>
 </div>
@@ -8017,6 +8699,7 @@ var POLES=[
     {s:'rotation',ic:'chrono',l:'Temps de jeu'},
     {s:'forme-coach',ic:'thermo',l:'Forme joueurs'},
     {s:'charge',ic:'hausse',l:"Charge d'entraînement"},
+    {s:'notes-staff',ic:'memo',l:'Notes du staff'},
     {s:'medical',ic:'hopital',l:'Suivi médical'},
     {s:'entretien',ic:'parole',l:'Entretien joueur'},
     {s:'suivi-objectifs',ic:'liste',l:'Suivi objectifs joueurs'},
@@ -11245,7 +11928,7 @@ function dvScene(c, jours){
             +(cloud2.non?dvLigne('Indisponibles', cloud2.non, 'mauvais'):'')
           : '')
         +'<div id="rj-corps">'+rjCorps()+'</div>',
-        '<button class="dv-action" id="rj-bouton" onclick="rjCharger()">Charger les retours</button>');
+        '<button class="dv-action" id="rj-bouton" onclick="rjCharger()">Actualiser les retours</button>');
   }
 
   // ---------- Plus loin : la saison ----------
@@ -12564,7 +13247,7 @@ function cvBlocRetours(cle, titre, bouton, idListe, aide){
     +'<div class="cv-bloc-h cv-retours-h" onclick="cvRetoursBascule(\''+cle+'\')">'
       +'<span class="cv-retours-fl">'+(ouvert?'\u25be':'\u25b8')+'</span>'
       +'<span class="cv-bloc-t">'+titre+'</span>'
-      +'<button class="cv-bloc-b" onclick="event.stopPropagation();'+bouton+'">\u21bb Charger</button></div>'
+      +'<button class="cv-bloc-b" onclick="event.stopPropagation();'+bouton+'">\u21bb Actualiser</button></div>'
     +'<div id="'+idListe+'" class="cv-retours-ct"><div class="cv-aide">'+aide+'</div></div>'
   +'</div>';
 }
@@ -21610,7 +22293,8 @@ function renderAdversaires(){
     +[['Matchs',bilan.matchs],['Victoires',bilan.v],['Nuls',bilan.n],['Défaites',bilan.d]]
     .map(function(x){return '<div style="text-align:center;background:var(--carte);border-radius:5px;padding:10px 4px"><div style="font-family:Inter,sans-serif;font-size:18px;font-weight:700;color:var(--gold)">'+x[1]+'</div><div style="font-size:10.5px;color:var(--gris2);text-transform:uppercase;font-weight:700">'+x[0]+'</div></div>';}).join('')
     +'</div>';
-  html+=a.fiches.length?a.fiches.map(function(f,fi){
+  html+=a.fiches.filter(function(f){ return f.source!=='rapport'; }).length?a.fiches.map(function(f,fi){
+    if(f.source==='rapport') return '';
     return '<div style="background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--or);border-radius:5px;padding:12px 14px;margin-bottom:8px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-family:Inter,sans-serif;font-weight:700;font-size:13px">'+f.date+'</span><span style="cursor:pointer;font-size:14px" onclick="supprimerFicheAdversaire(\''+nom.replace(/'/g,"\\'")+'\','+fi+')">🗑</span></div>'
       +(f.lienVideo?'<div style="margin-bottom:6px"><a href="'+f.lienVideo+'" target="_blank" style="font-size:12.5px;color:var(--or);font-weight:700">🎬 Voir la vidéo</a></div>':'')

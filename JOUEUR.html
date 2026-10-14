@@ -979,9 +979,11 @@ function rapCarteHtml(r, nomAdv){
       +'<b>'+rapEsc(nomAdv||'')+'</b></div>'
     +'<div class="rapc-h2">'
       +(r.systeme?'<span class="rapc-sys">'+rapEsc(r.systeme)+'</span>':'')
+      +(r.systemeDef&&r.systemeDef!==r.systeme?'<span class="rapc-cl">'+rapEsc(r.systemeDef)+' sans ballon</span>':'')
       +(r.classement?'<span class="rapc-cl">'+rapEsc(r.classement)+'</span>':'')
     +'</div>'
   +'</div>';
+  if((r.resume||'').trim()) h+='<div class="rapc-res">« '+rapEsc(r.resume.trim())+' »</div>';
   if(forme.length){
     h+='<div class="rapc-forme"><span>Leurs derniers matchs</span>'
       +forme.map(function(f){ return '<i class="rf-'+rapEsc(f)+'">'+rapEsc(f)+'</i>'; }).join('')
@@ -1047,6 +1049,7 @@ var RAP_CSS=''
   +'.rapc-h2{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto}'
   +'.rapc-sys{font-family:Anton,Impact,sans-serif;font-size:19px;padding:2px 10px;border-radius:7px;background:var(--rc-or);color:#1a0f02}'
   +'.rapc-cl{font-size:12px;font-weight:700;color:#c7ccd3}'
+  +'.rapc-res{padding:10px 15px;font-size:15px;font-weight:700;font-style:italic;border-bottom:1px solid var(--rc-line)}'
   +'.rapc-forme{display:flex;align-items:center;gap:5px;padding:9px 15px;border-bottom:1px solid var(--rc-line);font-size:12px;color:var(--rc-mute);flex-wrap:wrap}'
   +'.rapc-forme span{margin-right:4px;font-weight:700}'
   +'.rapc-forme i{font-style:normal;width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;color:#fff}'
@@ -2793,7 +2796,7 @@ function renderHub(){
     + auActu();
   htmlHub+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);'
     +'text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v48b</b> · 14/10/2026<br>'
+    +'AST JOUEUR <b style="color:var(--or)">v48c</b> · 14/10/2026<br>'
     +'<span style="opacity:.8">Les chiffres disent ce qu\'ils valent</span></div>';
   ct.innerHTML=htmlHub;
   auPhotoPoser();
