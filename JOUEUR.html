@@ -889,6 +889,47 @@ html.clair{ --eq1:#2a78d6; --eq2:#1baf7a; --eq3:#4d7c0f;
 <script>try{if(localStorage.getItem('ast-theme')!=='sombre')document.documentElement.classList.add('clair');}catch(e){}</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<style>
+/* ===== Refonte côté joueur (v50) ===== */
+.jx-groupe{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.jx-pl{background:var(--card,#fff);border:1px solid var(--line);border-left:3px solid var(--xc);border-radius:12px;overflow:hidden}
+.jx-pl summary,.jx-ens{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;width:100%;background:none;border:none;text-align:left;color:inherit;font:inherit}
+.jx-pl summary::-webkit-details-marker{display:none}
+.jx-pl summary .ico,.jx-ens .ico{width:20px;height:20px;color:var(--xc,var(--or));flex:0 0 auto}
+.jx-pl .tx,.jx-ens .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.jx-pl .tx b,.jx-ens .tx b{font-size:15px;font-weight:800;color:var(--ink)}
+.jx-pl .tx i,.jx-ens .tx i{font-style:normal;font-size:13px;color:var(--xc,var(--mute));font-weight:600}
+.jx-pl .go,.jx-ens .go{font-size:13px;font-weight:800;color:var(--or);white-space:nowrap}
+.jx-pl[open] summary{border-bottom:1px solid var(--line)}
+.jx-pl-c .blk{border:none!important;box-shadow:none!important;margin:0!important;background:none!important}
+.jx-pl-c .blk>.blk-h{display:none}
+.jx-ens{background:var(--card,#fff);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:12px;--xc:var(--blue)}
+.jx-ens .tx i{color:var(--mute)}
+/* Mes matchs : une ligne par match */
+.mm-l{cursor:pointer;margin-bottom:0!important;padding:9px 0!important}
+.mm-l>div:first-child{margin-bottom:2px!important}
+.mm-l>div:nth-child(2){margin-bottom:0!important}
+.mm-l .mm-crit{display:none!important}
+.mm-l.ouvert .mm-crit{display:grid!important;margin-top:8px}
+.mm-aide{font-size:12px;color:var(--mute);margin-left:auto}
+/* L'effectif en tableau */
+.jx-eff{padding:6px 10px 12px!important}
+.jx-eff-h,.jx-eff-l{display:grid;grid-template-columns:minmax(0,1fr) 32px 38px 34px 38px 28px;gap:3px;align-items:center}
+.jx-eff-h{position:sticky;top:0;background:var(--card,#fff);padding:6px 0;border-bottom:1px solid var(--line);font-size:11.5px;font-weight:800;text-transform:uppercase;color:var(--mute);z-index:2}
+.jx-eff-h button{border:none;background:none;font:inherit;color:inherit;text-align:right;padding:2px 0;cursor:pointer}
+.jx-eff-h button.on{color:var(--or)}
+.jx-eff-l{padding:6px 0;border-bottom:1px solid var(--hair,var(--line));font-size:13.5px}
+.jx-eff-l.moi{background:color-mix(in srgb,var(--or) 10%,transparent);border-radius:6px}
+.jx-eff-l .n{display:flex;align-items:center;gap:6px;min-width:0}
+.jx-eff-l .n i{font-style:normal;font-size:11.5px;font-weight:800;color:var(--mute);min-width:18px;text-align:right}
+.jx-eff-l .n b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.jx-eff-l .n em{font-style:normal;font-size:11px;white-space:nowrap;flex:0 0 auto}
+.jx-eff-l .n b{flex:0 1 auto}
+.jx-eff-l .v{text-align:right;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.jx-eff-l .v.note{color:var(--or)}
+.jx-leg{font-size:12px;color:var(--mute);margin-top:10px;line-height:1.5}
+.jx-pts-tout{display:block;width:100%;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:none;color:var(--or);font-weight:800;font-size:14px;cursor:pointer}
+</style>
 <script>
 // ===== RAPPORT ADVERSAIRE — le meme dessin chez le coach et chez le joueur (v128) =====
 // Le rapport voyage dans ADVERSAIRES[i].rapport. Il emporte son propre terrain
@@ -1316,6 +1357,258 @@ window.addEventListener('load', function(){
     }
     if(essais>100) clearInterval(t);
   }, 100);
+});
+
+// ===== Refonte côté joueur (v50) =====
+//
+//   A. « Ma semaine » : l'accueil ne garde que ce qui demande une réponse.
+//      Forme et ressenti tiennent sur une ligne et s'ouvrent au doigt.
+//   B. Une seule question à la fois pour le match : la dispo tant que le
+//      groupe n'est pas annoncé, la confirmation une fois convoqué.
+//   C. Les rubriques vides se cachent tant que le coach n'y a rien mis ;
+//      le calendrier n'apparaît plus deux fois.
+//   D. Mes matchs sur une ligne par match, l'effectif en tableau qu'on trie,
+//      les points d'entraînement autour de soi.
+
+// ---------- C. Les rubriques vides ----------
+function jxVide(s){
+  try{
+    if(s==='infosclub'){ var I=SAISON.INFOS_CLUB||{}; return !String(I.reglement||'').trim() && !(I.contacts||[]).length; }
+    if(s==='videos') return !(SAISON.VIDEOS||[]).length;
+    if(s==='clips') return !((SAISON.CLIPS||[]).filter(cjMeConcerne).length);
+    if(s==='seances') return !(SAISON.PLANNING_MENSUEL||[]).length;
+    if(s==='statslive'){
+      // Les stats en direct n'ont de sens que le jour du match
+      var p=jvProchainMatch(); return !(p && jvEcart(p.d)===0 && (SAISON.CONVOS||{}).adv);
+    }
+  }catch(e){}
+  return false;
+}
+function jxFiltrerRubriques(){
+  JTABS.forEach(function(t){
+    if(!t.tout) t.tout=t.rub.slice();
+    t.rub=t.tout.filter(function(r){ return r.s===ECRAN_ACTIF || !jxVide(r.s); });
+    if(!t.rub.length) t.rub=t.tout.slice(0,1);
+  });
+}
+
+// ---------- A. Ma semaine ----------
+function jxPliable(id, ic0, titre, etat, couleur, contenu, ouvert){
+  return '<details class="jx-pl" id="'+id+'"'+(ouvert?' open':'')+' style="--xc:'+couleur+'">'
+    +'<summary>'+ic(ic0)+'<span class="tx"><b>'+titre+'</b><i>'+etat+'</i></span><span class="go">'+(ouvert?'':'Répondre')+'</span></summary>'
+    +'<div class="jx-pl-c">'+contenu+'</div></details>';
+}
+function jxFormeEtat(){
+  var d=lireMaForme()[0];
+  if(!d) return {t:'Pas encore donnée', c:'var(--red)', vieux:true};
+  var j=Math.floor((Date.now()-new Date(d.date).getTime())/86400000);
+  var quand=j<=0?'aujourd’hui':(j===1?'hier':'il y a '+j+' jours');
+  return {t:'Envoyée '+quand, c:j>3?'var(--gold)':'var(--green)', vieux:j>3};
+}
+function jxChargeEtat(){
+  try{
+    chInit();
+    var L=lireMaCharge(), d=chDeja();
+    if(d) return {t:'Envoyé pour '+chLibJour(CH.jour).toLowerCase()+' · '+d.rpe+'/10', c:'var(--green)', fait:true};
+    if(L.length) return {t:'Dernier envoi le '+L[0].date.split('-').reverse().slice(0,2).join('/'), c:'var(--gold)', fait:false};
+  }catch(e){}
+  return {t:'Après chaque séance, dix secondes', c:'var(--gold)', fait:false};
+}
+function jxEnsuite(){
+  // Une ligne : ce qui vient après le prochain match, et le calendrier complet à un tap
+  var p=jvProchainMatch(), auj=new Date(new Date().setHours(0,0,0,0)), L=[];
+  (SAISON.CALENDRIER||[]).forEach(function(c){
+    var d=parserDateCalendrierMatch(c.date); var dt=d?new Date(d.y,d.m,d.d):null;
+    if(dt && dt>=auj && (!p || c!==p.c)) L.push({d:dt, t:'vs '+(c.adversaire||'?')});
+  });
+  L.sort(function(a,b){ return a.d-b.d; });
+  var n=L[0];
+  return '<button class="jx-ens" onclick="goNav(\'calannuel\')">'+ic('calendrier')
+    +'<span class="tx"><b>Ensuite</b><i>'+(n?esc(n.t)+' · '+n.d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}):'Le calendrier de la saison')+'</i></span><span class="go">Calendrier ›</span></button>';
+}
+function jxAFaire(){
+  // Les rappels qui ont déjà leur place juste en dessous ne sont pas répétés
+  var h=auAFaire();
+  var tmp=document.createElement('div'); tmp.innerHTML=h;
+  tmp.querySelectorAll('.au-todo').forEach(function(b){
+    var o=b.getAttribute('onclick')||'';
+    if(o.indexOf("'mesmatchs'")>=0 && document.getElementById('jv-carte')!==null) b.remove();
+    else if(o.indexOf("'mesmatchs'")>=0 && jvProchainMatch()) b.remove();
+    else if(o.indexOf("'formephysique'")>=0) b.remove();
+  });
+  var reste=tmp.querySelectorAll('.au-todo').length;
+  if(!reste) return '';
+  var cpt=tmp.querySelector('.blk-h span:last-child'); if(cpt && /^\d+$/.test(cpt.textContent)) cpt.textContent=reste;
+  return tmp.innerHTML;
+}
+function jxRenderHub(){
+  var ct=document.getElementById('scr-hub'); if(!ct) return;
+  var f=jxFormeEtat(), c=jxChargeEtat();
+  var formeIn=auForme(), chargeIn=auCharge();
+  var html=jvHtml()
+    +noDemandeHtml()
+    +jxAFaire()
+    +'<div class="jx-groupe">'
+      +jxPliable('jx-forme','thermo','Ma forme',f.t,f.c,formeIn,false)
+      +jxPliable('jx-charge','coureur','Ressenti de séance',c.t,c.c,chargeIn,false)
+      +jxEnsuite()
+    +'</div>'
+    +auEquipeHtml()
+    +auChiffres()
+    +auActu();
+  html+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
+    +'AST JOUEUR <b style="color:var(--or)">v50</b> · 14/10/2026<br><span style="opacity:.8">Ma semaine, sans le superflu</span></div>';
+  ct.innerHTML=html;
+  try{ auPhotoPoser(); }catch(e){}
+  jvBrancher();
+  // Une ligne ouverte change son libellé de droite
+  ct.querySelectorAll('.jx-pl').forEach(function(d){
+    d.addEventListener('toggle', function(){ var g=d.querySelector('summary .go'); if(g) g.textContent=d.open?'Fermer':'Répondre'; });
+  });
+}
+
+// ---------- B. Une seule question pour le match ----------
+function jxConvoque(){
+  var p=jvProchainMatch(); if(!p) return null;
+  var cat=jvSuisJeConvoque(p.c.adversaire||'');
+  return (cat==='a'||cat==='b'||cat==='u18')?cat:null;
+}
+function jxCleConv(){ var c=(SAISON&&SAISON.CONVOS)||{}; return (c.date||'')+'|'+(c.adv||''); }
+async function jxConfirmerHub(rep){
+  await confirmerConvocation(jxCleConv(), rep);
+  jxAfficherConfirmation(rep);
+}
+function jxAfficherConfirmation(rep){
+  var el=document.getElementById('jv-dispo'); if(!el) return;
+  if(rep==='accepte'){ el.innerHTML='<div class="jv-sous" style="color:var(--green);font-weight:700;margin-top:8px">✓ Tu as confirmé ta présence</div>'; return; }
+  if(rep==='decline'){ el.innerHTML='<div class="jv-sous" style="color:var(--red);font-weight:700;margin-top:8px">✕ Tu as signalé ton absence</div>'; return; }
+  el.innerHTML='<div class="jv-sous" style="margin-top:9px">Tu es convoqué : confirme au coach</div>'
+    +'<div class="jv-boutons"><span class="jv-btn oui" onclick="jxConfirmerHub(\'accepte\')">Je confirme</span>'
+    +'<span class="jv-btn non" onclick="jxConfirmerHub(\'decline\')">Je ne peux pas</span></div>';
+}
+
+// ---------- D. Mes matchs, l'effectif, les points ----------
+function jxMesMatchsCompacter(){
+  var ct=document.getElementById('scr-mesmatchs'); if(!ct) return;
+  // Convoqué : la dispo de ce match ne se demande plus, la confirmation la remplace
+  if(jxConvoque()){
+    var cle=jxCleConv();
+    ct.querySelectorAll('.blk').forEach(function(b){
+      var t=(b.querySelector('.blk-h .t')||{}).textContent||'';
+      if(t.indexOf('Ma disponibilit')<0) return;
+      b.querySelectorAll('.blk-body > div').forEach(function(r){ if((r.innerHTML||'').indexOf(cle.replace(/'/g,"\\'"))>=0 || (r.innerHTML||'').indexOf(esc(cle))>=0) r.remove(); });
+      if(!b.querySelector('.blk-body > div:not(.empty-txt)')) b.remove();
+    });
+  }
+  // Une ligne par match ; les quatre critères s'ouvrent d'un tap
+  ct.querySelectorAll('.blk').forEach(function(b){
+    var t=(b.querySelector('.blk-h .t')||{}).textContent||'';
+    if(t.indexOf('Mes notes de match')<0) return;
+    var body=b.querySelector('.blk-body');
+    Array.prototype.forEach.call(body.children, function(m){
+      if(m.classList.contains('empty-txt')) return;
+      m.classList.add('mm-l');
+      var g=m.lastElementChild; if(g && g.style.display==='grid') g.classList.add('mm-crit');
+      m.addEventListener('click', function(){ m.classList.toggle('ouvert'); });
+    });
+    var h=b.querySelector('.blk-h');
+    if(h && !h.querySelector('.mm-aide')) h.insertAdjacentHTML('beforeend','<span class="mm-aide">touche un match pour le détail</span>');
+  });
+}
+var JX_TRI='note';
+// « Seb DUVIGNEAU » devient « S. DUVIGNEAU » : la place va aux chiffres
+function jxNomCourt(nom){
+  var m=String(nom||'').trim().split(/\s+/);
+  var maj=m.filter(function(x){ return x.length>1 && x===x.toUpperCase(); });
+  var pre=m.filter(function(x){ return maj.indexOf(x)<0; });
+  if(!maj.length) return nom;
+  return (pre.length?pre[0].charAt(0)+'. ':'')+maj.join(' ');
+}
+function jxEffectif(){
+  var ct=document.getElementById('scr-effectif'); if(!ct) return;
+  var J=SAISON.JOUEURS||[], S=SAISON.STATS||[];
+  if(!J.length) return;
+  var L=J.map(function(j,i){
+    var s=S[i]||{};
+    return {i:i, j:j, note:calcNoteJoueur(i), pres:s.seances?Math.round((s.pres||0)/s.seances*100):0, presT:(s.pres||0)+'/'+(s.seances||0),
+      a:s.matchsA||0, b:s.matchsB||0, min:s.tpsTotal||0, ba:(s.buts||0)+(s.pd||0), buts:s.buts||0, pd:s.pd||0, badges:calculerBadges(i)};
+  });
+  var cle={note:'note',pres:'pres',a:'a',min:'min',ba:'ba'}[JX_TRI]||'note';
+  L.sort(function(x,y){ return (y[cle]-x[cle]) || (x.j.num-y.j.num); });
+  var th=function(k,l){ return '<button class="'+(JX_TRI===k?'on':'')+'" onclick="JX_TRI=\''+k+'\';jxEffectif()">'+l+'</button>'; };
+  ct.innerHTML='<div class="blk"><div class="blk-h"><span class="t">'+ic('barres')+'L’effectif</span><span style="font-size:12.5px;color:var(--mute)">'+J.length+' joueurs · trié par '+({note:'note',pres:'présence',a:'matchs A',min:'minutes',ba:'buts + passes'}[JX_TRI])+'</span></div>'
+    +'<div class="blk-body jx-eff">'
+    +'<div class="jx-eff-h"><span>Joueur</span>'+th('note','Note')+th('pres','Prés.')+th('a','A/B')+th('min','Min')+th('ba','B+P')+'</div>'
+    +L.map(function(x){
+      var moi=x.j.num===MON_NUM;
+      return '<div class="jx-eff-l'+(moi?' moi':'')+'"><span class="n"><i>'+x.j.num+'</i><b>'+esc(jxNomCourt(x.j.nom))+'</b>'
+        +(x.badges.length?'<em title="'+esc(x.badges.map(function(b){ return b.lab; }).join(', '))+'">'+x.badges[0].ic+(x.badges.length>1?'<sup>+'+(x.badges.length-1)+'</sup>':'')+'</em>':'')+'</span>'
+        +'<span class="v note">'+x.note+'</span><span class="v" title="'+x.presT+'">'+x.pres+'%</span><span class="v">'+x.a+'/'+x.b+'</span>'
+        +'<span class="v">'+x.min+'</span><span class="v">'+x.ba+'</span></div>';
+    }).join('')
+    +'<div class="jx-leg">Badges : '+jxLegendeBadges()+'</div>'
+    +'</div></div>';
+}
+function jxLegendeBadges(){
+  var vus={};
+  (SAISON.JOUEURS||[]).forEach(function(j,i){ try{ calculerBadges(i).forEach(function(b){ vus[b.ic]=b.lab; }); }catch(e){} });
+  return Object.keys(vus).map(function(k){ return k+' '+esc(vus[k]); }).join(' · ')||'—';
+}
+var JX_PTS_TOUT=false;
+function jxPoints(){
+  var ct=document.getElementById('scr-entrainement'); if(!ct) return;
+  var rows=ct.querySelectorAll('.pt-row'); if(!rows.length) return;
+  var moi=-1; rows.forEach(function(r,k){ if((r.textContent||'').indexOf('(toi)')>=0) moi=k; });
+  if(!JX_PTS_TOUT){
+    rows.forEach(function(r,k){
+      var garder=(k>=3 && k<10) || (moi>=0 && Math.abs(k-moi)<=2);
+      if(k<3) garder=false;   // le podium les montre déjà
+      r.style.display=garder?'':'none';
+    });
+  }
+  var body=rows[0].parentNode;
+  var b=body.querySelector('.jx-pts-tout');
+  if(!b){ b=document.createElement('button'); b.className='jx-pts-tout'; body.appendChild(b); }
+  b.textContent=JX_PTS_TOUT?'Réduire':'Voir les '+rows.length+' joueurs';
+  b.onclick=function(){ JX_PTS_TOUT=!JX_PTS_TOUT; rows.forEach(function(r){ r.style.display=''; }); if(!JX_PTS_TOUT) jxPoints(); else b.textContent='Réduire'; };
+}
+
+// ---------- Branchements ----------
+window.addEventListener('load', function(){
+  if(typeof ONB_SLIDES!=='undefined'){
+    ONB_SLIDES[1]={ic:'🗂️',titre:'5 onglets en bas',texte:"Aujourd'hui, Match, Entraînement, Tactique, Moi. Dans chacun, les rubriques défilent en haut de l'écran. Les rubriques vides se cachent tant que le coach n'y a rien mis."};
+    ONB_SLIDES[4]={ic:'🎴',titre:"C'est parti !",texte:"Ta carte perso est dans Moi › Ma carte. Bonne saison !"};
+  }
+  window.renderHub=jxRenderHub;
+  var jb=window.jvBrancher;
+  window.jvBrancher=function(){
+    if(!jxConvoque()) return jb.apply(this, arguments);
+    var p=jvProchainMatch(); if(p && jvEcart(p.d)<=7) jvChargerMeteo(p.d).then(jvAfficherMeteo);
+    chargerMaConfirmation(jxCleConv()).then(jxAfficherConfirmation);
+  };
+  var rr=window.jRendreRubriques;
+  window.jRendreRubriques=function(){ jxFiltrerRubriques(); return rr.apply(this, arguments); };
+  var jo=window.jOnglet;
+  window.jOnglet=function(){ jxFiltrerRubriques(); return jo.apply(this, arguments); };
+  var mm=window.renderMesMatchs;
+  if(mm) window.renderMesMatchs=function(){ var r=mm.apply(this, arguments); Promise.resolve(r).then(jxMesMatchsCompacter); return r; };
+  var re=window.renderEffectif;
+  if(re) window.renderEffectif=function(){ var r=re.apply(this, arguments); try{ jxEffectif(); jxPoints(); }catch(e){} return r; };
+  var rs=window.renderSaison;
+  if(rs) window.renderSaison=function(){
+    var r=rs.apply(this, arguments);
+    // Le calendrier a sa rubrique : on ne le répète pas sous le classement
+    var ct=document.getElementById('scr-saison');
+    if(ct) ct.querySelectorAll('.blk').forEach(function(b){ var t=(b.querySelector('.blk-h .t')||{}).textContent||''; if(t.indexOf('Calendrier de la saison')>=0) b.remove(); });
+    return r;
+  };
+  // La table des rendus garde les fonctions d'origine : on lui donne les nouvelles
+  if(typeof RENDER_MAP!=='undefined'){
+    RENDER_MAP.mesmatchs[0]=window.renderMesMatchs;
+    RENDER_MAP.effectif[0]=window.renderEffectif;
+    RENDER_MAP.entrainement[0]=window.renderEffectif;
+    RENDER_MAP.saison[0]=window.renderSaison;
+  }
 });
 
 </script>
