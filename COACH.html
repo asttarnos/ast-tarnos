@@ -4824,6 +4824,46 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
 .pg-bas{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
 .pg-bas .btn{width:auto;margin:0;padding:9px 16px}
 @media (max-width:860px){ .pg-h{display:none} .pg-t{display:none} .pg-e.on .pg-t{display:inline} }
+/* ===== Phase 4 : présences au bord du terrain (v138) ===== */
+#pt{position:fixed;inset:0;z-index:9000;background:var(--fond);display:none;flex-direction:column;overflow:hidden}
+#pt.on{display:flex}
+body.pt-ouvert #nr-fab,body.pt-ouvert #barre-jour{display:none!important}
+.pt-h{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#1b1d21;color:#fff}
+.pt-x{border:none;background:none;color:#c9cdd3;font:400 30px 'Roboto Condensed',sans-serif;cursor:pointer;padding:0 6px;line-height:1}
+.pt-t{flex:1;display:flex;flex-direction:column}
+.pt-t b{font:400 24px 'Anton',sans-serif;letter-spacing:.01em}
+.pt-t span{font:500 13px 'Roboto Condensed',sans-serif;color:#c9cdd3;text-transform:capitalize}
+.pt-n{display:flex;flex-direction:column;align-items:center;line-height:1}
+.pt-n b{font:400 34px 'Anton',sans-serif;color:#f2a35c}
+.pt-n span{font:600 11px 'Roboto Condensed',sans-serif;color:#c9cdd3}
+.pt-aide{padding:8px 14px 0;font:500 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pt-outils{display:flex;gap:6px;padding:8px 14px}
+.pt-outils .fi{flex:1;min-width:0;padding:8px 10px}
+.pt-outils button{border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:8px;padding:0 10px;font:700 12.5px 'Roboto Condensed',sans-serif;white-space:nowrap}
+.pt-g{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px;padding:4px 14px 14px;align-content:start}
+.pt-j{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:10px 10px 9px 40px;min-height:58px;border-radius:11px;border:2px solid var(--sc);background:var(--carte);color:var(--gris);cursor:pointer;text-align:left;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pt-j.P{background:color-mix(in srgb,var(--green) 14%,var(--carte))}
+.pt-j.B{background:color-mix(in srgb,var(--red) 12%,var(--carte))}
+.pt-j.A{opacity:.62;border-style:dashed}
+.pt-j b{font:800 15px 'Roboto Condensed',sans-serif;line-height:1.15}
+.pt-j i{font:700 12px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--sc)}
+.pt-num{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:var(--sc);color:#fff;display:flex;align-items:center;justify-content:center;font:800 11px 'Roboto Condensed',sans-serif}
+.pt-bas{display:flex;align-items:center;gap:10px;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:var(--carte);border-top:1px solid var(--line)}
+.pt-bas span{flex:1;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pt-bas .btn{width:auto;margin:0;padding:12px 18px}
+.pt-sheet{position:absolute;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.pt-sheet-c{width:100%;max-width:480px;background:var(--modal);border-radius:16px 16px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
+.pt-sheet-c>b{font:400 22px 'Anton',sans-serif;color:var(--gris)}
+.pt-sheet-c>span{font:800 11.5px 'Roboto Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gris2)}
+.pt-sheet-c>div{display:flex;gap:6px;flex-wrap:wrap}
+.pt-sheet-c>div button{flex:1;border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:9px;padding:10px 6px;font:700 14px 'Roboto Condensed',sans-serif}
+.pt-sheet-c>div button.on{border-color:var(--or);background:var(--orfond);color:var(--or)}
+.pt-sheet-c .btn{margin-top:6px}
+.pt-fin{margin:auto;max-width:420px;padding:24px;display:flex;flex-direction:column;gap:12px;text-align:center}
+.pt-fin b{font:400 30px 'Anton',sans-serif;color:var(--green)}
+.pt-fin span{font:500 15px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pt-b2{border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:10px;padding:12px;font:700 14px 'Roboto Condensed',sans-serif}
+.pt-lancer{margin-right:6px}
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -4982,7 +5022,7 @@ function nav3Colonnes(){
   var e=[];
   if(E.seances) e.push({cle:'seances', t:'Thèmes des séances', s:'', d:E.seances.detail, etat:E.seances.fait?'fait':(E.seances.etat==='retard'?'retard':'afaire'),
       act:E.seances.action, b:E.seances.bouton});
-  e.push({cle:'pres', t:'Présences', s:'à chaque séance', d:'Un tap par joueur, au bord du terrain', etat:'libre', act:"goNav('pres')", b:'Pointer'});
+  e.push({cle:'pres', t:'Présences', s:'à chaque séance', d:'Un tap par joueur, au bord du terrain', etat:'libre', act:"ptOuvrir()", b:'Pointer'});
   var chg=nav3ChargeSignal();
   e.push({cle:'charge', t:'Charge et ressenti', s:'', d:chg.d, etat:chg.etat, act:"goNav('charge')", b:'Voir la charge'});
   e.push({cle:'forme', t:'Forme des joueurs', s:'questionnaire', d:'Sommeil, jambes, moral : qui décroche ?', etat:'libre', act:"goNav('forme-coach')", b:'Voir la forme'});
@@ -5843,6 +5883,125 @@ window.addEventListener('load', function(){
   };
 });
 
+// ===== Phase 4 : le bord du terrain (v138) =====
+//
+//   Les présences au téléphone, sans menus déroulants : une tuile par joueur,
+//   un tap change son statut (présent → absent → blessé → non convoqué A),
+//   un appui long ouvre ses points et son amende. Puis « Valider » et on
+//   enchaîne sur le chrono. Les données sont celles de l'écran Présences :
+//   SEANCE_SAISIE, validerSeance — rien n'est dupliqué.
+
+var PT_ST={P:{l:'présent',c:'var(--green)'},A:{l:'absent',c:'var(--gris2)'},B:{l:'blessé',c:'var(--red)'},NC:{l:'non conv. A',c:'var(--blue)'}};
+var PT_ORDRE=['P','A','B','NC'];
+var PT_APPUI=null, PT_LONG=false, PT_Q='';
+
+function ptPreparer(){
+  if(!Array.isArray(SEANCE_SAISIE)) SEANCE_SAISIE=[];
+  while(SEANCE_SAISIE.length<JOUEURS.length) SEANCE_SAISIE.push({statut:'P',pts:0,amende:0});
+}
+function ptOuvrir(){
+  ptPreparer();
+  var o=document.getElementById('pt');
+  if(!o){ o=document.createElement('div'); o.id='pt'; document.body.appendChild(o); }
+  o.classList.add('on'); document.body.classList.add('pt-ouvert');
+  ptRendre();
+}
+function ptFermer(){
+  var o=document.getElementById('pt'); if(o) o.classList.remove('on');
+  document.body.classList.remove('pt-ouvert');
+  try{ renderPresList(); }catch(e){}
+}
+function ptCompte(){
+  var n={P:0,A:0,B:0,NC:0};
+  SEANCE_SAISIE.forEach(function(s,i){ if(JOUEURS[i]) n[s.statut]=(n[s.statut]||0)+1; });
+  return n;
+}
+function ptRendre(){
+  var o=document.getElementById('pt'); if(!o) return;
+  var n=ptCompte();
+  var auj=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  var q=(typeof normaliserTexte==='function')?normaliserTexte(PT_Q):PT_Q.toLowerCase();
+  o.innerHTML='<div class="pt-h">'
+      +'<button class="pt-x" onclick="ptFermer()" aria-label="Fermer">‹</button>'
+      +'<div class="pt-t"><b>Présences</b><span>'+jfEsc(auj)+'</span></div>'
+      +'<div class="pt-n"><b>'+n.P+'</b><span>présents</span></div>'
+    +'</div>'
+    +'<div class="pt-aide">Un tap : présent → absent → blessé → non convoqué A. Appui long : points et amende.</div>'
+    +'<div class="pt-outils"><input class="fi" placeholder="Chercher…" value="'+jfEsc(PT_Q)+'" oninput="PT_Q=this.value;ptRendre();var c=this;setTimeout(function(){var i=document.querySelector(\'.pt-outils .fi\');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},0)">'
+      +'<button onclick="ptTous(\'P\')">Tous présents</button><button onclick="ptTous(\'A\')">Tous absents</button></div>'
+    +'<div class="pt-g">'+JOUEURS.map(function(j,i){
+        if(q && ((typeof normaliserTexte==='function')?normaliserTexte(j.nom):j.nom.toLowerCase()).indexOf(q)<0 && String(j.num)!==q) return '';
+        return ptTuile(i);
+      }).join('')+'</div>'
+    +'<div class="pt-bas"><span>'+n.P+' présents · '+n.A+' absents'+(n.B?' · '+n.B+' blessés':'')+'</span>'
+      +'<button class="btn" onclick="ptValider()">Valider la séance</button></div>';
+}
+function ptTuile(i){
+  var j=JOUEURS[i], s=SEANCE_SAISIE[i]||{statut:'P'}, st=PT_ST[s.statut]||PT_ST.P;
+  var extra=(s.pts?'+'+s.pts+' pts':'')+(s.amende?(s.pts?' · ':'')+s.amende+' €':'');
+  return '<button class="pt-j '+s.statut+'" style="--sc:'+st.c+'" data-i="'+i+'"'
+    +' onpointerdown="ptDown('+i+')" onpointerup="ptUp('+i+')" onpointerleave="ptAnnule()" oncontextmenu="return false">'
+    +'<span class="pt-num">'+j.num+'</span><b>'+jfEsc(jfNomCourt(j.nom))+'</b><i>'+st.l+(extra?' · '+extra:'')+'</i></button>';
+}
+// Un tap ne redessine que la tuile touchée : la liste ne remonte pas en haut
+function ptMaj(i){
+  var o=document.getElementById('pt'); if(!o) return;
+  var t=o.querySelector('.pt-j[data-i="'+i+'"]');
+  if(t){ var d=document.createElement('div'); d.innerHTML=ptTuile(i); t.replaceWith(d.firstChild); }
+  var n=ptCompte();
+  var h=o.querySelector('.pt-n b'); if(h) h.textContent=n.P;
+  var bs=o.querySelector('.pt-bas span'); if(bs) bs.textContent=n.P+' présents · '+n.A+' absents'+(n.B?' · '+n.B+' blessés':'');
+}
+function ptDown(i){
+  PT_LONG=false; clearTimeout(PT_APPUI);
+  PT_APPUI=setTimeout(function(){ PT_LONG=true; ptDetail(i); try{ navigator.vibrate&&navigator.vibrate(30); }catch(e){} }, 550);
+}
+function ptAnnule(){ clearTimeout(PT_APPUI); }
+function ptUp(i){
+  clearTimeout(PT_APPUI);
+  if(PT_LONG) return;
+  var s=SEANCE_SAISIE[i]; if(!s) return;
+  s.statut=PT_ORDRE[(PT_ORDRE.indexOf(s.statut)+1)%PT_ORDRE.length];
+  ptMaj(i);
+}
+function ptTous(v){ SEANCE_SAISIE.forEach(function(s){ s.statut=v; }); ptRendre(); }
+function ptDetail(i){
+  var j=JOUEURS[i], s=SEANCE_SAISIE[i]; if(!j||!s) return;
+  var o=document.getElementById('pt'); if(!o) return;
+  var d=document.createElement('div'); d.className='pt-sheet'; d.id='pt-sheet';
+  var b=function(v,cur,f,lab){ return '<button class="'+(cur===v?'on':'')+'" onclick="'+f+'('+i+','+v+')">'+lab+'</button>'; };
+  d.innerHTML='<div class="pt-sheet-c"><b>'+jfEsc(j.nom)+'</b>'
+    +'<span>Statut</span><div>'+PT_ORDRE.map(function(k){ return '<button class="'+(s.statut===k?'on':'')+'" onclick="ptStatut('+i+',\''+k+'\')">'+PT_ST[k].l+'</button>'; }).join('')+'</div>'
+    +'<span>Points</span><div>'+[0,5,10,15].map(function(v){ return b(v,s.pts||0,'ptPts',v+' pts'); }).join('')+'</div>'
+    +'<span>Amende</span><div>'+[0,2,5,10].map(function(v){ return b(v,s.amende||0,'ptAmende',v?v+' €':'aucune'); }).join('')+'</div>'
+    +'<button class="btn" onclick="ptFermerDetail('+i+')">OK</button></div>';
+  d.addEventListener('click', function(e){ if(e.target===d) ptFermerDetail(i); });
+  o.appendChild(d);
+}
+function ptFermerDetail(i){ var d=document.getElementById('pt-sheet'); if(d) d.remove(); if(i!=null) ptMaj(i); else ptRendre(); }
+function ptStatut(i,v){ SEANCE_SAISIE[i].statut=v; ptFermerDetail(i); ptDetail(i); }
+function ptPts(i,v){ SEANCE_SAISIE[i].pts=v; ptFermerDetail(i); ptDetail(i); }
+function ptAmende(i,v){ SEANCE_SAISIE[i].amende=v; ptFermerDetail(i); ptDetail(i); }
+function ptValider(){
+  var n=ptCompte();
+  if(!confirm('Valider la séance : '+n.P+' présents, '+n.A+' absents'+(n.B?', '+n.B+' blessés':'')+' ?')) return;
+  validerSeance();
+  var o=document.getElementById('pt'); if(!o) return;
+  o.innerHTML='<div class="pt-fin"><b>Séance enregistrée</b><span>'+n.P+' présents. Rappelle-leur le « Ressenti de séance » dans leur appli : dix secondes chacun, et la charge se calcule.</span>'
+    +'<button class="btn" onclick="ptFermer();goNav(\'chrono\')">Lancer le chrono</button>'
+    +'<button class="pt-b2" onclick="ptFermer();nrOuvrir()">Une note sur la séance</button>'
+    +'<button class="pt-b2" onclick="ptFermer()">Fermer</button></div>';
+}
+
+window.addEventListener('load', function(){
+  // Un bouton « Mode terrain » en tête de l'écran Présences
+  var p=document.querySelector('.rub-p[data-r="pres"] .qbar');
+  if(p){
+    var b=document.createElement('button'); b.className='btn-g pt-lancer'; b.textContent='📱 Mode terrain';
+    b.onclick=ptOuvrir; p.insertBefore(b, p.firstChild);
+  }
+});
+
 </script>
 </head><body>
 <div class="bg"></div>
@@ -6271,8 +6430,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v137</b> · 14/10/2026<br>
-      <span style="opacity:.7">Fusions · parcours avant-match</span>
+      AST COACH <b style="color:var(--or)">v138</b> · 14/10/2026<br>
+      <span style="opacity:.7">Présences mode terrain</span>
     </div>
   </div>
 </div>
