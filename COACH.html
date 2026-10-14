@@ -3817,6 +3817,23 @@ var CHG_CSS=''
 }
 #dash-vivant .dv-l.dv-bl{padding:1px 0 1px 8px;border-bottom:none;font-size:12.5px}
 #dash-vivant .dv-l.dv-bl .k{color:var(--red)}
+/* Compositions : le banc passe a gauche du terrain. Sous le terrain, il
+   prenait une bande entiere de l'ecran pour trois pastilles, et le terrain
+   devait rapetisser pour lui laisser la place. */
+@media (min-width:1180px){
+  #scr-compos .cp-terrain{display:grid;grid-template-columns:auto minmax(0,1fr);align-content:start}
+  #scr-compos .cp-terrain>.bh{grid-column:1/-1}
+  #scr-compos #compo-bench{grid-column:1;grid-row:2;align-self:start;padding:14px 0 0 12px}
+  #scr-compos .cp-terrain>.cp-aire{grid-column:2;grid-row:2;padding:12px}
+  #scr-compos #compo-picker,#scr-compos .cp-terrain>div:last-child{grid-column:1/-1}
+  #scr-compos #compo-bench .bench-wrap{margin:0;padding:10px 8px 8px}
+  #scr-compos #compo-bench .bench-title{max-width:170px;font-size:11px;line-height:1.3;margin-bottom:8px}
+  /* Cinq par colonne : a dix remplacants (amical), deux colonnes cote a cote */
+  #scr-compos #compo-bench .bench-row{display:grid;grid-auto-flow:column;grid-template-rows:repeat(5,auto);gap:8px 6px;justify-content:start}
+  #scr-compos #compo-bench .bench-slot{width:80px}
+  /* Le banc n'est plus dessous : le terrain reprend la hauteur */
+  #compo-pitch{width:min(100%, calc((100vh - 250px) * 0.739))}
+}
 </style>
 <script>
 // ===== Densite (v130) : les grilles prennent toute la largeur =====
@@ -4317,8 +4334,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v131</b> · 14/10/2026<br>
-      <span style="opacity:.7">Tableau de bord resserré</span>
+      AST COACH <b style="color:var(--or)">v132</b> · 14/10/2026<br>
+      <span style="opacity:.7">Banc à gauche du terrain</span>
     </div>
   </div>
 </div>
