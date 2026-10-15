@@ -1176,6 +1176,13 @@ function initLogin(){ return EXT.appel('initLogin', initLogin__base, this, argum
 .mmc-ph{display:flex;flex-direction:column;gap:4px;padding-left:9px;border-left:4px solid var(--or)}
 .mmc-pht{display:flex;justify-content:space-between;font:800 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
 .mmc-pht span{color:var(--or)}
+
+/* logos des adversaires (v156) */
+.mm-vs b,.mm-h b{display:flex;align-items:center;gap:12px}
+.mm-vs .mm-lg{width:64px;height:64px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.mm-h .mm-lg{width:40px;height:40px;object-fit:contain;flex:none}
+.mmc-act{display:flex;align-items:center;gap:8px}
+.mmc-lg{width:46px;height:46px;object-fit:contain}
 </style>
 <script>
 // ===== RAPPORT ADVERSAIRE — le meme dessin chez le coach et chez le joueur (v128) =====
@@ -1744,7 +1751,7 @@ function jxRenderHub(){
     +auChiffres()
     +auActu();
   html+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v54</b> · 15/10/2026<br><span style="opacity:.8">Le dossier du match en stories</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v55</b> · 15/10/2026<br><span style="opacity:.8">Le dossier du match en stories</span></div>';
   ct.innerHTML=html;
   try{ auPhotoPoser(); }catch(e){}
   jvBrancher();
@@ -2328,16 +2335,17 @@ function mmPages(d, opts){
   var t=mmCoup(d), rb=mmRebours(t);
   var dom=!/ext/i.test(d.lieu||'');
   var logo=(typeof HUBL_LOGO!=='undefined'&&HUBL_LOGO)||((document.querySelector('.side-logo img,.hub-logo img,img[alt*="AST"]')||{}).src)||'';
+  var lgEux=M.logoAdv?'<img class="mm-lg" src="'+M.logoAdv+'" alt="">':'';
   // 1. Couverture
   P.push({k:'cover', fond:'cover', html:'<div class="mm-cov">'+(logo?'<img src="'+logo+'" alt="">':'')
     +'<div class="mm-k">'+mmEsc([d.comp, d.lieu].filter(Boolean).join(' · ')||'Prochain match')+'</div>'
-    +'<div class="mm-vs"><b>'+(dom?'AST Tarnos':mmEsc(d.adv))+'</b><span>VS</span><b>'+(dom?mmEsc(d.adv):'AST Tarnos')+'</b></div>'
+    +'<div class="mm-vs"><b>'+(dom?'AST Tarnos':lgEux+mmEsc(d.adv))+'</b><span>VS</span><b>'+(dom?lgEux+mmEsc(d.adv):'AST Tarnos')+'</b></div>'
     +'<div class="mm-date">'+mmEsc(d.date||'')+'</div>'
     +(rb&&!rb.fini?'<div class="mm-cd" data-t="'+t+'">'+mmCdHtml(rb)+'</div>':'')
     +'<div class="mm-tap">Touche à droite pour avancer ›</div></div>'});
   // 2. Leur carte d'identité
   var aTenir=(d.bulles&&d.bulles.adv&&d.bulles.adv['Le joueur à tenir'])||'';
-  if(Object.keys(M.radar||{}).length) P.push({k:'id', html:'<div class="mm-h"><span>Leur carte d’identité</span><b>'+mmEsc(d.adv)+'</b>'+(d.advFormation?'<i>'+mmEsc(d.advFormation)+'</i>':'')+'</div>'
+  if(Object.keys(M.radar||{}).length) P.push({k:'id', html:'<div class="mm-h"><span>Leur carte d’identité</span><b>'+lgEux+mmEsc(d.adv)+'</b>'+(d.advFormation?'<i>'+mmEsc(d.advFormation)+'</i>':'')+'</div>'
     +mmRadarSvg(M.radar, true)
     +'<div class="mm-ff2">'+(M.force?'<div class="mm-pt ko"><b>Leur arme</b>'+mmEsc(M.force)+'</div>':'')+(M.faille?'<div class="mm-pt ok"><b>Leur faille</b>'+mmEsc(M.faille)+'</div>':'')
     +(aTenir?'<div class="mm-pt or"><b>Le joueur à tenir</b>'+mmEsc(aTenir)+'</div>':'')+'</div>'});

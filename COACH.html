@@ -5667,6 +5667,24 @@ body.mb .scr{padding-top:10px!important}
 .vs-sug button{border:1px solid var(--line);background:var(--carte);color:var(--gris2);border-radius:14px;padding:5px 10px;font:700 12.5px 'Roboto Condensed',sans-serif;cursor:pointer}
 .vs-sug b{font:400 15px 'Anton',sans-serif;color:var(--or)}
 .vs-go{display:flex;gap:6px;flex-wrap:wrap}.vs-go .btn{flex:1}
+
+/* ---------- Logos des adversaires (v156) ---------- */
+.vs-lg{display:flex;flex-direction:column;gap:5px;border:1.5px solid var(--line);border-radius:10px;padding:8px}
+.vs-lg>span{font:800 11.5px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--gris2)}
+.vs-lg>i{font:500 12px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.lg-l{display:flex;align-items:center;gap:6px}
+.lg-v{flex:none;width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-size:22px;
+  background:repeating-conic-gradient(rgba(128,128,128,.14) 0 25%,transparent 0 50%) 0 0/12px 12px;border:1px solid var(--line)}
+.lg-v img{max-width:40px;max-height:40px;object-fit:contain}
+.lg-n{flex:1;min-width:0;display:flex;flex-direction:column}
+.lg-n b{font:800 14px 'Roboto Condensed',sans-serif;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-n i{font:600 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.lg-l .jf-b2{padding:6px 9px;margin:0}
+.lg-l.p .lg-v{width:38px;height:38px}.lg-l.p .lg-v img{max-width:32px;max-height:32px}
+.ph-lgs{background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+.ph-lgs summary{cursor:pointer;font:400 17px 'Anton',sans-serif;color:var(--gris)}
+.ph-lgs summary i{font:700 13px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--or);margin-left:6px}
+.ph-lgg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:6px 14px;margin-top:8px}
 /* ===== Les moments avant match : stories (v155) ===== */
 #mm-story{position:fixed;inset:0;z-index:10050;background:#0d0d0f;color:#fff;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Roboto Condensed',sans-serif;overflow:hidden}
 #mm-story::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}
@@ -5807,6 +5825,13 @@ body.mb .scr{padding-top:10px!important}
 .mmc-ph{display:flex;flex-direction:column;gap:4px;padding-left:9px;border-left:4px solid var(--or)}
 .mmc-pht{display:flex;justify-content:space-between;font:800 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
 .mmc-pht span{color:var(--or)}
+
+/* logos des adversaires (v156) */
+.mm-vs b,.mm-h b{display:flex;align-items:center;gap:12px}
+.mm-vs .mm-lg{width:64px;height:64px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.mm-h .mm-lg{width:40px;height:40px;object-fit:contain;flex:none}
+.mmc-act{display:flex;align-items:center;gap:8px}
+.mmc-lg{width:46px;height:46px;object-fit:contain}
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -9434,8 +9459,18 @@ function phRendre(){
   ct.innerHTML='<div class="vv-barre"><label class="btn" style="width:auto;margin:0;cursor:pointer">+ Ajouter des photos<input type="file" accept="image/*" multiple hidden onchange="phAjouter(this.files)"></label>'
       +'<span class="vv-esp"></span><span class="st-aide" style="padding:0">'+PH.liste.length+' photo'+(PH.liste.length>1?'s':'')+'</span></div>'
     +(Object.keys(tags).length?'<div class="ph-tags"><button class="'+(PH.filtre?'':'on')+'" onclick="PH.filtre=\'\';phRendre()">Toutes</button>'+Object.keys(tags).sort().map(function(t){ return '<button class="'+(PH.filtre===t?'on':'')+'" onclick="PH.filtre='+vvEsc(JSON.stringify(t))+';phRendre()">'+vvEsc(t)+' <i>'+tags[t]+'</i></button>'; }).join('')+'</div>':'')
+    +phLogosHtml()
     +(L.length?'<div class="ph-grille">'+L.map(function(p){ return '<button class="ph-v" onclick="phOuvrir(\''+p.id+'\')"><img src="'+p.mini+'" alt=""><span>'+vvEsc((p.tags||[]).slice(0,2).join(' · '))+'</span></button>'; }).join('')+'</div>'
       :'<div class="vv-vide"><b>La photothèque est vide.</b><span>Les photos d’équipe, de match, des joueurs : rangées ici, étiquetées (match, joueur, saison), elles servent directement aux visuels du club.</span></div>');
+}
+// Les logos des adversaires de la saison : on les pose une fois pour toutes
+function phLogosHtml(){
+  var vus={}, clubs=[];
+  (CALENDRIER||[]).forEach(function(c){ var k=lgCle(c.adversaire); if(k && !vus[k]){ vus[k]=1; clubs.push(c.adversaire); } });
+  var faits=clubs.filter(function(n){ return lgDe(n); }).length;
+  return '<details class="ph-lgs"'+(PH.lgOuvert?' open':'')+' ontoggle="PH.lgOuvert=this.open"><summary>🛡 Les logos des adversaires <i>'+faits+'/'+clubs.length+'</i></summary>'
+    +(LG.map===null?'<div class="st-aide">Chargement…</div>':'<div class="ph-lgg">'+clubs.map(function(n){ return lgBoutons(n, true); }).join('')+'</div>')
+    +'<div class="st-aide" style="padding:6px 0 0">Sur le site du club ou de la FFF : clic droit sur le logo › Copier l’image, puis 📋 sur la bonne ligne. Le fond blanc est retiré tout seul.</div></details>';
 }
 async function phAjouter(files){
   files=[].slice.call(files||[]); if(!files.length) return;
@@ -9481,6 +9516,99 @@ async function phSupprimer(id){
   await fbFetch(FIRESTORE_BASE+'/photos_club/'+id,{method:'DELETE'}); await fbFetch(FIRESTORE_BASE+'/photos_club_hd/'+id,{method:'DELETE'});
   PH.liste=PH.liste.filter(function(x){ return x.id!==id; }); stFermer('pho'); phRendre();
 }
+
+// ---------- Les logos des adversaires ----------
+//   logos_clubs/{clé} : {nom, img} — un PNG de 320 px max, fond blanc retiré.
+//   Posés une fois, ils servent aux visuels, au dossier d'avant-match et aux stories.
+var LG={map:null, im:{}};
+function lgCle(nom){ return String(nom||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,''); }
+async function lgCharger(forcer){
+  if(LG.map && !forcer) return LG.map;
+  var M={};
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/logos_clubs?pageSize=200'); if(r.ok){ var d=await r.json();
+    (d.documents||[]).forEach(function(x){ var f=x.fields||{}; var k=x.name.split('/').pop(); M[k]={nom:(f.nom||{}).stringValue||k, img:(f.img||{}).stringValue||''}; }); } }catch(e){}
+  LG.map=M; return M;
+}
+// Le logo d'un club : exact, sinon le nom le plus proche (« Portes Entre 2 Mers » ↔ « Portes E2M »)
+function lgDe(nom){
+  if(!LG.map || !nom) return null; var k=lgCle(nom); if(!k) return null;
+  if(LG.map[k]) return LG.map[k];
+  var c=Object.keys(LG.map).filter(function(x){ return x.length>3 && (x.indexOf(k)>=0 || k.indexOf(x)>=0); })[0];
+  return c?LG.map[c]:null;
+}
+function lgImage(nom){
+  var L=lgDe(nom); if(!L || !L.img) return null;
+  if(!LG.im[L.img.length+L.nom]){ var im=new Image(); im.onload=function(){ if(typeof vsDessiner==='function') vsDessiner(); }; im.src=L.img; LG.im[L.img.length+L.nom]=im; }
+  var i=LG.im[L.img.length+L.nom]; return (i.complete && i.naturalWidth)?i:null;
+}
+// Le fond blanc (logo copié d'un site) devient transparent, en partant des bords
+function lgDetourer(cv){
+  var ctx=cv.getContext('2d'), w=cv.width, h=cv.height, D=ctx.getImageData(0,0,w,h), d=D.data;
+  var clair=function(i){ return d[i+3]>0 && d[i]>232 && d[i+1]>232 && d[i+2]>232; };
+  var coins=[0,(w-1)*4,(h-1)*w*4,((h-1)*w+w-1)*4].filter(clair).length;
+  if(coins<3) return false;
+  var vu=new Uint8Array(w*h), pile=[];
+  for(var x=0;x<w;x++){ pile.push(x, (h-1)*w+x); } for(var y=0;y<h;y++){ pile.push(y*w, y*w+w-1); }
+  while(pile.length){ var p=pile.pop(); if(vu[p]) continue; vu[p]=1; if(!clair(p*4)) continue; d[p*4+3]=0;
+    var px=p%w, py=(p-px)/w; if(px>0) pile.push(p-1); if(px<w-1) pile.push(p+1); if(py>0) pile.push(p-w); if(py<h-1) pile.push(p+w); }
+  ctx.putImageData(D,0,0); return true;
+}
+function lgPreparer(blob){
+  return new Promise(function(ok, ko){
+    var url=URL.createObjectURL(blob), im=new Image();
+    im.onload=function(){
+      var r=Math.min(1, 320/Math.max(im.width, im.height)), w=Math.max(1,Math.round(im.width*r)), h=Math.max(1,Math.round(im.height*r));
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(im,0,0,w,h);
+      URL.revokeObjectURL(url); var det=lgDetourer(cv); ok({img:cv.toDataURL('image/png'), detoure:det});
+    };
+    im.onerror=function(){ ko(new Error('Image illisible')); }; im.src=url;
+  });
+}
+async function lgEnregistrer(nom, blob){
+  if(!nom){ notif('Indique d’abord le nom du club'); return; }
+  try{
+    var P=await lgPreparer(blob), k=lgCle(nom);
+    var r=await fbFetch(FIRESTORE_BASE+'/logos_clubs/'+k,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{nom:{stringValue:nom}, img:{stringValue:P.img}}})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    await lgCharger(); LG.map[k]={nom:nom, img:P.img};
+    notif('🛡 Logo de '+nom+' enregistré'+(P.detoure?' — fond blanc retiré':''));
+  }catch(e){ notif('⚠ Logo non enregistré : '+e.message); }
+  if(document.getElementById('vs-ct')) vsRendre();
+  if(document.getElementById('ph-ct')) phRendre();
+}
+async function lgSupprimer(nom){
+  var L=lgDe(nom); if(!L || !confirm('Retirer le logo de '+L.nom+' ?')) return;
+  var k=lgCle(L.nom); await fbFetch(FIRESTORE_BASE+'/logos_clubs/'+k,{method:'DELETE'}); delete LG.map[k];
+  if(document.getElementById('vs-ct')) vsRendre(); if(document.getElementById('ph-ct')) phRendre();
+}
+// Coller un logo copié sur un site (clic droit › Copier l'image)
+async function lgColler(nom){
+  try{
+    var items=await navigator.clipboard.read();
+    for(var i=0;i<items.length;i++){ var t=items[i].types.filter(function(x){ return x.indexOf('image/')===0; })[0];
+      if(t){ await lgEnregistrer(nom, await items[i].getType(t)); return; } }
+    notif('Pas d’image dans le presse-papiers — sur le site du club : clic droit sur le logo › Copier l’image');
+  }catch(e){ notif('Colle avec Ctrl+V (ou appui long › Coller) sur cet écran'); LG.colle=nom; }
+}
+function lgBoutons(nom, petit){
+  var L=lgDe(nom), q=vvEsc(JSON.stringify(nom||''));
+  return '<div class="lg-l'+(petit?' p':'')+'"><span class="lg-v">'+(L&&L.img?'<img src="'+L.img+'" alt="">':'🛡')+'</span>'
+    +'<span class="lg-n"><b>'+vvEsc(nom||'—')+'</b><i>'+(L?'Logo enregistré':'Pas encore de logo')+'</i></span>'
+    +'<label class="jf-b2" style="cursor:pointer">📁<input type="file" accept="image/*" hidden onchange="lgEnregistrer('+q+',this.files[0])"></label>'
+    +'<button class="jf-b2" title="Coller un logo copié" onclick="lgColler('+q+')">📋</button>'
+    +(L?'<button class="jf-b2" onclick="lgSupprimer('+q+')">✕</button>':'')+'</div>';
+}
+// Ctrl+V sur l'écran des visuels ou de la photothèque : logo du club affiché
+document.addEventListener('paste', function(e){
+  var surVs=document.getElementById('scr-visuels') && document.getElementById('scr-visuels').offsetParent;
+  var surPh=document.getElementById('scr-photos') && document.getElementById('scr-photos').offsetParent;
+  if(!surVs && !surPh) return;
+  var f=[].slice.call((e.clipboardData||{}).items||[]).filter(function(i){ return i.type.indexOf('image/')===0; })[0];
+  if(!f) return; e.preventDefault();
+  var nom=LG.colle||(surVs?vsAdv():'');
+  if(!nom){ nom=prompt('Logo de quel club ?'); if(!nom) return; }
+  LG.colle=null; lgEnregistrer(nom, f.getAsFile());
+});
 
 // ---------- Les visuels du club : 4 trames, ta photo, un PNG prêt à poster ----------
 var VS_MODELES=[
@@ -9570,11 +9698,17 @@ function vsRendre(){
       +'<div class="vs-photo">'+(VS.img?'<span>📷 Photo choisie</span><button class="jf-b2" onclick="VS.img=null;VS.imgId=null;vsRendre()">Retirer</button>':'<span class="st-aide" style="padding:0">Sans photo, la trame reste propre.</span>')
         +'<label class="jf-b2" style="cursor:pointer">📁 Depuis le téléphone<input type="file" accept="image/*" hidden onchange="vsPhotoFichier(this.files[0])"></label>'
         +'<button class="jf-b2" onclick="vsChoisirPhoto()">🖼 Photothèque</button></div>'
+      +(VS.m!=='chiffre'?'<div class="vs-lg"><span>🛡 Le logo de l’adversaire</span>'+lgBoutons(vsAdv())+'<i>Sur le site du club ou la FFF : clic droit sur le logo › Copier l’image, puis 📋 (ou Ctrl+V). Le fond blanc est retiré tout seul.</i></div>':'')
       +F[VS.m]
       +'<div class="vs-go"><button class="btn" style="margin:0" onclick="vsPartager()">📤 Partager</button><button class="jf-b2" onclick="vsTelecharger()">⬇ PNG</button><button class="jf-b2" onclick="VS.ch[VS.m]=null;vsRendre()">↺ Réinitialiser</button></div>'
     +'</div></div>';
   vsDessiner();
 }
+function vsAdv(){ var ch=VS.ch[VS.m]||{};
+  if(VS.m==='affiche') return ch.adv||'';
+  if(VS.m==='resultat') return /tarnos/i.test(ch.a||'')?(ch.b||''):(ch.a||'');
+  if(VS.m==='groupe') return String(ch.adv||'').replace(/^face à\s*/i,'');
+  return ''; }
 function vsChiffre(i){ var X=vsChiffres()[i]; VS.ch.chiffre={n:String(X.n), l:X.l, p:X.p}; vsRendre(); }
 function vsPhotoFichier(f){ if(!f) return; phRedim(f, 1800, 0.9).then(function(r){ var im=new Image(); im.onload=function(){ VS.img=im; VS.imgId=null; vsRendre(); }; im.src=r.data; }); }
 async function vsChoisirPhoto(){
@@ -9630,6 +9764,10 @@ function vsDessiner(){
   var go=function(){
     ctx.clearRect(0,0,W,H); ctx.fillStyle=VS_NOIR; ctx.fillRect(0,0,W,H);
     var L=function(x,y,t){ if(logo && logo.complete && logo.naturalWidth){ ctx.save(); ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=20; ctx.shadowOffsetY=8; ctx.drawImage(logo,x,y,t,t); ctx.restore(); } };
+    // un logo dans un carré de côté t, centré, proportions gardées
+    var LA=function(im,cx,cy,t){ if(!im) return 0; var r=Math.min(t/im.naturalWidth, t/im.naturalHeight), w=im.naturalWidth*r, h=im.naturalHeight*r;
+      ctx.save(); ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18; ctx.shadowOffsetY=6; ctx.drawImage(im, cx-w/2, cy-h/2, w, h); ctx.restore(); return t; };
+    var logoAdv=lgImage(vsAdv());
     if(VS.m==='affiche'){
       var ph=650+S*0.6; vsPhoto(ctx,0,0,W,ph);
       var g=ctx.createLinearGradient(0,ph-260,0,ph); g.addColorStop(0,'rgba(13,13,15,0)'); g.addColorStop(1,VS_NOIR); ctx.fillStyle=g; ctx.fillRect(0,ph-260,W,260);
@@ -9639,9 +9777,12 @@ function vsDessiner(){
       var y=ph+80;
       vsTexte(ctx, ch.sur||'', 60, y, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:VS_OR, esp:5, maxW:W-120});
       var nous='AST TARNOS', eux=String(ch.adv||'').toUpperCase();
-      var t1=vsTexte(ctx, ch.dom===false?eux:nous, 60, y+150, {taille:150, maxW:W-120});
+      // le logo adverse, à droite de son nom
+      var lgW=logoAdv?190:0, euxEnHaut=ch.dom===false;
+      var t1=vsTexte(ctx, euxEnHaut?eux:nous, 60, y+150, {taille:150, maxW:W-120-(euxEnHaut?lgW:0)});
       vsTexte(ctx, 'VS', 60, y+222, {taille:60, c:VS_OR});
-      vsTexte(ctx, ch.dom===false?nous:eux, 60, y+350, {taille:Math.min(t1,130), maxW:W-120});
+      var t2=vsTexte(ctx, euxEnHaut?nous:eux, 60, y+350, {taille:Math.min(t1,130), maxW:W-120-(euxEnHaut?0:lgW)});
+      if(logoAdv){ LA(logoAdv, W-60-80, euxEnHaut?y+150-t1*0.42:y+350-t2*0.42, 170); }
       vsPied(ctx,W,H,ch.lieu,ch.comp);
     }
     if(VS.m==='groupe'){
@@ -9650,7 +9791,8 @@ function vsDessiner(){
       L(W-190,50,130);
       vsTexte(ctx, String(ch.sur||'').toUpperCase(), 80, 110, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:VS_OR, esp:5, maxW:W-320});
       vsTexte(ctx, String(ch.titre||'').toUpperCase(), 80, 230, {taille:120, maxW:W-320});
-      vsTexte(ctx, ch.adv||'', 80, 290, {police:"700 {t}px 'Roboto Condensed'", taille:36, c:'rgba(255,255,255,.85)', maxW:W-160});
+      if(logoAdv) LA(logoAdv, 108, 278, 56);
+      vsTexte(ctx, ch.adv||'', logoAdv?150:80, 290, {police:"700 {t}px 'Roboto Condensed'", taille:36, c:'rgba(255,255,255,.85)', maxW:W-(logoAdv?230:160)});
       var N=String(ch.noms||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
       var col=Math.ceil(N.length/2)||1, top=370, bas=H-130, hl=Math.min(92, (bas-top)/col), cw2=(W-80-60-60)/2;
       N.forEach(function(n,i){
@@ -9676,8 +9818,12 @@ function vsDessiner(){
       ctx.font="400 230px Anton"; var t=vsTaille(ctx, sc, "400 {t}px Anton", 230, mw);
       var w1=(function(){ ctx.font="400 "+t+"px Anton"; return ctx.measureText(String(ch.sa)).width; })(), wt=ctx.measureText('-').width;
       vsTexte(ctx, String(ch.sa), x, y0+230, {taille:t}); vsTexte(ctx, '-', x+w1, y0+230, {taille:t, c:VS_OR}); vsTexte(ctx, String(ch.sb), x+w1+wt, y0+230, {taille:t});
-      vsTexte(ctx, String(ch.a||'').toUpperCase(), x, y0+300, {taille:44, maxW:mw});
-      vsTexte(ctx, String(ch.b||'').toUpperCase(), x, y0+350, {taille:44, maxW:mw, c:'rgba(255,255,255,.6)'});
+      // les deux équipes, chacune avec son logo s'il est connu
+      var lgA=/tarnos/i.test(ch.a||'')?(logo&&logo.naturalWidth?logo:null):logoAdv, lgB=/tarnos/i.test(ch.b||'')?(logo&&logo.naturalWidth?logo:null):logoAdv;
+      var dx=(lgA||lgB)?62:0;
+      if(lgA) LA(lgA, x+24, y0+284, 48); if(lgB) LA(lgB, x+24, y0+334, 48);
+      vsTexte(ctx, String(ch.a||'').toUpperCase(), x+dx, y0+300, {taille:44, maxW:mw-dx});
+      vsTexte(ctx, String(ch.b||'').toUpperCase(), x+dx, y0+350, {taille:44, maxW:mw-dx, c:'rgba(255,255,255,.6)'});
       var B=String(ch.buts||'').split('\n').filter(function(s){ return s.trim(); }), yb=y0+420;
       B.slice(0,6).forEach(function(b,i){ vsTexte(ctx, b, x, yb+i*48, {police:"700 {t}px 'Roboto Condensed'", taille:32, maxW:mw}); });
       if(ch.hdm){ var yh=Math.max(yb+B.slice(0,6).length*48+30, H-90-240);
@@ -9735,8 +9881,8 @@ window.addEventListener('load', function(){
   try{ ECRANS_INFO['recrutement']={ic:'loupe', l:'Recrutement'}; ECRANS_INFO['visuels']={ic:'appareil', l:'Les visuels du club'}; ECRANS_INFO['photos']={ic:'camera', l:'La photothèque'}; }catch(e){}
   EXT.apres('goNav', function(s){
     if(s==='recrutement') rcRendre();
-    if(s==='visuels'){ vsRendre(); if(!VS.hdm) vsChargerHdm().then(function(){ if(VS.hdm && VS.ch.resultat && !VS.ch.resultat.hdm){ VS.ch.resultat=null; } if(VS.m==='resultat') vsRendre(); }); }
-    if(s==='photos') phRendre();
+    if(s==='visuels'){ vsRendre(); if(!LG.map) lgCharger().then(vsRendre); if(!VS.hdm) vsChargerHdm().then(function(){ if(VS.hdm && VS.ch.resultat && !VS.ch.resultat.hdm){ VS.ch.resultat=null; } if(VS.m==='resultat') vsRendre(); }); }
+    if(s==='photos'){ phRendre(); if(!LG.map) lgCharger().then(phRendre); }
   }, 'clubhouse');
 });
 
@@ -9800,16 +9946,17 @@ function mmPages(d, opts){
   var t=mmCoup(d), rb=mmRebours(t);
   var dom=!/ext/i.test(d.lieu||'');
   var logo=(typeof HUBL_LOGO!=='undefined'&&HUBL_LOGO)||((document.querySelector('.side-logo img,.hub-logo img,img[alt*="AST"]')||{}).src)||'';
+  var lgEux=M.logoAdv?'<img class="mm-lg" src="'+M.logoAdv+'" alt="">':'';
   // 1. Couverture
   P.push({k:'cover', fond:'cover', html:'<div class="mm-cov">'+(logo?'<img src="'+logo+'" alt="">':'')
     +'<div class="mm-k">'+mmEsc([d.comp, d.lieu].filter(Boolean).join(' · ')||'Prochain match')+'</div>'
-    +'<div class="mm-vs"><b>'+(dom?'AST Tarnos':mmEsc(d.adv))+'</b><span>VS</span><b>'+(dom?mmEsc(d.adv):'AST Tarnos')+'</b></div>'
+    +'<div class="mm-vs"><b>'+(dom?'AST Tarnos':lgEux+mmEsc(d.adv))+'</b><span>VS</span><b>'+(dom?lgEux+mmEsc(d.adv):'AST Tarnos')+'</b></div>'
     +'<div class="mm-date">'+mmEsc(d.date||'')+'</div>'
     +(rb&&!rb.fini?'<div class="mm-cd" data-t="'+t+'">'+mmCdHtml(rb)+'</div>':'')
     +'<div class="mm-tap">Touche à droite pour avancer ›</div></div>'});
   // 2. Leur carte d'identité
   var aTenir=(d.bulles&&d.bulles.adv&&d.bulles.adv['Le joueur à tenir'])||'';
-  if(Object.keys(M.radar||{}).length) P.push({k:'id', html:'<div class="mm-h"><span>Leur carte d’identité</span><b>'+mmEsc(d.adv)+'</b>'+(d.advFormation?'<i>'+mmEsc(d.advFormation)+'</i>':'')+'</div>'
+  if(Object.keys(M.radar||{}).length) P.push({k:'id', html:'<div class="mm-h"><span>Leur carte d’identité</span><b>'+lgEux+mmEsc(d.adv)+'</b>'+(d.advFormation?'<i>'+mmEsc(d.advFormation)+'</i>':'')+'</div>'
     +mmRadarSvg(M.radar, true)
     +'<div class="mm-ff2">'+(M.force?'<div class="mm-pt ko"><b>Leur arme</b>'+mmEsc(M.force)+'</div>':'')+(M.faille?'<div class="mm-pt ok"><b>Leur faille</b>'+mmEsc(M.faille)+'</div>':'')
     +(aTenir?'<div class="mm-pt or"><b>Le joueur à tenir</b>'+mmEsc(aTenir)+'</div>':'')+'</div>'});
@@ -9912,6 +10059,8 @@ function mmcAuto(){
   M.auto={forme:der.map(function(m){ return m.res; }).join(''), nm:L.length, bpm:moy('ast'), bcm:moy('adv'),
     h2h:L.filter(function(m){ return DOSSIER.adv && meme(m.adversaire, DOSSIER.adv); }).slice(0,4).map(function(m){
       return {res:m.res, score:(m.lieu==='E'?m.adv+'-'+m.ast:m.ast+'-'+m.adv)+(m.lieu==='E'?' (ext.)':' (dom.)'), date:String(m.date||'').replace(/\s*-.*$/,'')}; })};
+  // le logo de l'adversaire part avec le dossier (posé dans la photothèque ou les visuels)
+  if(typeof lgDe==='function' && LG.map){ var lg=lgDe(DOSSIER.adv); M.logoAdv=lg?lg.img:''; }
   return M;
 }
 function mmcChamp(chemin, val, ph, area){
@@ -9932,7 +10081,8 @@ function mmcHtml(){
   var rangee=function(l, inner){ return '<label class="mmc-l"><span>'+l+'</span>'+inner+'</label>'; };
   return '<div class="mmc" id="mmc">'
     +'<div class="mmc-tete"><div><b>🎬 Les moments avant match</b><span>Ce que les joueurs regarderont en stories sur leur téléphone : couverture et compte à rebours, leur carte d’identité, le face-à-face, la compo, le plan en 3 temps, les consignes, sa mission, le rituel.</span></div>'
-      +'<button class="btn" style="width:auto;margin:0" onclick="mmcApercu()">▶ Voir les stories</button></div>'
+      +'<div class="mmc-act">'+(M.logoAdv?'<img class="mmc-lg" src="'+M.logoAdv+'" alt="" title="Logo de '+mmEsc(DOSSIER.adv)+'">':(DOSSIER.adv?'<button class="jf-b2" onclick="goNav(\'photos\')" title="Poser le logo dans la photothèque">🛡 Logo de '+mmEsc(DOSSIER.adv)+' ?</button>':''))
+      +'<button class="btn" style="width:auto;margin:0" onclick="mmcApercu()">▶ Voir les stories</button></div></div>'
     +'<div class="mmc-grille">'
     // 1. Carte d'identité
     +'<div class="mmc-b"><h4>🪪 Leur carte d’identité</h4><div class="mmc-rad"><div id="mmc-radar">'+mmRadarSvg(M.radar)+'</div><div class="mmc-curs">'
@@ -9975,6 +10125,7 @@ window.addEventListener('load', function(){
     var ct=document.getElementById('dm-ct'); if(!ct) return;
     var old=document.getElementById('mmc'); if(old) old.remove();
     var d=document.createElement('div'); d.innerHTML=mmcHtml(); ct.appendChild(d.firstChild);
+    if(typeof lgCharger==='function' && !LG.map) lgCharger().then(function(){ var o=document.getElementById('mmc'); if(o){ var n=document.createElement('div'); n.innerHTML=mmcHtml(); o.replaceWith(n.firstChild); } });
   }, 'moments');
 });
 
@@ -9987,7 +10138,7 @@ window.addEventListener('load', function(){
 //   la base (ouverte ou fermée), et les règles prêtes à coller dans Firebase,
 //   déjà remplies avec les adresses du staff.
 
-var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /match_live/{id}          { allow read, write: if estCoach(); }\n    match /match_direct/{id}        { allow read, write: if estCoach(); }\n    match /photos_club/{id}         { allow read, write: if estCoach(); }\n    match /photos_club_hd/{id}      { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Programmes physiques : le staff les écrit, chaque joueur lit le sien et envoie son suivi\n    match /programmes/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach();\n    }\n    match /programmes_suivi/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // ---- Le thermomètre : réponses anonymes (aucun nom), lues par le staff seulement\n    match /thermometre/{id} {\n      allow create: if membre() && !('auteurNum' in request.resource.data) && !('joueurNum' in request.resource.data);\n      allow read, update, delete: if estCoach();\n    }\n    match /thermo_participation/{id} {\n      allow get: if estCoach() || (estJoueur() && resource == null);\n      allow list, delete: if estCoach();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.joueurNum == monNum());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
+var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /match_live/{id}          { allow read, write: if estCoach(); }\n    match /match_direct/{id}        { allow read, write: if estCoach(); }\n    match /photos_club/{id}         { allow read, write: if estCoach(); }\n    match /photos_club_hd/{id}      { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Programmes physiques : le staff les écrit, chaque joueur lit le sien et envoie son suivi\n    match /programmes/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach();\n    }\n    match /programmes_suivi/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // ---- Le thermomètre : réponses anonymes (aucun nom), lues par le staff seulement\n    match /thermometre/{id} {\n      allow create: if membre() && !('auteurNum' in request.resource.data) && !('joueurNum' in request.resource.data);\n      allow read, update, delete: if estCoach();\n    }\n    match /thermo_participation/{id} {\n      allow get: if estCoach() || (estJoueur() && resource == null);\n      allow list, delete: if estCoach();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.joueurNum == monNum());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /logos_clubs/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
 var SEC_COMPTES=null, SEC_ETAT=null, SEC_MDP={};
 
 function secEmails(){
@@ -10550,8 +10701,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v155</b> · 15/10/2026<br>
-      <span style="opacity:.7">Club House · recrutement · visuels · stories</span>
+      AST COACH <b style="color:var(--or)">v156</b> · 15/10/2026<br>
+      <span style="opacity:.7">Logos des adversaires · Club House · stories</span>
     </div>
   </div>
 </div>
