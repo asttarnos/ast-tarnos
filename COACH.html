@@ -4704,7 +4704,7 @@ window.addEventListener('load', function(){
 // ---------- 🩺 Vérifier : ce que CET appareil voit, en clair ----------
 // À ouvrir sur le téléphone ET sur l'ordi : si les deux ne disent pas la même
 // chose (version, base, compte, dernières notes), on sait tout de suite où ça coince.
-var NR_VERSION='v153';
+var NR_VERSION='v154';
 async function nrDiagnostic(){
   var m=document.getElementById('nr-diag');
   if(!m){ m=document.createElement('div'); m.id='nr-diag'; m.className='nr-modal on'; document.body.appendChild(m);
@@ -5433,6 +5433,143 @@ body.mb .scr{padding-top:10px!important}
 #md-bdt-dom span{font:800 12px 'Roboto Condensed',sans-serif;color:#f2a35c;white-space:nowrap;margin-right:2px}
 #md-bdt-dom button{flex:1;border:none;border-radius:8px;padding:9px 2px;font:800 11.5px 'Roboto Condensed',sans-serif;color:#fff;cursor:pointer}
 #md-bdt-dom .v0{background:#b91c1c}#md-bdt-dom .v1{background:#ef4444}#md-bdt-dom .v2{background:#6b7280}#md-bdt-dom .v3{background:#22c55e}#md-bdt-dom .v4{background:#15803d}
+/* ===== Le vivier ===== */
+.vv-barre{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+.vv-sys{display:flex;align-items:center;gap:6px;font:800 12px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--gris2)}
+.vv-sys select{width:auto;padding:7px 10px}
+.vv-hor{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.vv-hor button{border:none;background:var(--carte);color:var(--gris);padding:8px 12px;font:800 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.vv-hor button.on{background:var(--or);color:#fff}
+.vv-esp{flex:1}
+.vv-vide{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px;border-radius:14px;border:2px dashed var(--line);margin-bottom:12px;font:500 14px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.vv-vide b{font:400 22px 'Anton',sans-serif;color:var(--gris)}
+.vv-terrain{border-radius:16px;padding:12px;background:linear-gradient(#2f7d45,#2a7340);display:flex;flex-direction:column;gap:12px;position:relative}
+.vv-ligne{display:flex;flex-direction:column;gap:6px}
+.vv-ll{font:400 15px 'Anton',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.vv-cases{display:grid;gap:10px}
+.vv-cases.n1{grid-template-columns:minmax(0,340px);justify-content:center}
+.vv-cases.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.vv-cases.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.vv-cases.n4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.vv-cases.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:760px){ .vv-cases.n3,.vv-cases.n4,.vv-cases.n5{grid-template-columns:repeat(2,minmax(0,1fr))} .vv-cases.n1{grid-template-columns:1fr} }
+@media (max-width:420px){ .vv-cases.n2,.vv-cases.n3,.vv-cases.n4,.vv-cases.n5{grid-template-columns:1fr} }
+.vv-case{background:var(--carte);border-radius:12px;border-top:5px solid var(--sc);padding:8px 9px 7px;display:flex;flex-direction:column;gap:3px;box-shadow:0 4px 14px rgba(0,0,0,.18);min-width:0}
+.vv-ch{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:2px}
+.vv-ch b{font:400 15.5px 'Anton',sans-serif;color:var(--gris);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vv-sol{flex:none;font:800 11px 'Roboto Condensed',sans-serif;color:#fff;background:var(--sc);border-radius:8px;padding:1px 7px}
+.vv-j{display:grid;grid-template-columns:16px minmax(0,1fr) 56px 18px;align-items:center;gap:6px;padding:3px 0;cursor:pointer;border-top:1px solid var(--line)}
+.vv-rg{font:400 14px 'Anton',sans-serif;color:var(--gris2);text-align:center}
+.vv-n{display:flex;align-items:center;gap:4px;min-width:0}
+.vv-n b{font:800 13.5px 'Roboto Condensed',sans-serif;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vv-n i,.vv-or i,.vv-dispo i{flex:none;font:800 9.5px 'Roboto Condensed',sans-serif;font-style:normal;color:#fff;background:var(--cc);border-radius:5px;padding:0 4px}
+.vv-jauge{height:8px;border-radius:4px;background:var(--line);overflow:hidden;display:block}
+.vv-jauge i{display:block;height:100%;border-radius:4px}
+.vv-j em{font:400 14px 'Anton',sans-serif;font-style:normal;color:var(--gris);text-align:right}
+.vv-plus{font:700 11.5px 'Roboto Condensed',sans-serif;color:var(--gris2);padding-left:22px}
+.vv-aj{margin-top:4px;border:1.5px dashed var(--line);background:none;color:var(--gris2);border-radius:8px;padding:5px;font:700 12px 'Roboto Condensed',sans-serif;cursor:pointer}
+.vv-bilan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:1100px){ .vv-bilan{grid-template-columns:1fr 1fr} }
+@media (max-width:600px){ .vv-bilan{grid-template-columns:1fr} }
+.vv-bl{background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:600 13.5px 'Roboto Condensed',sans-serif;color:var(--gris);display:flex;flex-direction:column;gap:5px}
+.vv-bl h4{margin:0 0 3px;font:400 18px 'Anton',sans-serif;letter-spacing:.01em}
+.vv-bl.ok{border-left:5px solid #16a34a}.vv-bl.ko{border-left:5px solid #dc2626}.vv-bl.dep{border-left:5px solid #d97706}
+.vv-bl i{font-style:normal;color:var(--gris2)}
+.vv-r{color:var(--gris2)}
+.vv-lg{display:grid;grid-template-columns:62px 1fr 30px;gap:8px;align-items:center}
+.vv-jauge.g{height:10px}
+.vv-lg b{font:400 15px 'Anton',sans-serif;text-align:right}
+.vv-chif{display:flex;flex-direction:column;gap:2px;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);color:var(--gris2)}
+.vv-chif b{color:var(--gris)}
+.vv-ord{display:flex;flex-direction:column;gap:4px}
+.vv-or{display:grid;grid-template-columns:18px 1fr auto auto;gap:8px;align-items:center;padding:6px 8px;border-radius:9px;background:var(--carte);border:1px solid var(--line)}
+.vv-or b{font:800 14px 'Roboto Condensed',sans-serif;color:var(--gris);display:flex;gap:5px;align-items:center}
+.vv-niv{display:flex;align-items:center;gap:3px}
+.vv-niv em{font:400 15px 'Anton',sans-serif;font-style:normal;color:#fff;border-radius:6px;min-width:28px;text-align:center;padding:1px 0}
+.vv-niv button,.vv-act button{width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--gris);border-radius:7px;font:800 15px 'Roboto Condensed',sans-serif;cursor:pointer}
+.vv-act{display:flex;gap:3px}.vv-act button:disabled{opacity:.3}
+.vv-dispo{display:flex;flex-wrap:wrap;gap:5px;max-height:30vh;overflow-y:auto}
+.vv-dispo button{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:14px;padding:6px 10px;font:700 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.vv-dispo .vv-new{border:1.5px dashed var(--or);color:var(--or)}
+.vv-fi label{display:flex;flex-direction:column;gap:3px;font:800 11px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--gris2)}
+.vv-g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vv-pot{display:flex;align-items:center;gap:3px;flex-wrap:wrap;font:800 11px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--gris2)}
+.vv-pot span{margin-right:6px}
+.vv-pot button{width:28px;height:28px;border:1px solid var(--line);background:var(--carte);color:var(--gris2);border-radius:7px;font:800 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.vv-pot button.on{background:var(--pc);border-color:var(--pc);color:#fff}
+.vv-st{margin-top:6px;font:800 11.5px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.07em;color:var(--gris2)}
+.vv-po{display:flex;align-items:center;gap:8px;font:700 14px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.vv-po span{flex:1}.vv-po i{font-style:normal;color:var(--gris2);font-size:12.5px}
+.vv-po em{font:400 14px 'Anton',sans-serif;font-style:normal;color:#fff;border-radius:6px;padding:1px 7px}
+.vv-placer{display:flex;gap:6px}.vv-placer select{flex:1}
+.vv-ob{padding:6px 9px;border-left:3px solid var(--or);background:var(--carte);border-radius:6px;display:flex;flex-direction:column}
+.vv-ob b{font:600 14px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.vv-ob i{font:600 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.vv-inv{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.vv-inv span{font:700 12px 'Roboto Condensed',sans-serif;background:color-mix(in srgb,var(--green) 15%,var(--carte));color:var(--green);border-radius:8px;padding:3px 8px}
+.vv-inv>i{font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.vv-lj{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);cursor:pointer;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.vv-lj b{font-weight:800;color:var(--gris)}.vv-lj i{font-style:normal;font-weight:800}
+.vvp{flex:1;overflow-y:auto;padding:14px;background:var(--fond)}
+@media print{
+  body *{visibility:hidden}
+  #vvp, #vvp *{visibility:visible}
+  #vvp{position:absolute;inset:0;display:block;overflow:visible}
+  #vvp .st-h button{display:none}
+  .vv-terrain{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+.vv-aj{margin-top:auto}
+/* ===== Programmes (staff) ===== */
+.pg-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.pg-c{background:var(--carte);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pg-c.alerte{border:2px solid var(--red)}
+.pg-ch b{display:block;font:400 20px 'Anton',sans-serif;color:var(--gris)}
+.pg-ch span{font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pg-al{font:800 13.5px 'Roboto Condensed',sans-serif;color:#fff;background:var(--red);border-radius:8px;padding:6px 9px}
+.pg-prog{display:flex;flex-direction:column;gap:4px;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pg-prog b{color:var(--gris)}
+.pg-dl{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+.pg-dl i{width:22px;height:22px;border-radius:6px;color:#fff;display:grid;place-items:center;font:800 11.5px 'Roboto Condensed',sans-serif;font-style:normal}
+.pg-dl em{font:600 12px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2);margin-left:4px}
+.pg-act{display:flex;gap:6px;flex-wrap:wrap}
+.pg-nv{display:flex;flex-direction:column;gap:14px;max-width:980px}
+.pg-et{display:flex;flex-direction:column;gap:8px}
+.pg-et>b{font:400 19px 'Anton',sans-serif;color:var(--gris)}
+.pg-ch2{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pg-ch2 button{border:1.5px solid var(--red);background:var(--carte);color:var(--gris);border-radius:14px;padding:5px 10px;font:800 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.pg-ch2 button.on{background:var(--red);color:#fff}
+.pg-mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.pg-mods button{text-align:left;border:1.5px solid var(--line);background:var(--carte);border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.pg-mods button.on{border-color:var(--or);background:color-mix(in srgb,var(--or) 10%,var(--carte))}
+.pg-mods b{font:800 15px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.pg-mods i{font:500 12.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2);line-height:1.35}
+.pg-reg label{display:flex;flex-direction:column;gap:4px;font:800 11.5px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--gris2)}
+.pg-reg label .eq-nb{padding:0}
+.pg-reg input{max-width:220px}
+.pg-ap{display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto}
+.pg-s{display:grid;grid-template-columns:130px 130px 1fr;gap:8px;align-items:baseline;padding:6px 8px;border-radius:8px;background:var(--carte);border:1px solid var(--line);font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.pg-s b{color:var(--gris);font-weight:800}
+.pg-s i{font-style:normal;line-height:1.35}
+.pg-s.fait{border-left:4px solid var(--green)}
+@media (max-width:640px){ .pg-s{grid-template-columns:1fr} }
+.pg-pied{display:flex;gap:8px;justify-content:flex-end}
+/* ===== Thermomètre (staff) ===== */
+.thc-tete{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;margin-bottom:12px}
+@media (max-width:700px){ .thc-tete{grid-template-columns:1fr} }
+.thc-tete>div:first-child b{display:block;font:400 28px 'Anton',sans-serif;color:var(--gris)}
+.thc-tete>div:first-child span{font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.thc-al{background:color-mix(in srgb,var(--red) 10%,var(--carte));border-left:5px solid var(--red);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:3px;font:600 13.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.thc-ok{background:color-mix(in srgb,var(--green) 10%,var(--carte));border-left:5px solid var(--green);border-radius:10px;padding:10px 12px;font:700 14px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.thc-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.thc-t{background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.thc-t h4,.thc-mots h4{margin:0 0 6px;font:400 18px 'Anton',sans-serif;color:var(--gris)}
+.thc-q{display:grid;grid-template-columns:1fr 64px 34px 34px;gap:8px;align-items:center;padding:5px 0;border-top:1px solid var(--line);font:600 13.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.thc-h{display:flex;align-items:flex-end;gap:2px;height:22px}
+.thc-h i{flex:1;border-radius:2px 2px 0 0;min-height:2px}
+.thc-q b{font:400 18px 'Anton',sans-serif;text-align:right}
+.thc-q em{font:800 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.thc-q em.up{color:var(--green)}.thc-q em.down{color:var(--red)}
+.thc-mots{margin-top:12px;background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;font:500 14px 'Roboto Condensed',sans-serif;color:var(--gris)}
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -5472,6 +5609,9 @@ var NAV3_POLES=[
     {s:'rotation',ic:'chrono',l:'Temps de jeu'},
     {s:'forme-coach',ic:'thermo',l:'Forme du groupe'},
     {s:'medical',ic:'hopital',l:'Infirmerie'},
+    {s:'vivier',ic:'groupe',l:'Le vivier du club'},
+    {s:'programmes',ic:'coureur',l:'Programmes individuels'},
+    {s:'thermo',ic:'thermo',l:'Thermomètre du groupe'},
     {s:'suivi-objectifs',ic:'liste',l:'Objectifs de chacun'},
     {s:'obj-coll',ic:'coupe',l:'Objectifs collectifs'},
     {s:'entretien',ic:'parole',l:'Feuille d’entretien',g:'Outils'},
@@ -8257,6 +8397,614 @@ window.addEventListener('load', function(){
   EXT.apres('renderPlayerPicker', crPicker, 'compo et vigilance');
 });
 
+// ===== Le vivier du club (v154) =====
+//
+//   La photographie de l'effectif, poste par poste, dans le système de jeu :
+//   sous chaque poste, jusqu'à 4 noms dans l'ordre (titulaire, doublure,
+//   3e et 4e choix), chacun avec sa jauge de niveau à ce poste. Les seniors,
+//   la réserve, les jeunes du club et les recrues visées sont sur la même
+//   photo : on voit d'un coup d'œil où l'on est solide, où l'on est juste,
+//   et ce qui se passe si le titulaire manque.
+//
+//   Deux horizons : aujourd'hui, et la saison prochaine (sans les départs
+//   probables, avec les recrues visées et la progression des jeunes).
+//   Tout est rangé dans NAV_STAFF.vivier : il suit le staff partout.
+
+var VV_CATS=[
+  {k:'A',   l:'Seniors A', c:'#f97316'},
+  {k:'B',   l:'Seniors B', c:'#2563eb'},
+  {k:'U20', l:'U20',       c:'#7c3aed'},
+  {k:'U18', l:'U18',       c:'#16a34a'},
+  {k:'U17', l:'U17',       c:'#0d9488'},
+  {k:'EXT', l:'Extérieur', c:'#6b7280'}
+];
+var VV_STATUTS=[
+  {k:'tit',  l:'Titulaire',          c:'#16a34a'},
+  {k:'rot',  l:'Rotation',           c:'#2563eb'},
+  {k:'dev',  l:'À développer',       c:'#7c3aed'},
+  {k:'suivi',l:'À suivre',           c:'#0d9488'},
+  {k:'cible',l:'Recrue visée',       c:'#d97706'},
+  {k:'dep',  l:'Départ probable',    c:'#dc2626'}
+];
+function vvCat(k){ return VV_CATS.filter(function(c){ return c.k===k; })[0]||VV_CATS[5]; }
+function vvStatut(k){ return VV_STATUTS.filter(function(c){ return c.k===k; })[0]||VV_STATUTS[1]; }
+function vvEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function vvData(){
+  var S=stStaff();
+  if(!S.vivier) S.vivier={systeme:'4-2-2-2', joueurs:{}, postes:{}};
+  if(!S.vivier.joueurs) S.vivier.joueurs={};
+  if(!S.vivier.postes) S.vivier.postes={};
+  return S.vivier;
+}
+function vvId(){ return 'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function vvNom(p){ return (typeof jfNomCourt==='function')?jfNomCourt(p.nom):p.nom; }
+function vvAge(p){ var a=parseInt(p.annee,10); if(!a) return null; var y=new Date().getFullYear(); return (new Date().getMonth()>=6?y:y-1)-a+1; }
+
+// ---------- Les postes du système : une case par poste, avec son côté ----------
+var VV_LIGNES=[
+  {k:'att', l:'Attaque', p:['BU','AT','AG','AD']},
+  {k:'mil', l:'Milieu',  p:['MOG','MOC','MOD','MG','MD','MC','MDF']},
+  {k:'def', l:'Défense', p:['DG','DC','DD']},
+  {k:'gb',  l:'Gardien', p:['GB']}
+];
+var VV_NOMS={GB:'Gardien',DD:'Latéral droit',DG:'Latéral gauche',DC:'Défenseur central',MD:'Milieu droit',MG:'Milieu gauche',MC:'Milieu central',MDF:'Milieu défensif',
+  MOG:'Milieu offensif gauche',MOD:'Milieu offensif droit',MOC:'Meneur',AT:'Attaquant',BU:'Avant-centre',AG:'Ailier gauche',AD:'Ailier droit'};
+function vvCases(){
+  var F=(typeof FORMATIONS!=='undefined' && FORMATIONS[vvData().systeme])||FORMATIONS['4-2-2-2'];
+  var L=F.map(function(s){ return {pos:s.pos, x:s.x, y:s.y}; });
+  // Deux fois le même poste : on les distingue par le côté
+  // « MD » veut dire milieu droit dans un 4-4-2, mais milieu défensif dans un 4-2-2-2
+  var nomDe=function(c){ if(c.pos==='MD' && c.x>30 && c.x<70) return 'Milieu défensif'; return VV_NOMS[c.pos]||c.pos; };
+  L.forEach(function(c){
+    var memes=L.filter(function(o){ return o.pos===c.pos; });
+    if(memes.length<2){ c.cle=c.pos; c.l=nomDe(c); return; }
+    memes.sort(function(a,b){ return a.x-b.x; });
+    var i=memes.indexOf(c), n=memes.length;
+    var cote=n===2?(i===0?'G':'D'):(i===0?'G':(i===n-1?'D':'A'));
+    c.cle=c.pos+'-'+cote; c.l=nomDe(c)+' '+({G:'gauche',D:'droit',A:'axe'}[cote]);
+  });
+  return L;
+}
+function vvLigne(pos){ for(var k=0;k<VV_LIGNES.length;k++) if(VV_LIGNES[k].p.indexOf(pos)>=0) return VV_LIGNES[k].k; return 'mil'; }
+
+// ---------- L'horizon : aujourd'hui ou la saison prochaine ----------
+var VV={horizon:'auj', vue:'terrain', sel:null};
+function vvPresent(p){
+  if(VV.horizon==='auj') return p.statut!=='cible';
+  return p.statut!=='dep';
+}
+function vvNiveau(pl){
+  var p=vvData().joueurs[pl.id]; if(!p) return 0;
+  var n=+pl.niv||0;
+  if(VV.horizon==='proch' && p.potentiel>n){
+    // les jeunes progressent : un point par saison, deux s'ils ont 20 ans ou moins
+    var age=vvAge(p); n=Math.min(p.potentiel, n+((age && age<=20)?2:1));
+  }
+  return n;
+}
+// Les noms d'une case, dans l'ordre, pour l'horizon choisi
+function vvListe(cle){
+  var V=vvData();
+  return (V.postes[cle]||[]).filter(function(pl){ var p=V.joueurs[pl.id]; return p && vvPresent(p); });
+}
+// La solidité d'un poste : le titulaire compte pour 60 %, la doublure pour 40 %
+function vvSolidite(cle){
+  var L=vvListe(cle).map(vvNiveau);
+  var a=L[0]||0, b=L[1]||0, s=a*0.6+b*0.4;
+  var niv=(!L.length)?'vide':(s>=7&&L.length>=2?'solide':(s>=5.2?'juste':'fragile'));
+  return {score:Math.round(s*10)/10, niv:niv, n:L.length, t:a, d:b};
+}
+var VV_SOL={solide:{c:'#16a34a',l:'Solide'}, juste:{c:'#d97706',l:'Juste'}, fragile:{c:'#dc2626',l:'Fragile'}, vide:{c:'#6b7280',l:'Personne'}};
+function vvCouleurNiv(n){ return n>=8?'#16a34a':(n>=6?'#65a30d':(n>=4?'#d97706':'#dc2626')); }
+
+// ---------- L'écran ----------
+function vvRendre(){
+  var ct=document.getElementById('vv-ct'); if(!ct) return;
+  var V=vvData(), C=vvCases();
+  var systemes=Object.keys(FORMATIONS||{});
+  var nJ=Object.keys(V.joueurs).length;
+  var html='<div class="vv-barre">'
+      +'<label class="vv-sys">Système <select class="fi" onchange="vvData().systeme=this.value;stSauver();vvRendre()">'+systemes.map(function(s){ return '<option'+(s===V.systeme?' selected':'')+'>'+vvEsc(s)+'</option>'; }).join('')+'</select></label>'
+      +'<div class="vv-hor"><button class="'+(VV.horizon==='auj'?'on':'')+'" onclick="VV.horizon=\'auj\';vvRendre()">Aujourd’hui</button><button class="'+(VV.horizon==='proch'?'on':'')+'" onclick="VV.horizon=\'proch\';vvRendre()">Saison prochaine</button></div>'
+      +'<span class="vv-esp"></span>'
+      +'<button class="jf-b2" onclick="vvJoueurs()">👥 Les '+nJ+' joueurs</button>'
+      +'<button class="jf-b2" onclick="vvPhoto()">📸 Photographie</button>'
+      +'<button class="btn" style="width:auto;margin:0" onclick="vvNouveau()">+ Joueur</button>'
+    +'</div>';
+  if(!nJ) html+='<div class="vv-vide"><b>Le vivier est vide.</b><span>Commence par l’effectif seniors : un tap les ajoute tous, il ne restera qu’à les placer. Ajoute ensuite la réserve, les jeunes qui frappent à la porte et les recrues que tu vises.</span>'
+    +'<button class="btn" style="width:auto" onclick="vvImporter()">Ajouter l’effectif seniors ('+JOUEURS.length+')</button></div>';
+  // Le terrain : une rangée par ligne, de l'attaque au gardien
+  html+='<div class="vv-terrain">'+VV_LIGNES.map(function(li){
+      var cs=C.filter(function(c){ return li.p.indexOf(c.pos)>=0; }).sort(function(a,b){ return a.x-b.x; });
+      if(!cs.length) return '';
+      return '<div class="vv-ligne"><div class="vv-ll">'+li.l+'</div><div class="vv-cases n'+cs.length+'">'+cs.map(vvCaseHtml).join('')+'</div></div>';
+    }).join('')+'</div>';
+  html+=vvBilanHtml();
+  ct.innerHTML=html;
+}
+function vvCaseHtml(c){
+  var L=vvListe(c.cle), so=vvSolidite(c.cle), V=vvData();
+  var tous=(V.postes[c.cle]||[]).length;
+  return '<div class="vv-case" style="--sc:'+VV_SOL[so.niv].c+'">'
+    +'<div class="vv-ch"><b>'+vvEsc(c.l)+'</b><span class="vv-sol">'+VV_SOL[so.niv].l+(so.n?' · '+String(so.score).replace('.',','):'')+'</span></div>'
+    +L.slice(0,4).map(function(pl,k){
+      var p=V.joueurs[pl.id], n=vvNiveau(pl), ca=vvCat(p.cat), st=vvStatut(p.statut);
+      return '<div class="vv-j" onclick="vvFiche(\''+pl.id+'\')"><span class="vv-rg">'+(k+1)+'</span>'
+        +'<span class="vv-n"><b>'+vvEsc(vvNom(p))+'</b><i style="--cc:'+ca.c+'">'+ca.k+'</i>'+(p.statut==='dep'||p.statut==='cible'?'<i style="--cc:'+st.c+'">'+(p.statut==='dep'?'départ':'cible')+'</i>':'')+'</span>'
+        +'<span class="vv-jauge"><i style="width:'+(n*10)+'%;background:'+vvCouleurNiv(n)+'"></i></span><em>'+n+'</em></div>';
+    }).join('')
+    +(L.length>4?'<div class="vv-plus">+ '+(L.length-4)+' autre'+(L.length>5?'s':'')+'</div>':'')
+    +'<button class="vv-aj" onclick="vvChoisir(\''+c.cle+'\',\''+vvEsc(c.l)+'\')">'+(L.length?'Gérer ce poste':'+ Placer un joueur')+'</button>'
+  +'</div>';
+}
+
+// ---------- La photographie : atouts, faiblesses, dépendances ----------
+function vvAnalyse(){
+  var C=vvCases(), V=vvData(), A=[], F=[], D=[], lignes={};
+  C.forEach(function(c){
+    var so=vvSolidite(c.cle), L=vvListe(c.cle);
+    var li=vvLigne(c.pos); (lignes[li]=lignes[li]||[]).push(so.score);
+    if(so.niv==='solide') A.push({c:c, so:so});
+    if(so.niv==='fragile'||so.niv==='vide') F.push({c:c, so:so, L:L});
+    if(L.length && (so.t-so.d)>=3) D.push({c:c, so:so, p:V.joueurs[L[0].id], s:L[1]?V.joueurs[L[1].id]:null});
+  });
+  var ids={}; C.forEach(function(c){ vvListe(c.cle).slice(0,2).forEach(function(pl){ ids[pl.id]=1; }); });
+  var deux=Object.keys(ids).map(function(id){ return V.joueurs[id]; }).filter(Boolean);
+  var maison=deux.filter(function(p){ return p.cat!=='EXT'; }).length;
+  var ages=deux.map(vvAge).filter(Boolean);
+  return {A:A, F:F, D:D, lignes:lignes, deux:deux.length, maison:maison, ageMoy:ages.length?Math.round(ages.reduce(function(s,x){ return s+x; },0)/ages.length*10)/10:null};
+}
+function vvBilanHtml(){
+  var R=vvAnalyse(), LL={att:'Attaque',mil:'Milieu',def:'Défense',gb:'Gardien'};
+  var moy=function(L){ return L&&L.length?Math.round(L.reduce(function(s,x){ return s+x; },0)/L.length*10)/10:0; };
+  return '<div class="vv-bilan">'
+    +'<div class="vv-bl"><h4>Par ligne</h4>'+['att','mil','def','gb'].map(function(k){ var m=moy(R.lignes[k]);
+      return '<div class="vv-lg"><span>'+LL[k]+'</span><span class="vv-jauge g"><i style="width:'+(m*10)+'%;background:'+vvCouleurNiv(m)+'"></i></span><b>'+String(m).replace('.',',')+'</b></div>'; }).join('')
+      +'<div class="vv-chif"><span><b>'+R.deux+'</b> joueurs dans les 2 premiers choix</span><span><b>'+(R.deux?Math.round(R.maison*100/R.deux):0)+' %</b> formés ou présents au club</span>'+(R.ageMoy?'<span><b>'+String(R.ageMoy).replace('.',',')+' ans</b> d’âge moyen</span>':'')+'</div></div>'
+    +'<div class="vv-bl ok"><h4>💪 Atouts</h4>'+(R.A.length?R.A.map(function(x){ return '<div>'+vvEsc(x.c.l)+' <i>'+String(x.so.score).replace('.',',')+' · '+x.so.n+' joueurs</i></div>'; }).join(''):'<div class="vv-r">Aucun poste solide (titulaire et doublure forts) pour l’instant.</div>')+'</div>'
+    +'<div class="vv-bl ko"><h4>⚠️ Faiblesses</h4>'+(R.F.length?R.F.map(function(x){ return '<div>'+vvEsc(x.c.l)+' <i>'+(x.so.n?'niveau '+String(x.so.score).replace('.',',')+(x.so.n<2?' · pas de doublure':''):'personne')+'</i></div>'; }).join(''):'<div class="vv-r">Aucun poste fragile.</div>')+'</div>'
+    +'<div class="vv-bl dep"><h4>🔗 Dépendances</h4>'+(R.D.length?R.D.map(function(x){ return '<div><b>'+vvEsc(vvNom(x.p))+'</b> ('+vvEsc(x.c.l)+') : s’il manque, on passe de '+x.so.t+' à '+(x.so.d||0)+(x.s?' avec '+vvEsc(vvNom(x.s)):'')+'</div>'; }).join(''):'<div class="vv-r">Aucun écart de plus de 3 points entre un titulaire et sa doublure.</div>')+'</div>'
+  +'</div>';
+}
+
+// ---------- Placer et ordonner les joueurs d'un poste ----------
+var VV_Q='';
+function vvChoisir(cle, lib){
+  VV.sel={cle:cle, l:lib}; VV_Q='';
+  var s=document.getElementById('vv-sheet'); if(s) s.remove();
+  s=document.createElement('div'); s.id='vv-sheet'; s.className='md-sheet';
+  s.onclick=function(e){ if(e.target===s){ s.remove(); vvRendre(); } };
+  document.body.appendChild(s); vvChoixRendre();
+}
+function vvChoixRendre(){
+  var s=document.getElementById('vv-sheet'); if(!s) return;
+  var V=vvData(), cle=VV.sel.cle, L=V.postes[cle]||[];
+  var q=(VV_Q||'').toLowerCase();
+  var dispo=Object.keys(V.joueurs).map(function(id){ return V.joueurs[id]; })
+    .filter(function(p){ return !L.some(function(pl){ return pl.id===p.id; }) && (!q || p.nom.toLowerCase().indexOf(q)>=0); })
+    .sort(function(a,b){ return a.nom.localeCompare(b.nom); }).slice(0,30);
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>'+vvEsc(VV.sel.l)+'</b><span style="font-size:14px;color:var(--gris2)">'+L.length+' joueur'+(L.length>1?'s':'')+'</span></div>'
+    +'<div class="st-aide" style="padding:0">L’ordre compte : 1 = titulaire, 2 = doublure… La jauge est le niveau <b>à ce poste</b>.</div>'
+    +'<div class="vv-ord">'+L.map(function(pl,k){ var p=V.joueurs[pl.id]; if(!p) return '';
+      return '<div class="vv-or"><span class="vv-rg">'+(k+1)+'</span><b>'+vvEsc(vvNom(p))+' <i style="--cc:'+vvCat(p.cat).c+'">'+p.cat+'</i></b>'
+        +'<span class="vv-niv"><button onclick="vvNiv(\''+cle+'\','+k+',-1)">−</button><em style="background:'+vvCouleurNiv(+pl.niv)+'">'+pl.niv+'</em><button onclick="vvNiv(\''+cle+'\','+k+',1)">+</button></span>'
+        +'<span class="vv-act"><button onclick="vvBouge(\''+cle+'\','+k+',-1)"'+(k?'':' disabled')+'>↑</button><button onclick="vvRetirer(\''+cle+'\','+k+')">✕</button></span></div>'; }).join('')
+      +(L.length?'':'<div class="st-aide" style="padding:6px 0">Personne à ce poste.</div>')+'</div>'
+    +'<input class="fi" placeholder="🔎 Chercher dans le vivier…" value="'+vvEsc(VV_Q)+'" oninput="VV_Q=this.value;vvChoixRendre();var i=document.querySelector(\'#vv-sheet input\');i.focus();i.setSelectionRange(i.value.length,i.value.length)">'
+    +'<div class="vv-dispo">'+dispo.map(function(p){ return '<button onclick="vvPlacer(\''+cle+'\',\''+p.id+'\')"><b>'+vvEsc(vvNom(p))+'</b><i style="--cc:'+vvCat(p.cat).c+'">'+p.cat+'</i></button>'; }).join('')
+      +'<button class="vv-new" onclick="document.getElementById(\'vv-sheet\').remove();vvNouveau(\''+cle+'\')">+ Nouveau joueur</button></div>'
+    +'<button class="btn" onclick="document.getElementById(\'vv-sheet\').remove();vvRendre()">Fini</button></div>';
+}
+function vvPlacer(cle, id){
+  var V=vvData(); if(!V.postes[cle]) V.postes[cle]=[];
+  var p=V.joueurs[id];
+  V.postes[cle].push({id:id, niv:p&&p.nivDefaut?p.nivDefaut:5});
+  stSauver(); vvChoixRendre();
+}
+function vvNiv(cle,k,d){ var pl=vvData().postes[cle][k]; pl.niv=Math.max(1,Math.min(10,(+pl.niv||5)+d)); stSauver(); vvChoixRendre(); }
+function vvBouge(cle,k,d){ var L=vvData().postes[cle], x=L[k]; L.splice(k,1); L.splice(k+d,0,x); stSauver(); vvChoixRendre(); }
+function vvRetirer(cle,k){ vvData().postes[cle].splice(k,1); stSauver(); vvChoixRendre(); }
+
+// ---------- La fiche d'un joueur du vivier ----------
+function vvNouveau(cle){
+  var id=vvId(); vvData().joueurs[id]={id:id, nom:'', cat:'U18', statut:'suivi', potentiel:6, pied:'D', annee:'', obs:[], invit:[]};
+  vvFiche(id, cle, true);
+}
+function vvFiche(id, cle, neuf){
+  var p=vvData().joueurs[id]; if(!p) return;
+  var s=document.getElementById('vv-fiche'); if(s) s.remove();
+  s=document.createElement('div'); s.id='vv-fiche'; s.className='md-sheet';
+  s.onclick=function(e){ if(e.target===s) vvFermerFiche(id); };
+  document.body.appendChild(s);
+  VV.fiche={id:id, cle:cle||null, neuf:!!neuf};
+  vvFicheRendre();
+}
+function vvFicheRendre(){
+  var s=document.getElementById('vv-fiche'); if(!s) return;
+  var id=VV.fiche.id, p=vvData().joueurs[id], V=vvData(), C=vvCases();
+  var ou=C.map(function(c){ var L=V.postes[c.cle]||[], k=-1; L.forEach(function(pl,i){ if(pl.id===id) k=i; }); return k<0?null:{c:c, k:k, niv:L[k].niv}; }).filter(Boolean);
+  var age=vvAge(p);
+  var sel=function(ch, L){ return '<select class="fi" onchange="vvData().joueurs[\''+id+'\'].'+ch+'=this.value;stSauver();vvFicheRendre()">'+L.map(function(o){ return '<option value="'+o.k+'"'+(p[ch]===o.k?' selected':'')+'>'+o.l+'</option>'; }).join('')+'</select>'; };
+  s.innerHTML='<div class="md-sc2 vv-fi">'
+    +'<div class="md-sh"><b>'+(p.nom?vvEsc(p.nom):'Nouveau joueur')+'</b><span style="font-size:14px;color:var(--gris2)">'+(age?age+' ans':'')+'</span></div>'
+    +'<input class="fi" placeholder="Prénom NOM" value="'+vvEsc(p.nom)+'" onchange="vvData().joueurs[\''+id+'\'].nom=this.value.trim();stSauver();vvFicheRendre()">'
+    +'<div class="vv-g2"><label>Catégorie'+sel('cat', VV_CATS)+'</label><label>Statut'+sel('statut', VV_STATUTS)+'</label>'
+      +'<label>Année de naissance<input class="fi" inputmode="numeric" placeholder="2007" value="'+vvEsc(p.annee||'')+'" onchange="vvData().joueurs[\''+id+'\'].annee=this.value.trim();stSauver();vvFicheRendre()"></label>'
+      +'<label>Pied fort'+sel('pied', [{k:'D',l:'Droit'},{k:'G',l:'Gauche'},{k:'2',l:'Les deux'}])+'</label></div>'
+    +'<div class="vv-pot"><span>Potentiel</span>'+[1,2,3,4,5,6,7,8,9,10].map(function(v){ return '<button class="'+(+p.potentiel>=v?'on':'')+'" style="--pc:'+vvCouleurNiv(v)+'" onclick="vvData().joueurs[\''+id+'\'].potentiel='+v+';stSauver();vvFicheRendre()">'+v+'</button>'; }).join('')+'</div>'
+    +'<div class="vv-st">Ses postes</div>'
+    +(ou.length?ou.map(function(o){ return '<div class="vv-po"><span>'+vvEsc(o.c.l)+'</span><i>'+(o.k+1)+'<sup>'+(o.k?'e':'er')+'</sup> choix</i><em style="background:'+vvCouleurNiv(+o.niv)+'">'+o.niv+'/10</em></div>'; }).join(''):'<div class="st-aide" style="padding:0">Pas encore placé.</div>')
+    +(VV.fiche.cle?'':'<div class="vv-placer"><select class="fi" id="vv-pl">'+C.map(function(c){ return '<option value="'+c.cle+'">'+vvEsc(c.l)+'</option>'; }).join('')+'</select><button class="jf-b2" onclick="vvPlacer(document.getElementById(\'vv-pl\').value,\''+id+'\');vvFicheRendre()">Placer</button></div>')
+    +'<div class="vv-st">Observations</div>'
+    +(p.obs||[]).slice().reverse().map(function(o){ return '<div class="vv-ob"><b>'+vvEsc(o.t)+'</b><i>'+vvEsc(o.a||'')+' · '+vvEsc(o.d||'')+'</i></div>'; }).join('')
+    +'<div class="md-ligne"><textarea id="vv-obs" class="fi" rows="2" placeholder="Ce que tu as vu (match, entraînement, attitude)…"></textarea><button class="md-dic" onclick="vvObs(\''+id+'\')">✓</button></div>'
+    +'<div class="vv-st">Passages avec les seniors</div>'
+    +'<div class="vv-inv">'+((p.invit||[]).map(function(d){ return '<span>'+vvEsc(d)+'</span>'; }).join('')||'<i>Jamais invité</i>')
+      +'<button class="jf-b2" onclick="vvInviter(\''+id+'\')">+ Invité à l’entraînement</button></div>'
+    +'<div style="display:flex;gap:8px;margin-top:4px"><button class="jf-b2" style="color:var(--red)" onclick="vvSupprimer(\''+id+'\')">Retirer du vivier</button>'
+      +'<button class="btn" style="flex:1;margin:0" onclick="vvFermerFiche(\''+id+'\')">Enregistrer</button></div>'
+  +'</div>';
+}
+function vvFermerFiche(id){
+  var p=vvData().joueurs[id];
+  var s=document.getElementById('vv-fiche'); if(s) s.remove();
+  if(p && !p.nom){ delete vvData().joueurs[id]; vvRendre(); return; }
+  if(VV.fiche && VV.fiche.cle && VV.fiche.neuf) vvPlacer(VV.fiche.cle, id);
+  stSauver(); vvRendre();
+  if(VV.fiche && VV.fiche.cle && VV.fiche.neuf){ vvChoisir(VV.fiche.cle, (vvCases().filter(function(c){ return c.cle===VV.fiche.cle; })[0]||{}).l||''); }
+}
+function vvObs(id){
+  var t=(document.getElementById('vv-obs').value||'').trim(); if(!t) return;
+  var p=vvData().joueurs[id]; if(!p.obs) p.obs=[];
+  p.obs.push({t:t, a:(typeof mdMoi==='function'?mdMoi():'')||'Staff', d:new Date().toLocaleDateString('fr-FR')});
+  stSauver(); vvFicheRendre();
+}
+function vvInviter(id){
+  var p=vvData().joueurs[id]; if(!p.invit) p.invit=[];
+  p.invit.push(new Date().toLocaleDateString('fr-FR')); stSauver(); vvFicheRendre();
+  notif('✓ Passage noté — pense à l’ajouter à la séance');
+}
+function vvSupprimer(id){
+  if(!confirm('Retirer ce joueur du vivier (et de tous ses postes) ?')) return;
+  var V=vvData(); delete V.joueurs[id];
+  Object.keys(V.postes).forEach(function(k){ V.postes[k]=V.postes[k].filter(function(pl){ return pl.id!==id; }); });
+  var s=document.getElementById('vv-fiche'); if(s) s.remove(); stSauver(); vvRendre();
+}
+function vvImporter(){
+  var V=vvData(), n=0;
+  JOUEURS.forEach(function(j){
+    if(Object.keys(V.joueurs).some(function(id){ return V.joueurs[id].num===j.num; })) return;
+    var id=vvId()+n; V.joueurs[id]={id:id, num:j.num, nom:j.nom, cat:'A', statut:'rot', potentiel:6, pied:'D', annee:'', obs:[], invit:[]}; n++;
+  });
+  stSauver(); notif('✓ '+n+' joueurs ajoutés — place-les poste par poste'); vvRendre();
+}
+// La liste de tout le vivier, par catégorie
+function vvJoueurs(){
+  var V=vvData(), C=vvCases();
+  var s=document.createElement('div'); s.id='vv-sheet'; s.className='md-sheet';
+  s.onclick=function(e){ if(e.target===s) s.remove(); };
+  var place=function(id){ return C.filter(function(c){ return (V.postes[c.cle]||[]).some(function(pl){ return pl.id===id; }); }).map(function(c){ return c.pos; }).join(', '); };
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>Tout le vivier</b><span style="font-size:14px;color:var(--gris2)">'+Object.keys(V.joueurs).length+'</span></div>'
+    +VV_CATS.map(function(ca){
+      var L=Object.keys(V.joueurs).map(function(id){ return V.joueurs[id]; }).filter(function(p){ return p.cat===ca.k; }).sort(function(a,b){ return a.nom.localeCompare(b.nom); });
+      if(!L.length) return '';
+      return '<div class="vv-st" style="color:'+ca.c+'">'+ca.l+' · '+L.length+'</div>'+L.map(function(p){ var pl=place(p.id);
+        return '<div class="vv-lj" onclick="document.getElementById(\'vv-sheet\').remove();vvFiche(\''+p.id+'\')"><b>'+vvEsc(p.nom)+'</b><i style="color:'+vvStatut(p.statut).c+'">'+vvStatut(p.statut).l+'</i><span>'+(pl||'<em>non placé</em>')+'</span></div>'; }).join('');
+    }).join('')
+    +(JOUEURS.some(function(j){ return !Object.keys(V.joueurs).some(function(id){ return V.joueurs[id].num===j.num; }); })?'<button class="jf-b2" onclick="document.getElementById(\'vv-sheet\').remove();vvImporter()">Ajouter les seniors manquants</button>':'')
+    +'</div>';
+  document.body.appendChild(s);
+}
+// Une page propre à imprimer ou à montrer en réunion technique
+function vvPhoto(){
+  var o=stCouche('vvp'), V=vvData();
+  o.innerHTML='<div class="st-h"><button class="st-x" onclick="stFermer(\'vvp\')" aria-label="Fermer">‹</button>'
+      +'<div class="st-t"><b>Photographie de l’effectif</b><span>'+vvEsc(V.systeme)+' · '+(VV.horizon==='auj'?'aujourd’hui':'saison prochaine')+' · '+new Date().toLocaleDateString('fr-FR')+'</span></div>'
+      +'<button class="st-o" onclick="window.print()">🖨 Imprimer</button></div>'
+    +'<div class="vvp" id="vv-photo"></div>';
+  var tmp=document.getElementById('vv-ct'); var html='';
+  var C=vvCases();
+  html+='<div class="vv-terrain photo">'+VV_LIGNES.map(function(li){
+    var cs=C.filter(function(c){ return li.p.indexOf(c.pos)>=0; }).sort(function(a,b){ return a.x-b.x; });
+    if(!cs.length) return '';
+    return '<div class="vv-ligne"><div class="vv-ll">'+li.l+'</div><div class="vv-cases n'+cs.length+'">'+cs.map(function(c){
+      return vvCaseHtml(c).replace(/<button class="vv-aj"[^>]*>[^<]*<\/button>/,''); }).join('')+'</div></div>';
+  }).join('')+'</div>'+vvBilanHtml();
+  document.getElementById('vv-photo').innerHTML=html;
+}
+
+// ---------- L'écran dans l'appli ----------
+window.addEventListener('load', function(){
+  var ref=document.getElementById('scr-compos');
+  if(ref && !document.getElementById('scr-vivier')){
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-vivier';
+    d.innerHTML='<div class="ph"><div><div class="ph-title">🌱 Le vivier</div><div class="ph-sub">L’effectif poste par poste : seniors, réserve, jeunes, recrues — atouts, faiblesses, dépendances</div></div></div><div id="vv-ct"></div>';
+    ref.parentNode.insertBefore(d, ref.nextSibling);
+  }
+  try{ ECRANS_INFO['vivier']={ic:'groupe', l:'Le vivier'}; }catch(e){}
+  EXT.apres('goNav', function(s){ if(s==='vivier') vvRendre(); }, 'vivier');
+});
+
+// ===== Programmes physiques individuels (v154) =====
+//
+//   Le coach dans la poche du joueur : reprise après blessure, retour de
+//   longue absence, entretien quand il ne peut pas venir, prépa d'été,
+//   renfo de prévention. Le coach choisit un modèle, l'appli construit les
+//   séances semaine par semaine (course guidée aux bips, renfo, mobilité,
+//   autres sports), le joueur les fait dans SON appli et dit sa douleur.
+//   Une douleur qui monte met le programme en pause et prévient le staff.
+//
+//   Les modèles sont des trames de travail : le coach (et le kiné) les
+//   valident et les ajustent. Ils ne remplacent pas un avis médical.
+//
+//   Base : programmes/{num} (écrit par le staff, lu par le joueur),
+//          programmes_suivi (chaque séance faite, signée par le joueur).
+
+// ---------- La bibliothèque d'exercices ----------
+var PG_EX={
+  velo:      function(min,i){ return {type:'cardio', ic:'🚴', t:'Vélo '+min+' min', c:'Intensité '+(i||'facile')+' : tu peux parler sans être essoufflé.', duree:min}; },
+  natation:  function(min){ return {type:'cardio', ic:'🏊', t:'Natation '+min+' min', c:'Crawl ou brasse, rythme régulier. Pas de brasse si douleur au genou ou à l’adducteur.', duree:min}; },
+  elliptique:function(min){ return {type:'cardio', ic:'🏃‍♂️', t:'Elliptique ou rameur '+min+' min', c:'Rythme régulier, sans à-coups.', duree:min}; },
+  marche:    function(min){ return {type:'cardio', ic:'🚶', t:'Marche rapide '+min+' min', c:'Bon rythme, bras actifs.', duree:min}; },
+  footing:   function(min,pct){ return {type:'course', ic:'🏃', t:'Footing '+min+' min', c:'Allure facile'+(pct?' ('+pct+' % de ta VMA)':'')+' : tu dois pouvoir parler.', duree:min, pct:pct||65}; },
+  interm:    function(eff,rec,reps,pct,lib){ return {type:'interv', ic:'⏱', t:(lib||('Course '+eff+' s / récup '+rec+' s'))+' × '+reps, c:'Le téléphone donne le départ et l’arrêt avec des bips'+(pct?' — allure '+pct+' % de ta VMA':'')+'.', eff:eff, rec:rec, reps:reps, pct:pct}; },
+  lignes:    function(n,dist,pct){ return {type:'renfo', ic:'➡️', t:n+' lignes droites de '+dist+' m', c:'Accélération progressive jusqu’à '+pct+' % de ta vitesse max, retour en marchant.', series:n}; },
+  sprints:   function(n,dist){ return {type:'renfo', ic:'⚡', t:n+' sprints de '+dist+' m', c:'Départ arrêté, vitesse max, 1 min de récup entre chaque.', series:n}; },
+  appuis:    function(){ return {type:'renfo', ic:'↔️', t:'Changements de direction', c:'5-10-5 (aller 5 m, retour 10 m, revenir 5 m) × 6, puis slalom entre 6 plots × 4. Progressif.', series:6}; },
+  ballon:    function(min){ return {type:'foot', ic:'⚽', t:'Travail ballon '+min+' min', c:'Conduites de balle, passes contre un mur, contrôles orientés, puis frappes progressives (d’abord à 50 %).', duree:min}; },
+  gainage:   function(){ return {type:'renfo', ic:'🧱', t:'Gainage', c:'Planche 3 × 30 s, planche latérale 3 × 20 s de chaque côté, 30 s de repos.', series:3}; },
+  pont:      function(){ return {type:'renfo', ic:'🌉', t:'Pont fessier', c:'3 × 12, montée lente, 2 s en haut. Puis sur une jambe si aucune douleur.', series:3}; },
+  iso:       function(){ return {type:'renfo', ic:'🤲', t:'Isométrie du muscle touché', c:'Contraction douce et tenue sans bouger, 5 × 20 s. Aucune douleur : si ça tire, on réduit.', series:5}; },
+  excent:    function(){ return {type:'renfo', ic:'⬇️', t:'Renfo excentrique doux', c:'Freiner lentement le mouvement (ischios : Nordic aidé ; mollet : descente sur une marche ; quadri : squat lent) 3 × 8.', series:3}; },
+  nordic:    function(){ return {type:'renfo', ic:'🦵', t:'Nordic ischios', c:'À genoux, chevilles tenues, descendre le plus lentement possible. 3 × 6.', series:3}; },
+  copenhague:function(){ return {type:'renfo', ic:'🔒', t:'Copenhague (adducteurs)', c:'Gainage latéral, jambe du dessus sur un banc. 3 × 20 s de chaque côté.', series:3}; },
+  squat:     function(){ return {type:'renfo', ic:'🏋️', t:'Squats et fentes', c:'Squat 3 × 12, fentes avant 3 × 10 par jambe, au poids du corps.', series:3}; },
+  mollets:   function(){ return {type:'renfo', ic:'🦶', t:'Mollets', c:'Montées sur pointes 3 × 15, puis sur une jambe 3 × 10.', series:3}; },
+  proprio:   function(){ return {type:'renfo', ic:'🦩', t:'Proprioception', c:'Sur une jambe : 3 × 30 s yeux ouverts, puis yeux fermés, puis sur coussin ou serviette pliée.', series:3}; },
+  sauts:     function(){ return {type:'renfo', ic:'🦘', t:'Sauts progressifs', c:'Sauts pieds joints sur place 3 × 10, puis latéraux, puis sur une jambe. Réception souple, genou dans l’axe.', series:3}; },
+  mobilite:  function(min){ return {type:'mobilite', ic:'🧘', t:'Mobilité '+(min||10)+' min', c:'Hanches (cercles, fentes basses), chevilles, dos (chat-vache), ischios en douceur.', duree:min||10}; },
+  circuit:   function(tours){ return {type:'renfo', ic:'🔁', t:'Circuit poids du corps × '+tours, c:'Enchaîner 40 s / 20 s : squats, pompes, fentes, gainage, montées de genoux, burpees. 1 min entre les tours.', series:tours}; }
+};
+// Une séance « autre sport » de remplacement
+function pgAlt(pref, min){ return pref==='natation'?PG_EX.natation(min):(pref==='elliptique'?PG_EX.elliptique(min):PG_EX.velo(min,'modérée')); }
+
+// ---------- Les modèles : des semaines de séances ----------
+var PG_MODELES=[
+  {k:'musc', l:'Reprise après blessure musculaire', d:'Ischios, quadriceps, mollet, adducteur. 4 semaines : protection, course, accélérations, retour foot.', sem:4,
+    seances:function(o){ return [
+      [ {p:'Protéger et activer', b:[PG_EX.velo(20), PG_EX.iso(), PG_EX.pont(), PG_EX.gainage(), PG_EX.mobilite(10)]},
+        {p:'Protéger et activer', b:[pgAlt(o.alt,25), PG_EX.iso(), PG_EX.gainage(), PG_EX.mobilite(10)]},
+        {p:'Protéger et activer', b:[PG_EX.marche(20), PG_EX.pont(), PG_EX.proprio(), PG_EX.mobilite(10)]} ],
+      [ {p:'Recourir', b:[PG_EX.interm(60,60,8,60,'Course 1 min / marche 1 min'), PG_EX.excent(), PG_EX.gainage()]},
+        {p:'Recourir', b:[pgAlt(o.alt,30), PG_EX.excent(), PG_EX.pont()]},
+        {p:'Recourir', b:[PG_EX.interm(120,60,6,65,'Course 2 min / marche 1 min'), PG_EX.excent(), PG_EX.mobilite(10)]} ],
+      [ {p:'Accélérer', b:[PG_EX.footing(20,65), PG_EX.lignes(6,60,70), PG_EX.nordic(), PG_EX.squat()]},
+        {p:'Accélérer', b:[PG_EX.footing(25,65), PG_EX.lignes(6,60,80), PG_EX.proprio(), PG_EX.gainage()]},
+        {p:'Accélérer', b:[PG_EX.interm(30,30,10,85), PG_EX.lignes(6,60,90), PG_EX.nordic()]} ],
+      [ {p:'Retour foot', b:[PG_EX.interm(15,15,12,95), PG_EX.appuis(), PG_EX.ballon(15)]},
+        {p:'Retour foot', b:[PG_EX.sprints(6,20), PG_EX.appuis(), PG_EX.ballon(20), PG_EX.nordic()]},
+        {p:'Retour foot', b:[PG_EX.interm(15,15,16,100), PG_EX.sprints(8,30), PG_EX.ballon(20)]} ]
+    ]; }},
+  {k:'artic', l:'Reprise cheville ou genou (entorse)', d:'4 semaines centrées sur l’équilibre, les appuis et les sauts, avant le retour du ballon.', sem:4,
+    seances:function(o){ return [
+      [ {p:'Équilibre', b:[pgAlt(o.alt,20), PG_EX.proprio(), PG_EX.mollets(), PG_EX.gainage()]},
+        {p:'Équilibre', b:[PG_EX.velo(25), PG_EX.proprio(), PG_EX.pont(), PG_EX.mobilite(10)]},
+        {p:'Équilibre', b:[pgAlt(o.alt,25), PG_EX.proprio(), PG_EX.mollets()]} ],
+      [ {p:'Course en ligne', b:[PG_EX.interm(60,60,8,60,'Course 1 min / marche 1 min'), PG_EX.proprio(), PG_EX.squat()]},
+        {p:'Course en ligne', b:[PG_EX.footing(20,65), PG_EX.proprio(), PG_EX.mollets()]},
+        {p:'Course en ligne', b:[PG_EX.footing(25,65), PG_EX.lignes(5,60,70), PG_EX.gainage()]} ],
+      [ {p:'Appuis et sauts', b:[PG_EX.footing(20,65), PG_EX.sauts(), PG_EX.proprio()]},
+        {p:'Appuis et sauts', b:[PG_EX.interm(30,30,10,85), PG_EX.appuis(), PG_EX.squat()]},
+        {p:'Appuis et sauts', b:[PG_EX.lignes(6,60,85), PG_EX.sauts(), PG_EX.appuis()]} ],
+      [ {p:'Retour foot', b:[PG_EX.interm(15,15,12,95), PG_EX.appuis(), PG_EX.ballon(20)]},
+        {p:'Retour foot', b:[PG_EX.sprints(6,20), PG_EX.sauts(), PG_EX.ballon(20)]},
+        {p:'Retour foot', b:[PG_EX.interm(15,15,16,100), PG_EX.appuis(), PG_EX.ballon(20)]} ]
+    ]; }},
+  {k:'absence', l:'Retour de longue absence ou de trêve', d:'3 semaines pour retrouver le foncier, puis l’intensité.', sem:3,
+    seances:function(o){ return [
+      [ {p:'Foncier', b:[PG_EX.footing(25,65), PG_EX.gainage(), PG_EX.mobilite(10)]}, {p:'Foncier', b:[pgAlt(o.alt,40), PG_EX.squat()]}, {p:'Foncier', b:[PG_EX.footing(30,70), PG_EX.circuit(2)]} ],
+      [ {p:'Rythme', b:[PG_EX.footing(30,70), PG_EX.lignes(6,60,80)]}, {p:'Rythme', b:[PG_EX.interm(30,30,12,90), PG_EX.circuit(2)]}, {p:'Rythme', b:[PG_EX.footing(35,70), PG_EX.nordic(), PG_EX.gainage()]} ],
+      [ {p:'Intensité', b:[PG_EX.interm(15,15,16,100), PG_EX.sprints(6,20)]}, {p:'Intensité', b:[PG_EX.interm(30,30,12,95), PG_EX.appuis(), PG_EX.circuit(3)]}, {p:'Intensité', b:[PG_EX.interm(15,15,20,100), PG_EX.ballon(20)]} ]
+    ]; }},
+  {k:'entretien', l:'Entretien hors terrain', d:'Quand il ne peut pas venir (travail, études, déplacement) : garder la forme, 2 semaines renouvelables.', sem:2,
+    seances:function(o){ return [
+      [ {p:'Entretien', b:[PG_EX.footing(35,70), PG_EX.gainage()]}, {p:'Entretien', b:[PG_EX.interm(15,15,16,100), PG_EX.circuit(2)]}, {p:'Entretien', b:[pgAlt(o.alt,45), PG_EX.nordic(), PG_EX.copenhague()]} ],
+      [ {p:'Entretien', b:[PG_EX.interm(30,30,12,95), PG_EX.squat()]}, {p:'Entretien', b:[PG_EX.footing(40,70), PG_EX.lignes(6,60,85)]}, {p:'Entretien', b:[PG_EX.interm(15,15,20,100), PG_EX.circuit(3)]} ]
+    ]; }},
+  {k:'ete', l:'Prépa physique d’été', d:'5 semaines avant la reprise : foncier, puis puissance aérobie, puis vitesse.', sem:5,
+    seances:function(o){ var F=function(m){ return {p:'Foncier', b:[PG_EX.footing(m,70), PG_EX.gainage(), PG_EX.mobilite(10)]}; };
+      return [
+      [ F(30), {p:'Foncier', b:[pgAlt(o.alt,45), PG_EX.squat()]}, F(35) ],
+      [ F(40), {p:'Foncier', b:[PG_EX.footing(30,70), PG_EX.lignes(6,60,80), PG_EX.nordic()]}, {p:'Foncier', b:[pgAlt(o.alt,50), PG_EX.circuit(2)]} ],
+      [ {p:'Puissance', b:[PG_EX.interm(30,30,12,95), PG_EX.nordic()]}, F(40), {p:'Puissance', b:[PG_EX.interm(15,15,16,100), PG_EX.circuit(3)]} ],
+      [ {p:'Puissance', b:[PG_EX.interm(30,30,16,95), PG_EX.copenhague()]}, {p:'Puissance', b:[PG_EX.interm(45,15,10,90,'Gacon 45-15'), PG_EX.squat()]}, {p:'Puissance', b:[PG_EX.interm(15,15,20,105), PG_EX.lignes(8,60,90)]} ],
+      [ {p:'Vitesse', b:[PG_EX.sprints(8,20), PG_EX.appuis(), PG_EX.nordic()]}, {p:'Vitesse', b:[PG_EX.interm(10,20,16,110), PG_EX.sauts()]}, {p:'Vitesse', b:[PG_EX.interm(15,15,16,100), PG_EX.sprints(6,30), PG_EX.ballon(20)]} ]
+    ]; }},
+  {k:'prev', l:'Renfo de prévention', d:'En plus des entraînements, 20 minutes : ischios, adducteurs, chevilles. Inspiré du FIFA 11+. 4 semaines renouvelables.', sem:4, parSem:2,
+    seances:function(o){ var S={p:'Prévention', b:[PG_EX.nordic(), PG_EX.copenhague(), PG_EX.proprio(), PG_EX.gainage(), PG_EX.mollets()]};
+      return [[S,S],[S,S],[S,S],[S,S]]; }}
+];
+function pgModele(k){ return PG_MODELES.filter(function(m){ return m.k===k; })[0]; }
+
+// L'allure de course de chaque joueur, à partir de son dernier test de VMA
+function pgAllure(num, pct){
+  var v=(typeof tpVMA==='function')?tpVMA(num):null; if(!v || !pct) return '';
+  var kmh=v.v*pct/100, sec=Math.round(3600/kmh), mn=Math.floor(sec/60), s=sec%60;
+  return String(Math.round(kmh*10)/10).replace('.',',')+' km/h, soit '+mn+'′'+(s<10?'0':'')+s+' au km';
+}
+// On construit les séances, datées, à partir du modèle
+function pgConstruire(num, k, debut, parSem, alt){
+  var M=pgModele(k), sem=M.seances({alt:alt}), L=[], d0=new Date(debut);
+  var jours=parSem===2?[0,3]:(parSem===4?[0,2,4,5]:[0,2,4]);
+  sem.forEach(function(S, w){
+    var n=M.parSem||parSem;
+    for(var i=0;i<n;i++){
+      var src=S[i%S.length];
+      var dt=new Date(d0.getTime()+((w*7)+(jours[i]||i*2))*86400000);
+      L.push({i:L.length, sem:w+1, p:src.p, date:dt.toISOString().slice(0,10), blocs:src.b.map(function(b){
+        var c=Object.assign({}, b);
+        if((c.type==='course'||c.type==='interv') && c.pct){ var a=pgAllure(num, c.pct); if(a) c.allure=a; }
+        return c;
+      })});
+    }
+  });
+  return L;
+}
+
+// ---------- L'écran du staff ----------
+var PG={vue:'liste', liste:null, suivi:null, nouveau:null};
+async function pgCharger(){
+  var P=[], S=[];
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/programmes?pageSize=200'); if(r.ok){ var d=await r.json(); (d.documents||[]).forEach(function(x){ try{ P.push(JSON.parse(x.fields.data.stringValue)); }catch(e){} }); } }catch(e){}
+  try{ var r2=await fbFetch(FIRESTORE_BASE+'/programmes_suivi?pageSize=300'); if(r2.ok){ var d2=await r2.json(); (d2.documents||[]).forEach(function(x){ var f=x.fields||{};
+    try{ S.push(Object.assign(JSON.parse((f.data||{}).stringValue||'{}'), {num:parseInt((f.joueurNum||{}).integerValue,10)})); }catch(e){} }); } }catch(e){}
+  PG.liste=P; PG.suivi=S;
+  return P;
+}
+async function pgEcrire(P){
+  P.maj=new Date().toISOString();
+  var r=await fbFetch(FIRESTORE_BASE+'/programmes/'+P.num,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(P)}}})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+}
+function pgSuiviDe(P){ return (PG.suivi||[]).filter(function(s){ return s.num===P.num && s.prog===P.id; }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); }); }
+function pgNomNum(num){ var j=JOUEURS.filter(function(x){ return x.num===num; })[0]; return j?j.nom:'n°'+num; }
+function pgRendre(){
+  var ct=document.getElementById('pg-ct'); if(!ct) return;
+  if(PG.liste===null){ ct.innerHTML='<div class="st-aide">Chargement…</div>'; pgCharger().then(pgRendre); return; }
+  if(PG.vue==='nouveau') return pgRendreNouveau(ct);
+  var auj=new Date().toISOString().slice(0,10);
+  var actifs=PG.liste.filter(function(P){ return P.statut!=='fini'; });
+  ct.innerHTML='<div class="vv-barre"><span class="st-aide" style="padding:0;flex:1">Le joueur fait ses séances dans son appli et donne sa douleur. Une douleur qui monte met le programme en pause et te prévient.</span>'
+      +'<button class="btn" style="width:auto;margin:0" onclick="PG.vue=\'nouveau\';PG.nouveau={num:null,k:\'musc\',debut:new Date().toISOString().slice(0,10),parSem:3,alt:\'velo\'};pgRendre()">+ Nouveau programme</button></div>'
+    +(actifs.length?'<div class="pg-grille">'+actifs.map(function(P){
+        var S=pgSuiviDe(P), faits=S.filter(function(s){ return s.fait; }).length;
+        var prevues=P.seances.filter(function(s){ return s.date<=auj; }).length, total=P.seances.length;
+        var der=S[S.length-1], alerte=P.statut==='pause'||(der&&der.alerte&&!(P.reprise&&P.reprise>der.date));
+        var M=pgModele(P.k)||{l:P.k};
+        return '<div class="pg-c'+(alerte?' alerte':'')+'"><div class="pg-ch"><b>'+vvEsc(pgNomNum(P.num))+'</b><span>'+vvEsc(M.l)+'</span></div>'
+          +(alerte?'<div class="pg-al">⛔ '+(P.statut==='pause'?'En pause':'Douleur '+der.douleur+'/10 le '+new Date(der.date).toLocaleDateString('fr-FR')+' — programme arrêté côté joueur')+'</div>':'')
+          +'<div class="pg-prog"><span><b>'+faits+'</b> / '+prevues+' séances à ce jour · '+total+' au total</span><span class="vv-jauge g"><i style="width:'+Math.round(faits*100/Math.max(1,total))+'%;background:'+(faits>=prevues?'#16a34a':(faits>=prevues-1?'#d97706':'#dc2626'))+'"></i></span></div>'
+          +'<div class="pg-dl">'+S.slice(-8).map(function(s){ return '<i title="'+vvEsc(s.date)+'" style="background:'+(s.douleur>=5?'#dc2626':(s.douleur>=3?'#d97706':'#16a34a'))+'">'+s.douleur+'</i>'; }).join('')+(S.length?'<em>douleur des dernières séances</em>':'<em>aucune séance faite pour l’instant</em>')+'</div>'
+          +'<div class="pg-act">'+(alerte?'<button class="btn" style="width:auto;margin:0" onclick="pgReprendre('+P.num+')">Reprendre le programme</button>':'<button class="jf-b2" onclick="pgPause('+P.num+')">Mettre en pause</button>')
+            +'<button class="jf-b2" onclick="pgDetail('+P.num+')">Détail</button><button class="jf-b2" onclick="pgFinir('+P.num+')">Terminer</button></div></div>';
+      }).join('')+'</div>'
+      :'<div class="vv-vide"><b>Aucun programme en cours.</b><span>Un joueur blessé en reprise, un autre qui part un mois pour le travail, la trêve qui arrive : donne-lui son programme, il le suit dans son appli.</span></div>');
+}
+function pgRendreNouveau(ct){
+  var N=PG.nouveau, M=pgModele(N.k);
+  var blesses=(typeof BLESSURES!=='undefined'?BLESSURES:[]).filter(function(b){ return b.statut!=='disponible'; }).map(function(b){ return JOUEURS[b.joueurIdx]; }).filter(Boolean);
+  var apercu=N.num?pgConstruire(N.num, N.k, N.debut, N.parSem, N.alt):null;
+  ct.innerHTML='<div class="pg-nv">'
+    +'<div class="pg-et"><b>1 · Le joueur</b>'+(blesses.length?'<div class="pg-ch2">En reprise : '+blesses.map(function(j){ return '<button class="'+(N.num===j.num?'on':'')+'" onclick="PG.nouveau.num='+j.num+';pgRendre()">'+vvEsc(jfNomCourt?jfNomCourt(j.nom):j.nom)+'</button>'; }).join('')+'</div>':'')
+      +'<select class="fi" onchange="PG.nouveau.num=+this.value||null;pgRendre()"><option value="">— Choisir —</option>'+JOUEURS.map(function(j){ return '<option value="'+j.num+'"'+(N.num===j.num?' selected':'')+'>'+j.num+'. '+vvEsc(j.nom)+'</option>'; }).join('')+'</select></div>'
+    +'<div class="pg-et"><b>2 · Le programme</b><div class="pg-mods">'+PG_MODELES.map(function(m){ return '<button class="'+(N.k===m.k?'on':'')+'" onclick="PG.nouveau.k=\''+m.k+'\';pgRendre()"><b>'+m.l+'</b><i>'+m.d+'</i></button>'; }).join('')+'</div></div>'
+    +'<div class="pg-et pg-reg"><b>3 · Réglages</b>'
+      +'<label>Début<input class="fi" type="date" value="'+N.debut+'" onchange="PG.nouveau.debut=this.value;pgRendre()"></label>'
+      +(M.parSem?'':'<label>Séances par semaine<div class="eq-nb">'+[2,3,4].map(function(v){ return '<button class="'+(N.parSem===v?'on':'')+'" onclick="PG.nouveau.parSem='+v+';pgRendre()">'+v+'</button>'; }).join('')+'</div></label>')
+      +'<label>Autre sport pour remplacer la course<div class="eq-nb">'+[['velo','🚴 Vélo'],['natation','🏊 Natation'],['elliptique','Elliptique / rameur']].map(function(v){ return '<button class="'+(N.alt===v[0]?'on':'')+'" onclick="PG.nouveau.alt=\''+v[0]+'\';pgRendre()">'+v[1]+'</button>'; }).join('')+'</div></label></div>'
+    +(apercu?'<div class="pg-et"><b>4 · Les '+apercu.length+' séances</b>'+(pgAllure(N.num,70)?'<div class="st-aide" style="padding:0">Allures calculées sur sa VMA : footing à 70 % = '+pgAllure(N.num,70)+'.</div>':'<div class="st-aide" style="padding:0">Pas de test de VMA pour lui : les allures resteront « au ressenti ».</div>')
+      +'<div class="pg-ap">'+apercu.map(function(s){ return '<div class="pg-s"><span>S'+s.sem+' · '+new Date(s.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+'</span><b>'+vvEsc(s.p)+'</b><i>'+s.blocs.map(function(b){ return b.ic+' '+vvEsc(b.t); }).join(' · ')+'</i></div>'; }).join('')+'</div></div>':'')
+    +'<div class="pg-pied"><button class="jf-b2" onclick="PG.vue=\'liste\';pgRendre()">Annuler</button><button class="btn" style="width:auto;margin:0"'+(N.num?'':' disabled')+' onclick="pgEnvoyer()">Envoyer au joueur</button></div>'
+    +'<div class="st-aide" style="padding:6px 0 0">Ces programmes sont des trames : ajuste-les avec le kiné si besoin. Ils ne remplacent pas un avis médical.</div>'
+  +'</div>';
+}
+async function pgEnvoyer(){
+  var N=PG.nouveau; if(!N.num) return;
+  var P={id:Date.now().toString(36), num:N.num, k:N.k, debut:N.debut, parSem:N.parSem, alt:N.alt, statut:'actif', seances:pgConstruire(N.num, N.k, N.debut, N.parSem, N.alt), cree:new Date().toISOString()};
+  try{ await pgEcrire(P); notif('✓ Programme envoyé à '+pgNomNum(N.num)+' — il le voit dans son appli'); PG.liste=PG.liste.filter(function(x){ return x.num!==P.num; }).concat([P]); PG.vue='liste'; pgRendre(); }
+  catch(e){ notif('⚠ Envoi impossible ('+e.message+')'); }
+}
+function pgTrouver(num){ return (PG.liste||[]).filter(function(P){ return P.num===num; })[0]; }
+async function pgPause(num){ var P=pgTrouver(num); P.statut='pause'; try{ await pgEcrire(P); }catch(e){} pgRendre(); }
+async function pgReprendre(num){ var P=pgTrouver(num); P.statut='actif'; P.reprise=new Date().toISOString(); try{ await pgEcrire(P); notif('✓ Programme repris'); }catch(e){} pgRendre(); }
+async function pgFinir(num){ if(!confirm('Terminer ce programme ?')) return; var P=pgTrouver(num); P.statut='fini'; try{ await pgEcrire(P); }catch(e){} pgRendre(); }
+function pgDetail(num){
+  var P=pgTrouver(num), S=pgSuiviDe(P);
+  var s=document.createElement('div'); s.className='md-sheet'; s.id='pg-sheet'; s.onclick=function(e){ if(e.target===s) s.remove(); };
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>'+vvEsc(pgNomNum(num))+'</b><span style="font-size:14px;color:var(--gris2)">'+vvEsc((pgModele(P.k)||{}).l||'')+'</span></div>'
+    +P.seances.map(function(se){ var f=S.filter(function(x){ return x.seance===se.i && x.fait; })[0];
+      return '<div class="pg-s'+(f?' fait':'')+'"><span>'+(f?'✓':'·')+' S'+se.sem+' · '+new Date(se.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+'</span><b>'+vvEsc(se.p)+'</b>'
+        +(f?'<i>Douleur '+f.douleur+'/10 · difficulté '+f.rpe+'/10'+(f.mot?' · « '+vvEsc(f.mot)+' »':'')+'</i>':'<i>'+se.blocs.map(function(b){ return b.ic+' '+vvEsc(b.t); }).join(' · ')+'</i>')+'</div>'; }).join('')
+    +'</div>';
+  document.body.appendChild(s);
+}
+window.addEventListener('load', function(){
+  var ref=document.getElementById('scr-compos');
+  if(ref && !document.getElementById('scr-programmes')){
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-programmes';
+    d.innerHTML='<div class="ph"><div><div class="ph-title">🏃 Programmes individuels</div><div class="ph-sub">Reprise, retour d’absence, entretien, prépa d’été, prévention — suivis dans l’appli du joueur</div></div></div><div id="pg-ct"></div>';
+    ref.parentNode.insertBefore(d, ref.nextSibling);
+  }
+  try{ ECRANS_INFO['programmes']={ic:'coureur', l:'Programmes individuels'}; }catch(e){}
+  EXT.apres('goNav', function(s){ if(s==='programmes'){ PG.liste=null; PG.vue='liste'; pgRendre(); } }, 'programmes individuels');
+});
+
+// ===== Le thermomètre du groupe, côté staff (v154) =====
+//   La moyenne du groupe, semaine après semaine, thème par thème. Jamais une
+//   réponse individuelle : en dessous de 4 réponses, on n'affiche rien (sinon
+//   on devinerait qui a répondu quoi).
+var TH_QC=[
+  {th:'Le groupe', q:[['ambiance','Ambiance'],['solidarite','Solidarité'],['integre','Intégré, écouté']]},
+  {th:'Moi',       q:[['role','Sait ce qu’on attend de lui'],['tps','Satisfait du temps de jeu'],['plaisir','Plaisir à l’entraînement'],['confiance','Confiance en soi']]},
+  {th:'Le jeu',    q:[['plan','Comprend le plan de jeu'],['progres','Progresse en séance'],['charge','Charge physique (3 = juste)']]},
+  {th:'Le staff',  q:[['considere','Se sent considéré'],['clair','Communication claire']]}
+];
+var TH_MIN=4, THC={rep:null, part:null};
+async function thcCharger(){
+  var R=[], P=[];
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/thermometre?pageSize=300'); var d=r.ok?await r.json():{};
+    (d.documents||[]).forEach(function(x){ try{ var o=JSON.parse(x.fields.data.stringValue); o.sem=x.fields.semaine.stringValue; R.push(o); }catch(e){} }); }catch(e){}
+  try{ var r2=await fbFetch(FIRESTORE_BASE+'/thermo_participation?pageSize=300'); var d2=r2.ok?await r2.json():{};
+    (d2.documents||[]).forEach(function(x){ P.push(x.fields.semaine.stringValue); }); }catch(e){}
+  THC.rep=R; THC.part=P;
+}
+function thcStats(){
+  var S={};
+  THC.rep.forEach(function(o){ var s=S[o.sem]||(S[o.sem]={sem:o.sem, n:0, som:{}, mots:[]}); s.n++;
+    Object.keys(o.r||{}).forEach(function(k){ s.som[k]=(s.som[k]||0)+o.r[k]; }); if(o.mot) s.mots.push(o.mot); });
+  return Object.keys(S).sort().map(function(k){ var s=S[k]; s.moy={}; Object.keys(s.som).forEach(function(q){ s.moy[q]=Math.round(s.som[q]/s.n*10)/10; }); return s; });
+}
+function thcCoul(v, q){ if(q==='charge'){ var e=Math.abs(v-3); return e<=0.5?'#16a34a':(e<=1?'#d97706':'#dc2626'); } return v>=4?'#16a34a':(v>=3.2?'#65a30d':(v>=2.6?'#d97706':'#dc2626')); }
+function thcRendre(){
+  var ct=document.getElementById('thc-ct'); if(!ct) return;
+  if(THC.rep===null){ ct.innerHTML='<div class="st-aide">Chargement…</div>'; thcCharger().then(thcRendre); return; }
+  var L=thcStats().filter(function(s){ return s.n>=TH_MIN; }), cur=L[L.length-1], prev=L[L.length-2];
+  var enAttente=thcStats().filter(function(s){ return s.n<TH_MIN; }).slice(-1)[0];
+  var effectif=(JOUEURS||[]).length;
+  if(!cur){ ct.innerHTML='<div class="vv-vide"><b>Pas encore assez de réponses.</b><span>Les joueurs répondent dans leur appli (Mes matchs), en même temps que les notes du match. Les résultats s’affichent à partir de '+TH_MIN+' réponses dans la semaine, pour que personne ne puisse être reconnu.'+(enAttente?' Cette semaine : '+enAttente.n+' réponse'+(enAttente.n>1?'s':'')+'.':'')+'</span></div>'; return; }
+  var part=THC.part.filter(function(s){ return s===cur.sem; }).length;
+  // Les alertes : un thème bas, ou qui chute
+  var A=[];
+  TH_QC.forEach(function(T){ T.q.forEach(function(q){ var v=cur.moy[q[0]]; if(v==null) return;
+    var p=prev?prev.moy[q[0]]:null;
+    if(q[0]==='charge'){ if(Math.abs(v-3)>1) A.push('Charge physique jugée '+(v>3?'trop lourde':'trop légère')+' ('+String(v).replace('.',',')+')'); return; }
+    if(v<3) A.push(q[1]+' : '+String(v).replace('.',',')+'/5');
+    else if(p!=null && p-v>=0.5) A.push(q[1]+' en baisse : '+String(p).replace('.',',')+' → '+String(v).replace('.',','));
+  }); });
+  var sem=function(s){ return s.sem.replace(/^\d+-S/,'S'); };
+  ct.innerHTML='<div class="thc-tete"><div><b>Semaine '+sem(cur)+'</b><span>'+cur.n+' réponses'+(part?' · '+Math.round(part*100/Math.max(1,effectif))+' % de l’effectif':'')+'</span></div>'
+      +(A.length?'<div class="thc-al"><b>⚠ À regarder</b>'+A.map(function(x){ return '<span>'+vvEsc(x)+'</span>'; }).join('')+'</div>':'<div class="thc-ok">✓ Rien d’alarmant cette semaine</div>')+'</div>'
+    +'<div class="thc-grille">'+TH_QC.map(function(T){
+      return '<div class="thc-t"><h4>'+T.th+'</h4>'+T.q.map(function(q){
+        var v=cur.moy[q[0]], p=prev?prev.moy[q[0]]:null, d=(v!=null&&p!=null)?Math.round((v-p)*10)/10:null;
+        var hist=L.slice(-8).map(function(s){ var x=s.moy[q[0]]||0; return '<i style="height:'+(x*20)+'%;background:'+thcCoul(x,q[0])+'"></i>'; }).join('');
+        return '<div class="thc-q"><span>'+q[1]+'</span><span class="thc-h">'+hist+'</span><b style="color:'+thcCoul(v,q[0])+'">'+(v!=null?String(v).replace('.',','):'–')+'</b>'
+          +'<em class="'+(d>0?'up':(d<0?'down':''))+'">'+(d==null||q[0]==='charge'?'':(d>0?'▲':(d<0?'▼':'='))+(d?Math.abs(d).toString().replace('.',','):''))+'</em></div>';
+      }).join('')+'</div>';
+    }).join('')+'</div>'
+    +(cur.mots.length?'<div class="thc-mots"><h4>💬 Les mots des joueurs (anonymes)</h4>'+cur.mots.map(function(m){ return '<div>« '+vvEsc(m)+' »</div>'; }).join('')+'</div>':'');
+}
+window.addEventListener('load', function(){
+  var ref=document.getElementById('scr-compos');
+  if(ref && !document.getElementById('scr-thermo')){
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-thermo';
+    d.innerHTML='<div class="ph"><div><div class="ph-title">🌡 Le thermomètre du groupe</div><div class="ph-sub">Ce que le vestiaire ressent, chaque semaine — anonyme, en moyenne</div></div></div><div id="thc-ct"></div>';
+    ref.parentNode.insertBefore(d, ref.nextSibling);
+  }
+  try{ ECRANS_INFO['thermo']={ic:'thermo', l:'Thermomètre du groupe'}; }catch(e){}
+  EXT.apres('goNav', function(s){ if(s==='thermo'){ THC.rep=null; thcRendre(); } }, 'thermomètre');
+});
+
 </script>
 <script>
 // ===== Sécurité de la base, côté coach (v142) =====
@@ -8266,7 +9014,7 @@ window.addEventListener('load', function(){
 //   la base (ouverte ou fermée), et les règles prêtes à coller dans Firebase,
 //   déjà remplies avec les adresses du staff.
 
-var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /match_live/{id}          { allow read, write: if estCoach(); }\n    match /match_direct/{id}        { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
+var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /match_live/{id}          { allow read, write: if estCoach(); }\n    match /match_direct/{id}        { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Programmes physiques : le staff les écrit, chaque joueur lit le sien et envoie son suivi\n    match /programmes/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach();\n    }\n    match /programmes_suivi/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // ---- Le thermomètre : réponses anonymes (aucun nom), lues par le staff seulement\n    match /thermometre/{id} {\n      allow create: if membre() && !('auteurNum' in request.resource.data) && !('joueurNum' in request.resource.data);\n      allow read, update, delete: if estCoach();\n    }\n    match /thermo_participation/{id} {\n      allow get: if estCoach() || (estJoueur() && resource == null);\n      allow list, delete: if estCoach();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.joueurNum == monNum());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
 var SEC_COMPTES=null, SEC_ETAT=null, SEC_MDP={};
 
 function secEmails(){
@@ -8829,8 +9577,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v153</b> · 15/10/2026<br>
-      <span style="opacity:.7">Tournoi, rôles du staff</span>
+      AST COACH <b style="color:var(--or)">v154</b> · 15/10/2026<br>
+      <span style="opacity:.7">Vivier · programmes · thermomètre</span>
     </div>
   </div>
 </div>

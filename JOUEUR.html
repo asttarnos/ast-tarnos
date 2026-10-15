@@ -976,6 +976,66 @@ function initLogin(){ return EXT.appel('initLogin', initLogin__base, this, argum
 .jx-eff-l .v.note{color:var(--or)}
 .jx-leg{font-size:12px;color:var(--mute);margin-top:10px;line-height:1.5}
 .jx-pts-tout{display:block;width:100%;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:none;color:var(--or);font-weight:800;font-size:14px;cursor:pointer}
+/* ===== Mon programme ===== */
+.jp-blk .blk-h span:last-child{font:700 13px var(--etiq);color:var(--mute)}
+.jp-blk.stop{border-color:var(--red)}
+.jp-blk .blk-body{padding:12px 15px 14px;display:flex;flex-direction:column;gap:10px}
+.jp-prog{height:8px;border-radius:4px;background:var(--voile3);overflow:hidden}
+.jp-prog i{display:block;height:100%;background:var(--green)}
+.jp-se b{display:block;font:400 19px var(--titre);color:var(--ink);margin-bottom:4px}
+.jp-se span{font:500 13.5px var(--etiq);color:var(--mute);line-height:1.45}
+#jp-run{position:fixed;inset:0;z-index:9000;background:var(--bg);display:none;flex-direction:column}
+#jp-run.on{display:flex}
+.jp-h{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border-bottom:1px solid var(--hair)}
+.jp-h button{border:none;background:none;color:var(--mute);font-size:30px;line-height:1;cursor:pointer}
+.jp-h b{display:block;font:400 22px var(--titre);color:var(--ink)}
+.jp-h span{font:600 13px var(--etiq);color:var(--mute)}
+.jp-corps{flex:1;overflow-y:auto;padding:12px 14px 30px;display:flex;flex-direction:column;gap:10px}
+.jp-b{background:var(--surface);border:1px solid var(--hair);border-left:4px solid var(--or);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.jp-b.fait{border-left-color:var(--green);opacity:.85}
+.jp-bt{display:flex;align-items:center;gap:9px}
+.jp-bt span{font-size:24px}
+.jp-bt b{font:800 16px var(--etiq);color:var(--ink)}
+.jp-bc{font:500 14px var(--texte);color:var(--mute);line-height:1.45}
+.jp-bc em{font-style:normal;color:var(--gold);font-weight:700}
+.jp-ser{display:flex;gap:6px}
+.jp-ser button{flex:1;padding:10px 0;border-radius:9px;border:1px solid var(--hair);background:var(--voile);color:var(--ink);font:800 15px var(--etiq);cursor:pointer}
+.jp-ser button.on{background:var(--green);border-color:var(--green)}
+.jp-ok{padding:10px;border-radius:9px;border:1px solid var(--hair);background:var(--voile);color:var(--ink);font:800 14px var(--etiq);cursor:pointer}
+.jp-ok.on{background:var(--green);border-color:var(--green)}
+.jp-fin{background:var(--surface2);border:1px solid var(--hair);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.jp-fin b{font:400 19px var(--titre);color:var(--ink)}
+.jp-fin label{display:flex;flex-direction:column;gap:4px;font:700 13.5px var(--etiq);color:var(--mute)}
+.jp-fin label i{font-style:normal;color:var(--ink);font-weight:800}
+.jp-fin input[type=range]{width:100%;accent-color:var(--or)}
+.jp-fin textarea,.th-blk textarea{width:100%;box-sizing:border-box;background:var(--voile);border:1px solid var(--hair);border-radius:9px;color:var(--ink);padding:9px;font:500 14px var(--texte)}
+#jp-chr{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#1b1f27;color:#fff}
+#jp-chr.eff{background:#b45309}#jp-chr.rec{background:#166534}#jp-chr.prep{background:#1b1f27}
+.jp-cl{font:400 40px var(--titre);letter-spacing:.06em}
+.jp-ct{font:400 clamp(120px,40vw,240px) var(--titre);line-height:.9;font-variant-numeric:tabular-nums}
+.jp-cr{font:800 22px var(--etiq);opacity:.9}
+.jp-ca{font:700 15px var(--etiq);opacity:.85}
+#jp-chr button{margin-top:20px;border:2px solid rgba(255,255,255,.6);background:none;color:#fff;border-radius:12px;padding:10px 26px;font:800 16px var(--etiq);cursor:pointer}
+/* ===== Thermomètre ===== */
+.th-blk .blk-h span:last-child{font:700 12.5px var(--etiq);color:var(--mute)}
+.th-blk .blk-body{padding:12px 15px 14px;display:flex;flex-direction:column;gap:8px}
+.th-int{font:500 13.5px var(--texte);color:var(--mute);line-height:1.45}
+.th-int b{color:var(--ink)}
+.th-th{margin-top:6px;font:800 11.5px var(--etiq);text-transform:uppercase;letter-spacing:.08em;color:var(--or)}
+.th-q{display:flex;flex-direction:column;gap:5px;padding:6px 0;border-bottom:1px solid var(--hair)}
+.th-q>span{font:700 14.5px var(--etiq);color:var(--ink)}
+.th-ech{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.th-ech button{padding:8px 0;border-radius:9px;border:1px solid var(--hair);background:var(--voile);font-size:19px;color:var(--ink);cursor:pointer;font-family:var(--etiq);font-weight:800}
+.th-ech button.on{background:var(--or);border-color:var(--or);transform:scale(1.06)}
+.th-bip{display:flex;justify-content:space-between;font:600 11.5px var(--etiq);color:var(--mute)}
+.th-bip i{font-style:normal}
+.th-merci{font:600 14px var(--texte);color:var(--green)}
+.th-rap{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border-left:4px solid var(--or)}
+.th-rap>span{font-size:26px}
+.th-rap div{flex:1;display:flex;flex-direction:column}
+.th-rap b{font:800 15px var(--etiq);color:var(--ink)}
+.th-rap i{font:500 12.5px var(--etiq);font-style:normal;color:var(--mute)}
+.th-rap em{font-style:normal;font-size:22px;color:var(--mute)}
 </style>
 <script>
 // ===== RAPPORT ADVERSAIRE — le meme dessin chez le coach et chez le joueur (v128) =====
@@ -1532,6 +1592,8 @@ function jxRenderHub(){
   var html=jvHtml()
     +noDemandeHtml()
     +jxAFaire()
+    +(typeof pjHubHtml==='function'?pjHubHtml():'')
+    +(typeof thHubRappel==='function'?thHubRappel():'')
     +'<div class="jx-groupe">'
       +jxPliable('jx-forme','thermo','Ma forme',f.t,f.c,formeIn,false)
       +jxPliable('jx-charge','coureur','Ressenti de séance',c.t,c.c,chargeIn,false)
@@ -1541,7 +1603,7 @@ function jxRenderHub(){
     +auChiffres()
     +auActu();
   html+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v52</b> · 15/10/2026<br><span style="opacity:.8">Connexion toujours possible</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v53</b> · 15/10/2026<br><span style="opacity:.8">Mon programme · thermomètre</span></div>';
   ct.innerHTML=html;
   try{ auPhotoPoser(); }catch(e){}
   jvBrancher();
@@ -1847,7 +1909,7 @@ async function jsInitLogin(){
       return {fait:true, val:jsMesDocs(c.coll, JS_A_MOI[c.coll])};
     }
     // Écriture : sa signature
-    if((m==='POST'||m==='PATCH') && opts && opts.body && MON_NUM!=null && c.coll!=='comptes'){
+    if((m==='POST'||m==='PATCH') && opts && opts.body && MON_NUM!=null && c.coll!=='comptes' && c.coll!=='thermometre'){
       try{
         var b=JSON.parse(opts.body);
         if(b && b.fields){
@@ -1866,6 +1928,204 @@ async function jsInitLogin(){
     location.reload(); return {fait:true};
   }, 'sécurité');
 })();
+
+// ===== Appli joueur : mon programme physique, et le thermomètre du groupe (v53) =====
+
+function jpEsc(t){ return (typeof esc==='function')?esc(t):String(t==null?'':t); }
+function jpAujourdhui(){ return new Date().toISOString().slice(0,10); }
+function jpBip(f, d){
+  try{ var c=jpBip.ctx||(jpBip.ctx=new (window.AudioContext||window.webkitAudioContext)());
+    var o=c.createOscillator(), g=c.createGain(); o.frequency.value=f||880; o.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(.35,c.currentTime); g.gain.exponentialRampToValueAtTime(.001,c.currentTime+(d||150)/1000); o.start(); o.stop(c.currentTime+(d||150)/1000); }catch(e){}
+}
+function jpDire(t){ try{ if(!window.speechSynthesis) return; speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang='fr-FR'; speechSynthesis.speak(u); }catch(e){} }
+
+// =====================================================================
+// 🏃 MON PROGRAMME
+// =====================================================================
+var JP={prog:null, suivi:[], charge:false, run:null};
+async function jpCharger(){
+  if(typeof MON_NUM==='undefined' || MON_NUM==null) return;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/programmes/'+MON_NUM);
+    JP.prog=r.ok?JSON.parse(((await r.json()).fields||{}).data.stringValue):null;
+  }catch(e){ JP.prog=null; }
+  try{
+    var r2=await fbFetch(FIRESTORE_BASE+'/programmes_suivi?pageSize=300');
+    var d=r2.ok?await r2.json():{};
+    JP.suivi=(d.documents||[]).map(function(x){ try{ return JSON.parse(x.fields.data.stringValue); }catch(e){ return null; } }).filter(Boolean);
+  }catch(e){ JP.suivi=[]; }
+  JP.charge=true;
+}
+function jpSuiviProg(){ var P=JP.prog; return P?JP.suivi.filter(function(s){ return s.prog===P.id; }):[]; }
+function jpBloque(){
+  var P=JP.prog; if(!P) return false;
+  if(P.statut==='pause') return true;
+  var S=jpSuiviProg().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); }), der=S[S.length-1];
+  return !!(der && der.alerte && !(P.reprise && P.reprise>der.date));
+}
+// La prochaine séance à faire (la première non faite)
+function jpProchaine(){
+  var P=JP.prog; if(!P || P.statut==='fini') return null;
+  var faits={}; jpSuiviProg().forEach(function(s){ if(s.fait) faits[s.seance]=1; });
+  return P.seances.filter(function(s){ return !faits[s.i]; })[0]||null;
+}
+function pjHubHtml(){
+  var P=JP.prog; if(!P || P.statut==='fini') return '';
+  var se=jpProchaine(), faits=jpSuiviProg().filter(function(s){ return s.fait; }).length, tot=P.seances.length;
+  if(jpBloque()) return '<div class="blk jp-blk stop"><div class="blk-h"><span class="t">⛔ Mon programme est en pause</span></div><div class="blk-body">Tu as signalé une douleur. Le staff est prévenu : n’enchaîne pas avant d’avoir eu son feu vert.</div></div>';
+  if(!se) return '<div class="blk jp-blk"><div class="blk-h"><span class="t">🏁 Programme terminé</span></div><div class="blk-body">'+tot+' séances faites. Bravo — le staff décide de la suite.</div></div>';
+  var auj=jpAujourdhui(), retard=se.date<auj, cejour=se.date===auj;
+  return '<div class="blk jp-blk"><div class="blk-h"><span class="t">🏃 Mon programme</span><span>'+faits+' / '+tot+'</span></div>'
+    +'<div class="blk-body"><div class="jp-prog"><i style="width:'+Math.round(faits*100/tot)+'%"></i></div>'
+    +'<div class="jp-se"><b>'+(cejour?'Aujourd’hui':(retard?'À rattraper':new Date(se.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'})))+' · '+jpEsc(se.p)+'</b>'
+    +'<span>'+se.blocs.map(function(b){ return b.ic+' '+jpEsc(b.t); }).join('<br>')+'</span></div>'
+    +'<button class="btn-or" onclick="jpOuvrir('+se.i+')">▶ Commencer la séance</button></div></div>';
+}
+// ---------- La séance guidée ----------
+function jpOuvrir(i){
+  var se=JP.prog.seances.filter(function(s){ return s.i===i; })[0]; if(!se) return;
+  JP.run={se:se, k:0, fait:{}, chrono:null};
+  var o=document.getElementById('jp-run'); if(!o){ o=document.createElement('div'); o.id='jp-run'; document.body.appendChild(o); }
+  o.className='on'; jpRendreRun();
+  try{ navigator.wakeLock && navigator.wakeLock.request('screen').then(function(v){ JP.verrou=v; }).catch(function(){}); }catch(e){}
+}
+function jpFermer(){
+  var o=document.getElementById('jp-run'); if(o) o.className='';
+  if(JP.run && JP.run.chrono) clearInterval(JP.run.chrono.t);
+  try{ JP.verrou && JP.verrou.release(); }catch(e){}
+  JP.run=null; try{ renderHub(); }catch(e){}
+}
+function jpRendreRun(){
+  var o=document.getElementById('jp-run'), R=JP.run, se=R.se;
+  var tous=se.blocs.every(function(b,k){ return R.fait[k]; });
+  o.innerHTML='<div class="jp-h"><button onclick="jpFermer()">‹</button><div><b>'+jpEsc(se.p)+'</b><span>Semaine '+se.sem+'</span></div></div>'
+    +'<div class="jp-corps">'+se.blocs.map(function(b,k){
+      var fait=R.fait[k];
+      var act='';
+      if(b.type==='interv') act='<button class="btn-or" onclick="jpInterv('+k+')">'+(fait?'✓ Fait — refaire':'▶ Lancer avec les bips')+'</button>';
+      else if(b.series) act='<div class="jp-ser">'+Array.from({length:b.series}).map(function(_,q){ var ok=(R.fait['s'+k]||0)>q; return '<button class="'+(ok?'on':'')+'" onclick="jpSerie('+k+','+(q+1)+')">'+(q+1)+'</button>'; }).join('')+'</div>';
+      else act='<button class="jp-ok'+(fait?' on':'')+'" onclick="JP.run.fait['+k+']=!JP.run.fait['+k+'];jpRendreRun()">'+(fait?'✓ Fait':'Marquer comme fait')+'</button>';
+      return '<div class="jp-b'+(fait?' fait':'')+'"><div class="jp-bt"><span>'+b.ic+'</span><b>'+jpEsc(b.t)+'</b></div><div class="jp-bc">'+jpEsc(b.c)+(b.allure?'<br><em>Ton allure : '+jpEsc(b.allure)+'</em>':'')+'</div>'+act+'</div>';
+    }).join('')
+    +'<div class="jp-fin"><b>Comment ça s’est passé ?</b>'
+      +'<label>Douleur pendant ou après <i id="jp-dv">0</i>/10<input type="range" min="0" max="10" value="0" id="jp-d" oninput="document.getElementById(\'jp-dv\').textContent=this.value"></label>'
+      +'<label>Difficulté de la séance <i id="jp-rv">5</i>/10<input type="range" min="1" max="10" value="5" id="jp-r" oninput="document.getElementById(\'jp-rv\').textContent=this.value"></label>'
+      +'<textarea id="jp-m" rows="2" placeholder="Un mot pour le staff (facultatif)"></textarea>'
+      +'<button class="btn-or"'+(tous?'':' style="opacity:.6"')+' onclick="jpTerminer()">'+(tous?'✓ Séance terminée':'Terminer quand même')+'</button></div>'
+    +'</div>';
+}
+function jpSerie(k, n){ var R=JP.run; R.fait['s'+k]=(R.fait['s'+k]===n)?n-1:n; R.fait[k]=R.fait['s'+k]>=R.se.blocs[k].series; jpRendreRun(); }
+// La course guidée : effort / récup aux bips, à la voix
+function jpInterv(k){
+  var b=JP.run.se.blocs[k];
+  var C={k:k, rep:1, phase:'eff', fin:Date.now()+3000, prep:true};
+  JP.run.chrono=C;
+  var o=document.createElement('div'); o.id='jp-chr'; o.className='on';
+  document.body.appendChild(o);
+  jpDire('Prêt ? Départ dans trois secondes.');
+  C.t=setInterval(function(){
+    var r=Math.max(0,Math.ceil((C.fin-Date.now())/1000));
+    if(r<=3 && r>0 && C.dit!==r && !C.prep){ C.dit=r; jpBip(660,80); }
+    if(r<=0){
+      if(C.prep){ C.prep=false; C.phase='eff'; C.fin=Date.now()+b.eff*1000; jpBip(1000,350); }
+      else if(C.phase==='eff'){
+        if(C.rep>=b.reps){ clearInterval(C.t); jpBip(880,200); setTimeout(function(){ jpBip(880,200); },250); jpDire('Terminé. Bravo.'); JP.run.fait[k]=true; setTimeout(function(){ var x=document.getElementById('jp-chr'); if(x) x.remove(); jpRendreRun(); }, 1500); return; }
+        C.phase='rec'; C.fin=Date.now()+b.rec*1000; jpBip(500,300); jpDire(b.rec>=30?'Récupération':'Stop');
+      }else{ C.phase='eff'; C.rep++; C.fin=Date.now()+b.eff*1000; jpBip(1000,350); }
+    }
+    var el=document.getElementById('jp-chr'); if(!el) return;
+    el.className='on '+(C.prep?'prep':C.phase);
+    el.innerHTML='<div class="jp-cl">'+(C.prep?'Prêt':(C.phase==='eff'?'COURS':'RÉCUP'))+'</div><div class="jp-ct">'+r+'</div>'
+      +'<div class="jp-cr">'+C.rep+' / '+b.reps+'</div>'+(b.allure?'<div class="jp-ca">'+jpEsc(b.allure)+'</div>':'')
+      +'<button onclick="clearInterval(JP.run.chrono.t);this.parentNode.remove()">Arrêter</button>';
+  }, 200);
+}
+async function jpTerminer(){
+  var R=JP.run, d=+document.getElementById('jp-d').value, rpe=+document.getElementById('jp-r').value, m=(document.getElementById('jp-m').value||'').trim();
+  var S=jpSuiviProg().filter(function(s){ return s.fait; }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  var avant=S.length?S[S.length-1].douleur:0;
+  // Une douleur forte, ou qui monte nettement : on s'arrête et on prévient
+  var alerte=d>=5 || (d>=3 && d-avant>=2);
+  var x={prog:JP.prog.id, seance:R.se.i, date:new Date().toISOString(), fait:true, douleur:d, rpe:rpe, mot:m, alerte:alerte};
+  try{
+    await fbFetch(FIRESTORE_BASE+'/programmes_suivi',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{joueurNum:{integerValue:String(MON_NUM)}, data:{stringValue:JSON.stringify(x)}}})});
+    JP.suivi.push(x);
+    notif(alerte?'⛔ Programme en pause : le staff est prévenu de ta douleur':'✓ Séance enregistrée — bien joué');
+  }catch(e){ notif('⚠ Envoi impossible — vérifie ta connexion'); return; }
+  jpFermer();
+}
+
+// =====================================================================
+// 🌡 LE THERMOMÈTRE DU GROUPE (anonyme)
+// =====================================================================
+//   Une fois par semaine, en même temps que les notes du match : 12 questions
+//   en 4 thèmes, un curseur chacune, et un mot libre. Les réponses partent
+//   SANS nom ni numéro : le staff ne voit que la moyenne du groupe.
+var TH_Q=[
+  {th:'Le groupe', q:[['ambiance','L’ambiance dans le groupe'],['solidarite','La solidarité sur le terrain'],['integre','Je me sens intégré et écouté']]},
+  {th:'Moi',       q:[['role','Je sais ce qu’on attend de moi'],['tps','Je suis satisfait de mon temps de jeu'],['plaisir','Mon plaisir à venir à l’entraînement'],['confiance','Ma confiance en moi en ce moment']]},
+  {th:'Le jeu',    q:[['plan','Je comprends notre plan de jeu'],['progres','Les séances me font progresser'],['charge','La charge physique','trop légère','trop lourde']]},
+  {th:'Le staff',  q:[['considere','Je me sens considéré par le staff'],['clair','La communication du staff est claire']]}
+];
+function thSemaine(d){
+  d=d||new Date(); var t=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  var j=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-j);
+  var y0=new Date(Date.UTC(t.getUTCFullYear(),0,1)); return t.getUTCFullYear()+'-S'+String(Math.ceil(((t-y0)/86400000+1)/7)).padStart(2,'0');
+}
+function thFait(){ try{ return localStorage.getItem('ast_thermo_'+thSemaine())==='1'; }catch(e){ return false; } }
+var TH_REP={};
+function thHtml(){
+  if(thFait()) return '<div class="blk th-blk"><div class="blk-h"><span class="t">🌡 Le thermomètre du groupe</span></div><div class="blk-body th-merci">✓ Merci, tu as répondu cette semaine. C’est anonyme : le staff ne voit que la moyenne du groupe.</div></div>';
+  return '<div class="blk th-blk"><div class="blk-h"><span class="t">🌡 Le thermomètre du groupe</span><span>anonyme · 1 min</span></div><div class="blk-body">'
+    +'<div class="th-int">Ta réponse part <b>sans ton nom</b>. Le staff voit seulement la moyenne de tout le groupe. Sois franc : c’est fait pour ça.</div>'
+    +TH_Q.map(function(T){ return '<div class="th-th">'+T.th+'</div>'+T.q.map(function(q){
+      var v=TH_REP[q[0]]||0, bip=q.length>2;
+      return '<div class="th-q"><span>'+q[1]+'</span><div class="th-ech">'+[1,2,3,4,5].map(function(n){
+        var lab=bip?(n===1?'—':(n===3?'juste':(n===5?'+':''))):['😟','🙁','😐','🙂','😃'][n-1];
+        return '<button class="'+(v===n?'on':'')+'" onclick="TH_REP[\''+q[0]+'\']='+n+';thRafraichir()">'+lab+'</button>'; }).join('')+'</div>'
+        +(bip?'<div class="th-bip"><i>'+q[2]+'</i><i>'+q[3]+'</i></div>':'')+'</div>'; }).join(''); }).join('')
+    +'<textarea id="th-mot" rows="2" placeholder="Un mot pour le staff, anonyme (facultatif)"></textarea>'
+    +'<button class="btn-or" onclick="thEnvoyer()">Envoyer anonymement</button></div></div>';
+}
+function thRafraichir(){ document.querySelectorAll('.th-blk').forEach(function(b){ var t=document.createElement('div'); t.innerHTML=thHtml(); b.replaceWith(t.firstChild); }); var m=document.getElementById('th-mot'); }
+async function thEnvoyer(){
+  var n=Object.keys(TH_REP).length, tot=TH_Q.reduce(function(s,T){ return s+T.q.length; },0);
+  if(n<tot){ notif('⚠ Réponds aux '+tot+' questions ('+n+' faites)'); return; }
+  var mot=(document.getElementById('th-mot')||{}).value||'';
+  var sem=thSemaine();
+  try{
+    // 1. La réponse, sans nom ni numéro
+    var r=await fbFetch(FIRESTORE_BASE+'/thermometre',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{semaine:{stringValue:sem}, data:{stringValue:JSON.stringify({r:TH_REP, mot:mot.trim()})}}})});
+    if(!r.ok) throw new Error(r.status);
+    // 2. À part, juste « il a répondu » : pour le taux de participation, sans lien avec la réponse
+    fbFetch(FIRESTORE_BASE+'/thermo_participation/'+sem+'_'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{semaine:{stringValue:sem}, joueurNum:{integerValue:String(MON_NUM)}}})}).catch(function(){});
+    try{ localStorage.setItem('ast_thermo_'+sem,'1'); }catch(e){}
+    TH_REP={}; notif('✓ Merci ! Réponse envoyée anonymement'); thRafraichir();
+  }catch(e){ notif('⚠ Envoi impossible — vérifie ta connexion'); }
+}
+// Le thermomètre se place en tête de « Mes matchs », à côté des notes du match
+function thMesMatchs(){
+  var ct=document.getElementById('scr-mesmatchs'); if(!ct || ct.querySelector('.th-blk')) return;
+  var d=document.createElement('div'); d.innerHTML=thHtml(); ct.insertBefore(d.firstChild, ct.firstChild);
+}
+function thHubRappel(){
+  if(thFait()) return '';
+  return '<div class="blk th-rap" onclick="jAller&&jAller(\'mesmatchs\')"><span>🌡</span><div><b>Le thermomètre du groupe</b><i>1 minute, anonyme — avec les notes du match</i></div><em>›</em></div>';
+}
+
+// ---------- Branchements ----------
+(function(){
+  // la saisie du thermomètre est anonyme : la signature automatique ne s'y applique pas
+  if(typeof JS_A_MOI!=='undefined') JS_A_MOI.programmes_suivi='joueurNum';
+})();
+window.addEventListener('load', function(){
+  EXT.apres('renderMesMatchs', thMesMatchs, 'thermomètre');
+  setTimeout(function(){ jpCharger().then(function(){ try{ if(document.getElementById('scr-hub') && !document.getElementById('scr-hub').classList.contains('hidden')) renderHub(); }catch(e){} }); }, 1500);
+});
 
 </script>
 <style>
