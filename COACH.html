@@ -2811,6 +2811,8 @@ function renderBarreDuJour(){ return EXT.appel('renderBarreDuJour', renderBarreD
 function nrRafraichirVues(){ return EXT.appel('nrRafraichirVues', nrRafraichirVues__base, this, arguments, false); }
 function nrMajPastille(){ return EXT.appel('nrMajPastille', nrMajPastille__base, this, arguments, false); }
 function nrFicheJoueur(){ return EXT.appel('nrFicheJoueur', nrFicheJoueur__base, this, arguments, false); }
+function majEtatSauvegarde(){ return EXT.appel('majEtatSauvegarde', majEtatSauvegarde__base, this, arguments, false); }
+function ouvrirConnexion(){ return EXT.appel('ouvrirConnexion', ouvrirConnexion__base, this, arguments, false); }
 </script>
 <script>try{if(localStorage.getItem('ast-theme')!=='sombre')document.documentElement.classList.add('clair');}catch(e){}</script>
 <script>
@@ -4636,6 +4638,7 @@ function nrFicheJoueur__base(){
       :'<div class="nr-aide" style="padding:12px">Rien de noté sur lui pour l’instant.</div>');
 }
 function nrAlerte(txt){
+  var cx=document.getElementById('scr-connexion'); if(cx && !cx.classList.contains('hidden')) return;   // l'écran de connexion le dit déjà
   var a=document.getElementById('nr-alerte');
   if(!a){ a=document.createElement('div'); a.id='nr-alerte'; a.className='nr-alerte'; document.body.appendChild(a); }
   a.innerHTML='<span>'+nrEsc(txt)+'</span><button onclick="this.parentNode.remove()">OK</button>';
@@ -4692,7 +4695,7 @@ window.addEventListener('load', function(){
 // ---------- 🩺 Vérifier : ce que CET appareil voit, en clair ----------
 // À ouvrir sur le téléphone ET sur l'ordi : si les deux ne disent pas la même
 // chose (version, base, compte, dernières notes), on sait tout de suite où ça coince.
-var NR_VERSION='v144';
+var NR_VERSION='v145';
 async function nrDiagnostic(){
   var m=document.getElementById('nr-diag');
   if(!m){ m=document.createElement('div'); m.id='nr-diag'; m.className='nr-modal on'; document.body.appendChild(m);
@@ -5052,6 +5055,19 @@ body.mb .side-footer{max-height:none}
 body.mb #tab-note{display:none!important}
 body.mb .scr{padding-top:10px!important}
 @media (max-width:760px){ #rotation-grille{grid-template-columns:1fr!important} }
+#scr-connexion .cx-p{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px;text-align:left}
+#scr-connexion .cx-logo{width:72px;height:72px;object-fit:contain;align-self:center}
+#scr-connexion h2{margin:0;text-align:center;font:800 26px 'Oswald','Roboto Condensed',sans-serif;letter-spacing:.5px}
+#scr-connexion .cx-sous{margin:0 0 4px;text-align:center;font-size:14px;opacity:.75}
+#scr-connexion label{display:flex;flex-direction:column;gap:4px;font:700 12px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.6px;opacity:.85}
+#scr-connexion label .fi{font-size:16px;text-transform:none;letter-spacing:0;padding:11px 12px}
+#scr-connexion .cx-go{margin:4px 0 0;font-size:17px;padding:13px}
+#scr-connexion .cx-err{font-size:14px;color:#fff;background:#7f1d1d;border-radius:8px;padding:8px 10px}
+#scr-connexion .cx-err.ok{background:#14532d}
+#scr-connexion .cx-err.hidden{display:none}
+#scr-connexion .cx-liens{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#scr-connexion .cx-liens button,#scr-connexion .cx-hl{background:none;border:none;color:var(--or);font:700 14px 'Roboto Condensed',sans-serif;cursor:pointer;padding:6px 0}
+#scr-connexion .cx-hl{color:var(--gris2,#888);margin-top:6px}
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -5371,7 +5387,7 @@ function renderSemaine(){
   +'</div>';
 
   if(typeof authConnecte==='function' && !authConnecte()){
-    html+='<div class="n3-cx">'+ic('info')+'<span><b>Tu n’es pas connecté.</b> Bientôt, la base n’acceptera plus que les comptes : connecte-toi pour que ton travail parte dans le cloud.</span>'
+    html+='<div class="n3-cx">'+ic('info')+'<span><b>Tu n’es pas connecté : rien ne part dans le cloud et rien n’en arrive</b> (notes du téléphone, réponses des joueurs…). Connecte-toi.</span>'
       +'<button onclick="ouvrirConnexion()">Me connecter</button><button onclick="goNav(\'reglages\')">Sécurité ›</button></div>';
   }
   html+='<div class="n3-cols">'+C.col.map(function(c){
@@ -6224,6 +6240,192 @@ window.addEventListener('load', function(){
   var on=document.querySelector('.scr.on'); if(on && mbActif()){ try{ mbOnglets(); }catch(e){} }
 });
 
+// ===== Connexion du coach (v145) =====
+//
+//   Le bouton « Me connecter » ouvrait un écran qui n'existait pas : il ne se
+//   passait rien. Tant que la base était ouverte, ça ne se voyait pas. Depuis
+//   qu'elle est fermée, un appareil pas connecté n'envoie et ne reçoit plus rien
+//   (d'où la note vocale du téléphone qui n'arrivait pas sur l'ordi).
+//
+//   · L'écran de connexion existe : se connecter, créer son compte la première
+//     fois, mot de passe oublié, continuer hors ligne.
+//   · Il s'ouvre tout seul si la base est fermée et que l'appareil n'est pas connecté.
+//   · À la connexion, rien de ce qui a été fait sur l'appareil pendant la
+//     coupure n'est écrasé : si l'appareil et le cloud diffèrent, on demande.
+
+function cxEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function cxEmailParDefaut(){
+  try{ var e=localStorage.getItem('ast_cx_email'); if(e) return e; }catch(x){}
+  var M=(typeof nav3Membres==='function')?nav3Membres():[];
+  var m=M.filter(function(x){ return x.email; })[0];
+  return m?m.email:'';
+}
+function cxConstruire(){
+  if(document.getElementById('scr-connexion')) return;
+  var d=document.createElement('div'); d.id='scr-connexion'; d.className='hidden';
+  d.innerHTML='<div class="cx-p">'
+    +'<img id="cx-logo" class="cx-logo" alt="">'
+    +'<h2>Espace coach</h2>'
+    +'<p class="cx-sous">Connecte-toi pour envoyer et recevoir : notes, séances, convocations. Le même compte sur le téléphone et sur l’ordi.</p>'
+    +'<label>E-mail<input id="cx-email" class="fi" type="email" autocomplete="username" value="'+cxEsc(cxEmailParDefaut())+'"></label>'
+    +'<label>Mot de passe<input id="cx-mdp" class="fi" type="password" autocomplete="current-password" onkeydown="if(event.key===\'Enter\')cxEntrer()"></label>'
+    +'<div id="cx-err" class="cx-err hidden"></div>'
+    +'<button id="cx-btn" class="btn cx-go" onclick="cxEntrer()">Entrer</button>'
+    +'<div class="cx-liens">'
+      +'<button onclick="cxCreer()">Première fois : créer mon compte</button>'
+      +'<button onclick="cxOubli()">Mot de passe oublié</button>'
+    +'</div>'
+    +'<button class="cx-hl" onclick="continuerHorsLigne()">Continuer sans connexion (rien ne partira)</button>'
+  +'</div>';
+  document.body.appendChild(d);
+  // Fond plein : l'écran ne doit pas laisser voir l'appli derrière
+  try{ var bg=getComputedStyle(document.body).backgroundColor; d.style.background=(bg && bg!=='rgba(0, 0, 0, 0)')?bg:'#111'; }catch(x){}
+}
+// Une fois connecté : tout ce qui disait « pas connecté » se remet à jour
+function cxApresConnexion(){
+  var a=document.getElementById('nr-alerte'); if(a) a.remove();
+  if(typeof NR_CLOUD_DIT!=='undefined') NR_CLOUD_DIT=false;
+  try{ majEtatConnexion(); }catch(x){}
+  try{ if(typeof nrCharger==='function') nrCharger().then(function(){ nrRafraichirVues(); }); }catch(x){}
+  try{ if(typeof nav3EcranOuvert==='function' && nav3EcranOuvert()) renderSemaine(); }catch(x){}
+  try{ if(document.getElementById('sec-ct')){ SEC_ETAT=null; secRendre(); } }catch(x){}
+}
+function cxErr(t, ok){
+  var e=document.getElementById('cx-err'); if(!e) return;
+  e.textContent=t; e.classList.toggle('ok', !!ok); e.classList.remove('hidden');
+}
+function cxChamps(){
+  return {email:(document.getElementById('cx-email').value||'').trim().toLowerCase(), mdp:document.getElementById('cx-mdp').value||''};
+}
+var CX_RECONCILIER=false;
+async function cxEntrer(){
+  var c=cxChamps();
+  try{ localStorage.setItem('ast_cx_email', c.email); }catch(x){}
+  CX_RECONCILIER=true;
+  await connexionCoach();
+  if(!authConnecte()) CX_RECONCILIER=false;
+}
+async function cxCreer(){
+  var c=cxChamps();
+  if(!c.email || c.mdp.length<6){ cxErr('⚠ Mets ton e-mail et choisis un mot de passe (6 caractères minimum)'); return; }
+  var staff=(typeof secEmails==='function')?secEmails():[];
+  if(staff.length && staff.indexOf(c.email)<0){
+    cxErr('⚠ Cette adresse n’est pas dans la liste du staff (Réglages › Sécurité). Le compte serait créé mais la base le refuserait.'); return;
+  }
+  var b=document.getElementById('cx-btn'); if(b){ b.disabled=true; b.textContent='Création…'; }
+  try{
+    await authCreation(c.email, c.mdp);
+    try{ localStorage.setItem('ast_cx_email', c.email); }catch(x){}
+    HORS_LIGNE=false; fermerConnexion(); document.getElementById('cx-mdp').value='';
+    notif('✓ Compte créé — tu es connecté');
+    majEtatConnexion();
+    await cxReconcilier();
+  }catch(e){
+    var m=e.message||'';
+    cxErr('⚠ '+(m.indexOf('existe déjà')>=0?'Tu as déjà un compte avec cette adresse : tape ton mot de passe et « Entrer », ou « Mot de passe oublié ».':m));
+  }finally{ if(b){ b.disabled=false; b.textContent='Entrer'; } }
+}
+async function cxOubli(){
+  var c=cxChamps();
+  if(!c.email){ cxErr('⚠ Tape d’abord ton e-mail'); return; }
+  try{
+    await authAppel('sendOobCode',{requestType:'PASSWORD_RESET', email:c.email});
+    cxErr('✓ E-mail envoyé à '+c.email+' : clique le lien, choisis un mot de passe, puis reviens ici. (Regarde aussi dans les indésirables.)', true);
+  }catch(e){ cxErr('⚠ '+(e.message||'Envoi impossible')); }
+}
+
+// ---------- Après la connexion : ne rien perdre ----------
+// Pendant que la base était fermée, cet appareil a pu travailler seul. Si ce
+// qu'il a diffère du cloud, c'est au coach de dire lequel est le bon.
+function cxTrie(v){
+  if(Array.isArray(v)) return v.map(cxTrie);
+  if(v && typeof v==='object'){ var o={}; Object.keys(v).sort().forEach(function(k){ o[k]=cxTrie(v[k]); }); return o; }
+  return v;
+}
+async function cxReconcilier(){
+  CX_RECONCILIER=false;
+  cxApresConnexion();
+  var cloud=await Promise.all([lireDocSaison('main'), lireDocSaison('staff')]);
+  if(!cloud[0] && !cloud[1]){ sauvegardeAuto(); return; }
+  var loc=repartirDonneesSaison();
+  var cl=Object.assign({}, (cloud[0]&&cloud[0].data)||{}, (cloud[1]&&cloud[1].data)||{});
+  var lo=Object.assign({}, loc.principal, loc.staff);
+  // On ne compare que ce que l'appareil sait envoyer (les photos voyagent à part)
+  var cles=Object.keys(lo), diff=cles.filter(function(k){ return JSON.stringify(cxTrie(lo[k]))!==JSON.stringify(cxTrie(cl[k])); });
+  if(!diff.length){ await syncDepuisFirestore__base(true); notif('✓ Connecté — tout est à jour'); return; }
+  var envoyer=false;
+  try{ envoyer=!!localStorage.getItem('ast_local_non_envoye'); }catch(x){}
+  cxChoix(cloud[0]||cloud[1], diff.length, envoyer);
+}
+function cxChoix(doc, n, envoyer){
+  var lb=document.createElement('div'); lb.id='cx-choix'; lb.className='nr-modal on';
+  lb.innerHTML='<div class="nr-p">'
+    +'<div class="nr-h"><b>Cet appareil et le cloud ne disent pas la même chose</b></div>'
+    +'<p>Pendant que la base était fermée, chacun a vécu sa vie. Le cloud a été enregistré '+(doc.updated?'le <b>'+cxEsc(doc.updated)+'</b>':'')+(doc.auteur?' par <b>'+cxEsc(doc.auteur)+'</b>':'')+'. '
+      +'Cet appareil a <b>'+n+' rubrique'+(n>1?'s':'')+'</b> différente'+(n>1?'s':'')+'.</p>'
+    +'<p class="nr-aide">'+(envoyer?'Cet appareil a des modifications qui ne sont jamais parties : en principe, c’est lui le plus récent.'
+      :'Si tu as travaillé sur cet appareil depuis hier, garde-le. Sinon, reprends le cloud.')+'</p>'
+    +'<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">'
+      +'<button class="btn" onclick="cxGarderAppareil()">'+(envoyer?'✓ ':'')+'Garder ce qui est sur cet appareil et l’envoyer</button>'
+      +'<button class="jf-b2" onclick="cxPrendreCloud()">Reprendre ce qui est dans le cloud</button>'
+    +'</div>'
+    +'<p class="nr-aide" style="margin-top:8px">Dans les deux cas, une copie de cet appareil est gardée (Réglages › Sauvegarde).</p>'
+  +'</div>';
+  document.body.appendChild(lb);
+}
+function cxCopieDeSecours(){
+  try{ localStorage.setItem('ast_copie_avant_connexion', JSON.stringify({quand:new Date().toISOString(), data:donneesSaisonSansPhotos()})); }catch(x){}
+}
+async function cxGarderAppareil(){
+  var lb=document.getElementById('cx-choix'); if(lb) lb.remove();
+  cxCopieDeSecours();
+  var r=await sauvegarderFirestore(true);
+  if(r){ majEtatSauvegarde('ok'); notif('✓ Envoyé : le cloud a maintenant la version de cet appareil'); }
+  else { majEtatSauvegarde('local'); nrAlerte('L’envoi n’est pas passé — vérifie que ton adresse est bien dans les règles (Réglages › Sécurité).'); }
+}
+async function cxPrendreCloud(){
+  var lb=document.getElementById('cx-choix'); if(lb) lb.remove();
+  cxCopieDeSecours();
+  await syncDepuisFirestore__base(false);
+  try{ localStorage.removeItem('ast_local_non_envoye'); }catch(x){}
+}
+
+// ---------- Savoir si l'appareil a du travail jamais envoyé ----------
+function cxMarquer(etat){
+  try{
+    if(etat==='ok') localStorage.removeItem('ast_local_non_envoye');
+    else if(etat==='local' && !localStorage.getItem('ast_local_non_envoye')) localStorage.setItem('ast_local_non_envoye', new Date().toISOString());
+  }catch(x){}
+}
+
+// ---------- Au démarrage : base fermée et pas connecté → l'écran s'ouvre ----------
+async function cxVerifierAuDemarrage(){
+  if(authConnecte() || HORS_LIGNE) return;
+  try{
+    var r=await fetch(FIRESTORE_BASE+'/saison/main?mask.fieldPaths=x');
+    if(r.status===401 || r.status===403) ouvrirConnexion();
+  }catch(x){}
+}
+
+// À chaque ouverture : le logo du club, et l'adresse déjà remplie
+function cxPreparer(){
+  var l=document.getElementById('cx-logo');
+  var src=(typeof HUBL_LOGO!=='undefined' && HUBL_LOGO)||(typeof PHOTO_LOGO!=='undefined' && PHOTO_LOGO)||'';
+  if(l){ if(src){ l.src=src; l.style.display=''; } else l.style.display='none'; }
+  var e=document.getElementById('cx-email'); if(e && !e.value) e.value=cxEmailParDefaut();
+  var a=document.getElementById('nr-alerte'); if(a) a.remove();
+}
+window.addEventListener('load', function(){
+  cxConstruire();
+  EXT.apres('ouvrirConnexion', cxPreparer, 'connexion');
+  EXT.avant('syncDepuisFirestore', function(){
+    if(!CX_RECONCILIER) return null;
+    return {fait:true, val:cxReconcilier()};
+  }, 'connexion');
+  EXT.apres('majEtatSauvegarde', function(etat){ cxMarquer(etat); }, 'connexion');
+  setTimeout(cxVerifierAuDemarrage, 1500);
+});
+
 </script>
 <script>
 // ===== Sécurité de la base, côté coach (v142) =====
@@ -6796,8 +6998,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v144</b> · 15/10/2026<br>
-      <span style="opacity:.7">Notes : vérification intégrée</span>
+      AST COACH <b style="color:var(--or)">v145</b> · 15/10/2026<br>
+      <span style="opacity:.7">Connexion du coach réparée</span>
     </div>
   </div>
 </div>
@@ -31783,7 +31985,7 @@ function sauvegardeAuto__base(){
   }, 1500);
 }
 // Un témoin discret, pour qu'on sache toujours où en sont les données
-function majEtatSauvegarde(etat){
+function majEtatSauvegarde__base(etat){
   var e=document.getElementById('etat-sauvegarde'); if(!e) return;
   var t={
     'en-cours':{c:'var(--gold)', t:'● Enregistrement…', d:'Copie locale faite, envoi au cloud en cours'},
@@ -31858,7 +32060,7 @@ function restaurerSauvegarde(input){
 
 // ===== La connexion du coach, et les accès des joueurs =====
 var HORS_LIGNE=false;
-function ouvrirConnexion(){
+function ouvrirConnexion__base(){
   var e=document.getElementById('scr-connexion'); if(!e) return;
   var l=document.getElementById('cx-logo'); if(l && typeof PHOTO_LOGO!=='undefined') l.src=PHOTO_LOGO;
   e.classList.remove('hidden');
