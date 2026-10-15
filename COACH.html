@@ -5101,6 +5101,87 @@ body.mb .scr{padding-top:10px!important}
 #scr-connexion .cx-liens{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 #scr-connexion .cx-liens button,#scr-connexion .cx-hl{background:none;border:none;color:var(--or);font:700 14px 'Roboto Condensed',sans-serif;cursor:pointer;padding:6px 0}
 #scr-connexion .cx-hl{color:var(--gris2,#888);margin-top:6px}
+/* ===== Équipes et chrono de séance (v149) ===== */
+.st-couche{position:fixed;inset:0;z-index:9000;background:var(--fond);display:none;flex-direction:column;overflow:hidden}
+.st-couche.on{display:flex}
+.st-h{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#1b1d21;color:#fff;flex:none}
+.st-x{border:none;background:none;color:#c9cdd3;font:400 30px 'Roboto Condensed',sans-serif;cursor:pointer;padding:0 6px;line-height:1}
+.st-t{flex:1;display:flex;flex-direction:column;min-width:0}
+.st-t b{font:400 24px 'Anton',sans-serif;letter-spacing:.01em}
+.st-t span{font:500 13px 'Roboto Condensed',sans-serif;color:#c9cdd3}
+.st-o{border:1px solid #4b5058;background:none;color:#fff;border-radius:9px;padding:7px 12px;font:700 13px 'Roboto Condensed',sans-serif;cursor:pointer}
+.st-o.on{background:var(--or);border-color:var(--or)}
+.st-aide{padding:8px 14px 0;font:500 13px 'Roboto Condensed',sans-serif;color:var(--gris2);flex:none}
+.st-bas{display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:var(--carte);border-top:1px solid var(--line);flex:none}
+.st-bas span{flex:1;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.st-bas .btn{width:auto;margin:0;padding:12px 18px}
+.pt-bas .pt-eq{width:auto;margin:0;padding:11px 12px;white-space:nowrap}
+
+/* Les équipes */
+.eq-nb{display:flex;gap:6px;padding:10px 14px 0;flex-wrap:wrap;flex:none}
+.eq-nb button{flex:1;min-width:80px;border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:10px;padding:9px 6px;font:800 14px 'Roboto Condensed',sans-serif;cursor:pointer}
+.eq-nb button.on{background:var(--or);border-color:var(--or);color:#fff}
+.eq-cols{flex:1;overflow-y:auto;display:grid;gap:10px;padding:10px 14px 14px;align-content:start}
+.eq-cols.n2{grid-template-columns:1fr 1fr}
+.eq-cols.n3{grid-template-columns:repeat(3,1fr)}
+.eq-cols.n4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:560px){ .eq-cols.n3,.eq-cols.n4{grid-template-columns:1fr 1fr} }
+.eq-col{display:flex;flex-direction:column;gap:5px;min-width:0}
+.eq-ch{border-radius:10px;padding:8px 10px;background:var(--ec);color:#fff;display:flex;flex-direction:column}
+.eq-ch b{font:400 22px 'Anton',sans-serif;letter-spacing:.02em;text-transform:uppercase;line-height:1.05}
+.eq-ch span{font:700 12px 'Roboto Condensed',sans-serif;opacity:.92}
+.eq-j{display:flex;align-items:center;gap:6px;text-align:left;border:1.5px solid color-mix(in srgb,var(--ec) 45%,var(--line));border-left:5px solid var(--ec);background:var(--carte);color:var(--gris);border-radius:9px;padding:8px 8px;cursor:pointer;min-width:0}
+.eq-j b{flex:1;min-width:0;font:800 15px 'Roboto Condensed',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq-j em{font-style:normal;font-size:11px;color:var(--gold);letter-spacing:-1px}
+.eq-j.sel{outline:3px solid var(--or);outline-offset:1px;background:color-mix(in srgb,var(--or) 14%,var(--carte))}
+.eq-p{flex:none;width:20px;height:20px;border-radius:5px;display:inline-grid;place-items:center;font:800 11px 'Roboto Condensed',sans-serif;font-style:normal;color:#fff;background:#6b7280}
+.eq-p.G{background:#111827}.eq-p.D{background:#2563eb}.eq-p.M{background:#16a34a}.eq-p.A{background:#dc2626}
+.eq-cols.grand .eq-ch b{font-size:30px}
+.eq-cols.grand .eq-j{padding:12px 10px}
+.eq-cols.grand .eq-j b{font-size:21px}
+/* Qui joue / réglages */
+.eq-qui{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;padding:10px 14px;align-content:start}
+.eq-qui button{display:flex;align-items:center;gap:7px;border:1.5px dashed var(--line);background:var(--carte);color:var(--gris2);border-radius:10px;padding:10px;font:800 14px 'Roboto Condensed',sans-serif;cursor:pointer;opacity:.6;text-align:left}
+.eq-qui button span{width:24px;height:24px;border-radius:50%;background:var(--gris2);color:#fff;display:grid;place-items:center;font-size:11px;flex:none}
+.eq-qui button.on{border:2px solid var(--green);color:var(--gris);opacity:1;background:color-mix(in srgb,var(--green) 12%,var(--carte))}
+.eq-qui button.on span{background:var(--green)}
+.eq-reg{flex:1;overflow-y:auto;padding:8px 14px 14px;display:flex;flex-direction:column;gap:4px}
+.eq-r{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;background:var(--carte);border:1px solid var(--line)}
+.eq-rn{flex:1;min-width:0;font:700 14px 'Roboto Condensed',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq-rn b{display:inline-block;min-width:24px;color:var(--gris2)}
+.eq-rb button{border:none;background:none;font-size:20px;color:var(--line);cursor:pointer;padding:0 1px}
+.eq-rb button.on{color:var(--gold)}
+.eq-rp{display:flex;gap:3px}
+.eq-rp button{width:28px;height:28px;border:none;cursor:pointer;opacity:.28}
+.eq-rp button.on{opacity:1}
+
+/* Le chrono de séance */
+.cs-gen{margin:10px 14px 0;border:1.5px dashed var(--or);background:color-mix(in srgb,var(--or) 10%,transparent);color:var(--or);border-radius:10px;padding:10px;font:800 14px 'Roboto Condensed',sans-serif;cursor:pointer;flex:none}
+.cs-liste{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.cs-a{display:flex;align-items:center;gap:7px;background:var(--carte);border:1px solid var(--line);border-radius:10px;padding:7px 8px}
+.cs-k{flex:none;width:26px;height:26px;border-radius:50%;background:var(--or);color:#fff;display:grid;place-items:center;font:400 14px 'Anton',sans-serif}
+.cs-t{flex:1;min-width:0;padding:8px 9px;font-size:15px}
+.cs-m{display:flex;align-items:center;gap:3px}
+.cs-m b{min-width:34px;text-align:center;font:400 18px 'Anton',sans-serif;color:var(--gris)}
+.cs-m button,.cs-act button{width:30px;height:30px;border:1px solid var(--line);background:none;color:var(--gris);border-radius:8px;font:800 16px 'Roboto Condensed',sans-serif;cursor:pointer}
+.cs-act{display:flex;gap:3px}
+.cs-act button:disabled{opacity:.3}
+.cs-ajout{border:1.5px dashed var(--line);background:none;color:var(--gris2);border-radius:10px;padding:12px;font:800 14px 'Roboto Condensed',sans-serif;cursor:pointer}
+.cs-run{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px 18px;text-align:center;transition:background .3s}
+.cs-run.presque{background:color-mix(in srgb,var(--red) 12%,transparent)}
+.cs-run.pause .cs-temps{opacity:.45}
+.cs-nom{font:400 clamp(28px,7vw,48px) 'Anton',sans-serif;text-transform:uppercase;letter-spacing:.02em;color:var(--gris);line-height:1.05}
+.cs-temps{font:400 clamp(96px,30vw,220px) 'Anton',sans-serif;line-height:.9;color:var(--or);font-variant-numeric:tabular-nums}
+.cs-run.presque .cs-temps{color:var(--red)}
+.cs-prog{width:min(100%,560px);height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.cs-prog div{height:100%;background:var(--or);transition:width .25s linear}
+.cs-desc{max-width:560px;font:500 15px 'Roboto Condensed',sans-serif;color:var(--gris2);line-height:1.35}
+.cs-suiv{font:600 16px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.cs-suiv b{color:var(--gris)}
+.cs-cmd{display:flex;justify-content:center;align-items:center;gap:10px;padding:12px 14px calc(16px + env(safe-area-inset-bottom));flex:none}
+.cs-cmd button{width:58px;height:58px;border-radius:50%;border:1.5px solid var(--line);background:var(--carte);color:var(--gris);font:800 20px 'Roboto Condensed',sans-serif;cursor:pointer}
+.cs-cmd button:disabled{opacity:.3}
+.cs-cmd .cs-pp{width:80px;height:80px;background:var(--or);border-color:var(--or);color:#fff;font-size:30px}
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -5260,6 +5341,8 @@ function nav3Colonnes(){
   if(E.seances) e.push({cle:'seances', t:'Thèmes des séances', s:'', d:E.seances.detail, etat:E.seances.fait?'fait':(E.seances.etat==='retard'?'retard':'afaire'),
       act:E.seances.action, b:E.seances.bouton});
   e.push({cle:'pres', t:'Présences', s:'à chaque séance', d:'Un tap par joueur, au bord du terrain', etat:'libre', act:"ptOuvrir()", b:'Pointer'});
+  e.push({cle:'equipes', t:'Équipes du jour', s:'', d:'Équilibrées en un tap, à partir des présents', etat:'libre', act:"eqOuvrir()", b:'Faire les équipes'});
+  e.push({cle:'chrono', t:'Chrono de séance', s:'', d:'Les ateliers s’enchaînent, avec les bips', etat:'libre', act:"csOuvrir()", b:'Lancer'});
   var chg=nav3ChargeSignal();
   e.push({cle:'charge', t:'Charge et ressenti', s:'', d:chg.d, etat:chg.etat, act:"goNav('charge')", b:'Voir la charge'});
   e.push({cle:'forme', t:'Forme des joueurs', s:'questionnaire', d:'Sommeil, jambes, moral : qui décroche ?', etat:'libre', act:"goNav('forme-coach')", b:'Voir la forme'});
@@ -6162,7 +6245,7 @@ function ptRendre(){
         return ptTuile(i);
       }).join('')+'</div>'
     +'<div class="pt-bas"><span>'+n.P+' présents · '+n.A+' absents'+(n.B?' · '+n.B+' blessés':'')+'</span>'
-      +'<button class="btn" onclick="ptValider()">Valider la séance</button></div>';
+      +'<button class="pt-b2 pt-eq" onclick="eqOuvrir()">🎲 Équipes</button><button class="btn" onclick="ptValider()">Valider la séance</button></div>';
 }
 function ptTuile(i){
   var j=JOUEURS[i], s=SEANCE_SAISIE[i]||{statut:'P'}, st=PT_ST[s.statut]||PT_ST.P;
@@ -6213,10 +6296,13 @@ function ptAmende(i,v){ SEANCE_SAISIE[i].amende=v; ptFermerDetail(i); ptDetail(i
 function ptValider(){
   var n=ptCompte();
   if(!confirm('Valider la séance : '+n.P+' présents, '+n.A+' absents'+(n.B?', '+n.B+' blessés':'')+' ?')) return;
+  // Les présents du jour restent connus pour faire les équipes après la validation
+  try{ EQ_DERNIERS={jour:new Date().toDateString(), st:SEANCE_SAISIE.map(function(s){ return s.statut; })}; }catch(e){}
   validerSeance();
   var o=document.getElementById('pt'); if(!o) return;
   o.innerHTML='<div class="pt-fin"><b>Séance enregistrée</b><span>'+n.P+' présents. Rappelle-leur le « Ressenti de séance » dans leur appli : dix secondes chacun, et la charge se calcule.</span>'
-    +'<button class="btn" onclick="ptFermer();goNav(\'chrono\')">Lancer le chrono</button>'
+    +'<button class="btn" onclick="ptFermer();csOuvrir()">⏱ Lancer le chrono de séance</button>'
+    +'<button class="pt-b2" onclick="ptFermer();eqOuvrir()">🎲 Faire les équipes</button>'
     +'<button class="pt-b2" onclick="ptFermer();nrOuvrir()">Une note sur la séance</button>'
     +'<button class="pt-b2" onclick="ptFermer()">Fermer</button></div>';
 }
@@ -6494,6 +6580,295 @@ window.addEventListener('load', function(){
   EXT.apres('majEtatSauvegarde', function(etat){ cxMarquer(etat); }, 'connexion');
   setTimeout(cxVerifierAuDemarrage, 1500);
 });
+
+// ===== Au bord du terrain : les équipes en un tap, et le chrono de séance (v149) =====
+//
+//   🎲 Les équipes : à partir des présents, 2 à 4 équipes équilibrées (un
+//      gardien par équipe, niveaux répartis, postes mélangés). On relance si
+//      ça ne plaît pas, on échange deux joueurs d'un tap, on affiche en grand.
+//   ⏱ Le chrono de séance : la séance défile atelier par atelier, avec le
+//      temps, un bip à 1 minute de la fin, trois bips à la fin et l'atelier
+//      suivant qui s'enchaîne. L'écran reste allumé.
+//
+//   Les réglages (niveaux, postes, séance) sont rangés dans NAV_STAFF : ils
+//   suivent le staff d'un appareil à l'autre comme le reste.
+
+function stEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function stNomCourt(n){ return (typeof jfNomCourt==='function')?jfNomCourt(n):String(n||''); }
+function stStaff(){ if(typeof nav3Membres==='function') nav3Membres(); if(!NAV_STAFF.eq) NAV_STAFF.eq={niv:{}, poste:{}}; return NAV_STAFF; }
+function stSauver(){ try{ sauvegardeAuto(); }catch(e){} }
+function stCouche(id){
+  var o=document.getElementById(id);
+  if(!o){ o=document.createElement('div'); o.id=id; o.className='st-couche'; document.body.appendChild(o); }
+  o.classList.add('on'); document.body.classList.add('pt-ouvert');
+  return o;
+}
+function stFermer(id){
+  var o=document.getElementById(id); if(o) o.classList.remove('on');
+  if(!document.querySelector('.st-couche.on')) document.body.classList.remove('pt-ouvert');
+}
+
+// =====================================================================
+// 🎲 LES ÉQUIPES
+// =====================================================================
+var EQ_COUL=[{n:'Orange',c:'#f97316'},{n:'Bleu',c:'#2563eb'},{n:'Jaune',c:'#eab308'},{n:'Vert',c:'#16a34a'}];
+var EQ={n:2, equipes:null, sel:null, exclus:{}, vue:'equipes', grand:false};
+
+// Le niveau par défaut vient des notes de match : le coach corrige s'il veut
+function eqNiveau(i){
+  var S=stStaff(), j=JOUEURS[i]; if(!j) return 2;
+  if(S.eq.niv[j.num]) return S.eq.niv[j.num];
+  var s=(typeof STATS!=='undefined' && STATS[i])||{};
+  if(s.notesCount>=2 && s.noteMoy){ return s.noteMoy>=6.5?3:(s.noteMoy>=5.5?2:1); }
+  return 2;
+}
+function eqPoste(i){ var j=JOUEURS[i]; if(!j) return ''; if(j.gardien) return 'G'; return stStaff().eq.poste[j.num]||''; }
+var EQ_DERNIERS=null;   // les statuts de la séance qu'on vient de valider
+function eqStatut(i){
+  var tousP=(typeof SEANCE_SAISIE!=='undefined') && SEANCE_SAISIE.every(function(s){ return s.statut==='P'; });
+  if(tousP && EQ_DERNIERS && EQ_DERNIERS.jour===new Date().toDateString()) return EQ_DERNIERS.st[i]||'A';
+  return ((typeof SEANCE_SAISIE!=='undefined' && SEANCE_SAISIE[i])||{statut:'P'}).statut;
+}
+function eqPresents(){
+  var L=[];
+  JOUEURS.forEach(function(j,i){
+    var s={statut:eqStatut(i)};
+    if(s.statut==='P' && !EQ.exclus[j.num]) L.push(i);
+  });
+  return L;
+}
+function eqMelanger(L){ for(var k=L.length-1;k>0;k--){ var r=Math.floor(Math.random()*(k+1)); var t=L[k]; L[k]=L[r]; L[r]=t; } return L; }
+function eqTirer(){
+  var n=EQ.n, P=eqPresents(), T=[];
+  for(var k=0;k<n;k++) T.push({j:[], force:0, postes:{}});
+  // 1. Les gardiens d'abord, un par équipe
+  var G=eqMelanger(P.filter(function(i){ return eqPoste(i)==='G'; }));
+  var autres=P.filter(function(i){ return eqPoste(i)!=='G'; });
+  G.forEach(function(i,k){ var t=T[k%n]; t.j.push(i); t.postes.G=(t.postes.G||0)+1; t.force+=eqNiveau(i); });
+  // 2. Poste par poste, du plus fort au plus faible, distribués en serpentin :
+  //    chaque équipe reçoit autant de défenseurs, de milieux, d'attaquants
+  var ordre=[];
+  ['D','M','A',''].forEach(function(p){
+    ordre=ordre.concat(eqMelanger(autres.filter(function(i){ return eqPoste(i)===p; })).sort(function(a,b){ return eqNiveau(b)-eqNiveau(a); }));
+  });
+  // le serpentin commence après les gardiens, pour que les effectifs restent égaux
+  var pos=G.length, dir=1;
+  var seq=[]; for(var q=0;q<n;q++) seq.push(q); for(var q2=n-1;q2>=0;q2--) seq.push(q2);
+  ordre.forEach(function(i, k){
+    var t=T[seq[(pos+k)%(2*n)]]; t.j.push(i); t.force+=eqNiveau(i);
+  });
+  // 3. Petites retouches : échanger deux joueurs du même poste si ça resserre les forces
+  for(var tour=0;tour<60;tour++){
+    var F=T.map(function(t){ return eqForce(t.j); });
+    var hi=F.indexOf(Math.max.apply(null,F)), lo=F.indexOf(Math.min.apply(null,F));
+    if(F[hi]-F[lo]<=1) break;
+    var fait=false;
+    for(var x=0;x<T[hi].j.length && !fait;x++) for(var y=0;y<T[lo].j.length && !fait;y++){
+      var a=T[hi].j[x], b=T[lo].j[y];
+      if(eqPoste(a)!==eqPoste(b)) continue;
+      var d=eqNiveau(a)-eqNiveau(b);
+      if(d>0 && d<F[hi]-F[lo]){ T[hi].j[x]=b; T[lo].j[y]=a; fait=true; }
+    }
+    if(!fait) break;
+  }
+  EQ.equipes=T.map(function(t){ return t.j; });
+  EQ.sel=null;
+}
+function eqOuvrir(){
+  if(typeof ptPreparer==='function') ptPreparer();
+  EQ.vue='equipes'; if(!EQ.equipes) eqTirer();
+  stCouche('eq'); eqRendre();
+}
+function eqForce(L){ return L.reduce(function(s,i){ return s+eqNiveau(i); },0); }
+function eqRendre(){
+  var o=document.getElementById('eq'); if(!o) return;
+  var P=eqPresents();
+  var tete='<div class="st-h"><button class="st-x" onclick="stFermer(\'eq\')" aria-label="Fermer">‹</button>'
+    +'<div class="st-t"><b>Les équipes</b><span>'+P.length+' joueurs présents</span></div>'
+    +'<button class="st-o'+(EQ.vue==='reglages'?' on':'')+'" onclick="EQ.vue=EQ.vue===\'reglages\'?\'equipes\':\'reglages\';eqRendre()">'+(EQ.vue==='reglages'?'✓ Fini':'⚙ Niveaux')+'</button></div>';
+  if(EQ.vue==='reglages'){ o.innerHTML=tete+eqReglagesHtml(); return; }
+  var nb='<div class="eq-nb">'+[2,3,4].map(function(n){ return '<button class="'+(EQ.n===n?'on':'')+'" onclick="EQ.n='+n+';eqTirer();eqRendre()">'+n+' équipes</button>'; }).join('')
+    +'<button onclick="eqTirer();eqRendre()">🎲 Relancer</button></div>';
+  var cols='<div class="eq-cols n'+EQ.n+(EQ.grand?' grand':'')+'">'+EQ.equipes.map(function(L,k){
+      var c=EQ_COUL[k];
+      var tri=L.slice().sort(function(a,b){ var o={G:0,D:1,M:2,A:3,'':4}; return (o[eqPoste(a)]-o[eqPoste(b)]) || eqNiveau(b)-eqNiveau(a); });
+      return '<div class="eq-col" style="--ec:'+c.c+'"><div class="eq-ch"><b>'+c.n+'</b><span>'+L.length+' joueurs'+(EQ.grand?'':' · force '+eqForce(L))+'</span></div>'
+        +tri.map(function(i){
+          var p=eqPoste(i), sel=EQ.sel===i;
+          return '<button class="eq-j'+(sel?' sel':'')+'" onclick="eqTap('+i+')">'+(p?'<i class="eq-p '+p+'">'+p+'</i>':'')
+            +'<b>'+stEsc(stNomCourt(JOUEURS[i].nom))+'</b>'+(EQ.grand?'':'<em>'+'★'.repeat(eqNiveau(i))+'</em>')+'</button>';
+        }).join('')+'</div>';
+    }).join('')+'</div>';
+  var ecart=EQ.equipes.map(eqForce); ecart=Math.max.apply(null,ecart)-Math.min.apply(null,ecart);
+  o.innerHTML=tete+(EQ.grand?'':nb
+      +'<div class="st-aide">'+(EQ.sel!==null?'Touche un joueur d’une autre équipe pour les échanger.':'Touche deux joueurs pour les échanger. Écart de force : '+ecart+(ecart<=1?' — très équilibré':'')+'.')+'</div>')
+    +cols
+    +'<div class="st-bas">'
+      +(EQ.grand?'<button class="btn" onclick="EQ.grand=false;eqRendre()">Retour</button>'
+        :'<button class="jf-b2" onclick="eqQui()">Qui joue ?</button><button class="btn" onclick="EQ.grand=true;eqRendre()">Afficher en grand</button>')
+    +'</div>';
+}
+function eqTap(i){
+  if(EQ.sel===null){ EQ.sel=i; eqRendre(); return; }
+  if(EQ.sel===i){ EQ.sel=null; eqRendre(); return; }
+  var a=-1,b=-1;
+  EQ.equipes.forEach(function(L,k){ if(L.indexOf(EQ.sel)>=0) a=k; if(L.indexOf(i)>=0) b=k; });
+  if(a===b){ EQ.sel=i; eqRendre(); return; }
+  var A=EQ.equipes[a], B=EQ.equipes[b];
+  A[A.indexOf(EQ.sel)]=i; B[B.indexOf(i)]=EQ.sel;
+  EQ.sel=null; eqRendre();
+}
+// Retirer ou remettre un joueur sans repasser par les présences
+function eqQui(){
+  EQ.vue='qui'; var o=document.getElementById('eq');
+  o.innerHTML='<div class="st-h"><button class="st-x" onclick="EQ.vue=\'equipes\';eqTirer();eqRendre()" aria-label="Retour">‹</button>'
+    +'<div class="st-t"><b>Qui joue ?</b><span>Touche pour retirer ou remettre</span></div></div>'
+    +'<div class="eq-qui">'+JOUEURS.map(function(j,i){
+      var dedans=eqStatut(i)==='P' && !EQ.exclus[j.num];
+      return '<button class="'+(dedans?'on':'')+'" onclick="eqBascule('+i+')"><span>'+j.num+'</span>'+stEsc(stNomCourt(j.nom))+'</button>';
+    }).join('')+'</div>'
+    +'<div class="st-bas"><button class="btn" onclick="EQ.vue=\'equipes\';eqTirer();eqRendre()">Refaire les équipes</button></div>';
+}
+function eqBascule(i){
+  var j=JOUEURS[i];
+  if(eqStatut(i)!=='P'){ if(EQ_DERNIERS && EQ_DERNIERS.st) EQ_DERNIERS.st[i]='P'; if(SEANCE_SAISIE[i]) SEANCE_SAISIE[i].statut='P'; delete EQ.exclus[j.num]; }
+  else if(EQ.exclus[j.num]) delete EQ.exclus[j.num];
+  else EQ.exclus[j.num]=1;
+  eqQui();
+}
+function eqReglagesHtml(){
+  var S=stStaff();
+  return '<div class="st-aide">Le niveau sert à équilibrer (par défaut : d’après les notes de match). Le poste évite d’avoir tous les défenseurs ensemble.</div>'
+    +'<div class="eq-reg">'+JOUEURS.map(function(j,i){
+      var n=eqNiveau(i), p=eqPoste(i);
+      return '<div class="eq-r"><span class="eq-rn"><b>'+j.num+'</b>'+stEsc(stNomCourt(j.nom))+'</span>'
+        +'<span class="eq-rb">'+[1,2,3].map(function(v){ return '<button class="'+(n>=v?'on':'')+'" onclick="eqNiv('+j.num+','+v+')">★</button>'; }).join('')+'</span>'
+        +'<span class="eq-rp">'+['G','D','M','A'].map(function(v){ return '<button class="eq-p '+v+(p===v?' on':'')+'" onclick="eqPost('+i+',\''+v+'\')">'+v+'</button>'; }).join('')+'</span></div>';
+    }).join('')+'</div>';
+}
+function eqNiv(num, v){ stStaff().eq.niv[num]=v; stSauver(); eqRendre(); }
+function eqPost(i, v){
+  var j=JOUEURS[i], S=stStaff();
+  if(v==='G'){ j.gardien=!j.gardien; if(j.gardien) delete S.eq.poste[j.num]; }
+  else { j.gardien=false; S.eq.poste[j.num]=(S.eq.poste[j.num]===v)?'':v; }
+  stSauver(); eqRendre();
+}
+
+// =====================================================================
+// ⏱ LE CHRONO DE SÉANCE
+// =====================================================================
+var CS={i:0, fin:0, reste:0, marche:false, t:null, vue:'liste', bip1:false, verrou:null};
+var GEN_DERNIERE=null;   // la dernière séance sortie du générateur
+function csAteliers(){ var S=stStaff(); if(!Array.isArray(S.seance)) S.seance=[]; return S.seance; }
+function csTotal(){ return csAteliers().reduce(function(s,a){ return s+(+a.min||0); },0); }
+function csOuvrir(){
+  var A=csAteliers();
+  if(!A.length && GEN_DERNIERE) csDepuisGenerateur(true);
+  CS.vue=CS.marche||CS.reste?'run':'liste';
+  stCouche('cs'); csRendre();
+}
+function csDepuisGenerateur(silence){
+  if(!GEN_DERNIERE) return;
+  if(!silence && csAteliers().length && !confirm('Remplacer la liste par la dernière séance générée ?')) return;
+  stStaff().seance=GEN_DERNIERE.map(function(e){ return {t:e.titre, min:e.duree, d:e.desc||''}; });
+  stSauver(); csRendre();
+}
+function csRendre(){
+  var o=document.getElementById('cs'); if(!o) return;
+  var A=csAteliers();
+  if(CS.vue==='run' && A.length){ csRendreRun(); return; }
+  o.innerHTML='<div class="st-h"><button class="st-x" onclick="stFermer(\'cs\')" aria-label="Fermer">‹</button>'
+      +'<div class="st-t"><b>Chrono de séance</b><span>'+A.length+' atelier'+(A.length>1?'s':'')+' · '+csTotal()+' min</span></div></div>'
+    +(GEN_DERNIERE?'<button class="cs-gen" onclick="csDepuisGenerateur()">↺ Reprendre la séance du générateur ('+GEN_DERNIERE.length+' exercices)</button>':'')
+    +'<div class="cs-liste">'+A.map(function(a,k){
+        return '<div class="cs-a"><span class="cs-k">'+(k+1)+'</span>'
+          +'<input class="fi cs-t" value="'+stEsc(a.t)+'" placeholder="Atelier" onchange="csModif('+k+',\'t\',this.value)">'
+          +'<span class="cs-m"><button onclick="csMin('+k+',-5)">−</button><b>'+(+a.min||0)+'′</b><button onclick="csMin('+k+',5)">+</button></span>'
+          +'<span class="cs-act"><button onclick="csBouge('+k+',-1)"'+(k?'':' disabled')+'>↑</button><button onclick="csSuppr('+k+')">✕</button></span></div>';
+      }).join('')
+    +'<button class="cs-ajout" onclick="csAjout()">+ Ajouter un atelier</button></div>'
+    +'<div class="st-bas"><span>'+csTotal()+' min au total</span><button class="btn"'+(A.length?'':' disabled')+' onclick="csDemarrer(0)">▶ Lancer la séance</button></div>';
+}
+function csModif(k, ch, v){ csAteliers()[k][ch]=v; stSauver(); }
+function csMin(k, d){ var a=csAteliers()[k]; a.min=Math.max(1,Math.min(90,(+a.min||0)+d)); stSauver(); csRendre(); }
+function csBouge(k, d){ var A=csAteliers(), b=A[k]; A.splice(k,1); A.splice(k+d,0,b); stSauver(); csRendre(); }
+function csSuppr(k){ csAteliers().splice(k,1); stSauver(); csRendre(); }
+function csAjout(){ csAteliers().push({t:'', min:15, d:''}); stSauver(); csRendre();
+  var L=document.querySelectorAll('.cs-t'); if(L.length) L[L.length-1].focus(); }
+
+// Le temps est calculé sur l'horloge : si le téléphone se met en veille, rien ne dérive
+function csDemarrer(k){
+  var A=csAteliers(); if(!A[k]) return;
+  CS.i=k; CS.reste=(+A[k].min||1)*60; CS.bip1=CS.reste<=60; CS.vue='run';
+  csReprendre(); try{ chronoBeepDebut(); }catch(e){}
+}
+function csReprendre(){
+  CS.fin=Date.now()+CS.reste*1000; CS.marche=true;
+  clearInterval(CS.t); CS.t=setInterval(csTick, 250);
+  csEveil(true); csRendre();
+}
+function csPause(){
+  if(!CS.marche){ csReprendre(); return; }
+  CS.reste=Math.max(0,Math.round((CS.fin-Date.now())/1000)); CS.marche=false; clearInterval(CS.t); csEveil(false); csRendre();
+}
+function csPlus(m){ if(CS.marche) CS.fin+=m*60000; else CS.reste+=m*60; if(CS.reste+m*60>60) CS.bip1=false; csRendre(); }
+function csSuivant(d){
+  var A=csAteliers(), k=CS.i+d;
+  if(k<0) k=0;
+  if(k>=A.length){ csFini(); return; }
+  csDemarrer(k);
+}
+function csFini(){
+  clearInterval(CS.t); CS.marche=false; CS.reste=0; csEveil(false);
+  try{ chronoBeepTermine(); }catch(e){} try{ navigator.vibrate&&navigator.vibrate([300,150,300,150,300]); }catch(e){}
+  CS.vue='liste'; notif('✓ Séance terminée'); csRendre();
+}
+function csTick(){
+  var r=Math.max(0,Math.ceil((CS.fin-Date.now())/1000));
+  if(r<=60 && !CS.bip1){ CS.bip1=true; try{ chronoBeep(880,200); }catch(e){} try{ navigator.vibrate&&navigator.vibrate(200); }catch(e){} }
+  if(r<=0){
+    try{ chronoBeepFin(); }catch(e){} try{ navigator.vibrate&&navigator.vibrate([250,120,250]); }catch(e){}
+    var A=csAteliers(); if(CS.i+1>=A.length){ csFini(); return; }
+    csDemarrer(CS.i+1); return;
+  }
+  var el=document.getElementById('cs-temps'); if(el){ el.textContent=csFmt(r); }
+  var b=document.getElementById('cs-barre'); if(b){ var tot=(+csAteliers()[CS.i].min||1)*60; b.style.width=(100-r/tot*100)+'%'; }
+  var ro=document.getElementById('cs-run'); if(ro) ro.classList.toggle('presque', r<=60);
+}
+function csFmt(s){ var m=Math.floor(s/60), x=s%60; return m+':'+(x<10?'0':'')+x; }
+function csRendreRun(){
+  var o=document.getElementById('cs'), A=csAteliers(), a=A[CS.i]||{}, suiv=A[CS.i+1];
+  var r=CS.marche?Math.max(0,Math.ceil((CS.fin-Date.now())/1000)):CS.reste;
+  var fait=A.slice(0,CS.i).reduce(function(s,x){ return s+(+x.min||0); },0);
+  o.innerHTML='<div class="st-h"><button class="st-x" onclick="CS.vue=\'liste\';csRendre()" aria-label="Liste">‹</button>'
+      +'<div class="st-t"><b>Atelier '+(CS.i+1)+' / '+A.length+'</b><span>'+fait+' / '+csTotal()+' min de séance</span></div>'
+      +'<button class="st-o" onclick="stFermer(\'cs\')">Réduire</button></div>'
+    +'<div id="cs-run" class="cs-run'+(r<=60?' presque':'')+(CS.marche?'':' pause')+'">'
+      +'<div class="cs-nom">'+stEsc(a.t||'Atelier '+(CS.i+1))+'</div>'
+      +'<div class="cs-temps" id="cs-temps">'+csFmt(r)+'</div>'
+      +'<div class="cs-prog"><div id="cs-barre" style="width:'+(100-r/((+a.min||1)*60)*100)+'%"></div></div>'
+      +(a.d?'<div class="cs-desc">'+stEsc(a.d)+'</div>':'')
+      +'<div class="cs-suiv">'+(suiv?'Ensuite : <b>'+stEsc(suiv.t||'Atelier '+(CS.i+2))+'</b> · '+suiv.min+' min':'Dernier atelier')+'</div>'
+    +'</div>'
+    +'<div class="cs-cmd">'
+      +'<button onclick="csSuivant(-1)"'+(CS.i?'':' disabled')+'>⏮</button>'
+      +'<button onclick="csPlus(1)">+1′</button>'
+      +'<button class="cs-pp" onclick="csPause()">'+(CS.marche?'⏸':'▶')+'</button>'
+      +'<button onclick="csSuivant(1)">⏭</button>'
+      +'<button onclick="if(confirm(\'Arrêter la séance ?\')){clearInterval(CS.t);CS.marche=false;CS.reste=0;csEveil(false);CS.vue=\'liste\';csRendre();}">■</button>'
+    +'</div>';
+}
+// L'écran reste allumé pendant la séance
+function csEveil(on){
+  try{
+    if(on && navigator.wakeLock && !CS.verrou) navigator.wakeLock.request('screen').then(function(v){ CS.verrou=v; v.addEventListener('release',function(){ CS.verrou=null; }); }).catch(function(){});
+    if(!on && CS.verrou){ CS.verrou.release(); CS.verrou=null; }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState==='visible' && CS.marche){ csEveil(true); csTick(); }
+});
+
 
 </script>
 <script>
@@ -7067,8 +7442,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v148</b> · 15/10/2026<br>
-      <span style="opacity:.7">La semaine : phases repliables</span>
+      AST COACH <b style="color:var(--or)">v149</b> · 15/10/2026<br>
+      <span style="opacity:.7">Équipes et chrono de séance</span>
     </div>
   </div>
 </div>
@@ -20026,6 +20401,7 @@ function genererSeance(eviterRepetition){
   fexDerniereGenerationSignature=signature;
 
   var totalReel=(echauffement?echauffement.duree:0)+tempsUtilise+(retour?retour.duree:0);
+  try{ GEN_DERNIERE=[echauffement].concat(exercicesChoisis,[retour]).filter(Boolean).map(function(e){ return {titre:e.titre, duree:e.duree, desc:e.desc||''}; }); }catch(e){}
   var ecart=totalReel-duree;
 
   var exosPersoTheme=[];
