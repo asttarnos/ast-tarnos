@@ -4695,7 +4695,7 @@ window.addEventListener('load', function(){
 // ---------- 🩺 Vérifier : ce que CET appareil voit, en clair ----------
 // À ouvrir sur le téléphone ET sur l'ordi : si les deux ne disent pas la même
 // chose (version, base, compte, dernières notes), on sait tout de suite où ça coince.
-var NR_VERSION='v147';
+var NR_VERSION='v148';
 async function nrDiagnostic(){
   var m=document.getElementById('nr-diag');
   if(!m){ m=document.createElement('div'); m.id='nr-diag'; m.className='nr-modal on'; document.body.appendChild(m);
@@ -4894,7 +4894,20 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
 /* Sur fond sombre, les pastilles claires prennent un chiffre foncé */
 .n3-col{--n3-sur:#111}
 html.clair .n3-col{--n3-sur:#fff}
-.n3-col-h{min-height:76px}
+@media (min-width:701px){.n3-col-h{min-height:76px}}
+
+/* Phases repliées (téléphone seulement) */
+.n3-chev,.n3-nb{display:none}
+@media (max-width:700px){
+  .n3-col-h{cursor:pointer;min-height:0}
+  .n3-chev{display:block;flex:none;align-self:center;font-size:20px;color:var(--ph);transition:transform .2s}
+  .n3-col.plie .n3-chev{transform:rotate(-90deg)}
+  .n3-col.plie .n3-e{display:none}
+  .n3-col.plie{margin-top:6px}
+  .n3-col.plie .n3-col-h{padding-top:8px;padding-bottom:8px}
+  .n3-col.plie .n3-col-t b{font-size:21px}
+  .n3-col.plie .n3-nb{display:inline;font:700 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+}
 /* ===== Phase 2 : la fiche joueur unique (v136) ===== */
 .jf{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px;align-items:start}
 .jf-liste{position:sticky;top:0;background:var(--carte);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;max-height:calc(100vh - 120px);max-height:calc(100dvh - 120px);overflow:hidden}
@@ -5284,6 +5297,16 @@ function nav3Colonnes(){
   col.forEach(function(c,i){ c.n=i+1; c.c=PH[i]; c.now=(i===maintenant); });
   return {col:col, prochain:prochain, J:J, adv:adv};
 }
+// Téléphone : seule la phase en cours est dépliée, les autres se déroulent d'un tap
+var NAV3_OUV={};
+function nav3Plier(n){
+  if(window.innerWidth>700) return;
+  var col=document.querySelectorAll('.n3-col')[n-1]; if(!col) return;
+  var ouvrir=col.classList.contains('plie');
+  col.classList.toggle('plie', !ouvrir);
+  if(col.classList.contains('now')) return;
+  NAV3_OUV[n]=ouvrir;
+}
 function nav3DateLongue(d){
   try{ return d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'}); }catch(e){ return ''; }
 }
@@ -5418,10 +5441,11 @@ function renderSemaine(){
   html+='<div class="n3-cols">'+C.col.map(function(c){
     var L=c.L.filter(function(x){ return !filtre || x.ech || nav3Resp(x.cle)===moi; });
     var nf=L.filter(function(x){ return x.etat==='afaire'||x.etat==='retard'; }).length;
-    return '<div class="n3-col'+(c.now?' now':'')+'" style="--ph:'+c.c+'"><div class="n3-col-h">'
+    var plie=!c.now && !NAV3_OUV[c.n];
+    return '<div class="n3-col'+(c.now?' now':'')+(plie?' plie':'')+'" style="--ph:'+c.c+'"><div class="n3-col-h" onclick="nav3Plier('+c.n+')">'
         +'<span class="n3-num">'+c.n+'</span>'
         +'<div class="n3-col-t"><b>'+nav3Esc(c.t)+'</b>'
-        +'<div class="n3-col-m"><span>'+nav3Esc(c.sous||'')+'</span>'+(nf?'<em>'+nf+' à faire</em>':'')+(c.now?'<i>En ce moment</i>':'')+'</div></div></div>'
+        +'<div class="n3-col-m"><span>'+nav3Esc(c.sous||'')+'</span>'+(nf?'<em>'+nf+' à faire</em>':'')+(c.now?'<i>En ce moment</i>':'')+'<small class="n3-nb">· '+L.length+' étape'+(L.length>1?'s':'')+'</small></div></div><span class="n3-chev">▾</span></div>'
       +(L.length?L.map(function(x){
         var et=NAV3_ETATS[x.etat]||NAV3_ETATS.libre;
         return '<div class="n3-e'+(x.ech?' ech':'')+' '+x.etat+'" style="--ec:'+et.c+'">'
@@ -7043,8 +7067,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v147</b> · 15/10/2026<br>
-      <span style="opacity:.7">La semaine : phases lisibles</span>
+      AST COACH <b style="color:var(--or)">v148</b> · 15/10/2026<br>
+      <span style="opacity:.7">La semaine : phases repliables</span>
     </div>
   </div>
 </div>
