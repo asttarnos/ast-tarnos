@@ -4695,7 +4695,7 @@ window.addEventListener('load', function(){
 // ---------- 🩺 Vérifier : ce que CET appareil voit, en clair ----------
 // À ouvrir sur le téléphone ET sur l'ordi : si les deux ne disent pas la même
 // chose (version, base, compte, dernières notes), on sait tout de suite où ça coince.
-var NR_VERSION='v146';
+var NR_VERSION='v147';
 async function nrDiagnostic(){
   var m=document.getElementById('nr-diag');
   if(!m){ m=document.createElement('div'); m.id='nr-diag'; m.className='nr-modal on'; document.body.appendChild(m);
@@ -4783,10 +4783,25 @@ body.nav3 .side-footer .gen-btn{padding:8px;font-size:12.5px}
 
 .n3-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
 .n3-col{display:flex;flex-direction:column;gap:7px;min-width:0}
-.n3-col-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;padding:0 2px 2px}
-.n3-col-h b{font:400 20px 'Anton',sans-serif;letter-spacing:.01em;color:var(--gris)}
-.n3-col-h em{font:800 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--or);background:var(--orfond);border-radius:9px;padding:1px 8px}
-.n3-col-h span{flex-basis:100%;font:600 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+:root{--n3-p1:#a78bfa;--n3-p2:#22c3dd;--n3-jj:#f1f1f1}
+html.clair{--n3-p1:#6d28d9;--n3-p2:#0e7490;--n3-jj:#111827}
+/* En-tête de phase : un vrai bandeau, numéroté, couleur de la phase */
+.n3-col-h{position:relative;display:flex;align-items:flex-start;gap:10px;padding:10px 12px 10px 10px;margin-bottom:2px;border-radius:12px;
+  background:color-mix(in srgb,var(--ph) 11%,transparent);border-top:4px solid var(--ph)}
+.n3-num{flex:none;margin-top:1px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ph);color:var(--n3-sur,#fff);font:400 19px 'Anton',sans-serif}
+.n3-col-t{min-width:0;flex:1;display:flex;flex-direction:column;line-height:1.05}
+.n3-col-t b{font:400 clamp(21px,1.55vw,27px) 'Anton',sans-serif;letter-spacing:.02em;text-transform:uppercase;color:var(--ph);line-height:1.02}
+.n3-col-m{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin-top:4px}
+.n3-col-m span{font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris2);margin-right:2px}
+.n3-col-m em{font:800 12px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--n3-sur,#fff);background:var(--ph);border-radius:10px;padding:2px 9px;white-space:nowrap}
+.n3-col-m i{font:800 10.5px 'Roboto Condensed',sans-serif;font-style:normal;text-transform:uppercase;letter-spacing:.06em;color:var(--ph);border:1.5px solid var(--ph);border-radius:10px;padding:1px 7px;white-space:nowrap}
+/* La phase en cours ressort, les autres s'effacent un peu */
+.n3-col.now .n3-col-h{background:color-mix(in srgb,var(--ph) 20%,transparent);box-shadow:0 0 0 2px var(--ph) inset}
+.n3-col:not(.now) .n3-e{opacity:.93}
+@media (max-width:700px){
+  .n3-col{margin-top:10px}
+  .n3-col-t b{font-size:24px}
+}
 .n3-e{position:relative;padding-right:42px!important;background:var(--carte);border:1px solid var(--line);border-left:3px solid var(--ec);border-radius:10px;padding:9px 10px 9px 11px;display:flex;flex-direction:column;gap:4px}
 .n3-e.libre{border-left-color:var(--line)}
 .n3-e.ech{background:var(--voile2);border-style:dashed;border-left-style:solid;border-left-color:var(--blue)}
@@ -4875,6 +4890,11 @@ button.n3-qui:hover{box-shadow:0 0 0 2px var(--or)}
 #sec-blk .n3-st{flex-wrap:wrap}
 #sec-blk .n3-st em{font-style:normal;font-size:12.5px;font-weight:700}
 #sec-blk .n3-st em[style]{flex-basis:100%;padding-left:34px}
+
+/* Sur fond sombre, les pastilles claires prennent un chiffre foncé */
+.n3-col{--n3-sur:#111}
+html.clair .n3-col{--n3-sur:#fff}
+.n3-col-h{min-height:76px}
 /* ===== Phase 2 : la fiche joueur unique (v136) ===== */
 .jf{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px;align-items:start}
 .jf-liste{position:sticky;top:0;background:var(--carte);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;max-height:calc(100vh - 120px);max-height:calc(100dvh - 120px);overflow:hidden}
@@ -5257,6 +5277,11 @@ function nav3Colonnes(){
     j.push({cle:'', t:'Le match', s:'vs '+adv, d:[nav3DateLongue(prochain.d), prochain.c.heure||'', lieu].filter(Boolean).join(' · '), etat:'echeance', act:"goNav('feuille-match')", b:'', ech:true});
   }
   col.push({t:'Le jour J', sous:prochain?nav3DateLongue(prochain.d):'', L:j});
+  // Où en est-on de la semaine ? La phase en cours est mise en avant
+  var depuis=null; try{ if(dernier && dernier.d) depuis=Math.floor((new Date().setHours(0,0,0,0)-new Date(dernier.d).setHours(0,0,0,0))/86400000); }catch(x){}
+  var maintenant=(J===0)?3:((J!==null && J<=2)?2:((depuis!==null && depuis>=0 && depuis<=1)?0:1));
+  var PH=['var(--n3-p1)','var(--n3-p2)','var(--or)','var(--n3-jj)'];
+  col.forEach(function(c,i){ c.n=i+1; c.c=PH[i]; c.now=(i===maintenant); });
   return {col:col, prochain:prochain, J:J, adv:adv};
 }
 function nav3DateLongue(d){
@@ -5393,8 +5418,10 @@ function renderSemaine(){
   html+='<div class="n3-cols">'+C.col.map(function(c){
     var L=c.L.filter(function(x){ return !filtre || x.ech || nav3Resp(x.cle)===moi; });
     var nf=L.filter(function(x){ return x.etat==='afaire'||x.etat==='retard'; }).length;
-    return '<div class="n3-col"><div class="n3-col-h"><b>'+nav3Esc(c.t)+'</b>'
-        +(nf?'<em>'+nf+' à faire</em>':'')+'<span>'+nav3Esc(c.sous||'')+'</span></div>'
+    return '<div class="n3-col'+(c.now?' now':'')+'" style="--ph:'+c.c+'"><div class="n3-col-h">'
+        +'<span class="n3-num">'+c.n+'</span>'
+        +'<div class="n3-col-t"><b>'+nav3Esc(c.t)+'</b>'
+        +'<div class="n3-col-m"><span>'+nav3Esc(c.sous||'')+'</span>'+(nf?'<em>'+nf+' à faire</em>':'')+(c.now?'<i>En ce moment</i>':'')+'</div></div></div>'
       +(L.length?L.map(function(x){
         var et=NAV3_ETATS[x.etat]||NAV3_ETATS.libre;
         return '<div class="n3-e'+(x.ech?' ech':'')+' '+x.etat+'" style="--ec:'+et.c+'">'
@@ -7016,8 +7043,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v146</b> · 15/10/2026<br>
-      <span style="opacity:.7">Connexion : comptes Firebase</span>
+      AST COACH <b style="color:var(--or)">v147</b> · 15/10/2026<br>
+      <span style="opacity:.7">La semaine : phases lisibles</span>
     </div>
   </div>
 </div>
