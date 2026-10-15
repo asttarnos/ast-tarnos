@@ -5572,7 +5572,7 @@ body.mb .scr{padding-top:10px!important}
 .thc-mots{margin-top:12px;background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;font:500 14px 'Roboto Condensed',sans-serif;color:var(--gris)}
 
 /* ---------- Vivier : vue « sur le terrain » (v155) ---------- */
-.vv-pitch{position:relative;width:100%;max-width:780px;margin:0 auto;aspect-ratio:3/3.4;border-radius:16px;overflow:hidden;
+.vv-pitch{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:3/3.3;border-radius:16px;overflow:hidden;
   background:repeating-linear-gradient(0deg,#2a7340 0 9%,#2f7d45 9% 18%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.5)}
 .vv-pm i{position:absolute;border:2px solid rgba(255,255,255,.45)}
 .vv-pm .c1{left:0;right:0;top:50%;height:0;border-width:2px 0 0}
@@ -5580,7 +5580,7 @@ body.mb .scr{padding-top:10px!important}
 .vv-pm .c3{left:22%;right:22%;top:0;height:15%;border-top:0}
 .vv-pm .c4{left:22%;right:22%;bottom:0;height:15%;border-bottom:0}
 .vv-pm .c5{left:38%;right:38%;bottom:0;height:6%;border-bottom:0}
-.vv-pn{position:absolute;transform:translate(-50%,-50%);width:min(18.6%,150px);background:rgba(10,12,14,.82);border-radius:10px;border-top:4px solid var(--sc);
+.vv-pn{position:absolute;transform:translate(-50%,-50%);width:19.5%;background:rgba(10,12,14,.82);border-radius:10px;border-top:4px solid var(--sc);
   padding:4px 6px 5px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35);backdrop-filter:blur(2px)}
 .vv-pn:hover{outline:2px solid var(--or)}
 .vv-pnh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
@@ -5730,6 +5730,14 @@ body.mb .scr{padding-top:10px!important}
 @media (max-width:760px){ .dv-aj{grid-template-columns:1fr 1fr} }
 .dv-aj .fi{margin:0}
 @media print{ #scr-decoupe .vv-barre,#scr-decoupe .dv-aj{display:none} }
+
+/* Vivier sur le terrain : un terrain compact, le bilan à côté sur ordinateur (v158) */
+.vv-tv{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:14px;align-items:start}
+.vv-tv .vv-pitch{margin:0}
+.vv-tv .vv-bilan{margin-top:0;grid-template-columns:1fr 1fr}
+@media (max-width:1100px){ .vv-tv{grid-template-columns:1fr} .vv-tv .vv-pitch{margin:0 auto} .vv-tv .vv-bilan{margin-top:12px} }
+@media (max-width:600px){ .vv-tv .vv-bilan{grid-template-columns:1fr} }
+.vv-pj{font-size:12.5px}.vv-pj.r{font-size:11px}
 /* ===== Les moments avant match : stories (v155) ===== */
 #mm-story{position:fixed;inset:0;z-index:10050;background:#0d0d0f;color:#fff;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Roboto Condensed',sans-serif;overflow:hidden}
 #mm-story::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}
@@ -5884,7 +5892,7 @@ body.mb .scr{padding-top:10px!important}
 //   Le menu ne range plus par thème mais par moment : la semaine (ce qu'il y
 //   a à faire), les joueurs, le fond de jeu, et le club. Chaque bouton ouvre
 //   l'écran d'avant, sans rien changer dedans. L'ancien menu reste à un clic
-//   (Club & réglages), le temps de prendre ses marques.
+//   (Club House › Réglages), le temps de prendre ses marques.
 
 function nav3Actif(){
   try{ return localStorage.getItem('ast-menu')!=='ancien'; }catch(e){ return true; }
@@ -5932,19 +5940,16 @@ var NAV3_POLES=[
     {s:'classement',ic:'barres',l:'Classement',g:'La saison en chiffres'},
     {s:'bilan',ic:'coupe',l:'Bilan & constats'}
   ]},
-  {id:'clubhouse',label:'Club House',sous:'Directeur sportif · communication',icon:'coupe',color:'#eab308',screens:[
+  {id:'clubhouse',label:'Club House',sous:'Sportif · communication · administration',icon:'coupe',color:'#eab308',screens:[
     {s:'vivier',ic:'groupe',l:'Le vivier',g:'Directeur sportif'},
     {s:'recrutement',ic:'loupe',l:'Recrutement · à contacter'},
     {s:'reunions',ic:'parole',l:'Réunions techniques'},
     {s:'visuels',ic:'appareil',l:'Les visuels du club',g:'Directeur de communication'},
     {s:'photos',ic:'camera',l:'La photothèque'},
     {s:'partenaires',ic:'main',l:'Les partenaires'},
-    {s:'club-com',ic:'bulle',l:'Messages aux joueurs'}
-  ]},
-  {id:'clubr',label:'Club & réglages',sous:'Ce qu’on ouvre rarement',icon:'maison',color:'#94a3b8',screens:[
-    {s:'club-vie',ic:'cible',l:'La vie du club'},
-    {s:'club-com',ic:'bulle',l:'Communication'},
-    {s:'club-docs',ic:'document',l:'Documents'},
+    {s:'club-com',ic:'bulle',l:'Messages & communication'},
+    {s:'club-vie',ic:'cible',l:'La vie du club',g:'Administration'},
+    {s:'club-docs',ic:'document',l:'Documents du club'},
     {s:'reglages',ic:'reglement',l:'Réglages & sauvegarde'},
     {s:'aide',ic:'livres',l:"Mode d'emploi"}
   ]}
@@ -6400,7 +6405,7 @@ window.addEventListener('load', function(){
     return;
   }
   document.body.classList.add('nav3');
-  if(typeof POLES_CLAIR!=='undefined'){ POLES_CLAIR.semaine='#b45309'; POLES_CLAIR.joueurs='#7e22ce'; POLES_CLAIR.fond='#15803d'; POLES_CLAIR.clubr='#475569'; }
+  if(typeof POLES_CLAIR!=='undefined'){ POLES_CLAIR.semaine='#b45309'; POLES_CLAIR.joueurs='#7e22ce'; POLES_CLAIR.fond='#15803d'; POLES_CLAIR.clubhouse='#a16207'; }
   EXT.avant('renderSideNav', function(){ return document.body.classList.contains('nav3')?{fait:true, val:nav3RenderSide()}:null; }, 'menu 3 portes');
   EXT.apres('rendreEcran', function(s){ if(s==='semaine') renderSemaine(); if(s==='reglages') renderReglages(); }, 'menu 3 portes');
   EXT.apres('goNav', function(){ try{ nav3RenderSide(); }catch(e){} }, 'menu 3 portes');
@@ -7054,7 +7059,7 @@ function mbBarre(){
   bar.innerHTML=B('semaine','calendrier','La semaine')+B('joueurs','groupe','Joueurs')
     +'<button class="bj-b mb-note" onclick="nrOuvrir()" aria-label="Note rapide"><span class="mb-rond">'+ic('ecrire')+(n?'<b>'+n+'</b>':'')+'</span><span class="lb">Note</span></button>'
     +B('fond','livres','Fond de jeu')
-    +'<button class="bj-b'+(on==='clubr'?' on':'')+'" onclick="toggleSideMobile(true)"><span class="ic">'+ic('liste')+'</span><span class="lb">Menu</span></button>';
+    +'<button class="bj-b'+(on==='clubhouse'?' on':'')+'" onclick="toggleSideMobile(true)"><span class="ic">'+ic('liste')+'</span><span class="lb">Menu</span></button>';
   bar.style.display='flex';
   document.body.classList.add('avec-barre');
 }
@@ -8834,7 +8839,7 @@ function vvRendre(){
     +'</div>';
   if(!nJ) html+='<div class="vv-vide"><b>Le vivier est vide.</b><span>Commence par l’effectif seniors : un tap les ajoute tous, il ne restera qu’à les placer. Ajoute ensuite la réserve, les jeunes qui frappent à la porte et les recrues que tu vises.</span>'
     +'<button class="btn" style="width:auto" onclick="vvImporter()">Ajouter l’effectif seniors ('+JOUEURS.length+')</button></div>';
-  if(VV.vue==='terrain'){ html+=vvTerrainHtml()+vvBilanHtml(); ct.innerHTML=html; return; }
+  if(VV.vue==='terrain'){ html+='<div class="vv-tv">'+vvTerrainHtml()+vvBilanHtml()+'</div>'; ct.innerHTML=html; return; }
   // Le terrain : une rangée par ligne, de l'attaque au gardien
   html+='<div class="vv-terrain">'+VV_LIGNES.map(function(li){
       var cs=C.filter(function(c){ return li.p.indexOf(c.pos)>=0; }).sort(function(a,b){ return a.x-b.x; });
@@ -11261,8 +11266,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v157</b> · 15/10/2026<br>
-      <span style="opacity:.7">Partenaires · 5 nouveaux visuels · découpe Veo</span>
+      AST COACH <b style="color:var(--or)">v158</b> · 15/10/2026<br>
+      <span style="opacity:.7">Club House réunifié · vivier compact</span>
     </div>
   </div>
 </div>
