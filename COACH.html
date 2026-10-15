@@ -5387,7 +5387,7 @@ function renderSemaine(){
   +'</div>';
 
   if(typeof authConnecte==='function' && !authConnecte()){
-    html+='<div class="n3-cx">'+ic('info')+'<span><b>Tu n’es pas connecté : rien ne part dans le cloud et rien n’en arrive</b> (notes du téléphone, réponses des joueurs…). Connecte-toi.</span>'
+    html+='<div class="n3-cx">'+ic('info')+'<span><b>Pas de compte coach pour l’instant.</b> Ce n’est pas grave tant que la base est ouverte : tout fonctionne comme avant.</span>'
       +'<button onclick="ouvrirConnexion()">Me connecter</button><button onclick="goNav(\'reglages\')">Sécurité ›</button></div>';
   }
   html+='<div class="n3-cols">'+C.col.map(function(c){
