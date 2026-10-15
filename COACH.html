@@ -4240,6 +4240,15 @@ body.doc-ouvert #nr-fab{display:none}
 #fm-adv-ct{display:block}
 .tab-bar{flex-wrap:wrap}
 .tab-bar .tab-note{order:5;flex:1 1 100%;padding:7px 10px}
+.nr-alerte{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;z-index:9500;max-width:min(520px,92vw);display:flex;gap:10px;align-items:center;padding:11px 14px;border-radius:12px;background:#7f1d1d;color:#fff;font:600 14px 'Roboto Condensed',sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.nr-alerte button{border:none;background:#fff;color:#7f1d1d;border-radius:8px;padding:5px 12px;font-weight:800;cursor:pointer}
+.nr-etat{font:600 12.5px 'Roboto Condensed',sans-serif;color:var(--muted,#888);padding:2px 2px 8px}
+.nr-etat.ko{color:#fff;background:#7f1d1d;border-radius:8px;padding:7px 10px;margin-bottom:8px}
+.nr-diag{display:grid;gap:0;margin:6px 0 10px;font-size:14px}
+.nr-diag>div{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--bord,rgba(128,128,128,.25));align-items:start}
+.nr-diag>div>span:first-child{color:var(--muted,#888);font-weight:700}
+.nr-diag-l{margin-left:auto;margin-right:12px;cursor:pointer;font-size:18px}
+@media (max-width:480px){.nr-diag>div{grid-template-columns:1fr;gap:2px}}
 </style>
 <script>
 // ===== NOTE RAPIDE (v134) =====
@@ -4311,12 +4320,28 @@ function nrAudioOter(id){
 }
 
 // ---------- Le cloud ----------
+// Un document Firebase ne dépasse pas 1 Mo. Un iPhone enregistre plus lourd
+// que demandé (il ignore le débit réglé) : au-delà d'une minute, le vocal ne
+// passait plus. On le découpe donc en morceaux de 700 Ko, rangés à part.
+var NR_MORCEAU=700000;
+var NR_CLOUD=null, NR_CLOUD_DIT=false;
+function nrCloudTexte(){
+  var c=NR_CLOUD; if(!c) return 'Notes : vérification…';
+  if(c.ok) return '☁ Notes à jour ('+c.n+' dans le cloud)'+(c.attente?' · '+c.attente+' pas encore envoyée'+(c.attente>1?'s':'')+' depuis cet appareil':'');
+  if(c.code==='401'||c.code==='403') return 'Les notes du cloud sont refusées sur cet appareil ('+c.code+') : il n’est pas connecté avec ton compte coach. Réglages › Sécurité › Me connecter.';
+  return 'Les notes du cloud ne se chargent pas'+(c.code?' ('+c.code+')':' (pas de réseau ?)')+' : seules celles de cet appareil s’affichent.';
+}
 async function nrEnvoyer(n, b64){
-  var champs={data:{stringValue:JSON.stringify(n)}};
-  if(b64) champs.audio={stringValue:b64};
+  var parts=b64?Math.ceil(b64.length/NR_MORCEAU):0;
+  for(var k=0;k<parts;k++){
+    var r=await fbFetch(FIRESTORE_BASE+'/notes_audio/'+n.id+'_'+k,{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{note:{stringValue:n.id}, k:{integerValue:String(k)}, b64:{stringValue:b64.slice(k*NR_MORCEAU,(k+1)*NR_MORCEAU)}}})});
+    if(!r.ok) throw new Error('vocal refusé ('+r.status+')');
+  }
+  var copie=Object.assign({}, n); if(parts) copie.parts=parts;
   var res=await fbFetch(FIRESTORE_BASE+'/notes_staff/'+n.id,{method:'PATCH',
-    headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:champs})});
-  if(!res.ok) throw new Error('HTTP '+res.status);
+    headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(copie)}}})});
+  if(!res.ok) throw new Error('note refusée ('+res.status+')');
 }
 async function nrChargerCloud(){
   var L=[], jeton='';
@@ -4330,6 +4355,17 @@ async function nrChargerCloud(){
   return L.filter(Boolean);
 }
 async function nrAudioCloud(id){
+  var n=(NR_NOTES||[]).filter(function(x){ return x.id===id; })[0]||{};
+  if(n.parts){
+    var morceaux=[];
+    for(var k=0;k<n.parts;k++){
+      var r=await fbFetch(FIRESTORE_BASE+'/notes_audio/'+id+'_'+k);
+      if(!r.ok) return null;
+      var d0=await r.json(); morceaux.push(((d0.fields||{}).b64||{}).stringValue||'');
+    }
+    return morceaux.join('');
+  }
+  // Les notes d'avant le découpage gardaient le vocal dans la note elle-même
   var res=await fbFetch(FIRESTORE_BASE+'/notes_staff/'+id+'?mask.fieldPaths=audio');
   if(!res.ok) return null;
   var d=await res.json();
@@ -4355,8 +4391,13 @@ async function nrCharger(){
     }
     nrLocalEcrire(loc.filter(function(n){ return n.enAttente; }));
     NR_NOTES=cl.concat(loc.filter(function(n){ return n.enAttente; }));
+    NR_CLOUD={ok:true, n:cl.length, t:Date.now(), attente:loc.filter(function(n){ return n.enAttente; }).length};
   }catch(e){
     NR_NOTES=loc;
+    // Avant : échec silencieux, l'ordi montrait seulement ses propres notes. Maintenant on le dit.
+    var code=String(e&&e.message||'').replace(/\D/g,'');
+    NR_CLOUD={ok:false, code:code, t:Date.now(), attente:loc.filter(function(n){ return n.enAttente; }).length};
+    if(!NR_CLOUD_DIT){ NR_CLOUD_DIT=true; nrAlerte(nrCloudTexte()); }
   }
   NR_NOTES.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
   return NR_NOTES;
@@ -4389,7 +4430,7 @@ function nrRendre(){
     return (j.nom||'').toLowerCase().indexOf(f)>=0 || String(j.num).indexOf(f)===0;
   });
   m.innerHTML='<div class="nr-p">'
-    +'<div class="nr-h"><b>🎙 Note rapide</b><span class="nr-x" onclick="nrFermer()">✕</span></div>'
+    +'<div class="nr-h"><b>🎙 Note rapide</b><span class="nr-diag-l" onclick="nrDiagnostic()">🩺</span><span class="nr-x" onclick="nrFermer()">✕</span></div>'
     +'<div class="nr-l"><span class="nr-q">C’est sur quoi ?</span><div class="nr-chips">'
       +NR_SUJETS.map(function(s){ return '<button class="'+(NR.sujet===s.k?'on':'')+'" onclick="nrSujet(\''+s.k+'\')">'+s.ic+' '+s.l+'</button>'; }).join('')
     +'</div></div>'
@@ -4490,10 +4531,11 @@ async function nrEnregistrer(){
   nrFermer();
   try{
     await nrEnvoyer(n, NR.audio);
-    notif('✓ Note enregistrée'+(n.joueurs.length?' — elle est sur la fiche de '+n.joueurs.map(function(j){ return j.nom; }).join(', '):''));
+    notif('✓ Note envoyée au cloud'+(n.joueurs.length?' — elle est sur la fiche de '+n.joueurs.map(function(j){ return j.nom; }).join(', '):''));
   }catch(e){
     var L=nrLocalLire(); n.enAttente=true; L.unshift(n); nrLocalEcrire(L);
-    notif('✓ Note gardée sur ce téléphone — elle partira au retour du réseau');
+    // Dire clairement qu'elle n'est pas partie, et pourquoi : sinon on la croit envoyée
+    nrAlerte('Note pas encore envoyée'+(e&&e.message?' ('+e.message+')':'')+' — gardée sur ce téléphone, nouvel essai automatique.');
   }
   if(NR_NOTES){ NR_NOTES.unshift(n); }
   nrRafraichirVues();
@@ -4567,7 +4609,9 @@ function renderNotesStaff(){
         +(JOUEURS||[]).map(function(j){ return '<option value="'+j.num+'"'+(String(NR_VUE.joueur)===String(j.num)?' selected':'')+'>'+nrEsc(j.num+'. '+j.nom)+'</option>'; }).join('')+'</select>'
       +'<label class="nr-ouv"><input type="checkbox"'+(NR_VUE.ouvertes?' checked':'')+' onchange="NR_VUE.ouvertes=this.checked;renderNotesStaff()"> à traiter seulement <b>'+ouvertes+'</b></label>'
       +'<button class="cv-bloc-b" onclick="NR_NOTES=null;renderNotesStaff()">↻ Actualiser</button>'
+      +'<button class="cv-bloc-b" onclick="nrDiagnostic()">🩺 Vérifier</button>'
     +'</div>'
+    +'<div class="nr-etat'+(NR_CLOUD&&!NR_CLOUD.ok?' ko':'')+'">'+nrEsc(nrCloudTexte())+'</div>'
     +(L.length?'<div class="nr-grille">'+L.map(nrCarteHtml).join('')+'</div>'
       :'<div class="nr-vide">Aucune note'+(NR_VUE.ouvertes?' à traiter':'')+'. Le bouton 🎙 en bas à droite est là sur tous les écrans : au bord du terrain, une phrase dite suffit.</div>');
 }
@@ -4591,6 +4635,23 @@ function nrFicheJoueur__base(){
     +(L.length?'<div class="nr-grille" style="padding:10px">'+L.slice(0,4).map(nrCarteHtml).join('')+'</div>'
       :'<div class="nr-aide" style="padding:12px">Rien de noté sur lui pour l’instant.</div>');
 }
+function nrAlerte(txt){
+  var a=document.getElementById('nr-alerte');
+  if(!a){ a=document.createElement('div'); a.id='nr-alerte'; a.className='nr-alerte'; document.body.appendChild(a); }
+  a.innerHTML='<span>'+nrEsc(txt)+'</span><button onclick="this.parentNode.remove()">OK</button>';
+}
+// Les notes des autres arrivent toutes seules : toutes les minutes, et dès qu'on revient sur l'appli
+var NR_DERNIER_TOUR=0;
+function nrTour(){
+  if(document.visibilityState && document.visibilityState!=='visible') return;
+  var m=document.getElementById('nr-modal'); if(m && m.classList.contains('on')) return;
+  if(Date.now()-NR_DERNIER_TOUR<20000) return;
+  NR_DERNIER_TOUR=Date.now();
+  nrCharger().then(function(){ nrRafraichirVues(); }).catch(function(){});
+}
+setInterval(nrTour, 60000);
+document.addEventListener('visibilitychange', nrTour);
+window.addEventListener('focus', nrTour);
 function nrRafraichirVues__base(){
   if(document.getElementById('nr-ecran')) renderNotesStaff();
   var e=document.getElementById('scr-effectif'); if(e && e.classList.contains('on')) nrFicheJoueur();
@@ -4627,6 +4688,56 @@ window.addEventListener('load', function(){
   apres('renderFicheCoach', function(){ nrFicheJoueur(); });
   setTimeout(function(){ nrCharger().then(nrMajPastille).catch(function(){}); }, 2500);
 });
+
+// ---------- 🩺 Vérifier : ce que CET appareil voit, en clair ----------
+// À ouvrir sur le téléphone ET sur l'ordi : si les deux ne disent pas la même
+// chose (version, base, compte, dernières notes), on sait tout de suite où ça coince.
+var NR_VERSION='v144';
+async function nrDiagnostic(){
+  var m=document.getElementById('nr-diag');
+  if(!m){ m=document.createElement('div'); m.id='nr-diag'; m.className='nr-modal on'; document.body.appendChild(m);
+    m.addEventListener('click', function(ev){ if(ev.target===m) m.remove(); }); }
+  m.innerHTML='<div class="nr-p"><div class="nr-h"><b>🩺 Vérification des notes</b><span class="nr-x" onclick="document.getElementById(\'nr-diag\').remove()">✕</span></div><p>Vérification…</p></div>';
+  var L=[], ok=function(b){ return b?'<b style="color:var(--green)">✓</b>':'<b style="color:var(--red)">✗</b>'; };
+  var co=(typeof authConnecte==='function') && authConnecte();
+  L.push(['Version de l’appli', NR_VERSION]);
+  L.push(['Base', nrEsc(FIREBASE_PROJECT_ID)+(FIREBASE_PROJECT_ID!==FIREBASE_PROJECT_ID_DEFAUT?' <b style="color:var(--red)">⚠ différente de la base normale ('+nrEsc(FIREBASE_PROJECT_ID_DEFAUT)+')</b> <button class="jf-b2" onclick="reinitialiserProjetFirebase();location.reload()">Revenir à la base normale</button>':' '+ok(true))]);
+  L.push(['Compte', co?ok(true)+' '+nrEsc((SESSION&&SESSION.email)||''):ok(false)+' pas connecté <button class="jf-b2" onclick="ouvrirConnexion()">Me connecter</button>']);
+  var loc=nrLocalLire().filter(function(n){ return n.enAttente; });
+  L.push(['Restées sur cet appareil', loc.length?'<b style="color:var(--red)">'+loc.length+' pas envoyée'+(loc.length>1?'s':'')+'</b> <button class="jf-b2" onclick="nrRenvoyer()">Renvoyer maintenant</button>':ok(true)+' aucune']);
+  // Écrire puis relire un petit document : la preuve que l'envoi passe
+  var test='';
+  try{
+    var id='test_'+Date.now();
+    var w=await fbFetch(FIRESTORE_BASE+'/notes_audio/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{b64:{stringValue:'ok'}}})});
+    if(!w.ok){ test=ok(false)+' l’envoi est refusé ('+w.status+')'; }
+    else{
+      var r=await fbFetch(FIRESTORE_BASE+'/notes_audio/'+id);
+      test=r.ok?ok(true)+' envoi et lecture OK':ok(false)+' envoi OK mais relecture refusée ('+r.status+')';
+      fbFetch(FIRESTORE_BASE+'/notes_audio/'+id,{method:'DELETE'}).catch(function(){});
+    }
+  }catch(e){ test=ok(false)+' pas de réseau'; }
+  L.push(['Essai d’envoi', test]);
+  var cl=null, err='';
+  try{ cl=await nrChargerCloud(); }catch(e){ err=e.message||'erreur'; }
+  if(cl){
+    cl.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    L.push(['Notes dans le cloud', ok(true)+' '+cl.length]);
+    L.push(['Les 3 dernières', cl.slice(0,3).map(function(n){
+      var d=new Date(n.date); return nrEsc((isNaN(d)?'?':d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}))+' · '+(n.auteur||'')+' · '+(n.audio?'🎙 ':'')+String(n.texte||'').slice(0,30));
+    }).join('<br>')||'aucune']);
+  }else L.push(['Notes dans le cloud', ok(false)+' lecture refusée ('+nrEsc(err)+')']);
+  m.innerHTML='<div class="nr-p"><div class="nr-h"><b>🩺 Vérification des notes</b><span class="nr-x" onclick="document.getElementById(\'nr-diag\').remove()">✕</span></div>'
+    +'<div class="nr-diag">'+L.map(function(x){ return '<div><span>'+x[0]+'</span><span>'+x[1]+'</span></div>'; }).join('')+'</div>'
+    +'<p class="nr-aide">Ouvre cette même vérification sur le téléphone et sur l’ordi : les « 3 dernières » doivent être les mêmes. Une capture d’écran des deux suffit pour trouver le problème.</p></div>';
+}
+async function nrRenvoyer(){
+  NR_DERNIER_TOUR=0; await nrCharger(); nrRafraichirVues();
+  var reste=nrLocalLire().filter(function(n){ return n.enAttente; }).length;
+  if(reste) nrAlerte(nrCloudTexte()+' — '+reste+' toujours pas envoyée'+(reste>1?'s':''));
+  else notif('✓ Tout est parti');
+  if(document.getElementById('nr-diag')) nrDiagnostic();
+}
 
 </script>
 <style>
@@ -6122,7 +6233,7 @@ window.addEventListener('load', function(){
 //   la base (ouverte ou fermée), et les règles prêtes à coller dans Firebase,
 //   déjà remplies avec les adresses du staff.
 
-var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
+var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
 var SEC_COMPTES=null, SEC_ETAT=null, SEC_MDP={};
 
 function secEmails(){
@@ -6685,8 +6796,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v142</b> · 14/10/2026<br>
-      <span style="opacity:.7">Sécurité de la base</span>
+      AST COACH <b style="color:var(--or)">v144</b> · 15/10/2026<br>
+      <span style="opacity:.7">Notes : vérification intégrée</span>
     </div>
   </div>
 </div>
