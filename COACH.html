@@ -4695,7 +4695,7 @@ window.addEventListener('load', function(){
 // ---------- 🩺 Vérifier : ce que CET appareil voit, en clair ----------
 // À ouvrir sur le téléphone ET sur l'ordi : si les deux ne disent pas la même
 // chose (version, base, compte, dernières notes), on sait tout de suite où ça coince.
-var NR_VERSION='v145';
+var NR_VERSION='v146';
 async function nrDiagnostic(){
   var m=document.getElementById('nr-diag');
   if(!m){ m=document.createElement('div'); m.id='nr-diag'; m.className='nr-modal on'; document.body.appendChild(m);
@@ -6303,7 +6303,24 @@ async function cxEntrer(){
   try{ localStorage.setItem('ast_cx_email', c.email); }catch(x){}
   CX_RECONCILIER=true;
   await connexionCoach();
-  if(!authConnecte()) CX_RECONCILIER=false;
+  if(!authConnecte()){ CX_RECONCILIER=false; cxPanne(document.getElementById('cx-err').textContent); }
+}
+// Les comptes ne sont pas activés dans Firebase : on le dit en clair, avec la marche à suivre
+function cxPanne(m){
+  m=String(m||'');
+  if(m.indexOf('CONFIGURATION_NOT_FOUND')<0 && m.indexOf('pas activée')<0 && m.indexOf('OPERATION_NOT_ALLOWED')<0) return false;
+  var e=document.getElementById('cx-err'); if(!e) return true;
+  e.classList.remove('ok','hidden');
+  e.innerHTML='<b>Les comptes ne sont pas encore activés dans Firebase.</b> Personne ne peut se connecter tant que ce n’est pas fait (2 minutes) :'
+    +'<ol style="margin:6px 0 4px 18px;padding:0"><li>console.firebase.google.com › projet <b>'+cxEsc(FIREBASE_PROJECT_ID)+'</b></li>'
+    +'<li>Menu <b>Authentication</b> › bouton <b>Commencer</b></li>'
+    +'<li>Onglet <b>Sign-in method</b> › <b>E-mail/Mot de passe</b> › <b>Activer</b> › Enregistrer</li>'
+    +'<li>Reviens ici : « Première fois : créer mon compte ».</li></ol>'
+    +'En attendant, rouvre la base pour que l’appli et les joueurs refonctionnent : <button class="jf-b2" onclick="cxCopierSecours()">Copier les règles de secours</button> puis Firestore › Règles › colle › Publier.';
+  return true;
+}
+function cxCopierSecours(){
+  try{ navigator.clipboard.writeText(SEC_SECOURS).then(function(){ notif('✓ Règles de secours copiées'); }); }catch(e){ prompt('Copie ces règles :', SEC_SECOURS); }
 }
 async function cxCreer(){
   var c=cxChamps();
@@ -6322,6 +6339,7 @@ async function cxCreer(){
     await cxReconcilier();
   }catch(e){
     var m=e.message||'';
+    if(cxPanne(m)) return;
     cxErr('⚠ '+(m.indexOf('existe déjà')>=0?'Tu as déjà un compte avec cette adresse : tape ton mot de passe et « Entrer », ou « Mot de passe oublié ».':m));
   }finally{ if(b){ b.disabled=false; b.textContent='Entrer'; } }
 }
@@ -6998,8 +7016,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v145</b> · 15/10/2026<br>
-      <span style="opacity:.7">Connexion du coach réparée</span>
+      AST COACH <b style="color:var(--or)">v146</b> · 15/10/2026<br>
+      <span style="opacity:.7">Connexion : comptes Firebase</span>
     </div>
   </div>
 </div>

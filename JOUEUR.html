@@ -1541,7 +1541,7 @@ function jxRenderHub(){
     +auChiffres()
     +auActu();
   html+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">'
-    +'AST JOUEUR <b style="color:var(--or)">v51</b> · 14/10/2026<br><span style="opacity:.8">Un vrai compte derrière ton code</span></div>';
+    +'AST JOUEUR <b style="color:var(--or)">v52</b> · 15/10/2026<br><span style="opacity:.8">Connexion toujours possible</span></div>';
   ct.innerHTML=html;
   try{ auPhotoPoser(); }catch(e){}
   jvBrancher();
@@ -1700,7 +1700,14 @@ function jsEmail(num){ return String(num)+'@joueurs.asttarnos.fr'; }
 function jsMdp(pin){ return 'ast-'+pin; }
 function jsApercu(){ return typeof APERCU_COACH!=='undefined' && APERCU_COACH && !APERCU_COACH.refuse; }
 // Un joueur déjà installé, mais sans compte : on lui redemande son code une fois
-function jsDoitSecuriser(){ return !jsApercu() && !authConnecte(); }
+// Si les comptes ne sont pas encore activés côté Firebase, le joueur passe
+// à l'ancienne (code vérifié sur l'empreinte) : jamais bloqué. On réessaie chaque jour.
+function jsComptesIndispo(){
+  try{ var t=parseInt(localStorage.getItem('ast_comptes_indispo')||'0',10); return t && (Date.now()-t)<86400000; }catch(e){ return false; }
+}
+function jsEstPanneComptes(m){ m=String(m||''); return m.indexOf('CONFIGURATION_NOT_FOUND')>=0 || m.indexOf('pas activée')>=0 || m.indexOf('OPERATION_NOT_ALLOWED')>=0; }
+function jsMarquerIndispo(){ try{ localStorage.setItem('ast_comptes_indispo', String(Date.now())); }catch(e){} }
+function jsDoitSecuriser(){ return !jsApercu() && !authConnecte() && !jsComptesIndispo(); }
 function jsSecuriser(){
   document.getElementById('scr-login').classList.add('hidden');
   var app=document.getElementById('app'); if(app) app.classList.add('hidden');
@@ -1720,7 +1727,8 @@ async function jsErr(txt){
   var i=document.getElementById('pin-input'); if(i){ i.value=''; i.focus(); }
 }
 async function jsEssaiConnexion(pin){
-  try{ await authConnexion(jsEmail(MON_NUM), jsMdp(pin)); return true; }catch(e){ return false; }
+  try{ await authConnexion(jsEmail(MON_NUM), jsMdp(pin)); return true; }
+  catch(e){ if(jsEstPanneComptes(e.message)) return 'panne'; return false; }
 }
 async function jsAncienneEmpreinte(){
   try{
@@ -1746,16 +1754,22 @@ async function jsValiderPin(){
   var val=(document.getElementById('pin-input').value||'').trim();
   var errEl=document.getElementById('pin-err'); errEl.classList.add('hidden');
   if(!/^\d{4}$/.test(val)) return jsErr('Entre exactement 4 chiffres');
+  if(jsComptesIndispo()) return validerPin__base();
   var b=document.querySelector('#scr-pin .btn-or'); if(b){ b.disabled=true; b.textContent='Vérification…'; }
   try{
     // 1. Le compte existe déjà avec ce code (lui-même, ou accès créé par le coach)
-    if(PIN_PREMIERE_SAISIE===null && await jsEssaiConnexion(val)) return jsFin();
+    if(PIN_PREMIERE_SAISIE===null){
+      var e1=await jsEssaiConnexion(val);
+      if(e1==='panne'){ jsMarquerIndispo(); return validerPin__base(); }
+      if(e1) return jsFin();
+    }
     if(PIN_MODE==='verifier'){
       // 2. Ancien code : vérifié une dernière fois sur l'empreinte, puis le compte est créé avec
       var h=await jsAncienneEmpreinte();
       if(!h || h!==await hashPin(val)) return jsErr('Code incorrect');
       var r=await jsCreerCompte(val);
       if(r==='ok') return jsFin();
+      if(jsEstPanneComptes(r)){ jsMarquerIndispo(); return finaliserConnexion(); }
       if(r==='existe') return jsErr('Ton compte existe avec un autre code : demande au coach de le réinitialiser');
       return jsErr(r);
     }
@@ -1774,6 +1788,7 @@ async function jsValiderPin(){
     }
     var r2=await jsCreerCompte(val);
     if(r2==='ok') return jsFin();
+    if(jsEstPanneComptes(r2)){ jsMarquerIndispo(); return validerPin__base(); }
     PIN_PREMIERE_SAISIE=null;
     if(r2==='existe') return jsErr('Ce numéro a déjà un compte : entre le code que le coach t’a donné');
     return jsErr(r2);
