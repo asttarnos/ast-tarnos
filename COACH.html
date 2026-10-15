@@ -5570,6 +5570,243 @@ body.mb .scr{padding-top:10px!important}
 .thc-q em{font:800 11.5px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
 .thc-q em.up{color:var(--green)}.thc-q em.down{color:var(--red)}
 .thc-mots{margin-top:12px;background:var(--carte);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;font:500 14px 'Roboto Condensed',sans-serif;color:var(--gris)}
+
+/* ---------- Vivier : vue « sur le terrain » (v155) ---------- */
+.vv-pitch{position:relative;width:100%;max-width:780px;margin:0 auto;aspect-ratio:3/3.4;border-radius:16px;overflow:hidden;
+  background:repeating-linear-gradient(0deg,#2a7340 0 9%,#2f7d45 9% 18%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.5)}
+.vv-pm i{position:absolute;border:2px solid rgba(255,255,255,.45)}
+.vv-pm .c1{left:0;right:0;top:50%;height:0;border-width:2px 0 0}
+.vv-pm .c2{left:50%;top:50%;width:22%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.vv-pm .c3{left:22%;right:22%;top:0;height:15%;border-top:0}
+.vv-pm .c4{left:22%;right:22%;bottom:0;height:15%;border-bottom:0}
+.vv-pm .c5{left:38%;right:38%;bottom:0;height:6%;border-bottom:0}
+.vv-pn{position:absolute;transform:translate(-50%,-50%);width:min(18.6%,150px);background:rgba(10,12,14,.82);border-radius:10px;border-top:4px solid var(--sc);
+  padding:4px 6px 5px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.35);backdrop-filter:blur(2px)}
+.vv-pn:hover{outline:2px solid var(--or)}
+.vv-pnh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.vv-pnh b{font:400 13px 'Anton',sans-serif;color:var(--sc);letter-spacing:.04em}
+.vv-pnh span{font:400 12px 'Anton',sans-serif;color:#fff;background:var(--sc);border-radius:5px;padding:0 5px}
+.vv-pj{display:flex;align-items:center;gap:4px;min-width:0;font:800 13.5px 'Roboto Condensed',sans-serif;color:#fff;line-height:1.25}
+.vv-pj span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.vv-pj i{flex:none;font:400 10.5px 'Anton',sans-serif;font-style:normal;color:#fff;border-radius:4px;min-width:16px;text-align:center}
+.vv-pj em{font-style:normal;font-size:11px}
+.vv-pj.r{font:600 11.5px 'Roboto Condensed',sans-serif;color:rgba(255,255,255,.72)}
+.vv-pj.vide{color:rgba(255,255,255,.45);font:italic 600 12px 'Roboto Condensed',sans-serif}
+.vv-pp{font:700 10.5px 'Roboto Condensed',sans-serif;color:rgba(255,255,255,.5)}
+@media (max-width:600px){
+  .vv-pitch{aspect-ratio:3/4}
+  .vv-pn{width:19.4%;padding:3px 4px 4px;border-radius:8px}
+  .vv-pj{font-size:11.5px}.vv-pj.r{font-size:10px}.vv-pj i{display:none}
+  .vv-pj.r:nth-of-type(n+4){display:none}
+}
+.vvp .vv-pitch{max-width:none}
+
+/* ---------- Club House : recrutement ---------- */
+.rc-chif{display:flex;flex-wrap:wrap;gap:6px}
+.rc-chif span{display:flex;align-items:center;gap:5px;border:1px solid var(--line);border-left:4px solid var(--ec);border-radius:8px;padding:4px 9px;font:700 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.rc-chif b{font:400 17px 'Anton',sans-serif;color:var(--gris)}
+.rc-besoins{background:var(--carte);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.rc-besoins h4{margin:0 0 8px;font:400 18px 'Anton',sans-serif;color:var(--gris)}
+.rc-bl{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.rc-b{text-align:left;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);border-top:4px solid var(--sc);background:var(--fond);border-radius:10px;padding:7px 9px;cursor:pointer;color:var(--gris)}
+.rc-b b{font:400 15px 'Anton',sans-serif}
+.rc-b span{font:800 12px 'Roboto Condensed',sans-serif;color:var(--sc)}
+.rc-b i{font:600 12px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.rc-rel{background:rgba(217,119,6,.12);border:1px solid rgba(217,119,6,.45);border-radius:10px;padding:8px 12px;margin-bottom:10px;font:600 13.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.rc-rel a{color:var(--or);font-weight:800;cursor:pointer;text-decoration:underline}
+.rc-kanban{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:8px;overflow-x:auto;padding-bottom:6px}
+.rc-col{background:var(--carte);border:1px solid var(--line);border-top:4px solid var(--ec);border-radius:12px;padding:7px;display:flex;flex-direction:column;gap:6px;min-height:120px}
+.rc-ch{display:flex;justify-content:space-between;font:400 15px 'Anton',sans-serif;color:var(--gris);letter-spacing:.02em}
+.rc-ch span{color:var(--ec)}
+.rc-c{display:flex;flex-direction:column;gap:3px;background:var(--fond);border:1px solid var(--line);border-radius:9px;padding:7px 8px;cursor:pointer}
+.rc-c:hover{border-color:var(--or)}
+.rc-c>b{font:800 14.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.rc-club,.rc-pied{font:600 12px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.rc-club em,.rc-po em{color:var(--red);font-style:normal}
+.rc-po{display:flex;flex-wrap:wrap;gap:3px}
+.rc-po i{font:800 10.5px 'Roboto Condensed',sans-serif;font-style:normal;background:var(--line);color:var(--gris);border-radius:5px;padding:0 5px}
+.rc-po em{font:600 11px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.rc-ob{font:italic 500 12px 'Roboto Condensed',sans-serif;color:var(--gris2)}
+.rc-pied a{text-decoration:none}
+.rc-mv{display:flex;gap:4px;margin-top:2px}
+.rc-mv button{border:1px solid var(--line);background:none;color:var(--gris);border-radius:7px;padding:3px 8px;font:800 11.5px 'Roboto Condensed',sans-serif;cursor:pointer}
+.rc-mv button:last-child{flex:1}
+@media (max-width:700px){ .rc-kanban{grid-template-columns:repeat(6,78vw);scroll-snap-type:x mandatory}.rc-col{scroll-snap-align:start} }
+
+/* ---------- Club House : photothèque ---------- */
+.ph-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ph-tags button{border:1px solid var(--line);background:var(--carte);color:var(--gris);border-radius:14px;padding:5px 11px;font:700 12.5px 'Roboto Condensed',sans-serif;cursor:pointer}
+.ph-tags button.on{background:var(--or);color:#fff;border-color:var(--or)}
+.ph-tags i{font-style:normal;opacity:.6}
+.ph-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ph-v{position:relative;border:none;padding:0;border-radius:10px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:var(--carte)}
+.ph-v img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-v span{position:absolute;left:0;right:0;bottom:0;padding:14px 7px 5px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font:700 11.5px 'Roboto Condensed',sans-serif;text-align:left}
+.ph-grand{display:flex;justify-content:center;padding:10px}
+.ph-grand img{max-width:100%;max-height:72vh;border-radius:10px}
+.ph-act{display:flex;justify-content:center;gap:8px;padding:0 10px 14px}
+
+/* ---------- Club House : visuels ---------- */
+.vs-mods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.vs-mods button{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;text-align:left;border:1.5px solid var(--line);background:var(--carte);color:var(--gris);border-radius:12px;padding:9px 11px;cursor:pointer}
+.vs-mods button span{grid-row:span 2;font-size:24px;align-self:center}
+.vs-mods button b{font:400 16px 'Anton',sans-serif}
+.vs-mods button i{font:600 12px 'Roboto Condensed',sans-serif;font-style:normal;color:var(--gris2)}
+.vs-mods button.on{border-color:var(--or);box-shadow:0 0 0 2px var(--or) inset}
+@media (max-width:700px){ .vs-mods{grid-template-columns:1fr 1fr} }
+.vs-zone{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:14px;align-items:start}
+@media (max-width:820px){ .vs-zone{grid-template-columns:1fr} }
+.vs-apercu{background:#000;border-radius:14px;padding:10px;display:flex;justify-content:center}
+.vs-apercu canvas{width:100%;max-width:540px;height:auto;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.vs-form{display:flex;flex-direction:column;gap:8px}
+.vs-form label{display:flex;flex-direction:column;gap:3px;font:800 11.5px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--gris2)}
+.vs-form .fi{margin:0}
+.vs-photo{display:flex;flex-wrap:wrap;align-items:center;gap:6px;border:1.5px dashed var(--line);border-radius:10px;padding:8px}
+.vs-photo>span{flex:1 1 100%;font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.vs-sug{display:flex;flex-wrap:wrap;gap:5px}
+.vs-sug button{border:1px solid var(--line);background:var(--carte);color:var(--gris2);border-radius:14px;padding:5px 10px;font:700 12.5px 'Roboto Condensed',sans-serif;cursor:pointer}
+.vs-sug b{font:400 15px 'Anton',sans-serif;color:var(--or)}
+.vs-go{display:flex;gap:6px;flex-wrap:wrap}.vs-go .btn{flex:1}
+/* ===== Les moments avant match : stories (v155) ===== */
+#mm-story{position:fixed;inset:0;z-index:10050;background:#0d0d0f;color:#fff;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Roboto Condensed',sans-serif;overflow:hidden}
+#mm-story::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}
+#mm-story.f-or{background:#f07a1a;color:#111}
+#mm-story.f-cover{background:radial-gradient(120% 70% at 50% 0%,#3a1d08 0%,#0d0d0f 60%)}
+.mm-bars{position:relative;z-index:2;display:flex;gap:4px;padding:max(10px,env(safe-area-inset-top)) 12px 0}
+.mm-bars i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden}
+.f-or .mm-bars i{background:rgba(0,0,0,.2)}
+.mm-bars b{display:block;height:100%;width:0;background:#fff}
+.f-or .mm-bars b{background:#111}
+.mm-x{position:absolute;z-index:3;top:max(18px,calc(env(safe-area-inset-top) + 8px));right:10px;width:40px;height:40px;border:none;border-radius:50%;background:rgba(0,0,0,.3);color:inherit;font-size:18px;cursor:pointer}
+.mm-page{position:relative;z-index:1;flex:1;overflow-y:auto;padding:26px 22px 30px;max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.mm-page.in>*{animation:mmIn .55s cubic-bezier(.2,.8,.2,1) both}
+.mm-page.in>*:nth-child(2){animation-delay:.12s}.mm-page.in>*:nth-child(3){animation-delay:.24s}.mm-page.in>*:nth-child(4){animation-delay:.36s}
+@keyframes mmIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.mm-h{display:flex;flex-direction:column;gap:2px}
+.mm-h span{font:800 13px 'Roboto Condensed',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#f07a1a}
+.mm-h.noir span{color:#111}
+.mm-h b{font:400 38px/1 'Anton',sans-serif;text-transform:uppercase;letter-spacing:.01em}
+.mm-h i{font:700 15px 'Roboto Condensed',sans-serif;font-style:normal;opacity:.7}
+/* couverture */
+.mm-cov{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px}
+.mm-cov img{width:92px;height:92px;object-fit:contain;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))}
+.mm-k{font:800 14px 'Roboto Condensed',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#f07a1a}
+.mm-vs{display:flex;flex-direction:column;gap:2px}
+.mm-vs b{font:400 clamp(40px,12vw,64px)/.95 'Anton',sans-serif;text-transform:uppercase}
+.mm-vs span{font:400 30px 'Anton',sans-serif;color:#f07a1a}
+.mm-date{font:700 18px 'Roboto Condensed',sans-serif;opacity:.85}
+.mm-cd{display:flex;gap:8px;margin-top:6px}
+.mm-cd div{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:8px 6px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14)}
+.mm-cd b{font:400 34px/1 'Anton',sans-serif;font-variant-numeric:tabular-nums}
+.mm-cd span{font:700 11px 'Roboto Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+.mm-tap{margin-top:auto;font:700 13px 'Roboto Condensed',sans-serif;opacity:.45}
+/* radar */
+.mm-radar{width:100%;max-width:400px;align-self:center;color:#fff;overflow:visible}
+.mm-rl{font:700 12px 'Roboto Condensed',sans-serif;fill:rgba(255,255,255,.7)}
+.mm-rl.fort{fill:#f07a1a;font-weight:800}
+.mm-radar.anim .mm-rp{transform-origin:150px 135px;animation:mmRad 1.1s cubic-bezier(.2,.9,.2,1.15) .3s both}
+@keyframes mmRad{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.mm-ff2{display:flex;flex-direction:column;gap:8px}
+.mm-pt{border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.07);border-left:5px solid #888;font:600 16px 'Roboto Condensed',sans-serif}
+.mm-pt b{display:block;font:800 11.5px 'Roboto Condensed',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:2px}
+.mm-pt.ko{border-color:#dc2626}.mm-pt.ok{border-color:#16a34a}.mm-pt.or{border-color:#f07a1a}
+/* face-à-face */
+.mm-ft{display:flex;justify-content:space-between;font:400 20px 'Anton',sans-serif;text-transform:uppercase}
+.mm-ft b:last-child{text-align:right;color:rgba(255,255,255,.65)}
+.mm-fls{display:flex;flex-direction:column;gap:6px}
+.mm-fl{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.06)}
+.mm-fl>b{font:400 28px 'Anton',sans-serif;opacity:.55}
+.mm-fl>b:last-child{text-align:right}
+.mm-fl>b.mieux{opacity:1;color:#f07a1a}
+.mm-fl>span{font:800 12px 'Roboto Condensed',sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.6;text-align:center}
+.mm-fl.forme .g,.mm-fl.forme .d{display:flex;gap:3px;opacity:1;letter-spacing:0}
+.mm-fl.forme .d{justify-content:flex-end}
+.mm-f{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;font:400 13px 'Anton',sans-serif;font-style:normal;color:#fff;background:#6b7280}
+.mm-f.V{background:#16a34a}.mm-f.D{background:#dc2626}.mm-f.N{background:#d97706}
+.mm-h2h{display:flex;flex-direction:column;gap:5px;padding:10px 12px;border-radius:12px;border:1px dashed rgba(255,255,255,.2)}
+.mm-h2h h5{margin:0;font:800 12px 'Roboto Condensed',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.65}
+.mm-h2h div{display:flex;align-items:center;gap:10px;font:700 15px 'Roboto Condensed',sans-serif}
+.mm-h2h div b{font:400 20px 'Anton',sans-serif}
+.mm-h2h div span{opacity:.6}
+.mm-h2h.vide{font:600 14px 'Roboto Condensed',sans-serif;opacity:.7}
+/* compo */
+.mm-terr{border-radius:14px;overflow:hidden;max-width:420px;align-self:center;width:100%}
+.mm-onze{position:relative;width:100%;max-width:400px;align-self:center;aspect-ratio:3/4;border-radius:14px;background:repeating-linear-gradient(0deg,#1a5c2e 0 10%,#1e6633 10% 20%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.4)}
+.mm-onze div{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px}
+.mm-onze i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#f07a1a;border:2px solid #fff;font:400 14px 'Anton',sans-serif;font-style:normal}
+.mm-onze span{font:800 11.5px 'Roboto Condensed',sans-serif;text-transform:uppercase;text-shadow:0 1px 3px #000}
+/* plan en 3 temps */
+.mm-chrono{position:relative;height:26px;margin:4px 6px 0}
+.mm-chrono::before{content:'';position:absolute;left:0;right:0;top:6px;height:4px;border-radius:2px;background:rgba(255,255,255,.15)}
+.mm-chrono i{position:absolute;left:0;top:6px;height:4px;border-radius:2px;background:#f07a1a;animation:mmChr 8.4s linear .3s both}
+@keyframes mmChr{from{width:0}to{width:100%}}
+.mm-chrono span{position:absolute;top:13px;transform:translateX(-50%);font:700 11px 'Roboto Condensed',sans-serif;opacity:.6}
+.mm-chrono span:first-of-type{transform:none}
+.mm-phs{display:flex;flex-direction:column;gap:9px}
+.mm-ph{border-radius:14px;padding:11px 13px;background:rgba(255,255,255,.07);border-left:5px solid #f07a1a;opacity:0;animation:mmPh .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes mmPh{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.mm-pt2{display:flex;justify-content:space-between;font:800 12px 'Roboto Condensed',sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.mm-pt2 span{color:#f07a1a;opacity:1}
+.mm-ph b{display:block;font:400 25px/1.05 'Anton',sans-serif;text-transform:uppercase;margin-top:3px}
+.mm-ph p{margin:4px 0 0;font:600 15px/1.35 'Roboto Condensed',sans-serif;opacity:.85}
+/* consignes, mission */
+.mm-big{font:400 clamp(28px,8vw,40px)/1.12 'Anton',sans-serif;text-transform:uppercase;flex:1;display:flex;align-items:center}
+.mm-big.or{color:#f07a1a}
+/* rituel */
+.mm-rv{display:flex;flex-direction:column;gap:8px}
+.mm-rv div{display:flex;flex-direction:column;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07)}
+.mm-rv span{font:800 11.5px 'Roboto Condensed',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.65}
+.mm-rv b{font:400 22px 'Anton',sans-serif}
+.mm-rv i{font:600 14px 'Roboto Condensed',sans-serif;font-style:normal;opacity:.75}
+.mm-sac h5{margin:0 0 6px;font:800 13px 'Roboto Condensed',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.8;display:flex;justify-content:space-between}
+.mm-sac h5 em{font-style:normal;color:#f07a1a}
+.mm-si{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;background:rgba(255,255,255,.05);color:#fff;border-radius:10px;padding:9px 11px;margin-bottom:5px;font:700 15px 'Roboto Condensed',sans-serif;cursor:pointer}
+.mm-si i{flex:none;width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,.5)}
+.mm-si.on{opacity:.55;text-decoration:line-through}
+.mm-si.on i{background:#16a34a;border-color:#16a34a;box-shadow:inset 0 0 0 3px #0d0d0f}
+.mm-rap{border:none;border-radius:12px;padding:13px;background:#f07a1a;color:#111;font:800 15px 'Roboto Condensed',sans-serif;cursor:pointer}
+/* le bandeau (accueil joueur) et le bouton du dossier */
+.mm-band{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:16px;background:linear-gradient(110deg,#1b1209,#0d0d0f);color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.mm-band-r{position:relative;flex:none;width:58px;height:58px;display:grid;place-items:center}
+.mm-band-r i{position:absolute;inset:0;border-radius:50%;padding:3px;background:conic-gradient(#f07a1a,#fbbf24,#f07a1a);-webkit-mask:radial-gradient(circle,transparent 58%,#000 60%);mask:radial-gradient(circle,transparent 58%,#000 60%)}
+.mm-band:not(.neuf) .mm-band-r i{background:rgba(255,255,255,.3)}
+.mm-band-r b{font:400 17px 'Anton',sans-serif;color:#fff}
+.mm-band-c{flex:1;min-width:0;display:flex;flex-direction:column}
+.mm-band-c span{font:800 11px 'Roboto Condensed',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#f07a1a}
+.mm-band-c b{font:400 21px 'Anton',sans-serif;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mm-band-c em{font:600 13px 'Roboto Condensed',sans-serif;font-style:normal;opacity:.75}
+.mm-band-go{flex:none;width:38px;height:38px;border-radius:50%;background:#f07a1a;color:#111;display:grid;place-items:center;font-size:15px}
+.mm-voir{display:block;width:100%;margin:0 0 12px;border:none;border-radius:14px;padding:14px;background:#f07a1a;color:#111;font:800 16px 'Roboto Condensed',sans-serif;letter-spacing:.04em;cursor:pointer}
+/* côté coach : le bloc d'édition */
+.mmc{margin-top:16px;background:var(--carte);border:1px solid var(--line);border-radius:16px;padding:14px}
+.mmc-tete{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.mmc-tete b{display:block;font:400 22px 'Anton',sans-serif;color:var(--gris)}
+.mmc-tete span{font:500 13.5px 'Roboto Condensed',sans-serif;color:var(--gris2);max-width:760px;display:block}
+.mmc-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:900px){ .mmc-grille{grid-template-columns:1fr} }
+.mmc-b{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--fond)}
+.mmc-b h4{margin:0;font:400 17px 'Anton',sans-serif;color:var(--gris)}
+.mmc-rad{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+@media (max-width:520px){ .mmc-rad{grid-template-columns:1fr} }
+#mmc-radar .mm-radar{color:var(--gris)}
+#mmc-radar .mm-rl{fill:var(--gris2)}
+.mmc-curs{display:flex;flex-direction:column;gap:4px}
+.mmc-curs label{display:grid;grid-template-columns:1fr 90px 16px;gap:6px;align-items:center;font:700 12.5px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.mmc-curs input{width:100%;accent-color:var(--or)}
+.mmc-curs b{font:400 15px 'Anton',sans-serif;color:var(--or)}
+.mmc-l{display:flex;flex-direction:column;gap:3px}
+.mmc-l>span{font:800 11px 'Roboto Condensed',sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--gris2)}
+.mmc .fi{margin:0}
+.mmc-ff{display:grid;grid-template-columns:1fr 80px 80px;gap:6px;align-items:center}
+.mmc-ff>span{font:700 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.mmc-ff>b{font:800 11.5px 'Roboto Condensed',sans-serif;text-transform:uppercase;color:var(--gris2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mmc-ff>em{font:400 18px 'Anton',sans-serif;font-style:normal;text-align:center;color:var(--gris)}
+.mmc-ff .fi{padding:7px 8px;text-align:center}
+.mm-fo{display:flex;gap:2px;justify-content:center}
+.mm-fo .mm-f{width:15px;height:15px;font-size:9.5px;border-radius:4px}
+.mmc-ph{display:flex;flex-direction:column;gap:4px;padding-left:9px;border-left:4px solid var(--or)}
+.mmc-pht{display:flex;justify-content:space-between;font:800 13px 'Roboto Condensed',sans-serif;color:var(--gris)}
+.mmc-pht span{color:var(--or)}
 </style>
 <script>
 // ===== Phase 1 : trois portes au lieu de cinq pôles (v135) =====
@@ -5609,7 +5846,6 @@ var NAV3_POLES=[
     {s:'rotation',ic:'chrono',l:'Temps de jeu'},
     {s:'forme-coach',ic:'thermo',l:'Forme du groupe'},
     {s:'medical',ic:'hopital',l:'Infirmerie'},
-    {s:'vivier',ic:'groupe',l:'Le vivier du club'},
     {s:'programmes',ic:'coureur',l:'Programmes individuels'},
     {s:'thermo',ic:'thermo',l:'Thermomètre du groupe'},
     {s:'suivi-objectifs',ic:'liste',l:'Objectifs de chacun'},
@@ -5624,6 +5860,14 @@ var NAV3_POLES=[
     {s:'biblio-generale',ic:'dossier',l:'Documentation'},
     {s:'classement',ic:'barres',l:'Classement',g:'La saison en chiffres'},
     {s:'bilan',ic:'coupe',l:'Bilan & constats'}
+  ]},
+  {id:'clubhouse',label:'Club House',sous:'Directeur sportif · communication',icon:'coupe',color:'#eab308',screens:[
+    {s:'vivier',ic:'groupe',l:'Le vivier',g:'Directeur sportif'},
+    {s:'recrutement',ic:'loupe',l:'Recrutement · à contacter'},
+    {s:'reunions',ic:'parole',l:'Réunions techniques'},
+    {s:'visuels',ic:'appareil',l:'Les visuels du club',g:'Directeur de communication'},
+    {s:'photos',ic:'camera',l:'La photothèque'},
+    {s:'club-com',ic:'bulle',l:'Messages aux joueurs'}
   ]},
   {id:'clubr',label:'Club & réglages',sous:'Ce qu’on ouvre rarement',icon:'maison',color:'#94a3b8',screens:[
     {s:'club-vie',ic:'cible',l:'La vie du club'},
@@ -8397,7 +8641,7 @@ window.addEventListener('load', function(){
   EXT.apres('renderPlayerPicker', crPicker, 'compo et vigilance');
 });
 
-// ===== Le vivier du club (v154) =====
+// ===== Le vivier du club (v155 : vue terrain, fiche recrue) =====
 //
 //   La photographie de l'effectif, poste par poste, dans le système de jeu :
 //   sous chaque poste, jusqu'à 4 noms dans l'ordre (titulaire, doublure,
@@ -8468,7 +8712,7 @@ function vvCases(){
 function vvLigne(pos){ for(var k=0;k<VV_LIGNES.length;k++) if(VV_LIGNES[k].p.indexOf(pos)>=0) return VV_LIGNES[k].k; return 'mil'; }
 
 // ---------- L'horizon : aujourd'hui ou la saison prochaine ----------
-var VV={horizon:'auj', vue:'terrain', sel:null};
+var VV={horizon:'auj', vue:(function(){ try{ return localStorage.getItem('ast_vv_vue')||'liste'; }catch(e){ return 'liste'; } })(), sel:null};
 function vvPresent(p){
   if(VV.horizon==='auj') return p.statut!=='cible';
   return p.statut!=='dep';
@@ -8506,6 +8750,7 @@ function vvRendre(){
   var html='<div class="vv-barre">'
       +'<label class="vv-sys">Système <select class="fi" onchange="vvData().systeme=this.value;stSauver();vvRendre()">'+systemes.map(function(s){ return '<option'+(s===V.systeme?' selected':'')+'>'+vvEsc(s)+'</option>'; }).join('')+'</select></label>'
       +'<div class="vv-hor"><button class="'+(VV.horizon==='auj'?'on':'')+'" onclick="VV.horizon=\'auj\';vvRendre()">Aujourd’hui</button><button class="'+(VV.horizon==='proch'?'on':'')+'" onclick="VV.horizon=\'proch\';vvRendre()">Saison prochaine</button></div>'
+      +'<div class="vv-hor"><button class="'+(VV.vue==='liste'?'on':'')+'" onclick="vvVue(\'liste\')">☰ Listing par poste</button><button class="'+(VV.vue==='terrain'?'on':'')+'" onclick="vvVue(\'terrain\')">⚽ Sur le terrain</button></div>'
       +'<span class="vv-esp"></span>'
       +'<button class="jf-b2" onclick="vvJoueurs()">👥 Les '+nJ+' joueurs</button>'
       +'<button class="jf-b2" onclick="vvPhoto()">📸 Photographie</button>'
@@ -8513,6 +8758,7 @@ function vvRendre(){
     +'</div>';
   if(!nJ) html+='<div class="vv-vide"><b>Le vivier est vide.</b><span>Commence par l’effectif seniors : un tap les ajoute tous, il ne restera qu’à les placer. Ajoute ensuite la réserve, les jeunes qui frappent à la porte et les recrues que tu vises.</span>'
     +'<button class="btn" style="width:auto" onclick="vvImporter()">Ajouter l’effectif seniors ('+JOUEURS.length+')</button></div>';
+  if(VV.vue==='terrain'){ html+=vvTerrainHtml()+vvBilanHtml(); ct.innerHTML=html; return; }
   // Le terrain : une rangée par ligne, de l'attaque au gardien
   html+='<div class="vv-terrain">'+VV_LIGNES.map(function(li){
       var cs=C.filter(function(c){ return li.p.indexOf(c.pos)>=0; }).sort(function(a,b){ return a.x-b.x; });
@@ -8521,6 +8767,30 @@ function vvRendre(){
     }).join('')+'</div>';
   html+=vvBilanHtml();
   ct.innerHTML=html;
+}
+function vvVue(v){ VV.vue=v; try{ localStorage.setItem('ast_vv_vue', v); }catch(e){} vvRendre(); }
+// La vue « compo » : chaque poste à sa place sur le terrain, avec ses noms
+// Sur le terrain, les lignes sont étalées sur toute la hauteur (sinon les défenseurs se chevauchent)
+function vvRangees(C){
+  var ys=C.map(function(c){ return c.y; }).sort(function(a,b){ return a-b; }), R=[];
+  ys.forEach(function(y){ var r=R[R.length-1]; if(r && y-r.max<=8){ r.max=y; } else R.push({min:y, max:y}); });
+  var n=R.length;
+  C.forEach(function(c){ var i=0; R.forEach(function(r,k){ if(c.y>=r.min && c.y<=r.max) i=k; }); c.yy=n>1?(10+i*80/(n-1)):50; });
+  return C;
+}
+function vvTerrainHtml(photo){
+  var C=vvRangees(vvCases()), V=vvData();
+  return '<div class="vv-pitch'+(photo?' photo':'')+'"><div class="vv-pm"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><i class="c5"></i></div>'
+    +C.map(function(c){
+      var L=vvListe(c.cle), so=vvSolidite(c.cle);
+      return '<div class="vv-pn" style="left:'+c.x+'%;top:'+c.yy+'%;--sc:'+VV_SOL[so.niv].c+'" onclick="vvChoisir(\''+c.cle+'\',\''+vvEsc(c.l)+'\')">'
+        +'<div class="vv-pnh"><b>'+vvEsc(c.pos)+'</b><span>'+(so.n?String(so.score).replace('.',','):'–')+'</span></div>'
+        +(L.length?L.slice(0,3).map(function(pl,k){ var p=V.joueurs[pl.id], n=vvNiveau(pl);
+          return '<div class="vv-pj'+(k?' r':'')+'"><i style="background:'+vvCouleurNiv(n)+'">'+n+'</i><span>'+vvEsc(vvNom(p))+'</span>'+(p.statut==='cible'?'<em title="'+vvEsc(p.club||'recrue visée')+'">🎯</em>':'')+(p.statut==='dep'?'<em>↗</em>':'')+'</div>'; }).join('')
+          +(L.length>3?'<div class="vv-pp">+'+(L.length-3)+'</div>':'')
+          :'<div class="vv-pj vide">personne</div>')
+      +'</div>';
+    }).join('')+'</div>';
 }
 function vvCaseHtml(c){
   var L=vvListe(c.cle), so=vvSolidite(c.cle), V=vvData();
@@ -8629,6 +8899,10 @@ function vvFicheRendre(){
     +'<div class="md-sh"><b>'+(p.nom?vvEsc(p.nom):'Nouveau joueur')+'</b><span style="font-size:14px;color:var(--gris2)">'+(age?age+' ans':'')+'</span></div>'
     +'<input class="fi" placeholder="Prénom NOM" value="'+vvEsc(p.nom)+'" onchange="vvData().joueurs[\''+id+'\'].nom=this.value.trim();stSauver();vvFicheRendre()">'
     +'<div class="vv-g2"><label>Catégorie'+sel('cat', VV_CATS)+'</label><label>Statut'+sel('statut', VV_STATUTS)+'</label>'
+      +(p.cat==='EXT'||p.statut==='cible'?'<label>Club actuel<input class="fi" placeholder="ex. Boucau Tarnos Stade" value="'+vvEsc(p.club||'')+'" onchange="vvData().joueurs[\''+id+'\'].club=this.value.trim();stSauver()"></label>'
+        +'<label>Téléphone / contact<input class="fi" placeholder="06…" value="'+vvEsc(p.contact||'')+'" onchange="vvData().joueurs[\''+id+'\'].contact=this.value.trim();stSauver()"></label>'
+        +'<label>Où en est-on ?<select class="fi" onchange="rcSuivi(\''+id+'\',this.value);vvFicheRendre()">'+RC_ETAPES.map(function(e){ return '<option value="'+e.k+'"'+((p.suivi||'afaire')===e.k?' selected':'')+'>'+e.ic+' '+e.l+'</option>'; }).join('')+'</select></label>'
+        +'<label>Qui s’en occupe'+sel('qui', [{k:'',l:'—'}].concat((typeof nav3Membres==='function'?nav3Membres():[]).map(function(m){ return {k:m.nom,l:m.nom}; })))+'</label>':'')
       +'<label>Année de naissance<input class="fi" inputmode="numeric" placeholder="2007" value="'+vvEsc(p.annee||'')+'" onchange="vvData().joueurs[\''+id+'\'].annee=this.value.trim();stSauver();vvFicheRendre()"></label>'
       +'<label>Pied fort'+sel('pied', [{k:'D',l:'Droit'},{k:'G',l:'Gauche'},{k:'2',l:'Les deux'}])+'</label></div>'
     +'<div class="vv-pot"><span>Potentiel</span>'+[1,2,3,4,5,6,7,8,9,10].map(function(v){ return '<button class="'+(+p.potentiel>=v?'on':'')+'" style="--pc:'+vvCouleurNiv(v)+'" onclick="vvData().joueurs[\''+id+'\'].potentiel='+v+';stSauver();vvFicheRendre()">'+v+'</button>'; }).join('')+'</div>'
@@ -8650,7 +8924,7 @@ function vvFermerFiche(id){
   var s=document.getElementById('vv-fiche'); if(s) s.remove();
   if(p && !p.nom){ delete vvData().joueurs[id]; vvRendre(); return; }
   if(VV.fiche && VV.fiche.cle && VV.fiche.neuf) vvPlacer(VV.fiche.cle, id);
-  stSauver(); vvRendre();
+  stSauver(); vvRendre(); if(typeof rcRendre==='function') rcRendre();
   if(VV.fiche && VV.fiche.cle && VV.fiche.neuf){ vvChoisir(VV.fiche.cle, (vvCases().filter(function(c){ return c.cle===VV.fiche.cle; })[0]||{}).l||''); }
 }
 function vvObs(id){
@@ -8704,6 +8978,7 @@ function vvPhoto(){
     +'<div class="vvp" id="vv-photo"></div>';
   var tmp=document.getElementById('vv-ct'); var html='';
   var C=vvCases();
+  if(VV.vue==='terrain'){ document.getElementById('vv-photo').innerHTML=vvTerrainHtml(true)+vvBilanHtml(); return; }
   html+='<div class="vv-terrain photo">'+VV_LIGNES.map(function(li){
     var cs=C.filter(function(c){ return li.p.indexOf(c.pos)>=0; }).sort(function(a,b){ return a.x-b.x; });
     if(!cs.length) return '';
@@ -9005,6 +9280,704 @@ window.addEventListener('load', function(){
   EXT.apres('goNav', function(s){ if(s==='thermo'){ THC.rep=null; thcRendre(); } }, 'thermomètre');
 });
 
+// ===== Club House (v155) =====
+//   Directeur sportif      : le recrutement (les joueurs à contacter, posés aux postes du vivier)
+//   Directeur de communication : les visuels du club (affiche, groupe, résultat, chiffre) et la photothèque
+//
+//   Les recrues sont des joueurs du vivier (catégorie « Extérieur », statut « Recrue visée ») :
+//   une seule base, elles apparaissent aux postes en vue « saison prochaine ».
+
+// ---------- Le recrutement ----------
+var RC_ETAPES=[
+  {k:'afaire',  l:'À contacter', c:'#6b7280', ic:'📇'},
+  {k:'contact', l:'Contacté',    c:'#2563eb', ic:'📞'},
+  {k:'interet', l:'Intéressé',   c:'#7c3aed', ic:'👀'},
+  {k:'rdv',     l:'Rendez-vous', c:'#d97706', ic:'🤝'},
+  {k:'signe',   l:'Signé',       c:'#16a34a', ic:'✍️'},
+  {k:'refus',   l:'Refus',       c:'#dc2626', ic:'✕'}
+];
+var RC_RELANCE=10; // jours sans nouvelles avant de proposer une relance
+var RC={filtre:'tous'};
+function rcEtape(k){ return RC_ETAPES.filter(function(e){ return e.k===k; })[0]||RC_ETAPES[0]; }
+function rcEstRecrue(p){ return p && (p.cat==='EXT' || p.statut==='cible' || !!p.suivi); }
+function rcRecrues(){ var V=vvData(); return Object.keys(V.joueurs).map(function(id){ return V.joueurs[id]; }).filter(rcEstRecrue); }
+function rcPostes(id){ var V=vvData(); return vvCases().filter(function(c){ return (V.postes[c.cle]||[]).some(function(pl){ return pl.id===id; }); }); }
+function rcJours(d){ if(!d) return null; return Math.floor((Date.now()-d)/86400000); }
+
+// Les besoins : les postes fragiles la saison prochaine, et combien de pistes pour chacun
+function rcBesoins(){
+  var h=VV.horizon; VV.horizon='proch';
+  var V=vvData(), R=vvCases().map(function(c){
+    var so=vvSolidite(c.cle);
+    var pistes=(V.postes[c.cle]||[]).map(function(pl){ return V.joueurs[pl.id]; }).filter(function(p){ return p && rcEstRecrue(p) && p.suivi!=='refus' && p.suivi!=='signe'; });
+    return {c:c, so:so, pistes:pistes};
+  }).filter(function(x){ return x.so.niv==='fragile'||x.so.niv==='vide'||x.so.n<2; });
+  VV.horizon=h; return R;
+}
+
+function rcRendre(){
+  var ct=document.getElementById('rc-ct'); if(!ct) return;
+  var L=rcRecrues(), B=rcBesoins();
+  var relancer=L.filter(function(p){ return (p.suivi==='contact'||p.suivi==='interet') && rcJours(p.suiviDate)>=RC_RELANCE; });
+  var html='<div class="vv-barre"><div class="rc-chif">'
+      +RC_ETAPES.map(function(e){ var n=L.filter(function(p){ return (p.suivi||'afaire')===e.k; }).length; return '<span style="--ec:'+e.c+'"><b>'+n+'</b>'+e.l+'</span>'; }).join('')+'</div>'
+      +'<span class="vv-esp"></span>'
+      +'<button class="jf-b2" onclick="VV.horizon=\'proch\';VV.vue=\'terrain\';goNav(\'vivier\')">⚽ Voir sur le terrain 2027-28</button>'
+      +'<button class="btn" style="width:auto;margin:0" onclick="rcNouvelle()">+ Recrue / joueur à contacter</button></div>';
+  // Les postes à renforcer
+  html+='<div class="rc-besoins"><h4>🎯 Les postes à renforcer la saison prochaine</h4>'
+    +(B.length?'<div class="rc-bl">'+B.map(function(x){
+        return '<button class="rc-b" style="--sc:'+VV_SOL[x.so.niv].c+'" onclick="rcNouvelle(\''+x.c.cle+'\')"><b>'+vvEsc(x.c.l)+'</b>'
+          +'<span>'+(x.so.n?VV_SOL[x.so.niv].l+' · '+String(x.so.score).replace('.',',')+(x.so.n<2?' · pas de doublure':''):'Personne')+'</span>'
+          +'<i>'+(x.pistes.length?x.pistes.length+' piste'+(x.pistes.length>1?'s':'')+' : '+x.pistes.map(function(p){ return vvEsc(vvNom(p)); }).join(', '):'aucune piste — + en ajouter une')+'</i></button>'; }).join('')+'</div>'
+      :'<div class="st-aide" style="padding:0">Tous les postes ont un titulaire et une doublure solides dans le vivier de la saison prochaine.</div>')
+    +'</div>';
+  if(relancer.length) html+='<div class="rc-rel">⏰ <b>À relancer</b> (sans nouvelles depuis '+RC_RELANCE+' jours ou plus) : '+relancer.map(function(p){ return '<a onclick="vvFiche(\''+p.id+'\')">'+vvEsc(p.nom)+'</a>'; }).join(', ')+'</div>';
+  // Le tableau : une colonne par étape
+  html+='<div class="rc-kanban">'+RC_ETAPES.map(function(e,ie){
+    var C=L.filter(function(p){ return (p.suivi||'afaire')===e.k; }).sort(function(a,b){ return (b.suiviDate||0)-(a.suiviDate||0); });
+    return '<div class="rc-col" style="--ec:'+e.c+'"><div class="rc-ch">'+e.ic+' '+e.l+'<span>'+C.length+'</span></div>'
+      +C.map(function(p){
+        var po=rcPostes(p.id), j=rcJours(p.suiviDate), der=(p.obs||[]).slice(-1)[0];
+        return '<div class="rc-c" onclick="vvFiche(\''+p.id+'\')">'
+          +'<b>'+vvEsc(p.nom||'Sans nom')+'</b>'
+          +'<span class="rc-club">'+(p.club?'🏟 '+vvEsc(p.club):'<em>club ?</em>')+(vvAge(p)?' · '+vvAge(p)+' ans':'')+'</span>'
+          +(po.length?'<span class="rc-po">'+po.map(function(c){ return '<i>'+vvEsc(c.pos)+'</i>'; }).join('')+'</span>':'<span class="rc-po"><em>pas placé au vivier</em></span>')
+          +(der?'<span class="rc-ob">« '+vvEsc(der.t.slice(0,90))+' »</span>':'')
+          +'<span class="rc-pied">'+[p.qui?'👤 '+vvEsc(p.qui):'', j!=null?'il y a '+j+' j':''].filter(Boolean).join(' · ')
+            +(p.contact?' <a href="tel:'+vvEsc(p.contact.replace(/\s/g,''))+'" onclick="event.stopPropagation()">📞</a>':'')+'</span>'
+          +'<span class="rc-mv" onclick="event.stopPropagation()">'
+            +(ie>0?'<button onclick="rcBouger(\''+p.id+'\',-1)">‹</button>':'')
+            +(ie<RC_ETAPES.length-1?'<button onclick="rcBouger(\''+p.id+'\',1)">'+RC_ETAPES[ie+1].l+' ›</button>':'')+'</span>'
+          +'</div>';
+      }).join('')+'</div>';
+  }).join('')+'</div>';
+  ct.innerHTML=html;
+}
+function rcBouger(id, d){
+  var p=vvData().joueurs[id]; var i=RC_ETAPES.map(function(e){ return e.k; }).indexOf(p.suivi||'afaire');
+  rcSuivi(id, RC_ETAPES[Math.max(0,Math.min(RC_ETAPES.length-1,i+d))].k);
+}
+function rcSuivi(id, k){
+  var p=vvData().joueurs[id]; if(!p) return;
+  p.suivi=k; p.suiviDate=Date.now();
+  if(!p.obs) p.obs=[];
+  p.obs.push({t:'Recrutement : '+rcEtape(k).l, a:(typeof mdMoi==='function'?mdMoi():'')||'Staff', d:new Date().toLocaleDateString('fr-FR')});
+  // Signé : il rejoint l'effectif de la saison prochaine
+  if(k==='signe'){ p.statut='cible'; notif('✍️ '+vvNom(p)+' signé — il compte au vivier de la saison prochaine'); }
+  if(k==='refus' && p.statut==='cible') p.statut='suivi';
+  stSauver(); rcRendre();
+}
+// Une nouvelle piste : nom, club, poste, contact — en 10 secondes
+function rcNouvelle(cle){
+  var s=document.getElementById('rc-sheet'); if(s) s.remove();
+  s=document.createElement('div'); s.id='rc-sheet'; s.className='md-sheet';
+  s.onclick=function(e){ if(e.target===s) s.remove(); };
+  var C=vvCases(), M=(typeof nav3Membres==='function'?nav3Membres():[]);
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>Nouvelle piste</b></div>'
+    +'<input class="fi" id="rc-nom" placeholder="Prénom NOM">'
+    +'<div class="vv-g2"><label>Club actuel<input class="fi" id="rc-club" placeholder="ex. Anglet Genêts"></label>'
+      +'<label>Téléphone / contact<input class="fi" id="rc-tel" placeholder="06… ou via son coach"></label>'
+      +'<label>Poste visé<select class="fi" id="rc-poste">'+C.map(function(c){ return '<option value="'+c.cle+'"'+(c.cle===cle?' selected':'')+'>'+vvEsc(c.l)+'</option>'; }).join('')+'</select></label>'
+      +'<label>Niveau estimé à ce poste<select class="fi" id="rc-niv">'+[4,5,6,7,8,9].map(function(n){ return '<option'+(n===6?' selected':'')+'>'+n+'</option>'; }).join('')+'</select></label>'
+      +'<label>Année de naissance<input class="fi" id="rc-an" inputmode="numeric" placeholder="2002"></label>'
+      +'<label>Qui s’en occupe<select class="fi" id="rc-qui"><option value="">—</option>'+M.map(function(m){ return '<option'+(m.nom===(typeof mdMoi==='function'?mdMoi():'')?' selected':'')+'>'+vvEsc(m.nom)+'</option>'; }).join('')+'</select></label></div>'
+    +'<textarea class="fi" id="rc-obs" rows="2" placeholder="Pourquoi lui ? (vu contre nous, recommandé par…)"></textarea>'
+    +'<button class="btn" onclick="rcCreer()">Ajouter au vivier et au recrutement</button></div>';
+  document.body.appendChild(s);
+  setTimeout(function(){ var i=document.getElementById('rc-nom'); if(i) i.focus(); }, 50);
+}
+function rcCreer(){
+  var g=function(i){ return (document.getElementById(i).value||'').trim(); };
+  var nom=g('rc-nom'); if(!nom){ notif('Le nom d’abord'); return; }
+  var V=vvData(), id=vvId();
+  V.joueurs[id]={id:id, nom:nom, cat:'EXT', statut:'cible', potentiel:7, pied:'D', annee:g('rc-an'), club:g('rc-club'), contact:g('rc-tel'), qui:g('rc-qui'),
+    suivi:'afaire', suiviDate:Date.now(), obs:[], invit:[]};
+  if(g('rc-obs')) V.joueurs[id].obs.push({t:g('rc-obs'), a:(typeof mdMoi==='function'?mdMoi():'')||'Staff', d:new Date().toLocaleDateString('fr-FR')});
+  var cle=g('rc-poste'); if(!V.postes[cle]) V.postes[cle]=[];
+  V.postes[cle].push({id:id, niv:+g('rc-niv')||6});
+  stSauver(); document.getElementById('rc-sheet').remove();
+  notif('✓ '+nom+' ajouté — visible au poste en « saison prochaine »'); rcRendre();
+}
+
+// ---------- La photothèque ----------
+//   photos_club/{id}    : la vignette (≈ 20 Ko) et les infos — la liste se charge vite
+//   photos_club_hd/{id} : l'image (1600 px, ≈ 250 Ko) — chargée seulement quand on l'ouvre
+var PH={liste:null, filtre:'', hd:{}};
+function phRedim(file, max, q){
+  return new Promise(function(ok, ko){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      var r=Math.min(1, max/Math.max(img.width, img.height)), w=Math.round(img.width*r), h=Math.round(img.height*r);
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url); ok({data:cv.toDataURL('image/jpeg', q), w:w, h:h});
+    };
+    img.onerror=function(){ ko(new Error('Image illisible')); }; img.src=url;
+  });
+}
+async function phCharger(){
+  var L=[];
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/photos_club?pageSize=300'); if(r.ok){ var d=await r.json();
+    (d.documents||[]).forEach(function(x){ try{ L.push(JSON.parse(x.fields.data.stringValue)); }catch(e){} }); } }catch(e){}
+  PH.liste=L.sort(function(a,b){ return b.t-a.t; });
+}
+async function phHd(id){
+  if(PH.hd[id]) return PH.hd[id];
+  var r=await fbFetch(FIRESTORE_BASE+'/photos_club_hd/'+id); if(!r.ok) throw new Error('HTTP '+r.status);
+  var d=await r.json(); PH.hd[id]=d.fields.img.stringValue; return PH.hd[id];
+}
+function phRendre(){
+  var ct=document.getElementById('ph-ct'); if(!ct) return;
+  if(PH.liste===null){ ct.innerHTML='<div class="st-aide">Chargement…</div>'; phCharger().then(phRendre); return; }
+  var tags={}; PH.liste.forEach(function(p){ (p.tags||[]).forEach(function(t){ tags[t]=(tags[t]||0)+1; }); });
+  var L=PH.liste.filter(function(p){ return !PH.filtre || (p.tags||[]).indexOf(PH.filtre)>=0; });
+  ct.innerHTML='<div class="vv-barre"><label class="btn" style="width:auto;margin:0;cursor:pointer">+ Ajouter des photos<input type="file" accept="image/*" multiple hidden onchange="phAjouter(this.files)"></label>'
+      +'<span class="vv-esp"></span><span class="st-aide" style="padding:0">'+PH.liste.length+' photo'+(PH.liste.length>1?'s':'')+'</span></div>'
+    +(Object.keys(tags).length?'<div class="ph-tags"><button class="'+(PH.filtre?'':'on')+'" onclick="PH.filtre=\'\';phRendre()">Toutes</button>'+Object.keys(tags).sort().map(function(t){ return '<button class="'+(PH.filtre===t?'on':'')+'" onclick="PH.filtre='+vvEsc(JSON.stringify(t))+';phRendre()">'+vvEsc(t)+' <i>'+tags[t]+'</i></button>'; }).join('')+'</div>':'')
+    +(L.length?'<div class="ph-grille">'+L.map(function(p){ return '<button class="ph-v" onclick="phOuvrir(\''+p.id+'\')"><img src="'+p.mini+'" alt=""><span>'+vvEsc((p.tags||[]).slice(0,2).join(' · '))+'</span></button>'; }).join('')+'</div>'
+      :'<div class="vv-vide"><b>La photothèque est vide.</b><span>Les photos d’équipe, de match, des joueurs : rangées ici, étiquetées (match, joueur, saison), elles servent directement aux visuels du club.</span></div>');
+}
+async function phAjouter(files){
+  files=[].slice.call(files||[]); if(!files.length) return;
+  var adv=(typeof getProchainMatchCalendrier==='function' && MATCHS && MATCHS[0])?MATCHS[0].adversaire:'';
+  var tag=prompt('Une étiquette pour ces '+files.length+' photo'+(files.length>1?'s':'')+' ? (ex. match, joueur, équipe…)', adv?('vs '+adv):'Équipe');
+  if(tag===null) return;
+  var tags=String(tag).split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+  var ok=0;
+  for(var i=0;i<files.length;i++){
+    notif('📤 Photo '+(i+1)+'/'+files.length+'…');
+    try{
+      var hd=await phRedim(files[i], 1600, 0.8), mini=await phRedim(files[i], 360, 0.7);
+      if(hd.data.length>900000) hd=await phRedim(files[i], 1280, 0.72);
+      var id='ph'+Date.now().toString(36)+i;
+      var meta={id:id, t:Date.now(), tags:tags, w:hd.w, h:hd.h, mini:mini.data, auteur:(typeof mdMoi==='function'?mdMoi():'')||'Staff'};
+      var r1=await fbFetch(FIRESTORE_BASE+'/photos_club_hd/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{img:{stringValue:hd.data}}})});
+      if(!r1.ok) throw new Error('HTTP '+r1.status);
+      var r2=await fbFetch(FIRESTORE_BASE+'/photos_club/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(meta)}}})});
+      if(!r2.ok) throw new Error('HTTP '+r2.status);
+      PH.hd[id]=hd.data; PH.liste.unshift(meta); ok++;
+    }catch(e){ notif('⚠ Photo '+(i+1)+' non envoyée : '+e.message); }
+  }
+  if(ok) notif('✓ '+ok+' photo'+(ok>1?'s':'')+' dans la photothèque'); phRendre();
+}
+async function phOuvrir(id){
+  var p=PH.liste.filter(function(x){ return x.id===id; })[0]; if(!p) return;
+  var o=stCouche('pho');
+  o.innerHTML='<div class="st-h"><button class="st-x" onclick="stFermer(\'pho\')" aria-label="Fermer">‹</button><div class="st-t"><b>'+vvEsc((p.tags||[]).join(' · ')||'Photo')+'</b><span>'+new Date(p.t).toLocaleDateString('fr-FR')+' · '+vvEsc(p.auteur||'')+'</span></div>'
+    +'<button class="st-o" onclick="stFermer(\'pho\');vsOuvrirAvec(\''+id+'\')">🎨 En faire un visuel</button></div>'
+    +'<div class="ph-grand"><img id="ph-img" src="'+p.mini+'" alt=""></div>'
+    +'<div class="ph-act"><button class="jf-b2" onclick="phTag(\''+id+'\')">🏷 Étiquettes</button><button class="jf-b2" onclick="phTelecharger(\''+id+'\')">⬇ Télécharger</button><button class="jf-b2" style="color:var(--red)" onclick="phSupprimer(\''+id+'\')">Supprimer</button></div>';
+  try{ document.getElementById('ph-img').src=await phHd(id); }catch(e){}
+}
+async function phEcrireMeta(p){ return fbFetch(FIRESTORE_BASE+'/photos_club/'+p.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(p)}}})}); }
+async function phTag(id){
+  var p=PH.liste.filter(function(x){ return x.id===id; })[0];
+  var t=prompt('Étiquettes, séparées par des virgules', (p.tags||[]).join(', ')); if(t===null) return;
+  p.tags=t.split(',').map(function(x){ return x.trim(); }).filter(Boolean); await phEcrireMeta(p); notif('✓ Étiquettes enregistrées'); stFermer('pho'); phRendre();
+}
+async function phTelecharger(id){ try{ var a=document.createElement('a'); a.href=await phHd(id); a.download='ast-tarnos-'+id+'.jpg'; a.click(); }catch(e){ notif('⚠ '+e.message); } }
+async function phSupprimer(id){
+  if(!confirm('Supprimer cette photo de la photothèque ?')) return;
+  await fbFetch(FIRESTORE_BASE+'/photos_club/'+id,{method:'DELETE'}); await fbFetch(FIRESTORE_BASE+'/photos_club_hd/'+id,{method:'DELETE'});
+  PH.liste=PH.liste.filter(function(x){ return x.id!==id; }); stFermer('pho'); phRendre();
+}
+
+// ---------- Les visuels du club : 4 trames, ta photo, un PNG prêt à poster ----------
+var VS_MODELES=[
+  {k:'affiche', l:'Affiche du match', d:'J-2 : date, adversaire, lieu', ic:'📣'},
+  {k:'groupe',  l:'Le groupe',        d:'Les convoqués',               ic:'👥'},
+  {k:'resultat',l:'Le résultat',      d:'Score, buteurs, joueur du match', ic:'🏁'},
+  {k:'chiffre', l:'Le chiffre',       d:'Une stat qui claque',         ic:'🔢'}
+];
+var VS={m:'affiche', format:'post', img:null, imgId:null, ch:{}, hdm:null};
+var VS_OR='#f07a1a', VS_NOIR='#0d0d0f';
+function vsMatchSuivant(){ try{ return getProchainMatchCalendrier(); }catch(e){ return null; } }
+function vsDernier(){ return (typeof MATCHS!=='undefined' && MATCHS && MATCHS[0])||null; }
+function vsJour(dateStr){ // « Sam 17 Octobre 2026 - 20h00 » → { j:'Samedi 17 octobre', h:'20h00' }
+  var m=String(dateStr||'').match(/^(\w+)\.?\s+(\d+)\s+(\S+)\s+\d{4}\s*-\s*(\S+)/);
+  var J={Lun:'Lundi',Mar:'Mardi',Mer:'Mercredi',Jeu:'Jeudi',Ven:'Vendredi',Sam:'Samedi',Dim:'Dimanche'};
+  return m?{j:(J[m[1]]||m[1])+' '+m[2]+' '+m[3].toLowerCase(), h:m[4], court:m[1]+' '+m[2]+'/'+m[3].slice(0,3).toLowerCase()}:{j:String(dateStr||''), h:'', court:String(dateStr||'')};
+}
+function vsJournee(c){ if(!c||!c.comp) return ''; var n=CALENDRIER.filter(function(x){ return x.comp===c.comp; }).sort(function(a,b){ return comparerDatesFr(a.date,b.date); }).indexOf(c)+1; return c.comp==='AM'?'Match amical':(c.comp+(n>0?' · J'+n:'')); }
+// Les chiffres que l'appli trouve toute seule
+function vsChiffres(){
+  var M=(MATCHS||[]).slice(), R=[];
+  if(!M.length) return R;
+  var serie=0; for(var i=0;i<M.length && M[i].res!=='D';i++) serie++;
+  if(serie>=2) R.push({n:serie, l:'matchs sans défaite', p:'La série continue : on reste invaincus depuis '+serie+' matchs.'});
+  var v=0; for(var k=0;k<M.length && M[k].res==='V';k++) v++;
+  if(v>=2) R.push({n:v, l:'victoires de suite', p:v+' victoires d’affilée. Le groupe vit bien.'});
+  var bp=M.reduce(function(s,m){ return s+(+m.ast||0); },0), bc=M.reduce(function(s,m){ return s+(+m.adv||0); },0);
+  R.push({n:bp, l:'buts marqués', p:'En '+M.length+' matchs cette saison, soit '+String(Math.round(bp/M.length*10)/10).replace('.',',')+' par match.'});
+  var cs=M.filter(function(m){ return +m.adv===0; }).length;
+  if(cs) R.push({n:cs, l:'clean sheet'+(cs>1?'s':''), p:'Matchs sans encaisser de but. Merci la défense et le gardien.'});
+  var dom=M.filter(function(m){ return m.lieu==='D'; }), domD=dom.filter(function(m){ return m.res==='D'; }).length;
+  if(dom.length>=2 && !domD) R.push({n:dom.length, l:'matchs à domicile sans perdre', p:'Notre stade est une forteresse. Venez nous pousser samedi.'});
+  var but={}; M.forEach(function(m){ (m.notes||[]).forEach(function(n){ if(n.buts) but[n.nom]=(but[n.nom]||0)+(+n.buts); }); });
+  var top=Object.keys(but).sort(function(a,b){ return but[b]-but[a]; })[0];
+  if(top) R.push({n:but[top], l:'buts pour '+vvNom({nom:top}), p:'Meilleur buteur de l’équipe cette saison.'});
+  return R;
+}
+function vsDefauts(m){
+  var C=vsMatchSuivant(), D=vsDernier(), ch={};
+  if(m==='affiche'){ var j=vsJour(C&&C.date);
+    ch={sur:(j.j+(j.h?' · '+j.h:'')).toUpperCase(), adv:C?C.adversaire:'Adversaire', lieu:C&&C.lieu==='E'?'À l’extérieur':'Stade municipal · Tarnos',
+      comp:vsJournee(C), cri:C&&C.lieu==='E'?'ON VOUS ATTEND !':'VENEZ NOMBREUX !', dom:!C||C.lieu!=='E'}; }
+  if(m==='groupe'){ var noms=[].concat(CONVOS&&CONVOS.a||[]); var j2=vsJour(C&&C.date);
+    if(!noms.length){ var D0=vsDernier(); noms=D0&&D0.notes?D0.notes.map(function(n){ return n.nom; }):[]; }
+    ch={sur:'Le groupe · '+j2.court+(j2.h?' · '+j2.h:''), titre:'Les '+(noms.length||16), adv:'face à '+(CONVOS&&CONVOS.adv||(C?C.adversaire:'')), noms:noms.join('\n')}; }
+  if(m==='resultat' && D){ var b=[]; (D.notes||[]).forEach(function(n){ for(var i=0;i<(+n.buts||0);i++) b.push(n.nom); });
+    var hdm=(D.hommeDuMatch!=null && JOUEURS[D.hommeDuMatch])?JOUEURS[D.hommeDuMatch].nom:(VS.hdm?VS.hdm.nom:'');
+    var dom=D.lieu!=='E';
+    ch={res:D.res==='V'?'Victoire':(D.res==='D'?'Défaite':'Match nul'), comp:D.comp||'', a:dom?'AST Tarnos':D.adversaire, b:dom?D.adversaire:'AST Tarnos', sa:dom?D.ast:D.adv, sb:dom?D.adv:D.ast,
+      buts:b.map(function(n){ return '⚽ '+vvNom({nom:n}).toUpperCase(); }).join('\n'), hdm:hdm, hdmv:VS.hdm&&VS.hdm.nom===hdm?VS.hdm.n+' votes sur '+VS.hdm.tot:'', suite:C?'Prochain : '+C.adversaire+' · '+vsJour(C.date).court:'Merci au public !'}; }
+  if(m==='resultat' && !D) ch={res:'Victoire', comp:'R2', a:'AST Tarnos', b:'Adversaire', sa:0, sb:0, buts:'', hdm:'', hdmv:'', suite:''};
+  if(m==='chiffre'){ var X=vsChiffres()[0]||{n:'5', l:'matchs sans défaite', p:'Une phrase pour raconter le chiffre.'}; ch={n:String(X.n), l:X.l, p:X.p}; }
+  return ch;
+}
+// Le joueur du match élu par le vestiaire (votes de l'appli joueur)
+async function vsChargerHdm(){
+  var D=vsDernier(); if(!D) return;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/homme_du_match?pageSize=300'); if(!r.ok) return;
+    var d=await r.json(), n={}, tot=0;
+    var norm=function(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,''); };
+    (d.documents||[]).forEach(function(x){ var f=x.fields||{}, k=(f.matchKey||{}).stringValue||'', j=(f.joueurNote||{}).stringValue||'';
+      if(j && norm(k).indexOf(norm(D.adversaire))>=0){ n[j]=(n[j]||0)+1; tot++; } });
+    var top=Object.keys(n).sort(function(a,b){ return n[b]-n[a]; })[0];
+    VS.hdm=top?{nom:top, n:n[top], tot:tot}:null;
+  }catch(e){}
+}
+function vsRendre(){
+  var ct=document.getElementById('vs-ct'); if(!ct) return;
+  if(!VS.ch[VS.m]) VS.ch[VS.m]=vsDefauts(VS.m);
+  var ch=VS.ch[VS.m];
+  var champ=function(k, l, opts){ opts=opts||{}; var v=ch[k]==null?'':ch[k];
+    return '<label>'+l+(opts.area?'<textarea class="fi" rows="'+(opts.area)+'" oninput="VS.ch[VS.m].'+k+'=this.value;vsDessiner()">'+vvEsc(v)+'</textarea>'
+      :'<input class="fi" value="'+vvEsc(v)+'" oninput="VS.ch[VS.m].'+k+'=this.value;vsDessiner()">')+'</label>'; };
+  var F={
+    affiche:champ('sur','Date et heure')+champ('adv','Adversaire')+champ('lieu','Lieu')+champ('comp','Compétition')+champ('cri','Le cri'),
+    groupe:champ('sur','Surtitre')+champ('titre','Titre')+champ('adv','Sous-titre')+champ('noms','Les noms (un par ligne)',{area:6}),
+    resultat:champ('res','Résultat')+champ('comp','Compétition')+'<div class="vv-g2">'+champ('a','Équipe 1')+champ('sa','Score 1')+champ('b','Équipe 2')+champ('sb','Score 2')+'</div>'
+      +champ('buts','Buteurs (un par ligne)',{area:3})+champ('hdm','Joueur du match')+champ('hdmv','Ligne sous le joueur du match')+champ('suite','Bandeau du bas'),
+    chiffre:'<div class="vs-sug">'+vsChiffres().map(function(x,i){ return '<button onclick="vsChiffre('+i+')"><b>'+vvEsc(x.n)+'</b> '+vvEsc(x.l)+'</button>'; }).join('')+'</div>'
+      +champ('n','Le chiffre')+champ('l','Ce qu’il compte')+champ('p','La phrase',{area:3})
+  };
+  ct.innerHTML='<div class="vs-mods">'+VS_MODELES.map(function(m){ return '<button class="'+(VS.m===m.k?'on':'')+'" onclick="VS.m=\''+m.k+'\';vsRendre()"><span>'+m.ic+'</span><b>'+m.l+'</b><i>'+m.d+'</i></button>'; }).join('')+'</div>'
+    +'<div class="vs-zone"><div class="vs-apercu"><canvas id="vs-cv"></canvas></div>'
+    +'<div class="vs-form">'
+      +'<div class="vv-hor"><button class="'+(VS.format==='post'?'on':'')+'" onclick="VS.format=\'post\';vsDessiner();vsRendre()">Post 4:5</button><button class="'+(VS.format==='story'?'on':'')+'" onclick="VS.format=\'story\';vsRendre()">Story 9:16</button></div>'
+      +'<div class="vs-photo">'+(VS.img?'<span>📷 Photo choisie</span><button class="jf-b2" onclick="VS.img=null;VS.imgId=null;vsRendre()">Retirer</button>':'<span class="st-aide" style="padding:0">Sans photo, la trame reste propre.</span>')
+        +'<label class="jf-b2" style="cursor:pointer">📁 Depuis le téléphone<input type="file" accept="image/*" hidden onchange="vsPhotoFichier(this.files[0])"></label>'
+        +'<button class="jf-b2" onclick="vsChoisirPhoto()">🖼 Photothèque</button></div>'
+      +F[VS.m]
+      +'<div class="vs-go"><button class="btn" style="margin:0" onclick="vsPartager()">📤 Partager</button><button class="jf-b2" onclick="vsTelecharger()">⬇ PNG</button><button class="jf-b2" onclick="VS.ch[VS.m]=null;vsRendre()">↺ Réinitialiser</button></div>'
+    +'</div></div>';
+  vsDessiner();
+}
+function vsChiffre(i){ var X=vsChiffres()[i]; VS.ch.chiffre={n:String(X.n), l:X.l, p:X.p}; vsRendre(); }
+function vsPhotoFichier(f){ if(!f) return; phRedim(f, 1800, 0.9).then(function(r){ var im=new Image(); im.onload=function(){ VS.img=im; VS.imgId=null; vsRendre(); }; im.src=r.data; }); }
+async function vsChoisirPhoto(){
+  if(PH.liste===null){ notif('Chargement de la photothèque…'); await phCharger(); }
+  var s=document.createElement('div'); s.id='vs-sheet'; s.className='md-sheet'; s.onclick=function(e){ if(e.target===s) s.remove(); };
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>Choisir une photo</b></div>'+(PH.liste.length?'<div class="ph-grille">'+PH.liste.map(function(p){ return '<button class="ph-v" onclick="document.getElementById(\'vs-sheet\').remove();vsOuvrirAvec(\''+p.id+'\',true)"><img src="'+p.mini+'" alt=""><span>'+vvEsc((p.tags||[]).slice(0,2).join(' · '))+'</span></button>'; }).join('')+'</div>':'<div class="st-aide">La photothèque est vide.</div>')+'</div>';
+  document.body.appendChild(s);
+}
+async function vsOuvrirAvec(id, resterIci){
+  if(!resterIci) goNav('visuels');
+  try{ var src=await phHd(id); var im=new Image(); im.onload=function(){ VS.img=im; VS.imgId=id; vsRendre(); }; im.src=src; }catch(e){ notif('⚠ Photo indisponible'); }
+}
+
+// ----- Le dessin -----
+function vsLogo(){ if(VS._logo) return VS._logo; try{ var im=new Image(); im.src=HUBL_LOGO; VS._logo=im; return im; }catch(e){ return null; } }
+function vsTaille(ctx, txt, police, taille, maxW){ // réduit la police jusqu'à ce que le texte tienne
+  while(taille>12){ ctx.font=police.replace('{t}', taille); if(ctx.measureText(txt).width<=maxW) break; taille-=2; }
+  return taille;
+}
+function vsTexte(ctx, txt, x, y, o){
+  o=o||{}; var t=o.taille||40;
+  if(o.maxW) t=vsTaille(ctx, txt, o.police||"400 {t}px Anton", t, o.maxW);
+  ctx.font=(o.police||"400 {t}px Anton").replace('{t}', t);
+  ctx.fillStyle=o.c||'#fff'; ctx.textAlign=o.align||'left'; ctx.textBaseline=o.base||'alphabetic';
+  if(o.esp && 'letterSpacing' in ctx) ctx.letterSpacing=o.esp+'px';
+  ctx.fillText(txt, x, y);
+  if('letterSpacing' in ctx) ctx.letterSpacing='0px';
+  return t;
+}
+function vsPhoto(ctx, x, y, w, h){
+  if(!VS.img){
+    // fond de remplacement : rayures discrètes
+    ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.fillStyle='#18181b'; ctx.fillRect(x,y,w,h);
+    ctx.strokeStyle='rgba(255,255,255,.03)'; ctx.lineWidth=26; for(var i=-h;i<w+h;i+=60){ ctx.beginPath(); ctx.moveTo(x+i,y); ctx.lineTo(x+i+h,y+h); ctx.stroke(); }
+    ctx.restore(); return;
+  }
+  var im=VS.img, r=Math.max(w/im.width, h/im.height), iw=im.width*r, ih=im.height*r;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.drawImage(im, x+(w-iw)/2, y+(h-ih)/2.6, iw, ih); ctx.restore();
+}
+function vsTexture(ctx, W, H, a){
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,'+(a||.025)+')'; ctx.lineWidth=2;
+  for(var i=-H;i<W;i+=22){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i+H*0.47,H); ctx.stroke(); } ctx.restore();
+}
+function vsPied(ctx, W, H, g, d, fond, coul){
+  ctx.fillStyle=fond||VS_OR; ctx.fillRect(0,H-90,W,90);
+  vsTexte(ctx, String(g||'').toUpperCase(), 60, H-33, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:coul||'#111', maxW:W/2-80, esp:2});
+  vsTexte(ctx, String(d||'').toUpperCase(), W-60, H-33, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:coul||'#111', align:'right', maxW:W/2-80, esp:2});
+}
+function vsDessiner(){
+  var cv=document.getElementById('vs-cv'); if(!cv) return;
+  var W=1080, H=VS.format==='story'?1920:1350; cv.width=W; cv.height=H;
+  var ctx=cv.getContext('2d'), ch=VS.ch[VS.m]||{}, logo=vsLogo(), S=H-1350; // S : la hauteur en plus d'une story
+  var go=function(){
+    ctx.clearRect(0,0,W,H); ctx.fillStyle=VS_NOIR; ctx.fillRect(0,0,W,H);
+    var L=function(x,y,t){ if(logo && logo.complete && logo.naturalWidth){ ctx.save(); ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=20; ctx.shadowOffsetY=8; ctx.drawImage(logo,x,y,t,t); ctx.restore(); } };
+    if(VS.m==='affiche'){
+      var ph=650+S*0.6; vsPhoto(ctx,0,0,W,ph);
+      var g=ctx.createLinearGradient(0,ph-260,0,ph); g.addColorStop(0,'rgba(13,13,15,0)'); g.addColorStop(1,VS_NOIR); ctx.fillStyle=g; ctx.fillRect(0,ph-260,W,260);
+      ctx.fillStyle=VS_OR; ctx.fillRect(0,ph,W,8); vsTexture(ctx,W,H);
+      L(60,50,150);
+      if(ch.cri){ ctx.save(); ctx.translate(W-60,110); ctx.rotate(-5*Math.PI/180); ctx.font="400 44px Anton"; var cw=ctx.measureText(ch.cri).width+52; ctx.fillStyle='#fff'; ctx.fillRect(-cw,-40,cw,72); vsTexte(ctx,ch.cri,-cw/2,12,{taille:44,c:'#111',align:'center',maxW:cw}); ctx.restore(); }
+      var y=ph+80;
+      vsTexte(ctx, ch.sur||'', 60, y, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:VS_OR, esp:5, maxW:W-120});
+      var nous='AST TARNOS', eux=String(ch.adv||'').toUpperCase();
+      var t1=vsTexte(ctx, ch.dom===false?eux:nous, 60, y+150, {taille:150, maxW:W-120});
+      vsTexte(ctx, 'VS', 60, y+222, {taille:60, c:VS_OR});
+      vsTexte(ctx, ch.dom===false?nous:eux, 60, y+350, {taille:Math.min(t1,130), maxW:W-120});
+      vsPied(ctx,W,H,ch.lieu,ch.comp);
+    }
+    if(VS.m==='groupe'){
+      vsPhoto(ctx,0,0,W,H); if(VS.img){ ctx.fillStyle='rgba(13,13,15,.82)'; ctx.fillRect(0,0,W,H); }
+      vsTexture(ctx,W,H); ctx.fillStyle=VS_OR; ctx.fillRect(0,0,24,H);
+      L(W-190,50,130);
+      vsTexte(ctx, String(ch.sur||'').toUpperCase(), 80, 110, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:VS_OR, esp:5, maxW:W-320});
+      vsTexte(ctx, String(ch.titre||'').toUpperCase(), 80, 230, {taille:120, maxW:W-320});
+      vsTexte(ctx, ch.adv||'', 80, 290, {police:"700 {t}px 'Roboto Condensed'", taille:36, c:'rgba(255,255,255,.85)', maxW:W-160});
+      var N=String(ch.noms||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+      var col=Math.ceil(N.length/2)||1, top=370, bas=H-130, hl=Math.min(92, (bas-top)/col), cw2=(W-80-60-60)/2;
+      N.forEach(function(n,i){
+        var cx=80+(i<col?0:cw2+60), cy=top+(i%col)*hl;
+        ctx.fillStyle=VS_OR; ctx.beginPath(); ctx.arc(cx+29, cy+29, 29, 0, 7); ctx.fill();
+        vsTexte(ctx, String(i+1), cx+29, cy+41, {taille:30, c:'#111', align:'center'});
+        var p=n.split(' '), pre=p.length>1?p[0]:'', nom=(p.length>1?p.slice(1).join(' '):n).toUpperCase();
+        var t=vsTexte(ctx, nom, cx+78, cy+42, {police:"800 {t}px 'Roboto Condensed'", taille:34, maxW:cw2-90});
+        ctx.font="800 "+t+"px 'Roboto Condensed'"; var nw=ctx.measureText(nom).width;
+        if(pre && nw+100<cw2-90) vsTexte(ctx, pre, cx+90+nw, cy+42, {police:"400 {t}px 'Roboto Condensed'", taille:28, c:'rgba(255,255,255,.65)', maxW:cw2-110-nw});
+        ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fillRect(cx, cy+hl-8, cw2, 1);
+      });
+      vsPied(ctx,W,H,'#ASTTarnos','Allez Tarnos !');
+    }
+    if(VS.m==='resultat'){
+      var pw=520; vsPhoto(ctx,W-pw,0,pw,H-90);
+      if(!VS.img){ vsTexte(ctx,'📷',W-pw/2,(H-90)/2,{police:"400 {t}px sans-serif",taille:90,align:'center',c:'rgba(255,255,255,.25)'}); }
+      ctx.fillStyle=VS_OR; ctx.fillRect(W-pw-8,0,8,H-90); vsTexture(ctx,W-pw-8,H);
+      L(60,50,120);
+      var x=60, mw=W-pw-120, y0=260+S*0.25;
+      vsTexte(ctx, (String(ch.res||'')+(ch.comp?' · '+ch.comp:'')).toUpperCase(), x, y0, {police:"800 {t}px 'Roboto Condensed'", taille:30, c:VS_OR, esp:5, maxW:mw});
+      var sc=String(ch.sa)+'-'+String(ch.sb);
+      ctx.font="400 230px Anton"; var t=vsTaille(ctx, sc, "400 {t}px Anton", 230, mw);
+      var w1=(function(){ ctx.font="400 "+t+"px Anton"; return ctx.measureText(String(ch.sa)).width; })(), wt=ctx.measureText('-').width;
+      vsTexte(ctx, String(ch.sa), x, y0+230, {taille:t}); vsTexte(ctx, '-', x+w1, y0+230, {taille:t, c:VS_OR}); vsTexte(ctx, String(ch.sb), x+w1+wt, y0+230, {taille:t});
+      vsTexte(ctx, String(ch.a||'').toUpperCase(), x, y0+300, {taille:44, maxW:mw});
+      vsTexte(ctx, String(ch.b||'').toUpperCase(), x, y0+350, {taille:44, maxW:mw, c:'rgba(255,255,255,.6)'});
+      var B=String(ch.buts||'').split('\n').filter(function(s){ return s.trim(); }), yb=y0+420;
+      B.slice(0,6).forEach(function(b,i){ vsTexte(ctx, b, x, yb+i*48, {police:"700 {t}px 'Roboto Condensed'", taille:32, maxW:mw}); });
+      if(ch.hdm){ var yh=Math.max(yb+B.slice(0,6).length*48+30, H-90-240);
+        ctx.fillStyle=VS_OR; ctx.fillRect(x, yh, mw, 190);
+        vsTexte(ctx, 'JOUEUR DU MATCH · VOTE DU VESTIAIRE', x+26, yh+48, {police:"800 {t}px 'Roboto Condensed'", taille:24, c:'#111', esp:3, maxW:mw-52});
+        vsTexte(ctx, String(ch.hdm).toUpperCase(), x+26, yh+120, {taille:58, c:'#111', maxW:mw-52});
+        if(ch.hdmv) vsTexte(ctx, ch.hdmv, x+26, yh+162, {police:"700 {t}px 'Roboto Condensed'", taille:26, c:'#111', maxW:mw-52}); }
+      vsPied(ctx,W,H,ch.suite,'Merci au public !');
+    }
+    if(VS.m==='chiffre'){
+      ctx.fillStyle=VS_OR; ctx.fillRect(0,0,W,H);
+      if(VS.img){ vsPhoto(ctx,0,0,W,H); ctx.fillStyle='rgba(240,122,26,.86)'; ctx.fillRect(0,0,W,H); }
+      vsTexture(ctx,W,H,.05); L(60,50,130);
+      var y1=300+S*0.3;
+      vsTexte(ctx, 'LE CHIFFRE DE LA SEMAINE', 60, y1+34, {police:"800 {t}px 'Roboto Condensed'", taille:34, c:'#111', esp:6});
+      vsTexte(ctx, String(ch.n||''), 50, y1+480, {taille:440, c:'#111', maxW:W-100});
+      var mots=String(ch.l||'').toUpperCase().split(' '), lignes=[''], ln=0;
+      ctx.font="400 92px Anton"; mots.forEach(function(m){ var e=(lignes[ln]?lignes[ln]+' ':'')+m; if(ctx.measureText(e).width>W-120 && lignes[ln]){ lignes[++ln]=m; } else lignes[ln]=e; });
+      lignes.slice(0,2).forEach(function(l,i){ vsTexte(ctx, l, 60, y1+580+i*96, {taille:92, c:'#111', maxW:W-120}); });
+      // la phrase, sur plusieurs lignes
+      var yp=y1+580+Math.min(2,lignes.length)*96+20, P=String(ch.p||'').split(' '), lg='', yy=yp;
+      ctx.font="700 36px 'Roboto Condensed'";
+      P.forEach(function(m){ var e=lg?lg+' '+m:m; if(ctx.measureText(e).width>820 && lg){ vsTexte(ctx, lg, 60, yy, {police:"700 {t}px 'Roboto Condensed'", taille:36, c:'#111'}); yy+=48; lg=m; } else lg=e; });
+      if(lg) vsTexte(ctx, lg, 60, yy, {police:"700 {t}px 'Roboto Condensed'", taille:36, c:'#111'});
+      vsPied(ctx,W,H,'AST Tarnos · Seniors R2','#ASTTarnos','#111','#fff');
+    }
+  };
+  go();
+  // les polices et le logo peuvent arriver après : on redessine une fois prêts
+  var att=[]; try{ att.push(document.fonts.load("400 100px Anton"), document.fonts.load("800 30px 'Roboto Condensed'"), document.fonts.load("700 30px 'Roboto Condensed'")); }catch(e){}
+  if(logo && !logo.complete) att.push(new Promise(function(ok){ logo.onload=ok; logo.onerror=ok; }));
+  if(att.length) Promise.all(att).then(go, go);
+}
+function vsNomFichier(){ return 'ast-tarnos-'+VS.m+'-'+new Date().toISOString().slice(0,10)+'.png'; }
+function vsBlob(){ return new Promise(function(ok){ document.getElementById('vs-cv').toBlob(ok, 'image/png'); }); }
+async function vsTelecharger(){ var b=await vsBlob(), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=vsNomFichier(); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000); }
+async function vsPartager(){
+  var b=await vsBlob(), f=new File([b], vsNomFichier(), {type:'image/png'});
+  if(navigator.canShare && navigator.canShare({files:[f]})){ try{ await navigator.share({files:[f], title:'AST Tarnos'}); return; }catch(e){ if(e && e.name==='AbortError') return; } }
+  vsTelecharger(); notif('⬇ Image téléchargée — prête à poster');
+}
+
+// ---------- Les écrans ----------
+window.addEventListener('load', function(){
+  var ref=document.getElementById('scr-compos');
+  var ecran=function(id, titre, sous, ct){
+    if(!ref || document.getElementById('scr-'+id)) return;
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-'+id;
+    d.innerHTML='<div class="ph"><div><div class="ph-title">'+titre+'</div><div class="ph-sub">'+sous+'</div></div></div><div id="'+ct+'"></div>';
+    ref.parentNode.insertBefore(d, ref.nextSibling);
+  };
+  ecran('recrutement','🔎 Recrutement','Les joueurs à contacter, du premier appel à la signature — posés aux postes du vivier','rc-ct');
+  ecran('visuels','🎨 Les visuels du club','Affiche, groupe, résultat, chiffre : la trame est prête, tu ajoutes ta photo, tu postes','vs-ct');
+  ecran('photos','📷 La photothèque','Les photos du club, rangées et étiquetées, prêtes pour les visuels','ph-ct');
+  try{ ECRANS_INFO['recrutement']={ic:'loupe', l:'Recrutement'}; ECRANS_INFO['visuels']={ic:'appareil', l:'Les visuels du club'}; ECRANS_INFO['photos']={ic:'camera', l:'La photothèque'}; }catch(e){}
+  EXT.apres('goNav', function(s){
+    if(s==='recrutement') rcRendre();
+    if(s==='visuels'){ vsRendre(); if(!VS.hdm) vsChargerHdm().then(function(){ if(VS.hdm && VS.ch.resultat && !VS.ch.resultat.hdm){ VS.ch.resultat=null; } if(VS.m==='resultat') vsRendre(); }); }
+    if(s==='photos') phRendre();
+  }, 'clubhouse');
+});
+
+// ===== Les moments avant match (v155) — commun coach / joueur =====
+//   Le dossier d'avant-match se regarde en « stories », comme sur Instagram :
+//   la couverture et le compte à rebours, leur carte d'identité (radar),
+//   le face-à-face, la compo, le plan en 3 temps qui s'anime, les consignes,
+//   sa mission à lui, et le rituel (rendez-vous, covoiturage, sac).
+//   Les données sont dans DOSSIER.moments, publiées avec le dossier.
+
+var MM_AXES=[
+  {k:'press', l:'Pressing'}, {k:'poss', l:'Possession'}, {k:'long', l:'Jeu long'},
+  {k:'trans', l:'Contres'}, {k:'cpa', l:'CPA'}, {k:'phys', l:'Duels'}
+];
+var MM_SAC=['Crampons (+ vissés si pluie)','Protège-tibias','Maillot de corps / sous-short','Serviette, gel douche, claquettes','Gourde','Licence / pièce d’identité','Strap / bandes'];
+var MM_PHASES=[
+  {t:'0′ – 20′', l:'Le départ'},
+  {t:'20′ – 60′', l:'Le cœur du match'},
+  {t:'60′ – 90′', l:'Le money time'}
+];
+function mmEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function mmVide(){ return {radar:{press:3,poss:3,long:3,trans:3,cpa:3,phys:3}, force:'', faille:'', ff:{rangN:'',rangE:'',ptsN:'',ptsE:'',formeE:''}, auto:null,
+  phases:MM_PHASES.map(function(p){ return {t:p.t, l:p.l, mot:'', txt:''}; }), rituel:{rdv:'', rdvLieu:'', tenue:'', covoit:'', sac:MM_SAC.slice()}}; }
+function mmData(d){ if(!d.moments) d.moments=mmVide(); var m=d.moments, v=mmVide();
+  Object.keys(v).forEach(function(k){ if(m[k]==null) m[k]=v[k]; }); return m; }
+// « Sam 17 Octobre 2026 - 20h00 », « 17/10/2026 20h00 » ou une date ISO → l'heure du coup d'envoi
+function mmCoup(d){
+  var s=String(d&&d.date||'').toLowerCase(), M={janvier:1,'février':2,fevrier:2,mars:3,avril:4,mai:5,juin:6,juillet:7,'août':8,aout:8,septembre:9,octobre:10,novembre:11,'décembre':12,decembre:12};
+  var h=s.match(/(\d{1,2})\s*[h:]\s*(\d{2})/), hh=h?+h[1]:20, mi=h?+h[2]:0, m;
+  if((m=s.match(/(\d{1,2})\s+([a-zéû]+)\s+(\d{4})/)) && M[m[2]]) return new Date(+m[3], M[m[2]]-1, +m[1], hh, mi).getTime();
+  if((m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/))) return new Date(+m[3], +m[2]-1, +m[1], hh, mi).getTime();
+  if((m=s.match(/(\d{4})-(\d{2})-(\d{2})/))) return new Date(+m[1], +m[2]-1, +m[3], hh, mi).getTime();
+  return null;
+}
+// « J-2 · 1 j 4 h » ; « H-2 » ; « C’est l’heure »
+function mmRebours(t){
+  if(!t) return null;
+  var ms=t-Date.now(); if(ms<=0) return {fini:true, l:'C’est l’heure', court:'Coup d’envoi'};
+  var j=Math.floor(ms/86400000), h=Math.floor(ms%86400000/3600000), mi=Math.floor(ms%3600000/60000), s=Math.floor(ms%60000/1000);
+  return {j:j, h:h, m:mi, s:s, court:j>0?('J-'+j):(h>0?'H-'+h:mi+' min')};
+}
+// Le radar : 6 axes notés de 1 à 5
+function mmRadarSvg(R, anim){
+  var cx=150, cy=135, r=100, n=MM_AXES.length;
+  var pt=function(i, v){ var a=-Math.PI/2+i*2*Math.PI/n; return [cx+Math.cos(a)*r*v/5, cy+Math.sin(a)*r*v/5]; };
+  var grille=[1,2,3,4,5].map(function(v){ return '<polygon points="'+MM_AXES.map(function(x,i){ return pt(i,v).join(','); }).join(' ')+'" fill="none" stroke="currentColor" stroke-opacity="'+(v===5?.35:.15)+'"/>'; }).join('');
+  var axes=MM_AXES.map(function(x,i){ var p=pt(i,5); return '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="currentColor" stroke-opacity=".15"/>'; }).join('');
+  var poly=MM_AXES.map(function(x,i){ return pt(i, +R[x.k]||0).join(','); }).join(' ');
+  var lab=MM_AXES.map(function(x,i){ var p=pt(i,6.1), v=+R[x.k]||0; var anc=Math.abs(p[0]-cx)<10?'middle':(p[0]<cx?'end':'start');
+    return '<text x="'+p[0]+'" y="'+(p[1]+4)+'" text-anchor="'+anc+'" class="mm-rl'+(v>=4?' fort':'')+'">'+x.l+'</text>'; }).join('');
+  return '<svg class="mm-radar'+(anim?' anim':'')+'" viewBox="-20 0 340 275">'+grille+axes
+    +'<polygon class="mm-rp" points="'+poly+'" fill="rgba(240,122,26,.38)" stroke="#f07a1a" stroke-width="3" stroke-linejoin="round"/>'
+    +MM_AXES.map(function(x,i){ var p=pt(i, +R[x.k]||0); return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4.5" fill="#f07a1a"/>'; }).join('')
+    +lab+'</svg>';
+}
+function mmForme(s){ return String(s||'').toUpperCase().replace(/[^VND]/g,'').slice(-5).split('').map(function(c){ return '<i class="mm-f '+c+'">'+c+'</i>'; }).join(''); }
+
+// ---------- Les pages des stories ----------
+function mmPages(d, opts){
+  opts=opts||{}; var M=mmData(d), P=[], A=M.auto||{};
+  var t=mmCoup(d), rb=mmRebours(t);
+  var dom=!/ext/i.test(d.lieu||'');
+  var logo=(typeof HUBL_LOGO!=='undefined'&&HUBL_LOGO)||((document.querySelector('.side-logo img,.hub-logo img,img[alt*="AST"]')||{}).src)||'';
+  // 1. Couverture
+  P.push({k:'cover', fond:'cover', html:'<div class="mm-cov">'+(logo?'<img src="'+logo+'" alt="">':'')
+    +'<div class="mm-k">'+mmEsc([d.comp, d.lieu].filter(Boolean).join(' · ')||'Prochain match')+'</div>'
+    +'<div class="mm-vs"><b>'+(dom?'AST Tarnos':mmEsc(d.adv))+'</b><span>VS</span><b>'+(dom?mmEsc(d.adv):'AST Tarnos')+'</b></div>'
+    +'<div class="mm-date">'+mmEsc(d.date||'')+'</div>'
+    +(rb&&!rb.fini?'<div class="mm-cd" data-t="'+t+'">'+mmCdHtml(rb)+'</div>':'')
+    +'<div class="mm-tap">Touche à droite pour avancer ›</div></div>'});
+  // 2. Leur carte d'identité
+  var aTenir=(d.bulles&&d.bulles.adv&&d.bulles.adv['Le joueur à tenir'])||'';
+  if(Object.keys(M.radar||{}).length) P.push({k:'id', html:'<div class="mm-h"><span>Leur carte d’identité</span><b>'+mmEsc(d.adv)+'</b>'+(d.advFormation?'<i>'+mmEsc(d.advFormation)+'</i>':'')+'</div>'
+    +mmRadarSvg(M.radar, true)
+    +'<div class="mm-ff2">'+(M.force?'<div class="mm-pt ko"><b>Leur arme</b>'+mmEsc(M.force)+'</div>':'')+(M.faille?'<div class="mm-pt ok"><b>Leur faille</b>'+mmEsc(M.faille)+'</div>':'')
+    +(aTenir?'<div class="mm-pt or"><b>Le joueur à tenir</b>'+mmEsc(aTenir)+'</div>':'')+'</div>'});
+  // 3. Face-à-face
+  var F=M.ff||{};
+  var ligne=function(l, a, b, mieux){ if((a===''||a==null)&&(b===''||b==null)) return '';
+    var gA=mieux&&a!==''&&b!==''?mieux(+a,+b):0;
+    return '<div class="mm-fl"><b class="'+(gA>0?'mieux':'')+'">'+mmEsc(a===''||a==null?'–':a)+'</b><span>'+l+'</span><b class="'+(gA<0?'mieux':'')+'">'+mmEsc(b===''||b==null?'–':b)+'</b></div>'; };
+  var ffHtml=ligne('Classement', F.rangN, F.rangE, function(a,b){ return a<b?1:(a>b?-1:0); })
+    +ligne('Points', F.ptsN, F.ptsE, function(a,b){ return a>b?1:(a<b?-1:0); })
+    +(A.nm?ligne('Buts marqués / match', A.bpm, F.bpE||'', function(a,b){ return a>b?1:(a<b?-1:0); })+ligne('Buts encaissés / match', A.bcm, F.bcE||'', function(a,b){ return a<b?1:(a>b?-1:0); }):'')
+    +'<div class="mm-fl forme"><span class="g">'+mmForme(A.forme)+'</span><span>5 derniers</span><span class="d">'+mmForme(F.formeE)+'</span></div>';
+  P.push({k:'ff', html:'<div class="mm-h"><span>Face-à-face</span><b>Eux et nous</b></div>'
+    +'<div class="mm-ft"><b>AST Tarnos</b><b>'+mmEsc(d.adv)+'</b></div><div class="mm-fls">'+ffHtml+'</div>'
+    +((A.h2h||[]).length?'<div class="mm-h2h"><h5>Nos derniers duels</h5>'+A.h2h.map(function(x){ return '<div><i class="mm-f '+x.res+'">'+x.res+'</i><b>'+mmEsc(x.score)+'</b><span>'+mmEsc(x.date)+'</span></div>'; }).join('')+'</div>'
+      :'<div class="mm-h2h vide">Premier duel de la saison face à eux.</div>')});
+  // 4. La compo (le joueur la dessine avec son terrain ; le coach voit les noms)
+  if(opts.compoHtml) P.push({k:'compo', html:'<div class="mm-h"><span>Le onze</span><b>'+mmEsc(opts.compoTitre||'La compo')+'</b></div>'+opts.compoHtml});
+  // 5. Le plan en 3 temps
+  var ph=(M.phases||[]).filter(function(p){ return (p.mot||p.txt||'').trim(); });
+  if(ph.length) P.push({k:'plan', duree:12000, html:'<div class="mm-h"><span>Notre plan</span><b>Le match en 3 temps</b></div>'
+    +'<div class="mm-chrono"><i></i>'+['0′','30′','60′','90′'].map(function(x,i){ return '<span style="left:'+(i*33.33)+'%">'+x+'</span>'; }).join('')+'</div>'
+    +'<div class="mm-phs">'+M.phases.map(function(p,i){ if(!(p.mot||p.txt||'').trim()) return '';
+      return '<div class="mm-ph" style="animation-delay:'+(0.4+i*2.6)+'s"><div class="mm-pt2"><span>'+mmEsc(p.t)+'</span>'+mmEsc(p.l)+'</div>'+(p.mot?'<b>'+mmEsc(p.mot)+'</b>':'')+(p.txt?'<p>'+mmEsc(p.txt)+'</p>':'')+'</div>'; }).join('')+'</div>'});
+  // 6. Les consignes
+  if((d.collectif||'').trim()) P.push({k:'consignes', fond:'or', html:'<div class="mm-h noir"><span>Pour tout le monde</span></div><div class="mm-big">'+mmEsc(d.collectif).replace(/\n/g,'<br>')+'</div>'});
+  // 7. Sa mission
+  if(opts.mission) P.push({k:'mission', html:'<div class="mm-h"><span>Ta mission</span><b>'+mmEsc(opts.moi||'Toi')+'</b></div><div class="mm-big or">'+mmEsc(opts.mission)+'</div>'});
+  // 8. Le rituel
+  var Ri=M.rituel||{};
+  P.push({k:'rituel', html:'<div class="mm-h"><span>Le rituel</span><b>Avant de partir</b></div>'
+    +'<div class="mm-rv">'+(Ri.rdv?'<div><span>⏰ Rendez-vous</span><b>'+mmEsc(Ri.rdv)+'</b>'+(Ri.rdvLieu?'<i>'+mmEsc(Ri.rdvLieu)+'</i>':'')+'</div>':'')
+      +(Ri.tenue?'<div><span>👕 Tenue</span><b>'+mmEsc(Ri.tenue)+'</b></div>':'')
+      +(Ri.covoit?'<div><span>🚗 Covoiturage</span><b style="white-space:pre-line">'+mmEsc(Ri.covoit)+'</b></div>':'')+'</div>'
+    +'<div class="mm-sac"><h5>🎒 Mon sac <em id="mm-sac-n"></em></h5>'+(Ri.sac||[]).map(function(s,i){ return '<button class="mm-si" data-i="'+i+'" onclick="event.stopPropagation();mmSacCoche('+i+')"><i></i>'+mmEsc(s)+'</button>'; }).join('')+'</div>'
+    +(opts.rappel?'<button class="mm-rap" onclick="event.stopPropagation();'+opts.rappel+'">🔔 Me rappeler le rendez-vous 2 h avant</button>':'')});
+  return P;
+}
+function mmCdHtml(rb){ return [['j','jours'],['h','heures'],['m','min'],['s','s']].map(function(x){ return '<div><b>'+(rb[x[0]]<10&&x[0]!=='j'?'0':'')+rb[x[0]]+'</b><span>'+x[1]+'</span></div>'; }).join(''); }
+
+// ---------- Le lecteur ----------
+var MMS={i:0, P:[], t0:0, pause:false, raf:0, cle:''};
+function mmSacCle(){ return 'ast_sac_'+(MMS.cle||''); }
+function mmSac(){ try{ return JSON.parse(localStorage.getItem(mmSacCle())||'{}'); }catch(e){ return {}; } }
+function mmSacCoche(i){ var S=mmSac(); S[i]=!S[i]; try{ localStorage.setItem(mmSacCle(), JSON.stringify(S)); }catch(e){} mmSacMaj(); }
+function mmSacMaj(){
+  var S=mmSac(), B=document.querySelectorAll('#mm-story .mm-si'), n=0;
+  [].forEach.call(B, function(b){ var on=!!S[b.getAttribute('data-i')]; b.classList.toggle('on', on); if(on) n++; });
+  var e=document.getElementById('mm-sac-n'); if(e) e.textContent=n+'/'+B.length+(B.length&&n===B.length?' ✓ prêt':'');
+}
+function mmOuvrir(d, opts){
+  MMS.P=mmPages(d, opts); MMS.i=0; MMS.cle=(d.adv||'')+'|'+(d.date||''); MMS.pause=false;
+  var o=document.getElementById('mm-story'); if(o) o.remove();
+  o=document.createElement('div'); o.id='mm-story';
+  o.innerHTML='<div class="mm-bars">'+MMS.P.map(function(){ return '<i><b></b></i>'; }).join('')+'</div>'
+    +'<button class="mm-x" onclick="event.stopPropagation();mmFermer()" aria-label="Fermer">✕</button>'
+    +'<div class="mm-page" id="mm-page"></div>';
+  // touche gauche / droite ; appui long = pause
+  var appui=0;
+  o.addEventListener('pointerdown', function(){ appui=Date.now(); MMS.pause=true; });
+  o.addEventListener('pointerup', function(e){ MMS.pause=false; if(Date.now()-appui>350) return; if(e.target.closest('button')) return;
+    var x=e.clientX/window.innerWidth; mmAller(MMS.i+(x<0.3?-1:1)); });
+  document.addEventListener('keydown', mmClavier);
+  document.body.appendChild(o); mmAller(0);
+  var tick=function(){ if(!document.getElementById('mm-story')) return;
+    var p=MMS.P[MMS.i], dur=p.duree||7000;
+    if(MMS.pause){ MMS.t0+=16; }
+    var f=Math.min(1,(Date.now()-MMS.t0)/dur);
+    var bar=document.querySelectorAll('#mm-story .mm-bars b')[MMS.i]; if(bar) bar.style.width=(f*100)+'%';
+    var cd=document.querySelector('#mm-story .mm-cd'); if(cd){ var rb=mmRebours(+cd.getAttribute('data-t')); if(rb && !rb.fini) cd.innerHTML=mmCdHtml(rb); }
+    if(f>=1 && MMS.P[MMS.i].k!=='rituel'){ mmAller(MMS.i+1); }
+    MMS.raf=requestAnimationFrame(tick); };
+  MMS.raf=requestAnimationFrame(tick);
+}
+function mmClavier(e){ if(e.key==='ArrowRight') mmAller(MMS.i+1); if(e.key==='ArrowLeft') mmAller(MMS.i-1); if(e.key==='Escape') mmFermer(); }
+function mmAller(i){
+  if(i<0) i=0; if(i>=MMS.P.length){ mmFermer(); return; }
+  MMS.i=i; MMS.t0=Date.now();
+  var p=MMS.P[i], pg=document.getElementById('mm-page'); if(!pg) return;
+  var o=document.getElementById('mm-story'); o.className='f-'+(p.fond||'nuit')+' k-'+p.k;
+  pg.innerHTML=p.html; pg.classList.remove('in'); void pg.offsetWidth; pg.classList.add('in');
+  [].forEach.call(document.querySelectorAll('#mm-story .mm-bars b'), function(b,k){ b.style.width=k<i?'100%':'0'; });
+  if(p.k==='rituel') mmSacMaj();
+  if(p.apres) try{ p.apres(); }catch(e){}
+}
+function mmFermer(){ cancelAnimationFrame(MMS.raf); var o=document.getElementById('mm-story'); if(o) o.remove(); document.removeEventListener('keydown', mmClavier); }
+
+// ===== Les moments avant match, côté coach (v155) =====
+//   Un bloc sous le dossier d'avant-match : la carte d'identité de l'adversaire
+//   (radar), le face-à-face, le plan en 3 temps, le rituel. Tout part avec le
+//   dossier quand on le publie, et se regarde en stories chez les joueurs.
+var MMC_T=null;
+function mmcSauver(){ clearTimeout(MMC_T); MMC_T=setTimeout(function(){ try{ sauvegardeAuto(); }catch(e){} }, 800); }
+// Ce que l'appli calcule seule : notre forme, nos buts, nos duels contre eux
+function mmcAuto(){
+  var M=mmData(DOSSIER), L=(typeof MATCHS!=='undefined'&&MATCHS)||[];
+  var der=L.slice(0,5).reverse();
+  var meme=function(a,b){ try{ if(typeof fexNomsCorrespondent==='function') return fexNomsCorrespondent(a,b); }catch(e){} return String(a||'').toLowerCase()===String(b||'').toLowerCase(); };
+  var moy=function(k){ return L.length?String(Math.round(L.reduce(function(s,m){ return s+(+m[k]||0); },0)/L.length*10)/10).replace('.',','):''; };
+  M.auto={forme:der.map(function(m){ return m.res; }).join(''), nm:L.length, bpm:moy('ast'), bcm:moy('adv'),
+    h2h:L.filter(function(m){ return DOSSIER.adv && meme(m.adversaire, DOSSIER.adv); }).slice(0,4).map(function(m){
+      return {res:m.res, score:(m.lieu==='E'?m.adv+'-'+m.ast:m.ast+'-'+m.adv)+(m.lieu==='E'?' (ext.)':' (dom.)'), date:String(m.date||'').replace(/\s*-.*$/,'')}; })};
+  return M;
+}
+function mmcChamp(chemin, val, ph, area){
+  var on='mmcSet(\''+chemin+'\',this.value)';
+  return area?'<textarea class="fi" rows="'+area+'" placeholder="'+mmEsc(ph||'')+'" oninput="'+on+'">'+mmEsc(val||'')+'</textarea>'
+    :'<input class="fi" placeholder="'+mmEsc(ph||'')+'" value="'+mmEsc(val||'')+'" oninput="'+on+'">';
+}
+function mmcSet(chemin, v){
+  var o=mmData(DOSSIER), k=chemin.split('.');
+  for(var i=0;i<k.length-1;i++) o=o[k[i]];
+  o[k[k.length-1]]=v;
+  if(chemin==='rituel.sacTxt'){ mmData(DOSSIER).rituel.sac=v.split('\n').map(function(s){ return s.trim(); }).filter(Boolean); }
+  if(chemin.indexOf('radar.')===0){ var r=document.getElementById('mmc-radar'); if(r) r.innerHTML=mmRadarSvg(mmData(DOSSIER).radar); var e=document.getElementById('mmc-v-'+k[1]); if(e) e.textContent=v; }
+  mmcSauver();
+}
+function mmcHtml(){
+  var M=mmcAuto(), F=M.ff, A=M.auto, Ri=M.rituel;
+  var rangee=function(l, inner){ return '<label class="mmc-l"><span>'+l+'</span>'+inner+'</label>'; };
+  return '<div class="mmc" id="mmc">'
+    +'<div class="mmc-tete"><div><b>🎬 Les moments avant match</b><span>Ce que les joueurs regarderont en stories sur leur téléphone : couverture et compte à rebours, leur carte d’identité, le face-à-face, la compo, le plan en 3 temps, les consignes, sa mission, le rituel.</span></div>'
+      +'<button class="btn" style="width:auto;margin:0" onclick="mmcApercu()">▶ Voir les stories</button></div>'
+    +'<div class="mmc-grille">'
+    // 1. Carte d'identité
+    +'<div class="mmc-b"><h4>🪪 Leur carte d’identité</h4><div class="mmc-rad"><div id="mmc-radar">'+mmRadarSvg(M.radar)+'</div><div class="mmc-curs">'
+      +MM_AXES.map(function(x){ return '<label><span>'+x.l+'</span><input type="range" min="1" max="5" step="1" value="'+(+M.radar[x.k]||3)+'" oninput="mmcSet(\'radar.'+x.k+'\',+this.value)"><b id="mmc-v-'+x.k+'">'+(+M.radar[x.k]||3)+'</b></label>'; }).join('')+'</div></div>'
+      +rangee('Leur arme', mmcChamp('force', M.force, 'ex. Le 9 dos au but, les seconds ballons'))
+      +rangee('Leur faille', mmcChamp('faille', M.faille, 'ex. Lents à se replacer à la perte'))+'</div>'
+    // 2. Face-à-face
+    +'<div class="mmc-b"><h4>⚔️ Face-à-face</h4>'
+      +'<div class="mmc-ff"><span></span><b>Nous</b><b>'+mmEsc(DOSSIER.adv||'Eux')+'</b>'
+        +'<span>Classement</span>'+mmcChamp('ff.rangN',F.rangN,'3')+mmcChamp('ff.rangE',F.rangE,'5')
+        +'<span>Points</span>'+mmcChamp('ff.ptsN',F.ptsN,'14')+mmcChamp('ff.ptsE',F.ptsE,'11')
+        +'<span>Buts marqués / match</span><em>'+(A.bpm||'–')+'</em>'+mmcChamp('ff.bpE',F.bpE,'1,6')
+        +'<span>Buts encaissés / match</span><em>'+(A.bcm||'–')+'</em>'+mmcChamp('ff.bcE',F.bcE,'1,2')
+        +'<span>5 derniers</span><em class="mm-fo">'+(mmForme(A.forme)||'–')+'</em>'+mmcChamp('ff.formeE',F.formeE,'VVNDV')+'</div>'
+      +'<div class="st-aide" style="padding:6px 0 0">Notre colonne se remplit avec nos matchs. '+(A.h2h.length?A.h2h.length+' duel'+(A.h2h.length>1?'s':'')+' déjà joué'+(A.h2h.length>1?'s':'')+' contre eux : ils seront affichés.':'Pas encore de duel contre eux cette saison.')+'</div></div>'
+    // 3. Le plan en 3 temps
+    +'<div class="mmc-b"><h4>⏱ Le plan en 3 temps</h4>'
+      +M.phases.map(function(p,i){ return '<div class="mmc-ph"><div class="mmc-pht"><b>'+mmEsc(p.l)+'</b><span>'+mmEsc(p.t)+'</span></div>'
+        +mmcChamp('phases.'+i+'.mot', p.mot, ['Agressifs, on les étouffe','Patience, on fait courir','On ferme et on tue'][i])
+        +mmcChamp('phases.'+i+'.txt', p.txt, ['Pressing haut sur leur relance courte, les 3 premiers duels sont à nous.','On garde le ballon, on change de côté, on attend la faille.','Bloc médian, coaching, on joue les contres et les CPA.'][i], 2)+'</div>'; }).join('')
+      +'<div class="st-aide" style="padding:0">Chez les joueurs, les 3 temps apparaissent l’un après l’autre sur une ligne de 90 minutes.</div></div>'
+    // 4. Le rituel
+    +'<div class="mmc-b"><h4>🎒 Le rituel</h4>'
+      +'<div class="vv-g2">'+rangee('Rendez-vous', mmcChamp('rituel.rdv', Ri.rdv, 'Samedi 18h30'))+rangee('Où', mmcChamp('rituel.rdvLieu', Ri.rdvLieu, 'Parking du stade'))+'</div>'
+      +rangee('Tenue', mmcChamp('rituel.tenue', Ri.tenue, 'Survêtement du club'))
+      +rangee('Covoiturage', mmcChamp('rituel.covoit', Ri.covoit, 'Max : Tiago, Romain, Lucas\nBen : Sam, Yohan', 3))
+      +rangee('Le sac (une ligne par affaire — chaque joueur coche le sien)', mmcChamp('rituel.sacTxt', (Ri.sac||[]).join('\n'), '', 5))
+      +'<div class="st-aide" style="padding:0">Le compte à rebours part de la date du match. Le joueur peut demander un rappel 2 h avant le rendez-vous.</div></div>'
+    +'</div></div>';
+}
+function mmcApercu(){
+  mmcAuto();
+  var c=(DOSSIER.compoIdx!=null)?(COMPOSITIONS||[])[DOSSIER.compoIdx]:null, compo='';
+  if(c && c.slots){ var t=c.slots.filter(function(x){ return !x.bench; });
+    compo='<div class="mm-onze">'+t.map(function(x){ return '<div style="left:'+(x.x||50)+'%;top:'+(x.y||50)+'%"><i>'+mmEsc(x.num||'')+'</i><span>'+mmEsc((x.nom||x.pos||'').split(' ').slice(-1)[0])+'</span></div>'; }).join('')+'</div>'; }
+  mmOuvrir(DOSSIER, {compoHtml:compo, compoTitre:c?(c.formation||''):'', mission:'Ici, la consigne que tu as écrite pour ce joueur sur une situation du dossier.', moi:'Le joueur'});
+}
+window.addEventListener('load', function(){
+  EXT.apres('renderAvantMatch', function(){
+    var ct=document.getElementById('dm-ct'); if(!ct) return;
+    var old=document.getElementById('mmc'); if(old) old.remove();
+    var d=document.createElement('div'); d.innerHTML=mmcHtml(); ct.appendChild(d.firstChild);
+  }, 'moments');
+});
+
 </script>
 <script>
 // ===== Sécurité de la base, côté coach (v142) =====
@@ -9014,7 +9987,7 @@ window.addEventListener('load', function(){
 //   la base (ouverte ou fermée), et les règles prêtes à coller dans Firebase,
 //   déjà remplies avec les adresses du staff.
 
-var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /match_live/{id}          { allow read, write: if estCoach(); }\n    match /match_direct/{id}        { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Programmes physiques : le staff les écrit, chaque joueur lit le sien et envoie son suivi\n    match /programmes/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach();\n    }\n    match /programmes_suivi/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // ---- Le thermomètre : réponses anonymes (aucun nom), lues par le staff seulement\n    match /thermometre/{id} {\n      allow create: if membre() && !('auteurNum' in request.resource.data) && !('joueurNum' in request.resource.data);\n      allow read, update, delete: if estCoach();\n    }\n    match /thermo_participation/{id} {\n      allow get: if estCoach() || (estJoueur() && resource == null);\n      allow list, delete: if estCoach();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.joueurNum == monNum());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
+var SEC_REGLES="rules_version = '2';\n// AST Tarnos — règles de sécurité de la base (générées par l'espace coach)\n//\n//   Staff   : les adresses listées dans estCoach() lisent et écrivent tout.\n//   Joueurs : un compte par joueur, « 12@joueurs.asttarnos.fr » pour le n°12.\n//             Il lit la saison et ce qui est commun à l'équipe, écrit ses\n//             propres réponses, et ne relit que les siennes.\n//   Personne d'autre : rien. Sans compte, la base ne répond plus.\nservice cloud.firestore {\n  match /databases/{db}/documents {\n\n    function connecte() { return request.auth != null && request.auth.token.email != null; }\n    function estCoach() { return connecte() && request.auth.token.email.lower() in [__COACHS__]; }\n    function estJoueur() { return connecte() && request.auth.token.email.lower().matches('^[0-9]+@joueurs[.]asttarnos[.]fr$'); }\n    function monNum() { return int(request.auth.token.email.split('@')[0]); }\n    function membre() { return estCoach() || estJoueur(); }\n\n    // Ce qu'il écrit porte sa signature (auteurNum), et son numéro s'il y en a un\n    function signeParMoi() {\n      return estJoueur()\n        && request.resource.data.get('auteurNum', -1) == monNum()\n        && request.resource.data.get('joueurNum', monNum()) == monNum();\n    }\n\n    // ---- La saison : l'équipe lit, le staff écrit. Le matériel du staff reste au staff.\n    match /saison/{doc} {\n      // « effectif » ne contient que les numéros et les noms : c'est la liste de l'écran de connexion\n      allow read: if doc == 'effectif' || estCoach() || (estJoueur() && doc != 'staff');\n      allow write: if estCoach();\n    }\n\n    // ---- Réservé au staff\n    match /notes_staff/{id}         { allow read, write: if estCoach(); }\n    match /notes_audio/{id}         { allow read, write: if estCoach(); }\n    match /match_live/{id}          { allow read, write: if estCoach(); }\n    match /match_direct/{id}        { allow read, write: if estCoach(); }\n    match /photos_club/{id}         { allow read, write: if estCoach(); }\n    match /photos_club_hd/{id}      { allow read, write: if estCoach(); }\n    match /questionnaires_sante/{id}{ allow read, write: if estCoach(); }\n\n    // ---- Les comptes : chacun le sien, le staff tous\n    match /comptes/{uid} {\n      allow read: if estCoach() || (connecte() && request.auth.uid == uid);\n      allow create, update: if estCoach()\n        || (estJoueur() && request.auth.uid == uid\n            && request.resource.data.num == monNum() && request.resource.data.role == 'joueur');\n      allow delete: if estCoach();\n    }\n\n    // ---- Les anciens codes PIN : lus une dernière fois pour passer au compte, plus jamais écrits\n    match /pins_joueurs/{num} {\n      allow get: if true;\n      allow list, delete: if estCoach();\n      allow create, update: if false;\n    }\n\n    // ---- Ses réponses : il crée les siennes, ne relit que les siennes ; le staff voit tout\n    function getJ()  { return estCoach() || (estJoueur() && (resource == null || resource.data.joueurNum == monNum())); }\n    function listJ() { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum()); }\n    function majJ()  { return estCoach() || (estJoueur() && resource.data.joueurNum == monNum() && signeParMoi()); }\n    function getA()  { return estCoach() || (estJoueur() && (resource == null || resource.data.auteurNum == monNum())); }\n    function listA() { return estCoach() || (estJoueur() && resource.data.auteurNum == monNum()); }\n    match /forme/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /charge/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /disponibilites/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /confirmations_convocation/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /debriefs_matchs/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /blessures_declarees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if majJ();\n      allow delete: if estCoach();\n    }\n    match /moments_video/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach();\n    }\n    match /homme_du_match/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /votes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /sondage_reponses/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    match /objectifs_individuels_demandes/{id} {\n      allow get: if getA();\n      allow list: if listA();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // Documents rangés sous son numéro\n    match /votes_objectifs_collectifs/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n    match /fcm_tokens/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach() || (estJoueur() && num == string(monNum()) && signeParMoi());\n    }\n\n    // ---- Le plateau : la situation du coach se lit, chaque joueur envoie la sienne\n    match /plateau_joueurs/{doc} {\n      allow read: if estCoach() || (estJoueur() && (doc in ['actuel','dossier'] || doc == 'joueur_' + string(monNum())));\n      allow write: if estCoach() || (estJoueur() && doc == 'joueur_' + string(monNum()) && signeParMoi());\n    }\n\n    // ---- Programmes physiques : le staff les écrit, chaque joueur lit le sien et envoie son suivi\n    match /programmes/{num} {\n      allow read: if estCoach() || (estJoueur() && num == string(monNum()));\n      allow write: if estCoach();\n    }\n    match /programmes_suivi/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n    // ---- Le thermomètre : réponses anonymes (aucun nom), lues par le staff seulement\n    match /thermometre/{id} {\n      allow create: if membre() && !('auteurNum' in request.resource.data) && !('joueurNum' in request.resource.data);\n      allow read, update, delete: if estCoach();\n    }\n    match /thermo_participation/{id} {\n      allow get: if estCoach() || (estJoueur() && resource == null);\n      allow list, delete: if estCoach();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.joueurNum == monNum());\n    }\n\n    // ---- Ce qui est commun à l'équipe\n    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.get('auteurNum', -1) == monNum());\n    }\n    match /notifications/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || (estJoueur() && request.resource.data.get('auteurNum', -1) == monNum());\n      allow delete: if estCoach();\n    }\n  }\n}\n";
 var SEC_COMPTES=null, SEC_ETAT=null, SEC_MDP={};
 
 function secEmails(){
@@ -9577,8 +10550,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v154</b> · 15/10/2026<br>
-      <span style="opacity:.7">Vivier · programmes · thermomètre</span>
+      AST COACH <b style="color:var(--or)">v155</b> · 15/10/2026<br>
+      <span style="opacity:.7">Club House · recrutement · visuels · stories</span>
     </div>
   </div>
 </div>
