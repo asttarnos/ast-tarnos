@@ -5511,12 +5511,13 @@ body.mb .scr{padding-top:10px!important}
 .vv-lj{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);cursor:pointer;font:600 13px 'Roboto Condensed',sans-serif;color:var(--gris2)}
 .vv-lj b{font-weight:800;color:var(--gris)}.vv-lj i{font-style:normal;font-weight:800}
 .vvp{flex:1;overflow-y:auto;padding:14px;background:var(--fond)}
+/* Imprimer depuis une fenêtre ouverte (photographie du vivier, bilan partenaires…) :
+   on n'imprime que cette fenêtre — et rien n'est caché quand aucune n'est ouverte */
 @media print{
-  body *{visibility:hidden}
-  #vvp, #vvp *{visibility:visible}
-  #vvp{position:absolute;inset:0;display:block;overflow:visible}
-  #vvp .st-h button{display:none}
-  .vv-terrain{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body:has(.st-couche.on)>*:not(.st-couche.on){display:none!important}
+  .st-couche.on{position:static!important;inset:auto!important;display:block!important;overflow:visible!important;height:auto!important;max-height:none!important}
+  .st-couche.on .st-h button{display:none}
+  .vv-terrain,.vv-pitch{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 .vv-aj{margin-top:auto}
 /* ===== Programmes (staff) ===== */
@@ -10694,6 +10695,57 @@ window.addEventListener('load', function(){
   }, 'moments');
 });
 
+// ===== Imprimer un document, sur tous les appareils (v159) =====
+//   Les documents (feuille de match, fiches, dossier…) s'ouvrent dans une vue
+//   intégrée (une iframe). Sur ordinateur, « Imprimer » imprime cette iframe.
+//   Sur iPhone, iPad et Android — surtout appli installée sur l'écran d'accueil —
+//   imprimer une iframe ne fait rien. On imprime alors la page elle-même :
+//   le document y est recopié dans une zone isolée (ses styles ne touchent
+//   pas l'appli), seule zone visible à l'impression.
+function impMobile(){
+  var ua=navigator.userAgent||'';
+  var ios=/iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var installe=(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone===true;
+  return ios || /Android/i.test(ua) || installe;
+}
+function impPreparer(){
+  var html=DOC_HTML_COURANT||''; if(!html) return false;
+  var doc=new DOMParser().parseFromString(html, 'text/html');
+  var css=[].map.call(doc.querySelectorAll('style'), function(s){ return s.textContent; }).join('\n');
+  var liens=[].map.call(doc.querySelectorAll('link[rel="stylesheet"]'), function(l){ return '<link rel="stylesheet" href="'+l.getAttribute('href')+'">'; }).join('');
+  // @page ne vaut que dans la page : on le sort de la zone
+  var pages=(css.match(/@page[^{]*\{[^}]*\}/g)||[]).join('\n');
+  css=css.replace(/@page[^{]*\{[^}]*\}/g,'').replace(/:root/g,'.imp-body')
+    .replace(/(^|[\s,}>~+(])(html|body)(?=[\s,{:.\[>~+)]|$)/g, '$1.imp-body');
+  [].forEach.call(doc.querySelectorAll('script'), function(s){ s.remove(); });
+  var z=document.getElementById('imp-zone');
+  if(!z){ z=document.createElement('div'); z.id='imp-zone'; document.body.appendChild(z); z.attachShadow({mode:'open'}); }
+  z.shadowRoot.innerHTML=liens+'<style>:host{all:initial;display:block}.imp-body{margin:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+css+'</style><div class="imp-body '+(doc.body.className||'')+'">'+doc.body.innerHTML+'</div>';
+  var st=document.getElementById('imp-page');
+  if(!st){ st=document.createElement('style'); st.id='imp-page'; document.head.appendChild(st); }
+  st.textContent='#imp-zone{display:none}'
+    +'@media print{html.imp-on body>*:not(#imp-zone){display:none!important}html.imp-on #imp-zone{display:block!important}html.imp-on,html.imp-on body{background:#fff!important;height:auto!important;overflow:visible!important}}'
+    +pages;
+  return true;
+}
+function impImprimerPage(){
+  if(!impPreparer()){ notif('⚠ Aucun document ouvert'); return; }
+  document.documentElement.classList.add('imp-on');
+  var fin=function(){ document.documentElement.classList.remove('imp-on'); window.removeEventListener('afterprint', fin); };
+  window.addEventListener('afterprint', fin);
+  // la classe ne joue qu'à l'impression : on peut la laisser tant que l'impression n'est pas finie
+  setTimeout(function(){ try{ window.print(); }catch(e){ notif('⚠ Impression impossible sur cet appareil'); } }, 300);
+}
+window.addEventListener('load', function(){
+  var base=window.docImprimerVue;
+  window.docImprimerVue=function(){
+    if(impMobile()){ impImprimerPage(); return; }
+    var f=document.getElementById('doc-vue-f');
+    try{ f.contentWindow.focus(); f.contentWindow.print(); }
+    catch(e){ impImprimerPage(); }
+  };
+});
+
 </script>
 <script>
 // ===== Sécurité de la base, côté coach (v142) =====
@@ -11266,8 +11318,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v158</b> · 15/10/2026<br>
-      <span style="opacity:.7">Club House réunifié · vivier compact</span>
+      AST COACH <b style="color:var(--or)">v159</b> · 15/10/2026<br>
+      <span style="opacity:.7">Impression sur téléphone et tablette</span>
     </div>
   </div>
 </div>
