@@ -5739,6 +5739,14 @@ body.mb .scr{padding-top:10px!important}
 @media (max-width:1100px){ .vv-tv{grid-template-columns:1fr} .vv-tv .vv-pitch{margin:0 auto} .vv-tv .vv-bilan{margin-top:12px} }
 @media (max-width:600px){ .vv-tv .vv-bilan{grid-template-columns:1fr} }
 .vv-pj{font-size:12.5px}.vv-pj.r{font-size:11px}
+
+/* ---------- Feuille de match : la barre d'impression, à toutes les étapes (v160) ---------- */
+#fmc-barre{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--carte);border:1px solid var(--line);border-left:5px solid var(--or);border-radius:12px;padding:8px 10px;margin:0 0 12px;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+#fmc-barre .btn,#fmc-barre .jf-b2{width:auto;margin:0}
+#fmc-etat{flex:1;min-width:150px;font:700 12.5px 'Roboto Condensed',sans-serif;color:var(--gris2);transition:color .2s}
+#fmc-etat.ok{color:var(--green)}
+@media (max-width:600px){ #fmc-barre .btn{flex:1} #fmc-etat{flex-basis:100%} }
+@media print{ #fmc-barre{display:none} }
 /* ===== Les moments avant match : stories (v155) ===== */
 #mm-story{position:fixed;inset:0;z-index:10050;background:#0d0d0f;color:#fff;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Roboto Condensed',sans-serif;overflow:hidden}
 #mm-story::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}
@@ -10746,6 +10754,105 @@ window.addEventListener('load', function(){
   };
 });
 
+// ===== Corrections du 16/10 (v160) =====
+//   1. La feuille de match s'enregistre au fil de la saisie (avant : seulement
+//      au clic sur « Générer », tout ce qui était tapé se perdait en changeant d'écran).
+//   2. Le bouton d'impression de la feuille est visible à toutes les étapes.
+//   3. On peut ajouter un joueur à l'effectif.
+
+// ---------- 1. La feuille de match se garde toute seule ----------
+var FMC_T=null;
+function fmcGarder(){
+  clearTimeout(FMC_T);
+  FMC_T=setTimeout(function(){
+    try{ if(document.getElementById('fm-compo')) collecterFeuilleMatch(); fmcEtat('✓ Enregistré'); }catch(e){}
+  }, 700);
+}
+function fmcEtat(t){ var e=document.getElementById('fmc-etat'); if(e){ e.textContent=t; e.classList.add('ok'); setTimeout(function(){ e.classList.remove('ok'); }, 1500); } }
+function fmcSurFeuille(){ var s=document.getElementById('scr-feuille-match'); return !!(s && s.classList.contains('on')); }
+
+// ---------- 2. Imprimer, à toutes les étapes ----------
+function fmcImprimer(direct){
+  try{ collecterFeuilleMatch(); }catch(e){}
+  genererFeuilleMatchPDF();
+  if(direct && typeof docVueOuverte==='function') setTimeout(function(){ if(docVueOuverte()) docImprimerVue(); }, 900);
+}
+function fmcBarre(){
+  var s=document.getElementById('scr-feuille-match'); if(!s || document.getElementById('fmc-barre')) return;
+  var b=document.createElement('div'); b.id='fmc-barre';
+  b.innerHTML='<span id="fmc-etat">Ta saisie s’enregistre au fur et à mesure</span>'
+    +'<button class="jf-b2" onclick="fmcImprimer(false)">👁 Voir la feuille</button>'
+    +'<button class="btn" onclick="fmcImprimer(true)">🖨️ Imprimer la feuille</button>';
+  var ph=s.querySelector('.ph'); if(ph && ph.nextSibling) s.insertBefore(b, ph.nextSibling); else s.insertBefore(b, s.firstChild);
+}
+
+// ---------- 3. Ajouter un joueur ----------
+function ajNumLibre(){ var pris={}; (JOUEURS||[]).forEach(function(j){ pris[j.num]=1; }); for(var n=1;n<100;n++) if(!pris[n]) return n; return (JOUEURS||[]).length+1; }
+function ajouterJoueurOuvrir(){
+  var s=document.getElementById('aj-sheet'); if(s) s.remove();
+  s=document.createElement('div'); s.id='aj-sheet'; s.className='md-sheet';
+  s.onclick=function(e){ if(e.target===s) s.remove(); };
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>Ajouter un joueur à l’effectif</b></div>'
+    +'<input class="fi" id="aj-nom" placeholder="Prénom NOM (ex. Hugo LARRALDE)" autocomplete="off">'
+    +'<div class="vv-g2"><label>Numéro<input class="fi" id="aj-num" inputmode="numeric" value="'+ajNumLibre()+'"></label>'
+    +'<label style="flex-direction:row;align-items:center;gap:8px;margin-top:18px"><input type="checkbox" id="aj-gb"> 🧤 Gardien</label></div>'
+    +'<div class="st-aide" style="padding:0">Le numéro sert aussi d’identifiant pour son appli joueur : il doit être unique. Pense à lui envoyer son code (Club House › Réglages › Accès des joueurs).</div>'
+    +'<button class="btn" onclick="ajouterJoueurValider()">Ajouter</button></div>';
+  document.body.appendChild(s);
+  setTimeout(function(){ var i=document.getElementById('aj-nom'); if(i) i.focus(); }, 60);
+}
+function ajouterJoueurValider(){
+  var nom=(document.getElementById('aj-nom').value||'').trim().replace(/\s+/g,' ');
+  var num=parseInt(document.getElementById('aj-num').value,10);
+  if(nom.split(' ').length<2){ notif('⚠ Prénom ET nom, s’il te plaît'); return; }
+  if(!num || num<1){ notif('⚠ Un numéro, s’il te plaît'); return; }
+  if((JOUEURS||[]).some(function(j){ return j.num===num; })){ notif('⚠ Le n°'+num+' est déjà pris'); return; }
+  if((JOUEURS||[]).some(function(j){ return String(j.nom).toLowerCase()===nom.toLowerCase(); })){ notif('⚠ '+nom+' est déjà dans l’effectif'); return; }
+  // Un joueur supprimé autrefois sous ce nom : on le sort de la liste des bannis, sinon il disparaîtrait au prochain chargement
+  if(typeof JOUEURS_BANNIS!=='undefined' && Array.isArray(JOUEURS_BANNIS) && typeof correspondJoueur==='function')
+    JOUEURS_BANNIS=JOUEURS_BANNIS.filter(function(b){ return !correspondJoueur(nom, b); });
+  var taille=JOUEURS.length, gb=document.getElementById('aj-gb').checked;
+  // Les tableaux rangés comme l'effectif reçoivent leur case, avec les valeurs par défaut de l'appli
+  var defauts=[
+    ['STATS', function(){ return {pres:0,seances:0,matchsA:0,matchsB:0,pctMatchsA:0,titu:0,rempl:0,tpsMoy:0,tpsTotal:0,buts:0,pd:0,pts:0,amendes:0,cj:0,cr:0,cs:0,butsEnc:0,matchsJoues:0,noteMoy:0,notesCount:0,blesseSemaines:0,dernierRangClass:0,matchsConsecButs:0}; }],
+    ['ATTRS_MANUELS', function(){ return {tech:7,phys:7,ment:7,gardien:gb}; }],
+    ['PHOTOS', function(){ return null; }],
+    ['OBJECTIFS', function(){ return [{type:'pct_matchs_a',cible:10,label:'Matchs en Équipe A'},{type:'pres_pct',cible:70,label:'% présence'},{type:'buts',cible:5,label:'Buts'}]; }],
+    ['NOTES_MATCH', function(){ return {buts:0,pd:0,tps:0,cj:0,cr:0,note:3,noteDetail:{consignes:3,offensif:3,defensif:3,esprit:3},statut:'TA'}; }],
+    ['FORME_HISTORIQUE', function(){ return []; }],
+    ['NOTE_HISTORIQUE', function(){ return []; }],
+    ['SEANCE_SAISIE', function(){ return {statut:'P',pts:0,amende:0}; }]
+  ];
+  defauts.forEach(function(d){
+    var arr; try{ arr=window[d[0]]; if(arr===undefined) arr=eval(d[0]); }catch(e){ return; }
+    if(Array.isArray(arr)){ if(arr.length===taille) arr.push(d[1]()); }
+    else if(arr && typeof arr==='object'){ arr[taille]=d[1](); }
+  });
+  JOUEURS.push({num:num, nom:nom, gardien:gb});
+  try{ sauvegardeAuto(); }catch(e){}
+  try{ if(typeof rafraichirApresPurge==='function') rafraichirApresPurge(); else renderFicheSel(); }catch(e){}
+  var sel=document.getElementById('fiche-sel'); if(sel){ sel.value=String(JOUEURS.length-1); try{ renderFicheCoach(); }catch(e){} }
+  var s=document.getElementById('aj-sheet'); if(s) s.remove();
+  notif('✓ '+nom+' (n°'+num+') ajouté à l’effectif');
+}
+// Le bouton, dans l'en-tête de l'écran Effectif : visible sur ordinateur comme sur téléphone
+function ajBouton(){
+  var ph=document.querySelector('#scr-effectif .ph'); if(!ph || document.getElementById('aj-b')) return;
+  var b=document.createElement('button'); b.id='aj-b'; b.className='btn'; b.style.cssText='width:auto;margin:0 0 0 auto;flex:none';
+  b.textContent='+ Ajouter un joueur'; b.onclick=ajouterJoueurOuvrir;
+  ph.appendChild(b);
+}
+
+window.addEventListener('load', function(){
+  fmcBarre(); ajBouton();
+  var s=document.getElementById('scr-feuille-match');
+  if(s){ s.addEventListener('input', fmcGarder); s.addEventListener('change', fmcGarder); }
+  // en quittant la feuille, on garde ce qui vient d'être tapé
+  EXT.avant('goNav', function(){ if(fmcSurFeuille()){ clearTimeout(FMC_T); try{ collecterFeuilleMatch(); }catch(e){} } return null; }, 'feuille gardée');
+  window.addEventListener('pagehide', function(){ if(fmcSurFeuille()){ try{ collecterFeuilleMatch(); }catch(e){} } });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden' && fmcSurFeuille()){ try{ collecterFeuilleMatch(); }catch(e){} } });
+});
+
 </script>
 <script>
 // ===== Sécurité de la base, côté coach (v142) =====
@@ -11318,8 +11425,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v159</b> · 15/10/2026<br>
-      <span style="opacity:.7">Impression sur téléphone et tablette</span>
+      AST COACH <b style="color:var(--or)">v160</b> · 15/10/2026<br>
+      <span style="opacity:.7">Feuille de match gardée · ajout de joueur</span>
     </div>
   </div>
 </div>
