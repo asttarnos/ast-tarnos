@@ -23,7 +23,7 @@ try{
   });
 }catch(e){ /* config pas encore complétée, on ignore */ }
 
-const CACHE_NAME = 'ast-tarnos-v162-studio';
+const CACHE_NAME = 'ast-tarnos-v164-coches';
 const URLS_TO_CACHE = [
   './',
   './index.html',

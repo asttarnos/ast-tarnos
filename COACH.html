@@ -2965,6 +2965,11 @@ function rapCarteHtml(r, nomAdv){
   if((r.cpa||'').trim()){
     h+='<div class="rapc-cpa"><div class="rapc-t">🚩 Leurs coups de pied arrêtés</div><p>'+rapEsc(r.cpa.trim())+'</p></div>';
   }
+  // v163 : leurs liens (page FFF / Ligue, site ou réseaux), puis la vidéo
+  [['lienFFF','🏆 Leur page FFF / Ligue'],['lienReseaux','📣 Leur site / réseaux']].forEach(function(L){
+    var u=String(r[L[0]]||'').trim(); if(!u) return; if(!/^https?:\/\//i.test(u)) u='https://'+u;
+    if(/^https?:\/\/[^\s"'<>]+$/i.test(u)) h+='<a class="rapc-vid" href="'+rapEsc(u)+'" target="_blank" rel="noopener">'+L[1]+'</a>';
+  });
   if((r.video||'').trim()){
     h+='<a class="rapc-vid" href="'+rapEsc(r.video.trim())+'" target="_blank" rel="noopener">🎬 Les voir jouer</a>';
   }
@@ -11512,8 +11517,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v162</b> · 19/10/2026<br>
-      <span style="opacity:.7">Nouveau : le Studio du match</span>
+      AST COACH <b style="color:var(--or)">v164</b> · 19/10/2026<br>
+      <span style="opacity:.7">Coches de la semaine · buts après coup</span>
     </div>
   </div>
 </div>
@@ -36861,10 +36866,10 @@ function stAuto(){
     }
     S.rituelVu=true;
   }
-  if(JSON.stringify([M.force,M.faille,M.radar,M.rituel,DOSSIER.compoIdx,S])!==avant) stSauver();
+  if(JSON.stringify([M.force,M.faille,M.radar,M.rituel,DOSSIER.compoIdx,S])!==avant) stuSauver();
   return r;
 }
-function stSauver(){ clearTimeout(ST.tSave); ST.tSave=setTimeout(function(){ try{ sauvegardeAuto(); }catch(e){} }, 700); }
+function stuSauver(){ clearTimeout(ST.tSave); ST.tSave=setTimeout(function(){ try{ sauvegardeAuto(); }catch(e){} }, 700); }
 
 // ---------- Les 3 messages (= les consignes pour tout le monde) ----------
 function stMsgs(){
@@ -36878,7 +36883,7 @@ function stMsgs(){
 function stSetMsg(i, v){
   var m=stMsgs(); m[i]=v;
   DOSSIER.collectif=m.map(stTrim).filter(Boolean).join('\n');
-  stSauver(); stMaj('consignes');
+  stuSauver(); stMaj('consignes');
 }
 function stMettreMessage(btn){
   var t=btn.getAttribute('data-t')||''; var m=stMsgs();
@@ -36888,16 +36893,16 @@ function stMettreMessage(btn){
   var inp=document.getElementById('stu-m'+i); if(inp) inp.value=t;
   notif('✓ Ajouté en message '+(i+1));
 }
-function stSetPhase(i, quoi, v){ var M=mmData(DOSSIER); M.phases[i][quoi]=v; stSauver(); stMaj('plan'); }
-function stSetRituel(k, v){ mmData(DOSSIER).rituel[k]=v; stSauver(); stMaj('rituel'); }
+function stSetPhase(i, quoi, v){ var M=mmData(DOSSIER); M.phases[i][quoi]=v; stuSauver(); stMaj('plan'); }
+function stSetRituel(k, v){ mmData(DOSSIER).rituel[k]=v; stuSauver(); stMaj('rituel'); }
 function stSetRadar(k, v){
   var M=mmData(DOSSIER); M.radar[k]=+v; (M.studio=M.studio||{}).radar='coach';
   var e=document.getElementById('stu-rv-'+k); if(e) e.textContent=v;
   var r=document.getElementById('stu-radar'); if(r) r.innerHTML=mmRadarSvg(M.radar);
-  stSauver(); stMaj('id');
+  stuSauver(); stMaj('id');
 }
-function stSetTexte(k, v){ var M=mmData(DOSSIER); M[k]=v; stSauver(); stMaj('id'); }
-function stChoisirCompo(v){ DOSSIER.compoIdx=(v===''?null:parseInt(v,10)); (mmData(DOSSIER).studio||{}).compo='coach'; stSauver(); ST.page='compo'; stRendre(); }
+function stSetTexte(k, v){ var M=mmData(DOSSIER); M[k]=v; stuSauver(); stMaj('id'); }
+function stChoisirCompo(v){ DOSSIER.compoIdx=(v===''?null:parseInt(v,10)); (mmData(DOSSIER).studio||{}).compo='coach'; stuSauver(); ST.page='compo'; stRendre(); }
 
 // ---------- Les situations que l'appli propose ----------
 var ST_PH_NOM={off:'attaque placée', trp:'transition à la perte', def:'défense / pressing', trr:'transition à la récupération', cpa:'coups de pied arrêtés'};
@@ -36951,7 +36956,7 @@ function stAjouterSitu(id){
 function stRefuserSitu(id){
   var S=mmData(DOSSIER).studio=mmData(DOSSIER).studio||{}; S.non=S.non||[];
   if(S.non.indexOf(id)<0) S.non.push(id);
-  stSauver(); stRendre();
+  stuSauver(); stRendre();
 }
 
 // ---------- L'état de chaque étape ----------
@@ -37224,6 +37229,594 @@ window.addEventListener('load', function(){
     var a=document.activeElement; if(a && sc.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
     stRendre();
   }, 'studio');
+});
+</script>
+<script>
+// ===== v163 : diffusion aux joueurs, liens de l'adversaire, directeur de la statistique =====
+//   1. Sur le board « Cette semaine », chaque étape qui peut sortir chez les joueurs
+//      porte un interrupteur : 📲 Joueurs (visible) / 🔒 Staff (caché).
+//      La compo est cachée par défaut : elle ne part dans le dossier que si on l'ouvre.
+//   2. Le rapport adversaire porte leurs liens : page FFF/Ligue, site ou réseaux, vidéo.
+//   3. Club House › Directeur de la statistique : toutes les stats en un écran,
+//      et les liens vers les sites de stats extérieurs.
+
+(function(){
+  var css=''
+  +'.dif-pill{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;min-height:28px;padding:0 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--voile);color:var(--gris2);font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;white-space:nowrap}'
+  +'.dif-pill.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green)}'
+  +'.dif-pill.na{opacity:.55;cursor:default}'
+  +'.dif-pill:hover:not(.na){border-color:var(--or)}'
+  +'.stx-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}'
+  +'.stx-c{background:var(--carte);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}'
+  +'.stx-c h3{margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:400 18px "Anton",sans-serif;text-transform:uppercase;color:var(--gris)}'
+  +'.stx-c h3 button{font:800 12px "Roboto Condensed",sans-serif;text-transform:none;letter-spacing:0;color:var(--or);background:none;border:0;cursor:pointer;padding:6px 0;min-height:32px}'
+  +'.stx-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}'
+  +'.stx-big b{font:400 44px/1 "Anton",sans-serif;color:var(--or)}'
+  +'.stx-big span{font:700 14px "Roboto Condensed",sans-serif;color:var(--gris2)}'
+  +'.stx-l{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--voile2);font:700 14.5px "Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.stx-l:last-child{border-bottom:0}'
+  +'.stx-l i{font-style:normal;width:20px;color:var(--gris2);font-weight:800}'
+  +'.stx-l span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+  +'.stx-l b{font:400 18px "Anton",sans-serif;color:var(--gris)}'
+  +'.stx-vide{font:500 13.5px "Roboto Condensed",sans-serif;color:var(--gris2);font-style:italic}'
+  +'.stx-f{display:flex;gap:4px}.stx-f i{display:grid;place-items:center;width:24px;height:24px;border-radius:6px;font:400 13px "Anton",sans-serif;font-style:normal;color:#fff;background:#6b7280}'
+  +'.stx-f i.V{background:var(--green)}.stx-f i.D{background:var(--red)}.stx-f i.N{background:var(--gold)}'
+  +'.stx-liens{display:flex;flex-direction:column;gap:8px}'
+  +'.stx-lien{display:flex;align-items:center;gap:10px;flex-wrap:wrap}'
+  +'.stx-lien a{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--carte2);color:var(--gris);text-decoration:none;font:800 15px "Roboto Condensed",sans-serif}'
+  +'.stx-lien a:hover{border-color:var(--or)}'
+  +'.stx-lien a small{font-weight:500;color:var(--gris2);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}'
+  +'.stx-x{min-width:40px;min-height:40px;border-radius:9px;border:1.5px solid var(--line);background:none;color:var(--gris2);cursor:pointer;font-size:16px}'
+  +'.stx-aj{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;gap:8px}'
+  +'@media(max-width:640px){.stx-aj{grid-template-columns:minmax(0,1fr)}}'
+  +'.rap-liens{display:flex;flex-direction:column;gap:6px}'
+  +'.stu-liens{display:flex;flex-wrap:wrap;gap:8px}';
+  var s=document.createElement('style'); s.id='v163-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+function v3E(t){ return (typeof rapEsc==='function')?rapEsc(t):String(t==null?'':t); }
+function v3Url(u){ u=String(u||'').trim(); if(!u) return ''; if(!/^https?:\/\//i.test(u)) u='https://'+u; return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:''; }
+
+// =====================================================================
+// 1. Diffuser ou pas aux joueurs
+// =====================================================================
+// La compo : cachée tant que le coach ne l'a pas ouverte (DOSSIER.masques.compo !== false)
+function difCompoCachee(){ return !(DOSSIER && DOSSIER.masques && DOSSIER.masques.compo===false); }
+function difPoserCompo(visible){
+  DOSSIER.masques=DOSSIER.masques||{}; DOSSIER.masques.compo=visible?false:true;
+  sauvegardeAuto();
+  if(DOSSIER.publie){ dmPublier(); notif(visible?'📲 Compo ouverte : le dossier est renvoyé aux joueurs avec la compo':'🔒 Compo cachée : le dossier est renvoyé sans la compo'); }
+  else notif(visible?'📲 La compo partira avec le dossier':'🔒 La compo ne partira pas avec le dossier');
+}
+// Le dossier envoyé ne contient jamais une compo cachée : on la retire au moment
+// où le document part (le JSON est construit avant le premier « await »).
+window.addEventListener('load', function(){
+  if(typeof dmPublier!=='function' || dmPublier.__v163) return;
+  var base=dmPublier;
+  dmPublier=function(){
+    var cache=difCompoCachee(), idx=DOSSIER?DOSSIER.compoIdx:null, p;
+    if(cache && DOSSIER) DOSSIER.compoIdx=null;
+    try{ p=base.apply(this, arguments); }
+    finally{ if(cache && DOSSIER) DOSSIER.compoIdx=idx; }
+    return p;
+  };
+  dmPublier.__v163=true;
+});
+
+// La convocation : CONVOS.masque = true → l'appli joueur fait comme si rien n'était posé
+function difConvoPosee(adv){
+  var cv=(typeof CONVOS!=='undefined'&&CONVOS)||{};
+  return !!(cv.adv && adv && fexNomsCorrespondent(cv.adv, adv) && ((cv.a||[]).length+(cv.b||[]).length));
+}
+
+// Le plateau publié : on le demande une fois, en fond
+var DIF_PLATEAU=null;   // null = inconnu, '' = rien, sinon le titre publié
+function difLirePlateau(){
+  if(typeof FIREBASE_PROJECT_ID!=='undefined' && FIREBASE_PROJECT_ID==='VOTRE-PROJECT-ID-ICI') return Promise.resolve();
+  return fbFetch(FIRESTORE_BASE+'/plateau_joueurs/actuel').then(function(r){
+    if(!r.ok){ DIF_PLATEAU=''; return; }
+    return r.json().then(function(j){ var f=j.fields||{}; DIF_PLATEAU=(f.titre&&f.titre.stringValue)||'publié'; });
+  }).catch(function(){});
+}
+
+// Chaque étape du board qui peut sortir chez les joueurs
+function difEtat(cle, adv){
+  try{
+    if(cle==='rapport'){
+      var a=rapAdv(adv), r=a&&a.rapport;
+      if(!r || !rapARempli(r)) return {na:'Rapport vide'};
+      return {on:!!r.diffuse};
+    }
+    if(cle==='groupe'){
+      if(!difConvoPosee(adv)) return {na:'Pas encore posée'};
+      return {on:!CONVOS.masque};
+    }
+    if(cle==='compo'){
+      if(!(COMPOSITIONS||[]).length) return {na:'Pas de compo'};
+      return {on:!difCompoCachee()};
+    }
+    if(cle==='plateau'){
+      if(DIF_PLATEAU===null) return {na:'…'};
+      return {on:!!DIF_PLATEAU};
+    }
+    if(cle==='dossier'){
+      return {on:!!(DOSSIER && DOSSIER.publie)};
+    }
+  }catch(e){}
+  return null;
+}
+function difBasculer(cle){
+  var adv=''; try{ var p=dvProchainMatch(); adv=p?(p.c.adversaire||''):''; }catch(e){}
+  var E=difEtat(cle, adv); if(!E || E.na) { if(E&&E.na) notif('⚠ '+E.na+' : rien à montrer aux joueurs pour l’instant'); return; }
+  var on=!E.on;
+  if(cle==='rapport'){
+    var garde=(typeof RAP_NOM!=='undefined')?RAP_NOM:'';
+    var a=rapAdv(adv); RAP_NOM=a?a.nom:adv;
+    try{ rapDiffuser(on); }finally{ RAP_NOM=garde; }
+  }
+  if(cle==='groupe'){
+    CONVOS.masque=!on; sauvegardeAuto();
+    notif(on?'📲 Convocation visible par les joueurs':'🔒 Convocation cachée aux joueurs — elle reste prête ici');
+  }
+  if(cle==='compo') difPoserCompo(on);
+  if(cle==='plateau'){
+    if(on){ goNav('plateau'); notif('Choisis la situation, puis « Publier aux joueurs » sur le plateau'); return; }
+    Promise.resolve(retirerPlateauJoueurs()).then(function(){ difLirePlateau().then(difRafraichir); });
+    return;
+  }
+  if(cle==='dossier'){
+    if(on){
+      if(typeof stEnvoyer==='function') stEnvoyer(); else dmPublier();
+      setTimeout(difRafraichir, 1500); return;
+    }
+    Promise.resolve(dmRetirer()).then(difRafraichir); return;
+  }
+  difRafraichir();
+}
+function difRafraichir(){ try{ if(typeof nav3EcranOuvert==='function' && nav3EcranOuvert()) renderSemaine(); }catch(e){} try{ var s=document.getElementById('scr-studio'); if(s&&s.classList.contains('on')) stRendre(); }catch(e){} }
+function difPillHtml(cle, adv){
+  var E=difEtat(cle, adv); if(!E) return '';
+  if(E.na) return '<button class="dif-pill na" title="'+v3E(E.na)+'" onclick="event.stopPropagation();difBasculer(\''+cle+'\')">🔒 Staff</button>';
+  return '<button class="dif-pill'+(E.on?' on':'')+'" title="'+(E.on?'Visible par les joueurs — toucher pour cacher':'Staff seulement — toucher pour montrer aux joueurs')+'" onclick="event.stopPropagation();difBasculer(\''+cle+'\')">'
+    +(E.on?'📲 Joueurs':'🔒 Staff')+'</button>';
+}
+// Après chaque rendu du board : un interrupteur sur les étapes concernées
+function difDecorerBoard(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  var adv=''; try{ var p=dvProchainMatch(); adv=p?(p.c.adversaire||''):''; }catch(e){}
+  ['rapport','groupe','compo','plateau','dossier'].forEach(function(cle){
+    var q=ct.querySelector('.n3-qui[onclick*="\''+cle+'\'"]'); if(!q) return;
+    var h=q.parentNode; if(!h || h.querySelector('.dif-pill')) return;
+    var t=document.createElement('span'); t.innerHTML=difPillHtml(cle, adv);
+    if(t.firstChild) h.insertBefore(t.firstChild, q);
+  });
+}
+window.addEventListener('load', function(){
+  if(typeof renderSemaine==='function' && !renderSemaine.__v163){
+    var base=renderSemaine;
+    renderSemaine=function(){ var r=base.apply(this, arguments); try{ difDecorerBoard(); }catch(e){ console.error('diffusion', e); } return r; };
+    renderSemaine.__v163=true;
+  }
+  setTimeout(function(){ difLirePlateau().then(function(){ if(typeof nav3EcranOuvert==='function' && nav3EcranOuvert()) renderSemaine(); }); }, 2000);
+});
+
+// =====================================================================
+// 2. Les liens de l'adversaire
+// =====================================================================
+var RAP_LIENS=[
+  {k:'lienFFF',     ic:'🏆', l:'Leur page FFF / Ligue', ph:'Lien de leur équipe sur le site de la Ligue ou de la FFF'},
+  {k:'lienReseaux', ic:'📣', l:'Leur site / réseaux',   ph:'Instagram, Facebook, site du club…'},
+  {k:'video',       ic:'🎬', l:'Une vidéo d’eux',       ph:'Lien YouTube, Veo…'}
+];
+function rapLiensHtml(r, cls){
+  r=r||{};
+  return RAP_LIENS.map(function(L){ var u=v3Url(r[L.k]); return u?'<a class="'+(cls||'rapc-vid')+'" href="'+v3E(u)+'" target="_blank" rel="noopener">'+L.ic+' '+v3E(L.l)+'</a>':''; }).join('');
+}
+window.addEventListener('load', function(){
+  // le rapport vide connaît les deux nouveaux champs (rapReparer les ajoute aux anciens rapports)
+  if(typeof rapVide==='function' && !rapVide.__v163){
+    var bv=rapVide;
+    rapVide=function(){ var r=bv.apply(this, arguments); r.lienFFF=''; r.lienReseaux=''; return r; };
+    rapVide.__v163=true;
+  }
+  // l'éditeur : la case « vidéo » devient le bloc des trois liens
+  if(typeof rapRender==='function' && !rapRender.__v163){
+    var br=rapRender;
+    rapRender=function(nom){
+      var res=br.apply(this, arguments);
+      try{
+        var ct=document.getElementById('rap-ct'); if(!ct || !RAP_NOM) return res;
+        var vid=ct.querySelector('input[onchange*="rapChamp(\'video\'"]'); if(!vid) return res;
+        var lab=vid.previousElementSibling;
+        var r=rapLire(RAP_NOM);
+        var bloc=document.createElement('div'); bloc.className='rap-liens';
+        bloc.innerHTML='<label class="fl" style="margin-top:10px">🔗 Leurs liens <span class="rap-aide">les joueurs les voient sur la carte, quand le rapport est diffusé</span></label>'
+          +RAP_LIENS.map(function(L){
+            return '<input class="fi" aria-label="'+v3E(L.l)+'" value="'+v3E(r[L.k]||'')+'" placeholder="'+L.ic+' '+v3E(L.ph)+'" onchange="rapChamp(\''+L.k+'\',this.value)">';
+          }).join('');
+        if(lab && lab.tagName==='LABEL') lab.remove();
+        vid.replaceWith(bloc);
+      }catch(e){ console.error('liens adversaire', e); }
+      return res;
+    };
+    rapRender.__v163=true;
+  }
+});
+
+// =====================================================================
+// 3. Le Studio : l'interrupteur de la compo, les liens adverses
+// =====================================================================
+window.addEventListener('load', function(){
+  if(typeof stNousHtml==='function' && !stNousHtml.__v163){
+    var bn=stNousHtml;
+    stNousHtml=function(E){
+      var h=bn.apply(this, arguments);
+      if(!E.compo) return h;
+      var vis=!difCompoCachee();
+      var enc='<div class="stu-c" style="flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap;border-color:'+(vis?'var(--green)':'var(--line)')+'">'
+        +'<div style="flex:1;min-width:220px"><div class="stu-l">La compo chez les joueurs</div><div class="stu-v">'
+        +(vis?'📲 Visible : elle part avec le dossier':'🔒 Cachée : le dossier part sans la compo, tu l’ouvres quand tu veux')+'</div></div>'
+        +'<button class="stu-b '+(vis?'':'vt')+'" onclick="difPoserCompo('+(vis?'false':'true')+');stRendre()">'+(vis?'Cacher la compo':'Montrer la compo aux joueurs')+'</button></div>';
+      var k=h.lastIndexOf('<div class="stu-btns">');
+      return k>=0 ? h.slice(0,k)+enc+h.slice(k) : h+enc;
+    };
+    stNousHtml.__v163=true;
+  }
+  if(typeof stEnFaceHtml==='function' && !stEnFaceHtml.__v163){
+    var bf=stEnFaceHtml;
+    stEnFaceHtml=function(E){
+      var h=bf.apply(this, arguments);
+      if(!E.r) return h;
+      var l=rapLiensHtml(E.r, 'stu-b');
+      if(!l) return h;
+      var k=h.lastIndexOf('<div class="stu-btns">');
+      var enc='<div class="stu-c"><div class="stu-l">Leurs liens</div><div class="stu-liens">'+l+'</div></div>';
+      return k>=0 ? h.slice(0,k)+enc+h.slice(k) : h+enc;
+    };
+    stEnFaceHtml.__v163=true;
+  }
+  // le téléphone du Studio montre ce que les joueurs verront : sans la compo si elle est cachée
+  if(typeof stPagesDossier==='function' && !stPagesDossier.__v163){
+    var bp=stPagesDossier;
+    stPagesDossier=function(){
+      if(!difCompoCachee()) return bp.apply(this, arguments);
+      var idx=DOSSIER.compoIdx; DOSSIER.compoIdx=null;
+      try{ return bp.apply(this, arguments); } finally{ DOSSIER.compoIdx=idx; }
+    };
+    stPagesDossier.__v163=true;
+  }
+});
+
+// =====================================================================
+// 4. Club House › Directeur de la statistique
+// =====================================================================
+var STX_LIENS_DEFAUT=[
+  {l:'Ligue de Football Nouvelle-Aquitaine', u:'https://lfna.fff.fr/'},
+  {l:'Scorenco', u:'https://scorenco.com/'}
+];
+function stxLiens(){
+  try{ nav3Membres(); }catch(e){}
+  if(!NAV_STAFF || typeof NAV_STAFF!=='object') return STX_LIENS_DEFAUT.slice();
+  if(!Array.isArray(NAV_STAFF.liensStats)) NAV_STAFF.liensStats=STX_LIENS_DEFAUT.map(function(x){ return {l:x.l, u:x.u}; });
+  return NAV_STAFF.liensStats;
+}
+function stxAjouterLien(){
+  var l=(document.getElementById('stx-l-nom')||{}).value||'', u=v3Url((document.getElementById('stx-l-url')||{}).value);
+  if(!u){ notif('⚠ Colle l’adresse du site (elle commence souvent par https://)'); return; }
+  stxLiens().push({l:String(l).trim()||u.replace(/^https?:\/\//,'').split('/')[0], u:u});
+  sauvegardeAuto(); stxRendre(); notif('✓ Lien ajouté');
+}
+function stxRetirerLien(i){
+  var L=stxLiens(); if(!L[i]) return;
+  if(!confirm('Retirer le lien « '+L[i].l+' » ?')) return;
+  L.splice(i,1); sauvegardeAuto(); stxRendre();
+}
+function stxTop(get, n, filtre){
+  var out=[];
+  (JOUEURS||[]).forEach(function(j,i){ var s=(STATS||[])[i]; if(!s) return; var v=+get(s)||0; if(filtre && !filtre(v,s)) return; out.push({nom:j.nom, v:v}); });
+  out.sort(function(a,b){ return b.v-a.v; });
+  return out.slice(0, n||5);
+}
+function stxListe(L, unite, fmt){
+  if(!L.length || !L.some(function(x){ return x.v>0; })) return '<div class="stx-vide">Pas encore de données.</div>';
+  return L.filter(function(x){ return x.v>0; }).map(function(x,k){ return '<div class="stx-l"><i>'+(k+1)+'</i><span>'+v3E(x.nom)+'</span><b>'+(fmt?fmt(x.v):x.v)+'</b>'+(unite?'<small style="color:var(--gris2);font:600 12px \'Roboto Condensed\'">'+unite+'</small>':'')+'</div>'; }).join('');
+}
+function stxRendre(){
+  var ct=document.getElementById('stx-ct'); if(!ct) return;
+  // le classement
+  var cl=[], rang=0, moi=null;
+  try{ cl=calculerClassementAuto()||[]; }catch(e){}
+  cl.forEach(function(e,i){ if(/tarnos/i.test(e.equipe||'') || e.equipe===NOM_CLUB){ rang=i+1; moi=e; } });
+  // les résultats
+  var M=(MATCHS||[]).filter(function(m){ return m && m.res; });
+  var V=M.filter(function(m){ return m.res==='V'; }).length, N=M.filter(function(m){ return m.res==='N'; }).length, D=M.filter(function(m){ return m.res==='D'; }).length;
+  var bp=M.reduce(function(s,m){ return s+(+m.ast||0); },0), bc=M.reduce(function(s,m){ return s+(+m.adv||0); },0);
+  var forme=M.slice(0,5).map(function(m){ return '<i class="'+m.res+'">'+m.res+'</i>'; }).join('');
+  var h='';
+  h+='<div class="stx-g">';
+  h+='<div class="stx-c"><h3>Classement <button onclick="goNav(\'classement\')">Tout le classement ›</button></h3>'
+    +(moi?'<div class="stx-big"><b>'+rang+(rang===1?'er':'e')+'</b><span>'+moi.pts+' pts · '+moi.j+' matchs · '+(moi.bp-moi.bc>=0?'+':'')+(moi.bp-moi.bc)+' de diff.</span></div>'
+      +(cl[0]&&rang>1?'<div class="stx-vide" style="font-style:normal">'+(cl[0].pts-moi.pts)+' pt'+(cl[0].pts-moi.pts>1?'s':'')+' du leader ('+v3E(cl[0].equipe)+')</div>':'')
+      :'<div class="stx-vide">Le classement se remplit avec les résultats de la poule.</div>')+'</div>';
+  h+='<div class="stx-c"><h3>Nos résultats <button onclick="goNav(\'bilan\')">Bilan & constats ›</button></h3>'
+    +(M.length?'<div class="stx-big"><b>'+V+'V '+N+'N '+D+'D</b></div><div class="stx-vide" style="font-style:normal">'+bp+' buts marqués · '+bc+' encaissés · '+M.length+' matchs</div><div class="stx-f">'+forme+'</div>'
+      :'<div class="stx-vide">Aucun match saisi pour l’instant.</div>')
+    +'<button class="jf-b2" style="align-self:flex-start;margin-top:4px" onclick="cbOuvrir()">Carte des buts et courbe</button></div>';
+  h+='<div class="stx-c"><h3>Buteurs <button onclick="goNav(\'recap\')">Comparer ›</button></h3>'+stxListe(stxTop(function(s){ return s.buts; }), 'buts')+'</div>';
+  h+='<div class="stx-c"><h3>Passeurs <button onclick="goNav(\'recap\')">Comparer ›</button></h3>'+stxListe(stxTop(function(s){ return s.pd; }), 'passes')+'</div>';
+  h+='<div class="stx-c"><h3>Temps de jeu <button onclick="goNav(\'rotation\')">Tout le temps de jeu ›</button></h3>'+stxListe(stxTop(function(s){ return s.tpsTotal; }), 'min')+'</div>';
+  h+='<div class="stx-c"><h3>Notes moyennes <button onclick="goNav(\'recap\')">Comparer ›</button></h3>'+stxListe(stxTop(function(s){ return s.noteMoy; }, 5, function(v,s){ return (s.notesCount||0)>=2; }), '', function(v){ return String(Math.round(v*10)/10).replace('.',','); })+'</div>';
+  h+='<div class="stx-c"><h3>Présence à l’entraînement <button onclick="goNav(\'points\')">Détail ›</button></h3>'+stxListe(stxTop(function(s){ return s.pres; }), 'séances')+'</div>';
+  h+='<div class="stx-c"><h3>Discipline <button onclick="goNav(\'correction-buts\')">Corriger des stats ›</button></h3>'+stxListe(stxTop(function(s){ return (s.cj||0)+3*(s.cr||0); }), '', function(v){ return v; })
+    +'<div class="stx-vide" style="font-style:normal;font-size:12px">Jaune = 1, rouge = 3</div></div>';
+  h+='</div>';
+  // les liens extérieurs
+  var L=stxLiens();
+  h+='<div class="stx-c" style="margin-top:12px"><h3>Les sites de stats extérieurs <span style="font:600 12.5px \'Roboto Condensed\';text-transform:none;color:var(--gris2)">s’ouvrent dans un nouvel onglet</span></h3>'
+    +'<div class="stx-liens">'+(L.length?L.map(function(x,i){ var u=v3Url(x.u); if(!u) return '';
+        return '<div class="stx-lien"><a href="'+v3E(u)+'" target="_blank" rel="noopener">🔗 '+v3E(x.l||u)+' <small>'+v3E(u.replace(/^https?:\/\//,''))+'</small></a>'
+          +'<button class="stx-x" aria-label="Retirer '+v3E(x.l||'')+'" onclick="stxRetirerLien('+i+')">✕</button></div>'; }).join(''):'<div class="stx-vide">Aucun lien pour l’instant.</div>')+'</div>'
+    +'<div class="stu-l" style="margin-top:6px;font:800 11.5px \'Roboto Condensed\';letter-spacing:.08em;text-transform:uppercase;color:var(--gris2)">Ajouter un lien</div>'
+    +'<div class="stx-aj"><input class="fi" id="stx-l-nom" aria-label="Nom du site" placeholder="Nom (ex. Notre poule R2)"><input class="fi" id="stx-l-url" aria-label="Adresse du site" placeholder="https://…"><button class="btn" style="width:auto;margin:0" onclick="stxAjouterLien()">+ Ajouter</button></div>'
+    +'</div>';
+  ct.innerHTML=h;
+}
+window.addEventListener('load', function(){
+  var ref=document.getElementById('scr-avant-match');
+  if(ref && !document.getElementById('scr-stats')){
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-stats';
+    d.innerHTML='<div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-chiffres"/></svg>Directeur de la statistique</div>'
+      +'<div class="ph-sub">Toutes les stats de la saison sur un écran, et les sites extérieurs à portée de main</div></div></div><div id="stx-ct"></div>';
+    ref.parentNode.insertBefore(d, ref);
+  }
+  try{ ECRANS_INFO['stats']={ic:'chiffres', l:'Directeur de la statistique'}; }catch(e){}
+  try{
+    var pole=NAV3_POLES.filter(function(p){ return p.id==='clubhouse'; })[0];
+    if(pole && !pole.screens.some(function(x){ return x.s==='stats'; })){
+      var i=pole.screens.findIndex(function(x){ return x.s==='visuels'; });
+      if(i<0) i=pole.screens.length;
+      pole.screens.splice(i,0,{s:'stats',ic:'chiffres',l:'Toutes les stats',g:'Directeur de la statistique'});
+      if(typeof renderSideNav==='function') renderSideNav();
+    }
+  }catch(e){ console.error('stats menu', e); }
+  EXT.apres('goNav', function(s){
+    if(s && typeof s!=='string') s=(s.getAttribute&&s.getAttribute('data-s'))||'';
+    if(s==='stats') stxRendre();
+  }, 'stats');
+});
+</script>
+<script>
+// ===== v164 : la coche du board, la carte des buts complétée après coup =====
+//   1. Sur « Cette semaine », chaque étape porte une coche : on valide à la main
+//      (ou on dé-valide) ce que l'appli ne peut pas savoir seule. La coche vaut
+//      pour la semaine du match qu'on prépare ; la semaine suivante repart à zéro.
+//   2. La carte des buts : « Compléter un match » permet de placer les buts des
+//      matchs déjà joués (avant l'arrivée du mode bord de touche, ou un oubli),
+//      de les corriger et de les retirer.
+
+(function(){
+  var css=''
+  +'.n3-ck{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:2px solid var(--ec,var(--line));background:transparent;color:transparent;display:grid;place-items:center;cursor:pointer;font:900 14px/1 sans-serif;padding:0;margin-right:2px}'
+  +'.n3-ck:hover{border-color:var(--green)}'
+  +'.n3-ck.on{background:var(--green);border-color:var(--green);color:#fff}'
+  +'.n3-ck.main{box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 25%,transparent)}'
+  +'.n3-e-h .n3-ck + .n3-pt{display:none}'
+  +'.cbc-barre{display:flex;justify-content:flex-end;padding:0 0 10px}'
+  +'.cbc-liste{display:flex;flex-direction:column;gap:8px}'
+  +'.cbc-m{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--carte);cursor:pointer;text-align:left;color:var(--gris);font-family:inherit;width:100%}'
+  +'.cbc-m:hover{border-color:var(--or)}'
+  +'.cbc-m .sc{font:400 22px "Anton",sans-serif;min-width:54px}'
+  +'.cbc-m .tx{flex:1;min-width:160px;display:flex;flex-direction:column;gap:2px}'
+  +'.cbc-m .tx b{font:800 15px "Roboto Condensed",sans-serif}.cbc-m .tx span{font:600 12.5px "Roboto Condensed",sans-serif;color:var(--gris2)}'
+  +'.cbc-pill{font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:4px 10px;background:var(--voile2);color:var(--gris2)}'
+  +'.cbc-pill.ok{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}'
+  +'.cbc-pill.af{background:color-mix(in srgb,var(--or) 15%,transparent);color:var(--or)}'
+  +'.cbc-ed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'
+  +'@media(max-width:700px){.cbc-ed{grid-template-columns:minmax(0,1fr)}}'
+  +'.cbc-col{border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--carte);display:flex;flex-direction:column;gap:8px}'
+  +'.cbc-col h4{margin:0;display:flex;justify-content:space-between;align-items:baseline;font:400 18px "Anton",sans-serif;text-transform:uppercase;color:var(--gris)}'
+  +'.cbc-col h4 span{font:700 12.5px "Roboto Condensed",sans-serif;text-transform:none;color:var(--gris2)}'
+  +'.cbc-b{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;background:var(--voile);font:700 14px "Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.cbc-b .mi{font:400 17px "Anton",sans-serif;min-width:34px}'
+  +'.cbc-b .tx{flex:1;min-width:0}'
+  +'.cbc-b button{min-width:38px;min-height:38px;border-radius:8px;border:1.5px solid var(--line);background:var(--carte);color:var(--gris);cursor:pointer}'
+  +'.cbc-aj{min-height:46px;border-radius:10px;border:1.5px dashed var(--or);background:transparent;color:var(--or);font:800 14px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.cbc-ch{display:flex;gap:10px;flex-wrap:wrap}.cbc-ch label{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px;font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--gris2)}';
+  var s=document.createElement('style'); s.id='v164-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// =====================================================================
+// 1. La coche du board
+// =====================================================================
+var NAV3_AUTO={};   // l'état calculé par l'appli, avant la coche du coach
+function ckSemaine(){
+  try{ var p=dvProchainMatch(); if(p) return String(p.c.date||'')+'|'+String(p.c.adversaire||''); }catch(e){}
+  return 'sans-match';
+}
+function ckCoches(){
+  try{ nav3Membres(); }catch(e){}
+  if(!NAV_STAFF.coches || typeof NAV_STAFF.coches!=='object') NAV_STAFF.coches={};
+  var k=ckSemaine();
+  // on ne garde que les 6 dernières semaines
+  var cles=Object.keys(NAV_STAFF.coches);
+  if(cles.length>6 && !NAV_STAFF.coches[k]) delete NAV_STAFF.coches[cles[0]];
+  if(!NAV_STAFF.coches[k]) NAV_STAFF.coches[k]={};
+  return NAV_STAFF.coches[k];
+}
+function ckBasculer(cle){
+  var C=ckCoches(), auto=NAV3_AUTO[cle];
+  var autoFait=(auto==='fait');
+  var actuel=(C[cle]===true)?true:(C[cle]===false?false:autoFait);
+  var voulu=!actuel;
+  if(voulu===autoFait) delete C[cle]; else C[cle]=voulu;
+  try{ sauvegardeAuto(); }catch(e){}
+  notif(voulu?'✓ Validé pour cette semaine':'Remis à faire');
+  renderSemaine();
+}
+window.addEventListener('load', function(){
+  // l'état calculé, puis la coche du coach par-dessus
+  if(typeof nav3Colonnes==='function' && !nav3Colonnes.__v164){
+    var base=nav3Colonnes;
+    nav3Colonnes=function(){
+      var R=base.apply(this, arguments);
+      try{
+        var C=ckCoches(); NAV3_AUTO={};
+        (R.col||[]).forEach(function(c){ (c.L||[]).forEach(function(x){
+          if(!x.cle || x.ech) return;
+          NAV3_AUTO[x.cle]=x.etat;
+          if(C[x.cle]===true){ x.etat='fait'; x._main=true; }
+          else if(C[x.cle]===false){ x.etat=(x.etat==='fait'||x.etat==='libre')?'afaire':x.etat; x._main=true; }
+        }); });
+      }catch(e){ console.error('coches', e); }
+      return R;
+    };
+    nav3Colonnes.__v164=true;
+  }
+  // la coche sur chaque carte
+  if(typeof renderSemaine==='function' && !renderSemaine.__v164){
+    var br=renderSemaine;
+    renderSemaine=function(){
+      var r=br.apply(this, arguments);
+      try{
+        var ct=document.getElementById('n3-semaine'); if(!ct) return r;
+        var C=ckCoches();
+        [].forEach.call(ct.querySelectorAll('.n3-e'), function(card){
+          var q=card.querySelector('.n3-qui[onclick]'); if(!q) return;
+          var m=(q.getAttribute('onclick')||'').match(/nav3Pop\(event,'([^']+)'\)/); if(!m) return;
+          var cle=m[1], h=card.querySelector('.n3-e-h'); if(!h || h.querySelector('.n3-ck')) return;
+          var fait=card.classList.contains('fait'), main=(cle in C);
+          var b=document.createElement('button');
+          b.className='n3-ck'+(fait?' on':'')+(main?' main':'');
+          b.setAttribute('aria-label', (fait?'Validé — toucher pour remettre à faire':'Toucher pour valider')+' : '+((typeof NAV3_ETAPES_NOMS!=='undefined'&&NAV3_ETAPES_NOMS[cle])||cle));
+          b.title=main?(fait?'Validé à la main':'Remis à faire à la main'):(fait?'Fait (vu par l’appli)':'Toucher pour valider');
+          b.textContent='✓';
+          b.onclick=function(ev){ ev.stopPropagation(); ckBasculer(cle); };
+          h.insertBefore(b, h.firstChild);
+        });
+      }catch(e){ console.error('coches rendu', e); }
+      return r;
+    };
+    renderSemaine.__v164=true;
+  }
+});
+
+// =====================================================================
+// 2. La carte des buts, complétée après le match
+// =====================================================================
+function cbcEsc(t){ return (typeof mdEsc==='function')?mdEsc(t):String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function cbcJour(d){ return String(d||'').replace(/\s*-.*$/,'').trim().toLowerCase(); }
+function cbcMatchs(){ return (MATCHS||[]).filter(function(m){ return m && m.res && m.adversaire; }); }
+function cbcCle(m){ return String(m.date||'')+'|'+String(m.adversaire||''); }
+// Les buts déjà posés pour ce match : par la clé du bord de touche, ou par l'adversaire et le jour
+function cbcButsDu(m){
+  var cle=cbcCle(m), j=cbcJour(m.date);
+  return cbButs().filter(function(b){
+    if(b.cle===cle) return true;
+    var memeAdv=b.adv && fexNomsCorrespondent(b.adv, m.adversaire);
+    return memeAdv && (cbcJour(b.date)===j || String(b.cle||'').toLowerCase().indexOf(j)===0);
+  });
+}
+function cbcBarreHtml(){
+  return '<div class="cbc-barre"><button class="btn" style="width:auto;margin:0" onclick="CB_V.ed=-1;cbRendre()">✏️ Compléter un match</button></div>';
+}
+function cbcListeHtml(){
+  var M=cbcMatchs();
+  var h='<div class="st-h"><button class="st-x" onclick="CB_V.ed=null;cbRendre()" aria-label="Retour">‹</button>'
+    +'<div class="st-t"><b>Compléter un match</b><span>Place les buts des matchs déjà joués</span></div></div>';
+  if(!M.length) return h+'<div class="st-aide" style="padding:16px">Aucun match joué n’est encore enregistré (écran Matchs · score et notes).</div>';
+  h+='<div class="cbc-liste" style="padding:4px 2px">'+M.map(function(m,i){
+    var B=cbcButsDu(m), p=B.filter(function(b){ return b.sens==='pour'; }).length, c=B.filter(function(b){ return b.sens==='contre'; }).length;
+    var a=+m.ast||0, e=+m.adv||0, complet=(p>=a && c>=e);
+    return '<button class="cbc-m" onclick="CB_V.ed='+i+';cbRendre()"><span class="sc">'+a+'-'+e+'</span>'
+      +'<span class="tx"><b>'+cbcEsc(m.adversaire)+'</b><span>'+cbcEsc(cbcJour(m.date)||m.date||'')+(m.lieu==='E'?' · extérieur':(m.lieu==='D'?' · domicile':''))+'</span></span>'
+      +'<span class="cbc-pill '+(complet?'ok':'af')+'">'+(complet?'✓ Complet':('À placer : '+Math.max(0,a-p)+' marqué'+(a-p>1?'s':'')+', '+Math.max(0,e-c)+' encaissé'+(e-c>1?'s':'')))+'</span></button>';
+  }).join('')+'</div>';
+  return h;
+}
+function cbcEditeurHtml(i){
+  var m=cbcMatchs()[i]; if(!m){ CB_V.ed=-1; return cbcListeHtml(); }
+  var B=cbcButsDu(m).slice().sort(function(a,b){ return (+a.min||0)-(+b.min||0); });
+  var col=function(sens){
+    var L=B.filter(function(b){ return b.sens===sens; }), att=sens==='pour'?(+m.ast||0):(+m.adv||0);
+    return '<div class="cbc-col"><h4>'+(sens==='pour'?'⚽ Marqués':'🥅 Encaissés')+'<span>'+L.length+' placé'+(L.length>1?'s':'')+' sur '+att+'</span></h4>'
+      +(L.length?L.map(function(b){
+        var o=(CB_ORIGINES[sens].filter(function(x){ return x[0]===b.origine; })[0]||[])[1]||'Origine non précisée';
+        return '<div class="cbc-b"><span class="mi">'+(b.min!=null&&b.min!==''?cbcEsc(b.min)+'′':'–')+'</span><span class="tx">'+cbcEsc(o)+(b.buteur?' · '+cbcEsc(b.buteur):'')+(b.x==null?' · <i style="color:var(--gris2)">sans position</i>':'')+'</span>'
+          +'<button aria-label="Modifier ce but" onclick="cbcSaisir(\''+sens+'\','+i+',\''+cbcEsc(b.id)+'\')">✏️</button>'
+          +'<button aria-label="Retirer ce but" onclick="cbcRetirer(\''+cbcEsc(b.id)+'\')">✕</button></div>';
+      }).join(''):'<div class="st-aide" style="padding:2px 0">Aucun but placé.</div>')
+      +'<button class="cbc-aj" onclick="cbcSaisir(\''+sens+'\','+i+')">＋ '+(sens==='pour'?'But marqué':'But encaissé')+'</button></div>';
+  };
+  return '<div class="st-h"><button class="st-x" onclick="CB_V.ed=-1;cbRendre()" aria-label="Retour à la liste">‹</button>'
+      +'<div class="st-t"><b>vs '+cbcEsc(m.adversaire)+' · '+(+m.ast||0)+'-'+(+m.adv||0)+'</b><span>'+cbcEsc(m.date||'')+'</span></div></div>'
+    +'<div class="cbc-ed" style="padding:4px 2px">'+col('pour')+col('contre')+'</div>'
+    +'<div class="st-aide" style="padding:12px 2px">Chaque but placé ici compte dans la carte de la saison et les « 5 derniers matchs ».</div>';
+}
+var CBC_EN=null;
+function cbcSaisir(sens, i, id){
+  var m=cbcMatchs()[i]; if(!m) return;
+  var b=id?cbButs().filter(function(x){ return x.id===id; })[0]:null;
+  CB_EN={sens:sens, min:b?b.min:'', x:b?b.x:null, y:b?b.y:null, origine:b?b.origine:null, buteur:b?b.buteur:null};
+  CBC_EN={i:i, id:id||null};
+  var old=document.getElementById('cb-sheet'); if(old) old.remove();
+  var s=document.createElement('div'); s.className='md-sheet cb-sheet'; s.id='cb-sheet';
+  var joueurs=(JOUEURS||[]).map(function(j){ return j.nom; });
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>'+(sens==='pour'?'⚽ But pour nous':'🥅 But encaissé')+'</b><span>vs '+cbcEsc(m.adversaire)+'</span></div>'
+    +'<div class="cbc-ch"><label>Minute<input class="fi" id="cbc-min" inputmode="numeric" placeholder="ex. 34" value="'+cbcEsc(CB_EN.min==null?'':CB_EN.min)+'"></label>'
+    +(sens==='pour'?'<label>Buteur<select class="fi" id="cbc-but"><option value="">—</option>'+joueurs.map(function(n){ return '<option'+(n===CB_EN.buteur?' selected':'')+'>'+cbcEsc(n)+'</option>'; }).join('')+'</select></label>':'')
+    +'</div>'
+    +'<div class="cb-aide">D’où part la frappe ? Touche le terrain (facultatif).</div>'
+    +'<div class="cb-terr" onclick="cbTap(event)">'+cbTerrainSvg([])+'<span id="cb-pt" class="cb-pt '+sens+'"'+(CB_EN.x!=null?' style="display:block;left:'+(CB_EN.x*100)+'%;top:'+(CB_EN.y*100)+'%"':'')+'></span></div>'
+    +'<div class="cb-aide">Et l’origine de l’action ?</div>'
+    +'<div class="md-chips cb-or">'+CB_ORIGINES[sens].map(function(o){ return '<button data-o="'+o[0]+'" class="'+(o[0]===CB_EN.origine?'on':'')+'" onclick="cbOrig(this)">'+o[1]+'</button>'; }).join('')+'</div>'
+    +'<div style="display:flex;gap:8px"><button class="jf-b2" style="flex:1" onclick="document.getElementById(\'cb-sheet\').remove()">Annuler</button>'
+    +'<button class="btn" style="flex:2;margin:0" onclick="cbcValider()">Enregistrer</button></div></div>';
+  document.body.appendChild(s);
+}
+function cbcValider(){
+  if(!CBC_EN) return;
+  var m=cbcMatchs()[CBC_EN.i]; if(!m) return;
+  var mi=String((document.getElementById('cbc-min')||{}).value||'').replace(/[^\d+]/g,'');
+  var but=(document.getElementById('cbc-but')||{}).value||null;
+  var s=document.getElementById('cb-sheet'); if(s) s.remove();
+  var val={sens:CB_EN.sens, min:mi===''?null:(mi.indexOf('+')>=0?mi:+mi), x:CB_EN.x, y:CB_EN.y, origine:CB_EN.origine, buteur:CB_EN.sens==='pour'?(but||null):null};
+  if(CBC_EN.id){
+    var b=cbButs().filter(function(x){ return x.id===CBC_EN.id; })[0];
+    if(b) Object.keys(val).forEach(function(k){ b[k]=val[k]; });
+  } else {
+    cbButs().push(Object.assign({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5), cle:cbcCle(m), adv:m.adversaire, date:m.date, apres:true}, val));
+  }
+  stSauver();
+  notif('✓ But '+(CBC_EN.id?'modifié':'placé sur la carte'));
+  CBC_EN=null; cbRendre();
+}
+function cbcRetirer(id){
+  if(!confirm('Retirer ce but de la carte ?')) return;
+  var S=stStaff(); S.buts=cbButs().filter(function(b){ return b.id!==id; });
+  stSauver(); cbRendre();
+}
+window.addEventListener('load', function(){
+  if(typeof cbRendre==='function' && !cbRendre.__v164){
+    var base=cbRendre;
+    cbRendre=function(){
+      var o=document.getElementById('cb'); if(!o) return;
+      CB_V=CB_V||{f:'saison'};
+      if(CB_V.ed===-1){ o.innerHTML=cbcListeHtml(); return; }
+      if(CB_V.ed!=null && CB_V.ed>=0){ o.innerHTML=cbcEditeurHtml(CB_V.ed); return; }
+      var r=base.apply(this, arguments);
+      try{
+        var h=o.querySelector('.st-h');
+        if(h && !o.querySelector('.cbc-barre')){ var d=document.createElement('div'); d.innerHTML=cbcBarreHtml(); h.parentNode.insertBefore(d.firstChild, h.nextSibling); }
+      }catch(e){}
+      return r;
+    };
+    cbRendre.__v164=true;
+  }
+  if(typeof cbOuvrir==='function' && !cbOuvrir.__v164){
+    var bo=cbOuvrir;
+    cbOuvrir=function(){ if(CB_V) CB_V.ed=null; return bo.apply(this, arguments); };
+    cbOuvrir.__v164=true;
+  }
 });
 </script>
 </body></html>

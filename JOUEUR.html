@@ -1325,6 +1325,11 @@ function rapCarteHtml(r, nomAdv){
   if((r.cpa||'').trim()){
     h+='<div class="rapc-cpa"><div class="rapc-t">🚩 Leurs coups de pied arrêtés</div><p>'+rapEsc(r.cpa.trim())+'</p></div>';
   }
+  // v163 : leurs liens (page FFF / Ligue, site ou réseaux), puis la vidéo
+  [['lienFFF','🏆 Leur page FFF / Ligue'],['lienReseaux','📣 Leur site / réseaux']].forEach(function(L){
+    var u=String(r[L[0]]||'').trim(); if(!u) return; if(!/^https?:\/\//i.test(u)) u='https://'+u;
+    if(/^https?:\/\/[^\s"'<>]+$/i.test(u)) h+='<a class="rapc-vid" href="'+rapEsc(u)+'" target="_blank" rel="noopener">'+L[1]+'</a>';
+  });
   if((r.video||'').trim()){
     h+='<a class="rapc-vid" href="'+rapEsc(r.video.trim())+'" target="_blank" rel="noopener">🎬 Les voir jouer</a>';
   }
@@ -3208,6 +3213,14 @@ function saisonDuCache(){
     return {saison:JSON.parse(raw), date:localStorage.getItem(CLE_CACHE_DATE)||null};
   }catch(e){ return null; }
 }
+// v163 : le staff peut garder la convocation pour lui (interrupteur « Staff » sur son board).
+// On fait alors comme si rien n'était posé ; les dispos aux séances restent.
+function saisonMasques(){
+  try{
+    var c=SAISON&&SAISON.CONVOS;
+    if(c && c.masque) SAISON.CONVOS={date:'', adv:'', lieu:'', a:[], b:[], bl:[], su:[], seances:c.seances||{}};
+  }catch(e){}
+}
 async function chargerSaison(){
   try{
     var res=await fbFetch(FIRESTORE_BASE+'/saison/main');
@@ -3217,6 +3230,7 @@ async function chargerSaison(){
     if(!raw) throw new Error('Aucune donnée de saison synchronisée pour le moment');
     SAISON=JSON.parse(raw);
     saisonGarder(raw);
+    saisonMasques();
     SAISON_DU=new Date().toISOString();
     SAISON_HORS_LIGNE=false;
     majBandeauHorsLigne();
@@ -3225,6 +3239,7 @@ async function chargerSaison(){
     var c=saisonDuCache();
     if(!c) throw e;                       // rien en reserve : l'erreur passe
     SAISON=c.saison;
+    saisonMasques();
     SAISON_DU=c.date;
     SAISON_HORS_LIGNE=true;
     majBandeauHorsLigne();
