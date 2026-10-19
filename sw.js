@@ -23,7 +23,7 @@ try{
   });
 }catch(e){ /* config pas encore complétée, on ignore */ }
 
-const CACHE_NAME = 'ast-tarnos-v166-stats';
+const CACHE_NAME = 'ast-tarnos-v167-style';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -38,7 +38,8 @@ const URLS_TO_CACHE = [
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(URLS_TO_CACHE).catch(function() {
+      // cache:'reload' : on ne reprend jamais une vieille copie du navigateur à l'installation
+      return cache.addAll(URLS_TO_CACHE.map(function(u){ return new Request(u, {cache:'reload'}); })).catch(function() {
         // Si un des fichiers n'existe pas (ex: coach.html absent côté joueurs), on continue quand même
         return Promise.resolve();
       });
@@ -68,14 +69,15 @@ self.addEventListener('fetch', function(event) {
   // les mises à jour immédiatement. Le cache ne sert que si le réseau est indisponible (hors-ligne).
   if (event.request.mode === 'navigate' || event.request.url.endsWith('.html')) {
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' }).then(function(response) {
+      // On repart de l'adresse seule : certains navigateurs refusent de recopier une requête de navigation
+      fetch(new Request(event.request.url, { cache: 'no-store', credentials: 'same-origin' })).then(function(response) {
         if (response && response.status === 200) {
           var responseClone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, responseClone); });
         }
         return response;
       }).catch(function() {
-        return caches.match(event.request);
+        return caches.match(event.request, { ignoreSearch: true });
       })
     );
     return;
