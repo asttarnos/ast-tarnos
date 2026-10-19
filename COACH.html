@@ -11517,8 +11517,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v165</b> · 19/10/2026<br>
-      <span style="opacity:.7">Nouveau board de la semaine</span>
+      AST COACH <b style="color:var(--or)">v166</b> · 19/10/2026<br>
+      <span style="opacity:.7">Board de la semaine · onglets stats</span>
     </div>
   </div>
 </div>
@@ -38081,6 +38081,44 @@ window.addEventListener('load', function(){
     try{ bv2Rendre(); }catch(e){ console.error('board v2', e); ct.classList.remove('bv2-on'); return base.apply(this, arguments); }
   };
   renderSemaine.__v165=true;
+});
+</script>
+<script>
+// ===== v166 : Club House › Directeur de la statistique, de vrais onglets =====
+//   Classement, temps de jeu, comparer, présences, bilan, corrections : chaque
+//   écran a son onglet ici. Ils restent aussi à leur place d'origine ; le menu
+//   reste dans le pôle où l'on se trouve quand on les ouvre.
+window.addEventListener('load', function(){
+  try{
+    var L=(typeof POLES!=='undefined' && POLES)?POLES:NAV3_POLES;
+    var pole=L.filter(function(p){ return p.id==='clubhouse'; })[0];
+    if(pole){
+      var i=pole.screens.findIndex(function(x){ return x.s==='stats'; });
+      if(i<0){ i=pole.screens.findIndex(function(x){ return x.s==='visuels'; }); if(i<0) i=pole.screens.length; pole.screens.splice(i,0,{s:'stats',ic:'chiffres',l:'Toutes les stats',g:'Directeur de la statistique'}); }
+      var onglets=[
+        {s:'classement',      ic:'barres',    l:'Classements'},
+        {s:'rotation',        ic:'chrono',    l:'Temps de jeu'},
+        {s:'recap',           ic:'hausse',    l:'Stats des joueurs'},
+        {s:'points',          ic:'liste',     l:'Présences à l’entraînement'},
+        {s:'bilan',           ic:'coupe',     l:'Bilan & constats'},
+        {s:'correction-buts', ic:'pansement', l:'Corriger des stats'}
+      ].filter(function(o){ return document.getElementById('scr-'+o.s) && !pole.screens.some(function(x){ return x.s===o.s; }); });
+      pole.screens.splice.apply(pole.screens, [i+1, 0].concat(onglets));
+    }
+    // Un écran présent dans deux pôles : on garde le pôle ouvert
+    if(typeof trouverPoleDeEcran==='function' && !trouverPoleDeEcran.__v166){
+      var base=trouverPoleDeEcran;
+      trouverPoleDeEcran=function(s){
+        try{
+          if(POLE_ACTIF){ var p=POLES.filter(function(x){ return x.id===POLE_ACTIF; })[0];
+            if(p && p.screens.some(function(sc){ return sc.s===s; })) return p; }
+        }catch(e){}
+        return base.apply(this, arguments);
+      };
+      trouverPoleDeEcran.__v166=true;
+    }
+    if(typeof renderSideNav==='function') renderSideNav();
+  }catch(e){ console.error('stats onglets', e); }
 });
 </script>
 </body></html>

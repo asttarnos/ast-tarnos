@@ -23,7 +23,7 @@ try{
   });
 }catch(e){ /* config pas encore complétée, on ignore */ }
 
-const CACHE_NAME = 'ast-tarnos-v165-board';
+const CACHE_NAME = 'ast-tarnos-v166-stats';
 const URLS_TO_CACHE = [
   './',
   './index.html',
