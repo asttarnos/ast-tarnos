@@ -11517,8 +11517,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v164</b> · 19/10/2026<br>
-      <span style="opacity:.7">Coches de la semaine · buts après coup</span>
+      AST COACH <b style="color:var(--or)">v165</b> · 19/10/2026<br>
+      <span style="opacity:.7">Nouveau board de la semaine</span>
     </div>
   </div>
 </div>
@@ -37817,6 +37817,270 @@ window.addEventListener('load', function(){
     cbOuvrir=function(){ if(CB_V) CB_V.ed=null; return bo.apply(this, arguments); };
     cbOuvrir.__v164=true;
   }
+});
+</script>
+<script>
+// ===== v165 : le board « Cette semaine », nouvelle version (façon DYF) =====
+//   Peu de blocs, chacun son rôle :
+//   · « Où en est la semaine » : les 4 phases (elles filtrent « Maintenant ») et le % validé
+//   · « Maintenant » : les 3 urgences seulement (le retard d'abord, puis la phase en cours)
+//   · « La semaine » : le calendrier, avec les échéances posées sur les jours
+//   · « À qui parler », puis une tuile par phase, le détail se déplie
+//   Les données sont celles de l'ancien board (nav3Colonnes), coches et diffusion comprises.
+//   L'ancienne vue reste disponible : bouton « Vue détaillée ».
+
+var BV2={filtre:null, ouvert:null, jour:null, tous:false};
+function bv2Mode(){ try{ return localStorage.getItem('ast-board-vue')||'v2'; }catch(e){ return 'v2'; } }
+function bv2PoserMode(m){ try{ localStorage.setItem('ast-board-vue', m); }catch(e){} renderSemaine(); }
+
+(function(){
+  var css=''
+  +'#n3-semaine.bv2-on{background:#0B0A0D;color:#F4F2EE;border-radius:22px;padding:28px;font-family:"Roboto Condensed",sans-serif}'
+  +'.bv2-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}'
+  +'.bv2-top h2{margin:0;font:400 52px/1 "Anton",sans-serif;letter-spacing:.005em;color:#F4F2EE;flex:1;min-width:260px}'
+  +'.bv2-seg{display:flex;padding:4px;border-radius:999px;background:#17151B}'
+  +'.bv2-seg button{min-height:42px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:#A8A29B;cursor:pointer;font:700 14.5px "Roboto Condensed",sans-serif}'
+  +'.bv2-seg button.on{background:#F97316;color:#0B0A0D}'
+  +'.bv2-sel{min-height:42px;border-radius:999px;border:1.5px solid #3A3540;background:#17151B;color:#F4F2EE;padding:0 14px;font:700 14px "Roboto Condensed",sans-serif}'
+  +'.bv2-btn{min-height:42px;padding:0 16px;border-radius:999px;border:1.5px solid #3A3540;background:transparent;color:#F4F2EE;cursor:pointer;font:700 14px "Roboto Condensed",sans-serif}'
+  +'.bv2-btn.or{background:#F97316;border-color:#F97316;color:#0B0A0D}'
+  +'.bv2-band{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 22px;border-radius:14px;background:#2B1606;color:#FDBA74;font:700 17px "Roboto Condensed",sans-serif;margin-bottom:22px}'
+  +'.bv2-band b{font:400 28px/1 "Anton",sans-serif;color:#F97316}'
+  +'.bv2-band .adv{color:#F4F2EE}'
+  +'.bv2-band .nt{margin-left:auto;font:600 15px "Roboto Condensed",sans-serif;color:#FB923C;background:none;border:0;cursor:pointer;min-height:40px}'
+  +'.bv2-g{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:22px;align-items:start}'
+  +'.bv2-col{display:flex;flex-direction:column;gap:20px;min-width:0}'
+  +'.bv2-c{background:#17151B;border-radius:22px;padding:28px 30px;display:flex;flex-direction:column;gap:18px}'
+  +'.bv2-c.pt{padding:18px 22px;gap:12px;border-radius:18px}'
+  +'.bv2-h{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}'
+  +'.bv2-h > b{font:400 25px/1 "Anton",sans-serif;text-transform:uppercase}'
+  +'.bv2-h > span{font:600 15px "Roboto Condensed",sans-serif;color:#A8A29B}'
+  +'.bv2-ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap}'
+  +'.bv2-pill{min-height:44px;padding:0 16px;border-radius:999px;border:2px solid transparent;background:#24212A;color:var(--pc);font:700 15.5px "Roboto Condensed",sans-serif;cursor:pointer;white-space:nowrap}'
+  +'.bv2-pill.now{background:transparent;border-color:var(--pc)}'
+  +'.bv2-pill.on{background:var(--pc);border-color:var(--pc);color:#0B0A0D}'
+  +'.bv2-fl{color:#5A534C;font:700 20px sans-serif}'
+  +'.bv2-pct{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end}'
+  +'.bv2-pct b{font:400 52px/1 "Anton",sans-serif;color:#F97316}.bv2-pct span{font:600 15px "Roboto Condensed",sans-serif;color:#A8A29B}'
+  +'.bv2-bar{display:flex;gap:6px}.bv2-bar div{height:12px;border-radius:6px;background:#2A2630;overflow:hidden}.bv2-bar i{display:block;height:100%;border-radius:6px}'
+  +'.bv2-t{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:16px;background:#1F1C24}'
+  +'.bv2-ck{width:34px;height:34px;flex-shrink:0;border-radius:50%;border:3px solid var(--rc);background:transparent;cursor:pointer;color:#fff;font:900 15px sans-serif;padding:0}'
+  +'.bv2-ck.on{background:#16A34A;border-color:#16A34A}'
+  +'.bv2-ck.sm{width:26px;height:26px;border-width:2.5px;font-size:13px}'
+  +'.bv2-t .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}'
+  +'.bv2-t .tx b{font:400 21px/1.05 "Anton",sans-serif;text-transform:uppercase;color:#F4F2EE}'
+  +'.bv2-t .tx span{font:600 14.5px "Roboto Condensed",sans-serif;color:#A8A29B}'
+  +'.bv2-t .tx span em{font-style:normal;font-weight:800;color:var(--tc)}'
+  +'.bv2-qui{width:36px;height:36px;flex-shrink:0;border-radius:50%;border:0;background:var(--qc);color:#fff;display:grid;place-items:center;font:800 12.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.bv2-go{min-height:50px;padding:0 22px;border-radius:999px;border:2px solid #F4F2EE;background:transparent;color:#F4F2EE;cursor:pointer;font:400 16px "Anton",sans-serif;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}'
+  +'.bv2-go:hover{background:#F4F2EE;color:#0B0A0D}'
+  +'#n3-semaine.bv2-on .dif-pill{border-color:#3A3540;background:transparent;color:#A8A29B}'
+  +'#n3-semaine.bv2-on .dif-pill.on{border-color:#22C55E;background:rgba(34,197,94,.14);color:#4ADE80}'
+  +'.bv2-fini{display:flex;flex-direction:column;align-items:center;gap:8px;padding:26px 0;color:#A8A29B;font:600 15px "Roboto Condensed",sans-serif}'
+  +'.bv2-fini b{font:400 36px "Anton",sans-serif;color:#22C55E}'
+  +'.bv2-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}'
+  +'.bv2-j{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:0;padding:0;cursor:pointer;color:inherit}'
+  +'.bv2-j > span:first-child{font:700 12.5px "Roboto Condensed",sans-serif;letter-spacing:.06em;color:#A8A29B}'
+  +'.bv2-j.auj > span:first-child{color:#F4F2EE}'
+  +'.bv2-box{width:100%;height:60px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#24212A;color:#A8A29B}'
+  +'.bv2-box b{font:400 17px "Anton",sans-serif}.bv2-box i{font:800 9.5px "Roboto Condensed",sans-serif;font-style:normal;letter-spacing:.06em}'
+  +'.bv2-box.entr{background:#0E3A44;color:#67E8F9}.bv2-box.match{background:#F97316;color:#0B0A0D}'
+  +'.bv2-j.auj .bv2-box{box-shadow:0 0 0 2px #5A534C}.bv2-j.sel .bv2-box{box-shadow:0 0 0 2px #F4F2EE}'
+  +'.bv2-dots{display:flex;gap:3px;height:7px}.bv2-dots i{width:7px;height:7px;border-radius:50%}'
+  +'.bv2-jl{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid #2A2630}'
+  +'.bv2-jl > span{font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.1em;color:#A8A29B}'
+  +'.bv2-jl div{display:flex;align-items:center;gap:10px;font:600 15px "Roboto Condensed",sans-serif}'
+  +'.bv2-jl div i{width:8px;height:8px;border-radius:50%;flex-shrink:0}'
+  +'.bv2-jl div.ok span{color:#7A736C;text-decoration:line-through}'
+  +'.bv2-chips{display:flex;flex-wrap:wrap;gap:8px}'
+  +'.bv2-chip{padding:8px 14px;border-radius:999px;background:#24212A;border:0;color:#F4F2EE;font:700 14px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.bv2-chip em{font-style:normal;font-weight:800;color:var(--rc)}'
+  +'.bv2-tile{display:flex;align-items:center;gap:14px}'
+  +'.bv2-tile > i{width:12px;height:12px;border-radius:50%;flex-shrink:0}'
+  +'.bv2-tile .tx{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}'
+  +'.bv2-tile .tx b{font:400 19px/1.05 "Anton",sans-serif;text-transform:uppercase}'
+  +'.bv2-tile .tx span{font:600 13.5px "Roboto Condensed",sans-serif;color:#A8A29B}'
+  +'.bv2-det{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid #F4F2EE;background:transparent;color:#F4F2EE;cursor:pointer;font:400 14px "Anton",sans-serif;letter-spacing:.05em}'
+  +'.bv2-li{display:flex;flex-direction:column;gap:2px;padding-top:6px;border-top:1px solid #2A2630}'
+  +'.bv2-li > div{display:flex;align-items:center;gap:12px;padding:6px 0}'
+  +'.bv2-li > div span{flex:1;font:600 15px "Roboto Condensed",sans-serif;color:#F4F2EE}'
+  +'.bv2-li > div.ok span{color:#7A736C;text-decoration:line-through}'
+  +'.bv2-li > div button.lk{background:none;border:0;color:#FB923C;font:700 13.5px "Roboto Condensed",sans-serif;cursor:pointer;min-height:36px}'
+  +'.bv2-out{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px}'
+  +'.bv2-out button{min-height:38px;padding:0 13px;border-radius:999px;border:1.5px solid #3A3540;background:transparent;color:#F4F2EE;cursor:pointer;font:700 13.5px "Roboto Condensed",sans-serif}'
+  +'.bv2-vide{font:500 14.5px "Roboto Condensed",sans-serif;color:#7A736C}'
+  +'@media(max-width:1180px){.bv2-g{grid-template-columns:minmax(0,1fr)}}'
+  +'@media(max-width:700px){#n3-semaine.bv2-on{padding:16px;border-radius:16px}.bv2-top h2{font-size:38px}.bv2-c{padding:20px 18px;border-radius:18px}'
+    +'.bv2-t{flex-wrap:wrap;gap:12px;padding:14px}.bv2-t .tx{flex-basis:calc(100% - 100px)}.bv2-go{flex:1}.bv2-pct{margin-left:0}.bv2-pct b{font-size:40px}.bv2-band{font-size:15px}.bv2-band .nt{margin-left:0}}';
+  var s=document.createElement('style'); s.id='v165-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+function bv2E(t){ return (typeof nav3Esc==='function')?nav3Esc(t):String(t==null?'':t); }
+var BV2_COUL=['#8B5CF6','#22D3EE','#F97316','#E5E7EB'];
+var BV2_NOMS=['Après le match','Entraînements','Avant le match','Le jour J'];
+// L'échéance de chaque étape, en jours avant le match (négatif = après le dernier match)
+var BV2_ECH={rapport:3, groupe:2, compo:1, cpa:1, dossier:1, studio:1, posts:2, feuille:0, plateau:1};
+var BV2_ENTR=[2,4];   // mardi et jeudi
+
+function bv2Jour0(d){ var x=new Date(d); x.setHours(0,0,0,0); return x; }
+function bv2Donnees(){
+  var C=nav3Colonnes(), moi=nav3Moi(), filtreMoi=NAV3_FILTRE_MOI && moi;
+  var dernier=null; try{ dernier=dvDernierMatch(); }catch(e){}
+  var auj=bv2Jour0(new Date());
+  var lundi=new Date(auj); lundi.setDate(auj.getDate()-((auj.getDay()+6)%7));
+  var dMatch=C.prochain?bv2Jour0(C.prochain.d):null;
+  var dDernier=dernier?bv2Jour0(dernier.d):null;
+  var echeance=function(cle, phase){
+    if(phase===3) return dMatch;
+    if(phase===2 && dMatch){ var n=BV2_ECH[cle]; if(n==null) n=1; var x=new Date(dMatch); x.setDate(x.getDate()-n); return x; }
+    if(phase===0 && dDernier){ var y=new Date(dDernier); y.setDate(y.getDate()+(cle==='posts-apres'?1:2)); return y; }
+    if(phase===1){ var z=new Date(lundi); z.setDate(lundi.getDate()+1); return z; }
+    return null;
+  };
+  var phases=[], toutes=[];
+  C.col.forEach(function(c, i){
+    var taches=[], outils=[];
+    c.L.forEach(function(x){
+      if(x.ech) return;
+      var auto=(typeof NAV3_AUTO!=='undefined' && x.cle && NAV3_AUTO[x.cle]!=null)?NAV3_AUTO[x.cle]:x.etat;
+      var estTache=x.cle && (auto!=='libre' || x._main);
+      if(!estTache){ outils.push(x); return; }
+      var t={x:x, cle:x.cle, phase:i, fait:x.etat==='fait', retard:x.etat==='retard', resp:nav3Resp(x.cle), ech:echeance(x.cle, i), now:c.now};
+      taches.push(t); toutes.push(t);
+    });
+    var f=taches.filter(function(t){ return t.fait; }).length;
+    phases.push({i:i, t:BV2_NOMS[i], sous:c.sous||'', c:BV2_COUL[i], now:c.now, taches:taches, outils:outils, fait:f, tot:taches.length});
+  });
+  var total=toutes.length, fait=toutes.filter(function(t){ return t.fait; }).length;
+  var todo=toutes.filter(function(t){ return !t.fait && (BV2.filtre===null || t.phase===BV2.filtre) && (!filtreMoi || t.resp===moi); });
+  todo.sort(function(a,b){
+    var pa=a.retard?0:(a.now?1:2), pb=b.retard?0:(b.now?1:2);
+    if(pa!==pb) return pa-pb;
+    var ea=a.ech?a.ech.getTime():9e15, eb=b.ech?b.ech.getTime():9e15;
+    return ea-eb || a.phase-b.phase;
+  });
+  return {C:C, phases:phases, toutes:toutes, total:total, fait:fait, todo:todo, moi:moi, filtreMoi:filtreMoi, lundi:lundi, auj:auj, dMatch:dMatch};
+}
+function bv2TacheHtml(t, adv){
+  var x=t.x, m=nav3Membre(t.resp), et=t.retard?'EN RETARD':(BV2_NOMS[t.phase]).toUpperCase();
+  var quand='';
+  if(t.ech && !t.retard){ var d=Math.round((t.ech-bv2Jour0(new Date()))/86400000);
+    quand=d<0?' · échéance passée':(d===0?' · aujourd’hui':(d===1?' · demain':' · '+t.ech.toLocaleDateString('fr-FR',{weekday:'long'}))); }
+  return '<div class="bv2-t" style="--rc:'+(t.retard?'#EF4444':BV2_COUL[t.phase])+';--tc:'+(t.retard?'#F87171':BV2_COUL[t.phase])+'">'
+    +'<button class="bv2-ck" aria-label="Valider : '+bv2E(x.t)+'" onclick="ckBasculer(\''+x.cle+'\')"></button>'
+    +'<div class="tx"><b>'+bv2E(x.t)+(x.s?' <small style="font:600 14px \'Roboto Condensed\';color:#A8A29B;text-transform:none">'+bv2E(x.s)+'</small>':'')+'</b>'
+      +'<span><em>'+et+'</em>'+bv2E(quand)+(x.d?' · '+bv2E(x.d):'')+'</span></div>'
+    +((typeof difPillHtml==='function')?difPillHtml(x.cle, adv):'')
+    +'<button class="bv2-qui" style="--qc:'+(m?m.c:'#5D636B')+'" title="'+bv2E(t.resp?t.resp+' s’en occupe — changer':'Personne — choisir')+'" onclick="nav3Pop(event,\''+x.cle+'\')">'+(t.resp?bv2E(nav3Initiales(t.resp)):'+')+'</button>'
+    +(x.b?'<button class="bv2-go" onclick="'+bv2E(x.act)+'">'+bv2E(x.b)+'</button>':'')
+  +'</div>';
+}
+function bv2Rendre(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  ct.classList.add('bv2-on');
+  var D=bv2Donnees(), C=D.C, p=C.prochain;
+  var J=C.J, jTxt=J===null?'—':(J===0?'JOUR J':('J-'+J));
+  var lieu=p?(p.c.lieu==='E'?'à l’extérieur':(p.c.lieu==='D'?'à domicile':'')):'';
+  var nNotes=(typeof NR_NOTES!=='undefined' && NR_NOTES)?NR_NOTES.filter(function(n){ return !n.traite; }).length:0;
+  var pct=D.total?Math.round(D.fait/D.total*100):0;
+  var h='';
+  // en-tête
+  h+='<div class="bv2-top"><h2>CETTE SEMAINE</h2>'
+    +'<select class="bv2-sel" aria-label="Je suis" onchange="nav3PoserMoi(this.value)"><option value="">Je suis…</option>'
+      +nav3Membres().map(function(m){ return '<option'+(m.nom===D.moi?' selected':'')+'>'+bv2E(m.nom)+'</option>'; }).join('')+'</select>'
+    +'<div class="bv2-seg" role="group" aria-label="Filtre"><button class="'+(!D.filtreMoi?'on':'')+'" onclick="NAV3_FILTRE_MOI=false;renderSemaine()">Tout le staff</button>'
+      +'<button class="'+(D.filtreMoi?'on':'')+'" onclick="'+(D.moi?'NAV3_FILTRE_MOI=true;renderSemaine()':'notif(\'Choisis d’abord qui tu es\')')+'">Moi'+(D.moi?' · '+bv2E(D.moi):'')+'</button></div>'
+    +'<button class="bv2-btn or" onclick="nrOuvrir()">✎ Note rapide</button>'
+    +'<button class="bv2-btn" onclick="bv2PoserMode(\'ancienne\')" title="Revenir à l’ancien board, toutes les cartes affichées">Vue détaillée</button></div>';
+  // le match
+  h+='<div class="bv2-band"><b>'+jTxt+'</b><span class="adv">'+(p?'vs '+bv2E(C.adv):'Pas de match au calendrier')+'</span>'
+    +(p?'<span>· '+bv2E([nav3DateLongue(p.d), p.c.heure||'', lieu, p.c.comp||''].filter(Boolean).join(' · '))+'</span>':'')
+    +(nNotes?'<button class="nt" onclick="goNav(\'notes-staff\')">'+nNotes+' note'+(nNotes>1?'s':'')+' du staff à traiter ›</button>':'')+'</div>';
+  if(typeof authConnecte==='function' && !authConnecte()){
+    h+='<div class="bv2-band" style="background:#1F1C24;color:#A8A29B;font-size:14.5px"><span><b style="font:800 14.5px \'Roboto Condensed\';color:#F4F2EE">Pas de compte coach pour l’instant.</b> Tout fonctionne comme avant tant que la base est ouverte.</span>'
+      +'<button class="nt" style="margin-left:auto" onclick="ouvrirConnexion()">Me connecter ›</button></div>';
+  }
+  h+='<div class="bv2-g"><div class="bv2-col">';
+  // où en est la semaine
+  h+='<div class="bv2-c"><div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:18px;flex:1;min-width:260px">'
+    +'<div class="bv2-h"><b>Où en est la semaine</b></div><div class="bv2-ph">'
+    +D.phases.map(function(ph, i){
+      return '<button class="bv2-pill'+(ph.now?' now':'')+(BV2.filtre===i?' on':'')+'" style="--pc:'+ph.c+'" aria-pressed="'+(BV2.filtre===i)+'" onclick="BV2.filtre=(BV2.filtre==='+i+'?null:'+i+');renderSemaine()">'+bv2E(ph.t)+' · '+ph.fait+'/'+ph.tot+'</button>'
+        +(i<3?'<span class="bv2-fl" aria-hidden="true">›</span>':'');
+    }).join('')+'</div></div>'
+    +'<div class="bv2-pct"><b>'+pct+'%</b><span>validé · '+D.fait+'/'+D.total+'</span></div></div>'
+    +'<div class="bv2-bar" role="img" aria-label="Avancement phase par phase">'+D.phases.map(function(ph){
+      return '<div style="flex:'+Math.max(1,ph.tot)+'"><i style="background:'+ph.c+';width:'+(ph.tot?Math.round(ph.fait/ph.tot*100):0)+'%"></i></div>'; }).join('')+'</div></div>';
+  // maintenant
+  var n=BV2.tous?D.todo.length:Math.min(3, D.todo.length);
+  h+='<div class="bv2-c"><div class="bv2-h"><b>Maintenant</b><span>'+(D.todo.length?D.todo.length+' à faire'+(D.filtreMoi?' pour toi':'')+' · les plus urgentes d’abord':'')+'</span>'
+    +(BV2.filtre!==null?'<button class="bv2-btn" style="margin-left:auto" onclick="BV2.filtre=null;renderSemaine()">✕ '+bv2E(BV2_NOMS[BV2.filtre])+'</button>':'')+'</div>'
+    +(D.todo.length?D.todo.slice(0,n).map(function(t){ return bv2TacheHtml(t, C.adv); }).join('')
+      +(D.todo.length>3?'<button class="bv2-btn" style="align-self:flex-start" onclick="BV2.tous=!BV2.tous;renderSemaine()">'+(BV2.tous?'Ne garder que les 3 urgences':'Voir les '+(D.todo.length-3)+' autres')+'</button>':'')
+      :'<div class="bv2-fini"><b>'+(BV2.filtre===null && !D.filtreMoi?'SEMAINE BOUCLÉE':'RIEN ICI')+'</b>'+(BV2.filtre===null && !D.filtreMoi?'Tout est validé. Bon match.':'Tout est validé pour ce filtre.')+'</div>')
+    +'</div>';
+  h+='</div><div class="bv2-col">';
+  // la semaine
+  var jours=[], parJour=[[],[],[],[],[],[],[]];
+  for(var k=0;k<7;k++){ var d=new Date(D.lundi); d.setDate(D.lundi.getDate()+k); jours.push(d); }
+  D.toutes.forEach(function(t){ if(!t.ech) return; var k=Math.round((t.ech-D.lundi)/86400000); if(k>=0 && k<7) parJour[k].push(t); });
+  var kAuj=Math.round((D.auj-D.lundi)/86400000);
+  if(BV2.jour===null || BV2.jour<0 || BV2.jour>6) BV2.jour=kAuj;
+  var noms=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
+  h+='<div class="bv2-c"><div class="bv2-h"><b>La semaine</b></div><div class="bv2-cal">'
+    +jours.map(function(d, k){
+      var match=D.dMatch && d.getTime()===D.dMatch.getTime(), entr=!match && BV2_ENTR.indexOf(d.getDay())>=0;
+      return '<button class="bv2-j'+(k===kAuj?' auj':'')+(k===BV2.jour?' sel':'')+'" onclick="BV2.jour='+k+';renderSemaine()" aria-label="'+noms[k]+' '+d.getDate()+' : '+parJour[k].length+' échéance(s)">'
+        +'<span>'+noms[k]+'</span><span class="bv2-box'+(match?' match':(entr?' entr':''))+'"><b>'+d.getDate()+'</b><i>'+(match?'MATCH':(entr?'ENTR.':''))+'</i></span>'
+        +'<span class="bv2-dots">'+parJour[k].map(function(t){ return '<i style="background:'+(t.fait?'#16A34A':BV2_COUL[t.phase])+'"></i>'; }).join('')+'</span></button>';
+    }).join('')+'</div>'
+    +'<div class="bv2-jl"><span>'+(BV2.jour===kAuj?'AUJOURD’HUI · ':'')+jours[BV2.jour].toLocaleDateString('fr-FR',{weekday:'long', day:'numeric'}).toUpperCase()+'</span>'
+      +(parJour[BV2.jour].length?parJour[BV2.jour].map(function(t){ return '<div class="'+(t.fait?'ok':'')+'"><i style="background:'+(t.fait?'#16A34A':BV2_COUL[t.phase])+'"></i><span>'+bv2E(t.x.t)+'</span></div>'; }).join('')
+        :'<div class="bv2-vide">Rien d’attendu ce jour-là.</div>')+'</div></div>';
+  // à qui parler
+  var Q=[]; try{ Q=nav3AQuiParler(); }catch(e){}
+  h+='<div class="bv2-c pt"><div class="bv2-h"><b style="font-size:20px">À qui parler</b><span>blessure · charge · forme · notes</span></div>'
+    +(Q.length?'<div class="bv2-chips">'+Q.slice(0,8).map(function(q){
+        return '<button class="bv2-chip" onclick="jfOuvrirNom('+bv2E(JSON.stringify(q.nom))+')">'+bv2E(q.nom)+' '+q.R.map(function(r){ return '<em style="--rc:'+r.c+'">· '+bv2E(r.r)+'</em>'; }).join(' ')+'</button>'; }).join('')+'</div>'
+      :'<div class="bv2-vide">Aucun signal cette semaine.</div>')+'</div>';
+  // une tuile par phase
+  h+=D.phases.map(function(ph, i){
+    var ouvert=BV2.ouvert===i;
+    return '<div class="bv2-c pt"><div class="bv2-tile"><i style="background:'+ph.c+'"></i><div class="tx"><b>'+bv2E(ph.t)+'</b><span>'+ph.fait+' / '+ph.tot+' validé'+(ph.sous?' · '+bv2E(ph.sous):'')+'</span></div>'
+      +'<button class="bv2-det" aria-expanded="'+ouvert+'" onclick="BV2.ouvert=(BV2.ouvert==='+i+'?null:'+i+');renderSemaine()">'+(ouvert?'FERMER':'DÉTAIL')+'</button></div>'
+      +(ouvert?'<div class="bv2-li">'
+        +(ph.taches.length?ph.taches.map(function(t){
+          return '<div class="'+(t.fait?'ok':'')+'"><button class="bv2-ck sm'+(t.fait?' on':'')+'" style="--rc:'+ph.c+'" aria-label="'+(t.fait?'Remettre à faire : ':'Valider : ')+bv2E(t.x.t)+'" onclick="ckBasculer(\''+t.cle+'\')">'+(t.fait?'✓':'')+'</button>'
+            +'<span>'+bv2E(t.x.t)+'</span>'+(t.x.b?'<button class="lk" onclick="'+bv2E(t.x.act)+'">'+bv2E(t.x.b)+' ›</button>':'')+'</div>'; }).join('')
+          :'<div class="bv2-vide">Aucune étape à suivre ici.</div>')
+        +(ph.outils.length?'<div class="bv2-out">'+ph.outils.map(function(o){ return '<button onclick="'+bv2E(o.act)+'" title="'+bv2E(o.d||'')+'">'+bv2E(o.t)+'</button>'; }).join('')+'</div>':'')
+      +'</div>':'')+'</div>';
+  }).join('');
+  h+='</div></div>';
+  ct.innerHTML=h;
+}
+
+window.addEventListener('load', function(){
+  if(typeof renderSemaine!=='function' || renderSemaine.__v165) return;
+  var base=renderSemaine;
+  renderSemaine=function(){
+    var ct=document.getElementById('n3-semaine');
+    if(bv2Mode()==='ancienne' || !ct){
+      if(ct) ct.classList.remove('bv2-on');
+      var r=base.apply(this, arguments);
+      // l'ancienne vue : un bouton pour revenir à la nouvelle
+      try{ if(ct && !ct.querySelector('.bv2-retour')){ var b=document.createElement('button'); b.className='bv2-btn or bv2-retour'; b.style.cssText='margin:0 0 12px'; b.textContent='✨ Nouvelle vue du board'; b.onclick=function(){ bv2PoserMode('v2'); }; ct.insertBefore(b, ct.firstChild); } }catch(e){}
+      return r;
+    }
+    // les notes du staff se chargent en fond, comme dans l'ancienne vue
+    if(typeof NR_NOTES!=='undefined' && NR_NOTES===null && typeof nrCharger==='function' && !(typeof nav3EnChargement!=='undefined' && nav3EnChargement)){
+      try{ nav3EnChargement=true; }catch(e){}
+      nrCharger().then(function(){ try{ nav3EnChargement=false; }catch(e){} if(typeof nrMajPastille==='function') nrMajPastille(); if(nav3EcranOuvert()) renderSemaine(); })
+        .catch(function(){ try{ nav3EnChargement=false; }catch(e){} });
+    }
+    try{ bv2Rendre(); }catch(e){ console.error('board v2', e); ct.classList.remove('bv2-on'); return base.apply(this, arguments); }
+  };
+  renderSemaine.__v165=true;
 });
 </script>
 </body></html>
