@@ -5747,6 +5747,9 @@ body.mb .scr{padding-top:10px!important}
 #fmc-etat.ok{color:var(--green)}
 @media (max-width:600px){ #fmc-barre .btn{flex:1} #fmc-etat{flex-basis:100%} }
 @media print{ #fmc-barre{display:none} }
+/* Compo : ajouter / retirer une place sur le banc (v161) */
+.cb-banc{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.cb-banc .jf-b2{margin:0;padding:6px 10px}
 /* ===== Les moments avant match : stories (v155) ===== */
 #mm-story{position:fixed;inset:0;z-index:10050;background:#0d0d0f;color:#fff;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation;font-family:'Roboto Condensed',sans-serif;overflow:hidden}
 #mm-story::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}
@@ -10853,6 +10856,90 @@ window.addEventListener('load', function(){
   document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden' && fmcSurFeuille()){ try{ collecterFeuilleMatch(); }catch(e){} } });
 });
 
+// ===== v161 : feuille de match et dossier — mise en page et logo adverse =====
+//   Les documents sont fabriqués par l'appli d'origine ; on les retouche juste
+//   avant de les ouvrir : une feuille de style en plus, et le logo adverse.
+var DOCX_CSS_FEUILLE=''
+  // Coups de pied arrêtés : 2 colonnes larges (corners, coups francs), les penaltys sur toute la largeur
+  +'.cpas{grid-template-columns:1fr 1fr!important;gap:12px!important}'
+  +'.cpa{padding:12px 14px 13px!important;border-top-width:6px!important}'
+  +'.cpa:last-child{grid-column:1/-1}'
+  +'.cpa-h{font-size:17px!important;margin-bottom:10px!important;white-space:nowrap}'
+  +'.cpa-q{font-size:20px!important}.cpa-q .ph{width:34px!important;height:34px!important}'
+  +'.cpa-n{font-size:15.5px!important;line-height:1.4!important;margin-top:9px!important}'
+  +'.cpa-r-l{font-size:14px!important}'
+  +'.cpa-pens{flex-direction:row!important;flex-wrap:wrap;gap:10px 26px!important}'
+  +'.cpa-pen{font-size:17px!important}'
+  +'.pg-t .t{white-space:nowrap}'
+  // En face : le terrain laisse la place aux repères et à la fiche, bien lisibles
+  +'.page-eux .pitch{min-height:118mm!important}'
+  +'.page-eux.avec-rap .pitch{min-height:92mm!important}'
+  +'.sous{gap:14px!important;margin-top:16px!important;margin-bottom:12px!important;align-items:stretch}'
+  +'.sous .col-bloc{border-width:2px!important}'
+  +'.sous .col-h{font-size:15px!important;padding:8px 12px!important;letter-spacing:.08em}'
+  +'.sous .col-v{font-size:14.5px!important;padding:10px 12px!important;line-height:1.4}'
+  +'.sous .rep{gap:8px!important;padding:10px 12px 12px!important}'
+  +'.sous .rep-t{font-size:15px!important;line-height:1.35!important}'
+  // Le logo adverse
+  +'.tete-d{position:relative;padding-left:76px!important}'
+  +'.lg-adv-t{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:54px;height:54px;object-fit:contain}'
+  +'.tcol-h.eux{display:flex;align-items:center;gap:10px}'
+  +'.lg-adv-h{width:30px;height:30px;object-fit:contain;flex:none;background:#fff;border-radius:6px;padding:2px}';
+var DOCX_CSS_DOSSIER='.af-adv-lg{width:clamp(70px,9vw,120px);height:clamp(70px,9vw,120px);object-fit:contain;margin:0 auto 1.6vh;display:block;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))}';
+function docxLogoAdv(nom){
+  try{ if(typeof lgDe==='function'){ var L=lgDe(nom); if(L && L.img) return L.img; } }catch(e){}
+  return '';
+}
+function docxRetoucher(html, quoi){
+  if(!html) return html;
+  var q=String(quoi||'');
+  var estFeuille=/Feuille de match/i.test(q) || html.indexOf('class="page page-eux')>=0;
+  var estDossier=/Avant-match/i.test(q) || html.indexOf('class="af-adv"')>=0;
+  var css='';
+  if(estFeuille){
+    css+=DOCX_CSS_FEUILLE;
+    var adv=(typeof FEUILLE_MATCH!=='undefined' && FEUILLE_MATCH.adversaireNom)||'', lg=docxLogoAdv(adv);
+    if(lg){
+      html=html.replace('<div class="tete-d">','<div class="tete-d"><img class="lg-adv-t" src="'+lg+'" alt="">');
+      html=html.replace('<div class="tcol-h eux"><span class="n">','<div class="tcol-h eux"><img class="lg-adv-h" src="'+lg+'" alt=""><span class="n">');
+    }
+  }
+  if(estDossier){
+    css+=DOCX_CSS_DOSSIER;
+    var lg2=docxLogoAdv((typeof DOSSIER!=='undefined' && DOSSIER.adv)||'');
+    if(lg2) html=html.replace(/<div class="af-adv"/, '<img class="af-adv-lg" src="'+lg2+'" alt=""><div class="af-adv"');
+  }
+  if(css) html=/<\/head>/i.test(html)?html.replace(/<\/head>/i,'<style>'+css+'</style></head>'):('<style>'+css+'</style>'+html);
+  return html;
+}
+// Remplaçants : on en ajoute (ou en retire) sur le banc de la compo
+function compoAjouterRemplacant(){
+  if(!COMPO_COURANTE) return;
+  COMPO_COURANTE.slots.push({pos:'REMP',bench:true,num:null,nom:''});
+  renderBench(); notif('✓ Une place de plus sur le banc');
+}
+function compoRetirerRemplacant(){
+  if(!COMPO_COURANTE) return;
+  for(var i=COMPO_COURANTE.slots.length-1;i>=0;i--){ var s=COMPO_COURANTE.slots[i];
+    if(s.bench && !s.num){ COMPO_COURANTE.slots.splice(i,1); if(SLOT_SEL===i) SLOT_SEL=null; renderBench(); return; } }
+  notif('Toutes les places du banc sont prises : vide d’abord une place');
+}
+function compoBoutonsBanc(){
+  var el=document.getElementById('compo-bench'); if(!el || !COMPO_COURANTE) return;
+  var w=el.querySelector('.bench-wrap'); if(!w || w.querySelector('.cb-banc')) return;
+  var d=document.createElement('div'); d.className='cb-banc';
+  d.innerHTML='<button class="jf-b2" onclick="compoAjouterRemplacant()">+ Ajouter un remplaçant</button>'
+    +'<button class="jf-b2" onclick="compoRetirerRemplacant()">− Retirer une place vide</button>';
+  w.appendChild(d);
+}
+window.addEventListener('load', function(){
+  var baseDoc=window.docOuvrir;
+  if(typeof baseDoc==='function') window.docOuvrir=function(html, quoi){ return baseDoc.call(this, docxRetoucher(html, quoi), quoi); };
+  EXT.apres('renderBench', compoBoutonsBanc, 'remplaçants');
+  // les logos doivent être là quand on ouvre la feuille ou le dossier
+  setTimeout(function(){ try{ if(typeof lgCharger==='function' && !LG.map) lgCharger(); }catch(e){} }, 1500);
+});
+
 </script>
 <script>
 // ===== Sécurité de la base, côté coach (v142) =====
@@ -11425,8 +11512,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v160</b> · 15/10/2026<br>
-      <span style="opacity:.7">Feuille de match gardée · ajout de joueur</span>
+      AST COACH <b style="color:var(--or)">v161</b> · 15/10/2026<br>
+      <span style="opacity:.7">Feuille de match revue · logo adverse · remplaçants</span>
     </div>
   </div>
 </div>
