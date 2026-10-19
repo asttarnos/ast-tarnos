@@ -11512,8 +11512,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v161</b> · 15/10/2026<br>
-      <span style="opacity:.7">Feuille de match revue · logo adverse · remplaçants</span>
+      AST COACH <b style="color:var(--or)">v162</b> · 19/10/2026<br>
+      <span style="opacity:.7">Nouveau : le Studio du match</span>
     </div>
   </div>
 </div>
@@ -36714,4 +36714,516 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(function(){});
   });
 }
-</script></body></html>
+</script><script>
+// ===== Le Studio du match (v162) =====
+//   Un seul écran pour préparer le match, en 4 étapes au lieu de 7 :
+//   1. En face   — tout vient du rapport adversaire (rien à retaper)
+//   2. Nous      — la compo enregistrée, la convocation, les coups de pied arrêtés
+//   3. Le plan   — le seul endroit où le coach écrit : 3 messages + le match en 3 temps
+//   4. Le jour J — le rituel, puis l'envoi
+//   À droite, le téléphone du joueur, en direct : ce sont les vraies stories.
+//   Rien de nouveau n'est stocké à part : le Studio écrit dans DOSSIER (collectif,
+//   moments, situations, compoIdx), exactement là où l'appli joueur lit déjà.
+//   L'ancien écran « Dossier d'avant-match » reste là, sur les mêmes données.
+
+var ST={etape:0, page:'', tPhone:null, tSave:null};
+
+(function(){
+  var css=''
+  +'#stu-ct{--st-ok:var(--green);--st-af:var(--or)}'
+  +'.stu-band{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;padding:14px 18px;border-radius:12px;background:#141210;color:#fff;margin-bottom:14px}'
+  +'.stu-band .stu-k{font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#f4a06b}'
+  +'.stu-band .stu-m{font:400 24px/1.05 "Anton",sans-serif;text-transform:uppercase;letter-spacing:.01em}'
+  +'.stu-band .stu-m em{font-style:normal;color:#f47920}'
+  +'.stu-band .stu-i{font:600 14px "Roboto Condensed",sans-serif;color:#cfc8bf}'
+  +'.stu-pret{margin-left:auto;min-width:220px;display:flex;flex-direction:column;gap:6px}'
+  +'.stu-pret div{display:flex;justify-content:space-between;font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#cfc8bf}'
+  +'.stu-pret div b{color:#f47920}'
+  +'.stu-jauge{height:8px;border-radius:4px;background:#2e2925;overflow:hidden}.stu-jauge i{display:block;height:100%;background:#f47920;border-radius:4px;transition:width .3s}'
+  +'.stu-g{display:grid;grid-template-columns:220px minmax(0,1fr) 330px;gap:16px;align-items:start}'
+  +'.stu-rail{display:flex;flex-direction:column;gap:8px;position:sticky;top:8px}'
+  +'.stu-et{display:flex;gap:11px;align-items:center;width:100%;min-height:62px;padding:9px 11px;border-radius:12px;border:2px solid transparent;background:transparent;color:var(--gris);cursor:pointer;text-align:left;font-family:inherit}'
+  +'.stu-et:hover{background:var(--voile)}'
+  +'.stu-et.on{background:var(--carte);border-color:var(--or);box-shadow:0 4px 14px rgba(180,83,9,.14)}'
+  +'.stu-et .n{flex-shrink:0;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:400 17px "Anton",sans-serif;background:var(--carte4);color:var(--gris)}'
+  +'.stu-et.ok .n{background:var(--st-ok);color:#fff}.stu-et.on:not(.ok) .n{background:var(--or);color:#fff}'
+  +'.stu-et .t{display:flex;flex-direction:column;gap:2px}.stu-et .t b{font:800 16px "Roboto Condensed",sans-serif}'
+  +'.stu-et .t span{font:700 11.5px "Roboto Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--st-af)}'
+  +'.stu-et.ok .t span{color:var(--st-ok)}'
+  +'.stu-remp{margin-top:10px;padding:12px 8px 0;border-top:1px dashed var(--line);font:500 12.5px/1.45 "Roboto Condensed",sans-serif;color:var(--gris2)}'
+  +'.stu-remp b{display:block;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:11px;margin-bottom:4px}'
+  +'.stu-main{display:flex;flex-direction:column;gap:14px;min-width:0}'
+  +'.stu-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}'
+  +'.stu-h .stu-titre{margin:0;padding:0;background:none;border:0;box-shadow:none;font:400 30px "Anton",sans-serif;text-transform:uppercase;color:var(--gris)}'
+  +'.stu-src{display:inline-flex;align-items:center;gap:6px;font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:4px 10px;color:var(--st-ok);background:color-mix(in srgb,var(--st-ok) 13%,transparent)}'
+  +'.stu-src.af{color:var(--st-af);background:color-mix(in srgb,var(--st-af) 13%,transparent)}'
+  +'.stu-p{margin:0;font:500 15px/1.5 "Roboto Condensed",sans-serif;color:var(--gris2);max-width:720px}'
+  +'.stu-c{background:var(--carte);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}'
+  +'.stu-c h3{margin:0;font:400 18px "Anton",sans-serif;text-transform:uppercase;color:var(--gris);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}'
+  +'.stu-c h3 small{font:600 12.5px "Roboto Condensed",sans-serif;text-transform:none;color:var(--gris2)}'
+  +'.stu-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'
+  +'.stu-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}'
+  +'.stu-l{font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gris2)}'
+  +'.stu-v{font:700 15.5px/1.35 "Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.stu-v.vide{color:var(--gris2);font-weight:500;font-style:italic}'
+  +'.stu-btns{display:flex;flex-wrap:wrap;gap:8px}'
+  +'.stu-b{min-height:44px;padding:0 16px;border-radius:9px;border:1.5px solid var(--line);background:var(--carte);color:var(--gris);font:800 13.5px "Roboto Condensed",sans-serif;letter-spacing:.02em;cursor:pointer}'
+  +'.stu-b:hover{border-color:var(--or)}'
+  +'.stu-b.pl{background:var(--or);border-color:var(--or);color:#fff}'
+  +'.stu-b.nr{background:#141210;border-color:#141210;color:#fff}'
+  +'.stu-b.vt{background:var(--st-ok);border-color:var(--st-ok);color:#fff}'
+  +'.stu-msg{display:flex;gap:10px;align-items:center}.stu-msg>b{width:20px;font:400 24px "Anton",sans-serif;color:var(--or)}'
+  +'.stu-msg .fi{font-size:15.5px;font-weight:700}'
+  +'.stu-ph{display:flex;flex-direction:column;gap:6px}.stu-ph .stu-l{color:var(--or)}'
+  +'.stu-chips{display:flex;flex-wrap:wrap;gap:6px}'
+  +'.stu-chip{border:1.5px dashed var(--line);background:transparent;color:var(--gris);border-radius:999px;padding:6px 12px;font:600 13px "Roboto Condensed",sans-serif;cursor:pointer;text-align:left}'
+  +'.stu-chip:hover{border-color:var(--or);border-style:solid}'
+  +'.stu-sug{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-color:color-mix(in srgb,var(--st-ok) 40%,transparent);background:color-mix(in srgb,var(--st-ok) 6%,var(--carte))}'
+  +'.stu-sug .tx{flex:1;min-width:220px;display:flex;flex-direction:column;gap:3px}'
+  +'.stu-sug .tx b{font:700 15px/1.4 "Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.stu-mini{width:120px;flex-shrink:0;border-radius:8px;overflow:hidden}.stu-mini svg,.stu-mini canvas{width:100%;height:auto;display:block}'
+  +'#stu-radar .mm-radar{color:var(--gris)}#stu-radar .mm-rl{fill:var(--gris2)}#stu-radar .mm-rl.fort{fill:var(--or)}'
+  +'.stu-onze{display:flex;flex-direction:column}'
+  +'.stu-onze div{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--voile2);font:700 15px "Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.stu-onze div span{width:40px;font-size:12px;letter-spacing:.06em;color:var(--gris2)}'
+  +'.stu-autre{border:1.5px solid var(--or);background:var(--orfond);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;color:var(--gris)}'
+  +'.stu-tel-col{position:sticky;top:8px;display:flex;flex-direction:column;align-items:center;gap:10px}'
+  +'.stu-live{display:flex;align-items:center;gap:7px;font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--gris)}'
+  +'.stu-live i{width:8px;height:8px;border-radius:50%;background:#f47920;animation:stPulse 1.6s infinite}'
+  +'@keyframes stPulse{50%{opacity:.3}}'
+  +'.stu-tel{width:313px;height:598px;border-radius:40px;background:#0b0a09;padding:10px;box-sizing:border-box;box-shadow:0 22px 46px rgba(20,18,16,.3)}'
+  +'.stu-vitre{width:293px;height:578px;border-radius:31px;overflow:hidden;position:relative}'
+  +'.stu-ecran{position:absolute;left:0;top:0;width:375px;height:740px;transform:scale(.7813);transform-origin:0 0;background:#0d0d0f;color:#fff;display:flex;flex-direction:column;font-family:"Roboto Condensed",sans-serif;overflow:hidden;pointer-events:none}'
+  +'.stu-ecran::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 22px);pointer-events:none}'
+  +'.stu-ecran.f-or{background:#f07a1a;color:#111}'
+  +'.stu-ecran.f-cover{background:radial-gradient(120% 70% at 50% 0%,#3a1d08 0%,#0d0d0f 60%)}'
+  +'.stu-ecran .mm-bars b{transition:none}'
+  +'.stu-nav{display:flex;gap:8px;align-items:center}'
+  +'.stu-nav span{font:700 12.5px "Roboto Condensed",sans-serif;color:var(--gris2);min-width:120px;text-align:center}'
+  +'.stu-aide2{font:500 12.5px/1.4 "Roboto Condensed",sans-serif;color:var(--gris2);text-align:center;max-width:300px}'
+  +'@media(max-width:1250px){.stu-g{grid-template-columns:200px minmax(0,1fr)}.stu-tel-col{grid-column:1/-1;position:static}}'
+  +'@media(max-width:780px){.stu-g{grid-template-columns:minmax(0,1fr)}.stu-rail{position:static;flex-direction:row;overflow-x:auto}.stu-et{min-width:170px}.stu-remp{display:none}.stu-2,.stu-3{grid-template-columns:minmax(0,1fr)}.stu-pret{margin-left:0;width:100%}}';
+  var s=document.createElement('style'); s.id='stu-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+function stE(t){ return (typeof mmEsc==='function')?mmEsc(t):String(t==null?'':t); }
+function stA(t){ return (typeof rapEsc==='function')?rapEsc(t):stE(t); }
+function stTrim(x){ return String(x==null?'':x).trim(); }
+
+// ---------- Ce que l'appli remplit toute seule ----------
+// On ne touche jamais à ce que le coach a écrit lui-même : une valeur posée
+// automatiquement est retenue dans M.studio ; si le coach l'a changée, on la laisse.
+function stRapport(){
+  if(!DOSSIER.adv || typeof rapAdv!=='function') return null;
+  var a=rapAdv(DOSSIER.adv);
+  if(!a || !a.rapport) return null;
+  try{ return rapSynchroniser(DOSSIER.adv); }catch(e){ return rapReparer(a.rapport); }
+}
+function stAuto(){
+  try{ dmPreremplir(false); }catch(e){}
+  var M=mmData(DOSSIER); var S=M.studio=M.studio||{};
+  try{ mmcAuto(); }catch(e){}
+  var avant=JSON.stringify([M.force,M.faille,M.radar,M.rituel,DOSSIER.compoIdx,S]);
+  var r=stRapport();
+  if(r){
+    var f=rapListeTxt(r.forces).join(' · '), fa=rapListeTxt(r.failles).join(' · ');
+    if(f && (!stTrim(M.force) || M.force===S.force)){ M.force=f; S.force=f; }
+    if(fa && (!stTrim(M.faille) || M.faille===S.faille)){ M.faille=fa; S.faille=fa; }
+    // Le radar se déduit du style coché dans le rapport, tant que le coach n'a pas bougé un curseur
+    if(S.radar!=='coach'){
+      var st=r.style||{}, R=M.radar, ch=false;
+      var v=function(x){ return (x===null||x===undefined||x==='')?null:Math.max(1,Math.min(5,(+x)+1)); };
+      if(v(st.pressing)){ R.press=v(st.pressing); ch=true; }
+      if(v(st.jeu)){ R.long=v(st.jeu); R.poss=6-v(st.jeu); ch=true; }
+      if(v(st.transitions)){ R.trans=v(st.transitions); ch=true; }
+      if(ch) S.radar='rapport';
+    }
+  }
+  // La compo : celle enregistrée pour cet adversaire, sinon la dernière
+  if(DOSSIER.compoIdx==null && (COMPOSITIONS||[]).length){
+    var idx=-1;
+    COMPOSITIONS.forEach(function(c,i){
+      if(DOSSIER.adv && c && c.adversaire && fexNomsCorrespondent(c.adversaire, DOSSIER.adv)) idx=i;
+    });
+    if(idx<0) idx=COMPOSITIONS.length-1;
+    DOSSIER.compoIdx=idx; S.compo='auto';
+  }
+  // Le rituel : repris du dernier dossier (pas le covoiturage, qui change chaque semaine)
+  var Ri=M.rituel;
+  if(!stTrim(Ri.rdv) && !stTrim(Ri.tenue) && !stTrim(Ri.covoit) && !S.rituelVu
+     && typeof DOSSIERS_ARCHIVE!=='undefined' && DOSSIERS_ARCHIVE.length){
+    var old=null;
+    DOSSIERS_ARCHIVE.some(function(d){ var x=d&&d.moments&&d.moments.rituel; if(x&&(x.rdv||x.tenue)){ old=x; return true; } return false; });
+    if(old){
+      Ri.rdv=old.rdv||''; Ri.rdvLieu=old.rdvLieu||''; Ri.tenue=old.tenue||'';
+      if(old.sac && old.sac.length) Ri.sac=old.sac.slice();
+      S.rituel='repris';
+    }
+    S.rituelVu=true;
+  }
+  if(JSON.stringify([M.force,M.faille,M.radar,M.rituel,DOSSIER.compoIdx,S])!==avant) stSauver();
+  return r;
+}
+function stSauver(){ clearTimeout(ST.tSave); ST.tSave=setTimeout(function(){ try{ sauvegardeAuto(); }catch(e){} }, 700); }
+
+// ---------- Les 3 messages (= les consignes pour tout le monde) ----------
+function stMsgs(){
+  var joint=function(L){ return (L||[]).map(stTrim).filter(Boolean).join('\n'); };
+  if(!Array.isArray(DOSSIER.msgs) || joint(DOSSIER.msgs)!==stTrim(DOSSIER.collectif)){
+    var L=String(DOSSIER.collectif||'').split('\n').map(stTrim).filter(Boolean);
+    DOSSIER.msgs=[L[0]||'', L[1]||'', L.slice(2).join(' ')];
+  }
+  return DOSSIER.msgs;
+}
+function stSetMsg(i, v){
+  var m=stMsgs(); m[i]=v;
+  DOSSIER.collectif=m.map(stTrim).filter(Boolean).join('\n');
+  stSauver(); stMaj('consignes');
+}
+function stMettreMessage(btn){
+  var t=btn.getAttribute('data-t')||''; var m=stMsgs();
+  var i=m.findIndex(function(x){ return !stTrim(x); });
+  if(i<0){ notif('⚠ Tes 3 messages sont déjà écrits — vide une case d’abord'); return; }
+  stSetMsg(i, t);
+  var inp=document.getElementById('stu-m'+i); if(inp) inp.value=t;
+  notif('✓ Ajouté en message '+(i+1));
+}
+function stSetPhase(i, quoi, v){ var M=mmData(DOSSIER); M.phases[i][quoi]=v; stSauver(); stMaj('plan'); }
+function stSetRituel(k, v){ mmData(DOSSIER).rituel[k]=v; stSauver(); stMaj('rituel'); }
+function stSetRadar(k, v){
+  var M=mmData(DOSSIER); M.radar[k]=+v; (M.studio=M.studio||{}).radar='coach';
+  var e=document.getElementById('stu-rv-'+k); if(e) e.textContent=v;
+  var r=document.getElementById('stu-radar'); if(r) r.innerHTML=mmRadarSvg(M.radar);
+  stSauver(); stMaj('id');
+}
+function stSetTexte(k, v){ var M=mmData(DOSSIER); M[k]=v; stSauver(); stMaj('id'); }
+function stChoisirCompo(v){ DOSSIER.compoIdx=(v===''?null:parseInt(v,10)); (mmData(DOSSIER).studio||{}).compo='coach'; stSauver(); ST.page='compo'; stRendre(); }
+
+// ---------- Les situations que l'appli propose ----------
+var ST_PH_NOM={off:'attaque placée', trp:'transition à la perte', def:'défense / pressing', trr:'transition à la récupération', cpa:'coups de pied arrêtés'};
+function stPhasesVisees(r){
+  var out={}, pose=function(ph, pourquoi){ if(!out[ph]) out[ph]=pourquoi; };
+  rapListeTxt(r&&r.failles).forEach(function(t){
+    if(/replac|repli|lent|perte|d[ée]s[ée]quilibr/i.test(t)) pose('trr', 'Leur faille : « '+t+' »');
+    if(/relance|sortie|gardien|derri[eè]re|press/i.test(t)) pose('def', 'Leur faille : « '+t+' »');
+    if(/c[oô]t[ée]|lat[ée]ral|centre|a[ée]rien|profondeur|dos|espace|largeur/i.test(t)) pose('off', 'Leur faille : « '+t+' »');
+    if(/corner|coup franc|cpa|arr[eê]t/i.test(t)) pose('cpa', 'Leur faille : « '+t+' »');
+  });
+  rapListeTxt(r&&r.forces).forEach(function(t){
+    if(/long|second|a[ée]rien|t[eê]te|\b9\b/i.test(t)) pose('def', 'Leur arme : « '+t+' »');
+    if(/contre|rapide|transition|vitesse|profondeur/i.test(t)) pose('trp', 'Leur arme : « '+t+' »');
+    if(/corner|coup franc|cpa|arr[eê]t/i.test(t)) pose('cpa', 'Leur arme : « '+t+' »');
+    if(/possession|conserv|court|ressort/i.test(t)) pose('def', 'Leur arme : « '+t+' »');
+  });
+  return out;
+}
+function stSuggestions(r){
+  var L=(typeof SITUATIONS!=='undefined'?SITUATIONS:[])||[]; if(!L.length) return [];
+  var vis=stPhasesVisees(r), S=mmData(DOSSIER).studio||{}, non=S.non||[];
+  var deja=(DOSSIER.situations||[]).map(function(s){ return s.src||('t:'+stTrim(s.titre).toLowerCase()); });
+  var PH={OFF:'off',TRP:'trp',DEF:'def',TRR:'trr',CPA:'cpa'}, ESP={avec:'off',sans:'def',corner_off:'cpa',corner_def:'cpa',cpa:'cpa'};
+  var res=[];
+  L.forEach(function(st){
+    if(!st || !st.id || non.indexOf(st.id)>=0) return;
+    if(deja.indexOf(st.id)>=0 || deja.indexOf('t:'+stTrim(st.titre).toLowerCase())>=0) return;
+    var score=0, pourquoi='', phase='';
+    (st.principes||[]).forEach(function(code){ var ph=PH[String(code).split('-')[0]]; if(ph && vis[ph] && !phase){ score+=3; pourquoi=vis[ph]; phase=ph; } });
+    var pe=ESP[st.espace]; if(pe && vis[pe] && !phase){ score+=2; pourquoi=vis[pe]; phase=pe; }
+    var pourEux=DOSSIER.adv && st.adversaire && fexNomsCorrespondent(st.adversaire, DOSSIER.adv);
+    if(pourEux){ score+=4; if(!pourquoi) pourquoi='Tu l’as construite cette semaine pour '+DOSSIER.adv; }
+    if(score>=2) res.push({st:st, score:score, pourquoi:pourquoi, phase:phase});
+  });
+  res.sort(function(a,b){ return b.score-a.score; });
+  return res.slice(0,2);
+}
+function stAjouterSitu(id){
+  if(typeof dmPlaceLibre==='function' && !dmPlaceLibre()) return;
+  var st=situParId(id); if(!st){ notif('⚠ Situation introuvable'); return; }
+  var p; try{ p=JSON.parse(JSON.stringify(st.data||{})); }catch(e){ notif('⚠ Cette situation est illisible'); return; }
+  var n=(p.sequence||[]).filter(Boolean).length;
+  if(n<2) p.sequence=[];
+  if(!Array.isArray(DOSSIER.situations)) DOSSIER.situations=[];
+  DOSSIER.situations.push({id:dmId(), titre:st.titre||'Situation', sous:st.espaceLabel||'', phase:'',
+    principes:Array.isArray(st.principes)?st.principes.slice():[], plateau:p, src:st.id});
+  notif('✓ « '+(st.titre||'Situation')+' » ajoutée au dossier'+(n>1?' — '+n+' étapes, elle s’animera':''));
+  sauvegardeAuto(); stRendre();
+}
+function stRefuserSitu(id){
+  var S=mmData(DOSSIER).studio=mmData(DOSSIER).studio||{}; S.non=S.non||[];
+  if(S.non.indexOf(id)<0) S.non.push(id);
+  stSauver(); stRendre();
+}
+
+// ---------- L'état de chaque étape ----------
+function stEtat(){
+  var r=stRapport(), M=mmData(DOSSIER), m=stMsgs();
+  var nMsg=m.filter(function(x){ return stTrim(x); }).length;
+  var nPh=(M.phases||[]).filter(function(p){ return stTrim(p.mot)||stTrim(p.txt); }).length;
+  var compo=(DOSSIER.compoIdx!=null)?(COMPOSITIONS||[])[DOSSIER.compoIdx]:null;
+  var E={
+    r:r, compo:compo, nMsg:nMsg, nPh:nPh,
+    enFace: !!(r && rapARempli(r)),
+    nous: !!compo,
+    plan: nMsg>0 && nPh>0,
+    jourJ: !!stTrim(M.rituel.rdv),
+    envoye: !!DOSSIER.publie
+  };
+  var crit=[!!(DOSSIER.adv&&DOSSIER.date), E.enFace, E.nous, nMsg>0, nPh>0, E.jourJ];
+  E.pret=Math.round(crit.filter(Boolean).length/crit.length*100);
+  return E;
+}
+function stEtapes(E){
+  return [
+    {n:1, t:'En face',   ok:E.enFace, tag:E.enFace?'Rempli tout seul':'Rapport à faire', page:'id'},
+    {n:2, t:'Nous',      ok:E.nous,   tag:E.nous?'Rempli tout seul':'Compo à faire', page:'compo'},
+    {n:3, t:'Le plan',   ok:E.plan,   tag:E.plan?(E.nMsg+' message'+(E.nMsg>1?'s':'')+' · '+E.nPh+' temps'):'À toi · 2 minutes', page:'plan'},
+    {n:4, t:'Le jour J', ok:E.envoye, tag:E.envoye?'Envoyé':'À envoyer', page:'rituel'}
+  ];
+}
+function stAller(n){ ST.etape=n; ST.page=stEtapes(stEtat())[n-1].page; stRendre(); var m=document.getElementById('main'); if(m && window.innerWidth<780) m.scrollTop=0; }
+
+// ---------- Le rendu ----------
+function stRendre(){
+  var ct=document.getElementById('stu-ct'); if(!ct) return;
+  if(typeof DOSSIER==='undefined' || !DOSSIER) DOSSIER=dmVide();
+  stAuto();
+  var E=stEtat();
+  if(!ST.etape){ ST.etape=!E.enFace?1:(!E.nous?2:(!E.plan?3:4)); }
+  if(!ST.page) ST.page=stEtapes(E)[ST.etape-1].page;
+  var et=stEtapes(E);
+  var autre=(typeof dmMatchAutre==='function')?dmMatchAutre():null;
+  var h='';
+  h+='<div class="stu-band"><div style="display:flex;flex-direction:column;gap:3px"><span class="stu-k">Tu prépares</span>'
+    +'<span class="stu-m">AST Tarnos <em>vs</em> '+stE(DOSSIER.adv||'Adversaire ?')+'</span></div>'
+    +'<span class="stu-i">'+stE([DOSSIER.date, DOSSIER.lieu, DOSSIER.comp].filter(Boolean).join(' · ')||'Date et lieu : à poser dans le calendrier')+'</span>'
+    +'<div class="stu-pret"><div><span>Dossier prêt</span><b id="stu-pct">'+E.pret+' %</b></div><div class="stu-jauge"><i id="stu-jauge" style="width:'+E.pret+'%"></i></div></div></div>';
+  if(autre){
+    h+='<div class="stu-autre"><b>⚠ Ce dossier a été préparé pour '+stE(autre.dossier)+'</b><span>Tu prépares '+stE(autre.prepare)+'. Qu’est-ce qu’on en fait ?</span>'
+      +'<div class="stu-btns"><button class="stu-b pl" onclick="dmArchiverEtVider();ST.etape=0;ST.page=\'\';stRendre()">Repartir d’un dossier neuf</button>'
+      +'<button class="stu-b" onclick="dmRattacher();stRendre()">Garder ce travail pour '+stE(autre.prepare)+'</button></div></div>';
+  }
+  h+='<div class="stu-g">';
+  // rail
+  h+='<div class="stu-rail" id="stu-rail">'+stRailHtml(et)+'</div>';
+  // étape
+  h+='<div class="stu-main">'+[stEnFaceHtml, stNousHtml, stPlanHtml, stJourJHtml][ST.etape-1](E)+'</div>';
+  // téléphone
+  h+='<div class="stu-tel-col"><div class="stu-live"><i></i>En direct chez le joueur</div>'
+    +'<div class="stu-tel"><div class="stu-vitre"><div class="stu-ecran" id="stu-ecran"></div></div></div>'
+    +'<div class="stu-nav"><button class="stu-b" onclick="stPage(-1)" aria-label="Story précédente">‹</button><span id="stu-pos"></span><button class="stu-b nr" onclick="stPage(1)" aria-label="Story suivante">›</button></div>'
+    +'<div class="stu-aide2">Ce sont les vraies stories que recevront les joueurs. Écris à gauche : elles changent ici tout de suite.</div></div>';
+  h+='</div>';
+  ct.innerHTML=h;
+  stTelephone();
+}
+function stRailHtml(et){
+  return et.map(function(s){
+    return '<button class="stu-et'+(s.ok?' ok':'')+(ST.etape===s.n?' on':'')+'" onclick="stAller('+s.n+')">'
+      +'<span class="n">'+(s.ok?'✓':s.n)+'</span><span class="t"><b>'+s.t+'</b><span>'+stE(s.tag)+'</span></span></button>';
+  }).join('')
+  +'<div class="stu-remp"><b>Ce que ça regroupe</b>Rapport adversaire · Convocation · Compo · Plateau · Coups de pied arrêtés · Dossier · Moments avant match</div>';
+}
+// Mise à jour légère pendant la frappe : la jauge, le rail et le téléphone
+function stMaj(page){
+  if(page) ST.page=page;
+  var E=stEtat();
+  var p=document.getElementById('stu-pct'), j=document.getElementById('stu-jauge'), rl=document.getElementById('stu-rail');
+  if(p) p.textContent=E.pret+' %'; if(j) j.style.width=E.pret+'%';
+  if(rl) rl.innerHTML=stRailHtml(stEtapes(E));
+  clearTimeout(ST.tPhone); ST.tPhone=setTimeout(stTelephone, 250);
+}
+
+// 1 · En face
+function stEnFaceHtml(E){
+  var r=E.r, M=mmData(DOSSIER), b=(DOSSIER.bulles&&DOSSIER.bulles.adv)||{};
+  if(!DOSSIER.adv) return '<div class="stu-h"><div class="stu-titre" role="heading" aria-level="2">1 · En face</div></div><p class="stu-p">Aucun adversaire pour l’instant : pose le prochain match dans le calendrier, il arrivera ici tout seul.</p>';
+  if(!E.enFace){
+    return '<div class="stu-h"><div class="stu-titre" role="heading" aria-level="2">1 · En face</div><span class="stu-src af">À faire une seule fois</span></div>'
+      +'<p class="stu-p">Pas encore de rapport sur '+stE(DOSSIER.adv)+'. Tout ce que tu sais d’eux se saisit à un seul endroit, le rapport adversaire : il remplira ensuite la carte d’identité des stories, le joueur à tenir, la feuille de match et la carte mentale.</p>'
+      +'<div class="stu-btns"><button class="stu-b pl" data-n="'+stA(DOSSIER.adv)+'" onclick="rapOuvrir(this.dataset.n)">Faire le rapport sur '+stE(DOSSIER.adv)+'</button>'
+      +'<button class="stu-b" onclick="stAller(2)">Passer pour l’instant ›</button></div>';
+  }
+  var S=M.studio||{};
+  var case_=function(lab, val, coul){ return '<div class="stu-c" style="gap:4px"><div class="stu-l" style="color:'+coul+'">'+lab+'</div><div class="stu-v'+(val?'':' vide')+'">'+stE(val||'—')+'</div></div>'; };
+  return '<div class="stu-h"><div class="stu-titre" role="heading" aria-level="2">1 · En face</div><span class="stu-src">✓ Rempli tout seul · rapport du '+stE(r.maj||'')+'</span></div>'
+    +'<p class="stu-p">Tu ne retapes rien : tout vient de ton rapport adversaire. Si quelque chose est faux, corrige-le dans le rapport, il se mettra à jour partout.</p>'
+    +'<div class="stu-2">'
+      +'<div class="stu-c"><h3>Leur carte d’identité <small>'+stE(DOSSIER.advFormation||r.systeme||'')+(S.radar==='rapport'?' · déduite du style coché dans le rapport':'')+'</small></h3>'
+        +'<div id="stu-radar" style="color:var(--gris);max-width:300px;align-self:center;width:100%">'+mmRadarSvg(M.radar)+'</div>'
+        +'<details><summary class="stu-l" style="cursor:pointer">Ajuster le radar</summary><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;margin-top:8px">'
+        +MM_AXES.map(function(x){ return '<label style="display:flex;align-items:center;gap:8px;font:700 13px \'Roboto Condensed\',sans-serif;color:var(--gris)"><span style="width:70px">'+x.l+'</span><input type="range" min="1" max="5" step="1" value="'+(+M.radar[x.k]||3)+'" oninput="stSetRadar(\''+x.k+'\',this.value)" style="flex:1"><b id="stu-rv-'+x.k+'">'+(+M.radar[x.k]||3)+'</b></label>'; }).join('')
+        +'</div></details></div>'
+      +'<div style="display:flex;flex-direction:column;gap:10px">'
+        +case_('Leur arme', M.force, 'var(--red)')
+        +case_('Leur faille', M.faille, 'var(--green)')
+        +case_('Le joueur à tenir', b['Le joueur à tenir'], 'var(--or)')
+      +'</div></div>'
+    +'<div class="stu-btns"><button class="stu-b nr" data-n="'+stA(DOSSIER.adv)+'" onclick="rapOuvrir(this.dataset.n)">Corriger dans le rapport</button>'
+    +'<button class="stu-b pl" onclick="stAller(2)">C’est bon · étape suivante ›</button></div>';
+}
+// 2 · Nous
+function stNousHtml(E){
+  var c=E.compo, S=mmData(DOSSIER).studio||{};
+  var opts='<option value="">Aucune compo</option>'+(COMPOSITIONS||[]).map(function(x,i){
+    return '<option value="'+i+'"'+(i===DOSSIER.compoIdx?' selected':'')+'>'+stE((x.formation||'')+(x.nom?' — '+x.nom:'')+(x.adversaire?' (vs '+x.adversaire+')':''))+'</option>'; }).join('');
+  var onze='', banc='';
+  if(c && c.slots){
+    var t=c.slots.filter(function(x){ return !x.bench && (x.nom||x.num); }).slice().sort(function(a,b){ return (+b.y||0)-(+a.y||0); });
+    onze=t.length?'<div class="stu-onze">'+t.map(function(x){ return '<div><span>'+stE(x.pos||'')+'</span>'+stE((x.num?x.num+'. ':'')+(x.nom||''))+'</div>'; }).join('')+'</div>'
+      :'<div class="stu-v vide">La compo est choisie mais aucun nom n’est posé.</div>';
+    var bn=c.slots.filter(function(x){ return x.bench && (x.nom||x.num); });
+    banc=bn.length?'<div class="stu-l" style="margin-top:6px">Sur le banc</div><div class="stu-v" style="font-weight:600">'+bn.map(function(x){ return stE(x.nom||x.num); }).join(' · ')+'</div>':'';
+  }
+  var cv=(typeof CONVOS!=='undefined'&&CONVOS)||{}, memeAdv=cv.adv&&DOSSIER.adv&&fexNomsCorrespondent(cv.adv, DOSSIER.adv);
+  var nA=(cv.a||[]).length, nB=(cv.b||[]).length;
+  var convTxt=memeAdv&&(nA+nB)?(nA+nB)+' convoqués — '+nA+' en A, '+nB+' en B':'Pas encore posée pour ce match';
+  var F=(typeof FEUILLE_MATCH!=='undefined'&&FEUILLE_MATCH)||{};
+  var pens=[F.pen1,F.pen2,F.pen3].filter(function(x){ return stTrim(x); });
+  var cpaOk=Object.keys(F.cpaRoles||{}).length>0 || Object.keys(F.cpaQui||{}).length>0;
+  var abs=(DOSSIER.bulles&&DOSSIER.bulles.grp&&DOSSIER.bulles.grp['Absents'])||'';
+  return '<div class="stu-h"><div class="stu-titre" role="heading" aria-level="2">2 · Nous</div>'+(c?'<span class="stu-src">✓ '+(S.compo==='auto'?'Rempli tout seul · ta compo enregistrée':'Ta compo')+'</span>':'<span class="stu-src af">Compo à faire</span>')+'</div>'
+    +'<p class="stu-p">La convocation, la compo et les coups de pied arrêtés au même endroit. La compo est prise directement : tu ne la choisis plus une deuxième fois.</p>'
+    +'<div class="stu-2">'
+      +'<div class="stu-c"><h3>Le onze <small>'+stE(c?(c.formation||''):'')+'</small></h3>'
+        +'<select class="fi" onchange="stChoisirCompo(this.value)" aria-label="La composition">'+opts+'</select>'
+        +(c?onze+banc:'<div class="stu-v vide">Aucune compo enregistrée.</div>')
+        +'<div class="stu-btns"><button class="stu-b" onclick="goNav(\'compos\')">'+(c?'Modifier la compo':'Créer la compo')+'</button></div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:10px">'
+        +'<div class="stu-c" style="gap:4px"><div class="stu-l">Convocation</div><div class="stu-v">'+stE(convTxt)+'</div><div class="stu-btns" style="margin-top:4px"><button class="stu-b" onclick="goNav(\'convos\')">Ouvrir la convocation</button></div></div>'
+        +'<div class="stu-c" style="gap:4px"><div class="stu-l">Coups de pied arrêtés</div><div class="stu-v'+(cpaOk||pens.length?'':' vide')+'">'+(cpaOk?'Rôles distribués sur la feuille de match':'Rôles pas encore distribués')+(pens.length?' · penalty : '+stE(pens.join(', ')):'')+'</div><div class="stu-btns" style="margin-top:4px"><button class="stu-b" onclick="goNav(\'cpa\')">Ouvrir les coups de pied arrêtés</button></div></div>'
+        +(abs?'<div class="stu-c" style="gap:4px;border-color:var(--or)"><div class="stu-l" style="color:var(--or)">Absents</div><div class="stu-v">'+stE(abs)+'</div></div>':'')
+      +'</div></div>'
+    +'<div class="stu-btns"><button class="stu-b pl" onclick="stAller(3)">C’est bon · étape suivante ›</button></div>';
+}
+// 3 · Le plan
+function stPlanHtml(E){
+  var M=mmData(DOSSIER), m=stMsgs(), r=E.r;
+  var ex=['Ex. On ne sort pas avant le signal du 6','Ex. À la perte : cinq secondes, puis on se replace','Ex. On parle. Tout le temps.'];
+  var phEx=[['On les étouffe','Pressing haut sur leur relance, les 3 premiers duels sont à nous.'],['Patience','On fait courir, on change de côté, on attend la faille.'],['On ferme et on tue','Bloc médian, on joue les contres et les CPA.']];
+  var h='<div class="stu-h"><div class="stu-titre" role="heading" aria-level="2">3 · Le plan</div>'+(E.plan?'<span class="stu-src">✓ Écrit</span>':'<span class="stu-src af">À toi · 2 minutes</span>')+'</div>';
+  // suggestions
+  var sug=stSuggestions(r);
+  sug.forEach(function(s){
+    var n=((s.st.data&&s.st.data.sequence)||[]).filter(Boolean).length;
+    h+='<div class="stu-c stu-sug"><div class="stu-mini">'+(typeof dmMiniTerrain==='function'?dmMiniTerrain(s.st.data,120):'')+'</div>'
+      +'<div class="tx"><span class="stu-l" style="color:var(--green)">L’appli te propose</span>'
+      +'<b>'+stE(s.pourquoi)+(s.phase?' → ta situation de '+stE(ST_PH_NOM[s.phase]||''):'')+' : « '+stE(s.st.titre)+' »'+(n>1?' ('+n+' étapes animées)':'')+'. Tu la montres aux joueurs ?</b></div>'
+      +'<div class="stu-btns"><button class="stu-b" onclick="stRefuserSitu(\''+stA(s.st.id)+'\')">Non</button>'
+      +'<button class="stu-b vt" onclick="stAjouterSitu(\''+stA(s.st.id)+'\')">Oui, je la garde</button></div></div>';
+  });
+  // les 3 messages
+  h+='<div class="stu-c"><h3>Tes 3 messages <small>Une ligne chacun. Ils sortent partout : stories, feuille de match, carte mentale</small></h3>'
+    +[0,1,2].map(function(i){ return '<div class="stu-msg"><b>'+(i+1)+'</b><input class="fi" id="stu-m'+i+'" aria-label="Message '+(i+1)+'" placeholder="'+stA(ex[i])+'" value="'+stA(m[i]||'')+'" oninput="stSetMsg('+i+',this.value)" onfocus="stMaj(\'consignes\')"></div>'; }).join('');
+  // ce qui est déjà écrit ailleurs : non-négociables et ancien dossier
+  var chips=[];
+  ((typeof PROJET_JEU!=='undefined'&&PROJET_JEU.nonNegociables)||[]).forEach(function(t){ if(stTrim(t)) chips.push({src:'Non-négociable', t:stTrim(t)}); });
+  var B=DOSSIER.bulles||{};
+  ['plan','obj'].forEach(function(cle){ var o=B[cle]||{}; Object.keys(o).forEach(function(lab){ if(stTrim(o[lab])) chips.push({src:lab, t:stTrim(o[lab])}); }); });
+  chips=chips.filter(function(c){ return m.map(stTrim).indexOf(c.t)<0; });
+  if(chips.length) h+='<div class="stu-l" style="margin-top:4px">Déjà écrit ailleurs : touche pour en faire un message</div><div class="stu-chips">'
+    +chips.slice(0,8).map(function(c){ return '<button class="stu-chip" data-t="'+stA(c.t)+'" onclick="stMettreMessage(this)"><b style="color:var(--gris2)">'+stE(c.src)+' ·</b> '+stE(c.t)+'</button>'; }).join('')+'</div>';
+  h+='</div>';
+  // le match en 3 temps
+  h+='<div class="stu-c"><h3>Le match en 3 temps <small>Remplace « notre plan » en 4 moments et les objectifs</small></h3><div class="stu-3">'
+    +M.phases.map(function(p,i){ return '<div class="stu-ph"><span class="stu-l">'+stE(p.t)+' · '+stE(p.l)+'</span>'
+      +'<input class="fi" style="font-weight:800" aria-label="'+stA(p.l)+' : le mot" placeholder="'+stA(phEx[i][0])+'" value="'+stA(p.mot||'')+'" oninput="stSetPhase('+i+',\'mot\',this.value)" onfocus="stMaj(\'plan\')">'
+      +'<textarea class="fi" rows="3" aria-label="'+stA(p.l)+' : le détail" placeholder="'+stA(phEx[i][1])+'" oninput="stSetPhase('+i+',\'txt\',this.value)" onfocus="stMaj(\'plan\')">'+stE(p.txt||'')+'</textarea></div>'; }).join('')
+    +'</div></div>';
+  var nS=(DOSSIER.situations||[]).length, nV=(DOSSIER.videos||[]).length;
+  h+='<div class="stu-c" style="flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px"><div style="flex:1;min-width:200px"><div class="stu-l">Situations et vidéos du dossier</div><div class="stu-v">'+nS+' situation'+(nS>1?'s':'')+' · '+nV+' vidéo'+(nV>1?'s':'')+'</div></div>'
+    +'<button class="stu-b" onclick="goNav(\'avant-match\')">Gérer les situations et les vidéos</button></div>';
+  h+='<div class="stu-btns"><button class="stu-b pl" onclick="stAller(4)">C’est bon · étape suivante ›</button></div>';
+  return h;
+}
+// 4 · Le jour J
+function stJourJHtml(E){
+  var M=mmData(DOSSIER), Ri=M.rituel, S=M.studio||{};
+  var champ=function(k, lab, ph, area){
+    var on='stSetRituel(\''+k+'\',this.value)';
+    return '<label style="display:flex;flex-direction:column;gap:5px"><span class="stu-l">'+lab+'</span>'
+      +(area?'<textarea class="fi" rows="'+area+'" placeholder="'+stA(ph)+'" oninput="'+on+'" onfocus="stMaj(\'rituel\')">'+stE(Ri[k]||'')+'</textarea>'
+            :'<input class="fi" placeholder="'+stA(ph)+'" value="'+stA(Ri[k]||'')+'" oninput="'+on+'" onfocus="stMaj(\'rituel\')">')+'</label>';
+  };
+  return '<div class="stu-h"><div class="stu-titre" role="heading" aria-level="2">4 · Le jour J</div>'+(S.rituel==='repris'?'<span class="stu-src">Rituel repris du dernier match · vérifie l’heure</span>':'')+'</div>'
+    +'<div class="stu-c"><h3>Le rituel</h3><div class="stu-2">'+champ('rdv','Rendez-vous','Samedi 18h45')+champ('rdvLieu','Où','Parking du stade')+'</div>'
+      +champ('tenue','Tenue','Survêtement du club')+champ('covoit','Covoiturage','Hugo : Enzo, Lucas\nBen : Sam, Yohan',2)+'</div>'
+    +'<div class="stu-c"><h3>Tout sort tout seul <small>Rien à retaper : chaque document part des mêmes données</small></h3>'
+      +'<div class="stu-btns">'
+        +'<button class="stu-b" onclick="mmcApercu()">▶ Les stories en grand</button>'
+        +'<button class="stu-b" onclick="goNav(\'feuille-match\')">Feuille de match</button>'
+        +'<button class="stu-b" onclick="genererCarteMentaleMatch()">Carte mentale</button>'
+        +'<button class="stu-b" onclick="voirLeDossier()">Dossier en présentation (vidéoprojecteur)</button>'
+      +'</div></div>'
+    +'<div class="stu-c" style="border-color:var(--or)"><h3>Envoyer aux joueurs <small>'+(DOSSIER.publie?'Dernier envoi : '+stE(DOSSIER.publie):'Pas encore envoyé')+'</small></h3>'
+      +'<p class="stu-p" style="margin:0">Les joueurs reçoivent le dossier en stories sur leur téléphone, avec le compte à rebours. Tu peux renvoyer après une correction.</p>'
+      +'<div class="stu-btns"><button class="stu-b pl" style="min-height:52px;font-size:15px" onclick="stEnvoyer()">'+(DOSSIER.publie?'Renvoyer le dossier':'Envoyer le dossier aux joueurs')+'</button>'
+      +(DOSSIER.publie?'<button class="stu-b" onclick="dmRetirer().then(stRendre)">Retirer de l’appli joueurs</button>':'')+'</div></div>';
+}
+function stEnvoyer(){
+  var E=stEtat();
+  if(!E.nMsg && !E.nPh && !(DOSSIER.situations||[]).length){ notif('⚠ Écris au moins un message ou le plan en 3 temps avant d’envoyer'); stAller(3); return; }
+  // dmPublier refuse un dossier sans situation, vidéo ni consigne : les 3 messages en sont
+  Promise.resolve(dmPublier()).then(function(){ stRendre(); });
+}
+
+// ---------- Le téléphone : les vraies stories ----------
+function stPagesDossier(){
+  var c=(DOSSIER.compoIdx!=null)?(COMPOSITIONS||[])[DOSSIER.compoIdx]:null, compo='';
+  if(c && c.slots){ var t=c.slots.filter(function(x){ return !x.bench; });
+    compo='<div class="mm-onze">'+t.map(function(x){ return '<div style="left:'+(x.x||50)+'%;top:'+(x.y||50)+'%"><i>'+stE(x.num||'')+'</i><span>'+stE((x.nom||x.pos||'').split(' ').slice(-1)[0])+'</span></div>'; }).join('')+'</div>'; }
+  try{ return mmPages(DOSSIER, {compoHtml:compo, compoTitre:c?(c.formation||''):''}); }catch(e){ console.error('studio stories', e); return []; }
+}
+function stTelephone(){
+  var ec=document.getElementById('stu-ecran'); if(!ec) return;
+  var P=stPagesDossier(); if(!P.length){ ec.innerHTML=''; return; }
+  var i=P.findIndex(function(p){ return p.k===ST.page; });
+  if(i<0){ // la page demandée n'existe pas encore (rien d'écrit) : la plus proche
+    var ordre=['cover','id','ff','compo','plan','consignes','mission','rituel'], want=ordre.indexOf(ST.page);
+    i=0; P.forEach(function(p,k){ if(ordre.indexOf(p.k)<=want) i=k; });
+  }
+  var p=P[i];
+  ec.className='stu-ecran f-'+(p.fond||'nuit')+' k-'+p.k;
+  ec.innerHTML='<div class="mm-bars">'+P.map(function(x,k){ return '<i><b style="width:'+(k<i?'100%':(k===i?'45%':'0'))+'"></b></i>'; }).join('')+'</div>'
+    +'<div class="mm-page in">'+p.html+'</div>';
+  var pos=document.getElementById('stu-pos');
+  var nom={cover:'Couverture',id:'Leur identité',ff:'Face-à-face',compo:'Le onze',plan:'Le plan en 3 temps',consignes:'Tes 3 messages',mission:'Sa mission',rituel:'Le rituel'}[p.k]||p.k;
+  if(pos) pos.textContent=nom+' · '+(i+1)+'/'+P.length;
+}
+function stPage(d){
+  var P=stPagesDossier(); if(!P.length) return;
+  var i=P.findIndex(function(p){ return p.k===ST.page; }); if(i<0) i=0;
+  i=(i+d+P.length)%P.length; ST.page=P[i].k; stTelephone();
+}
+
+// ---------- L'écran et sa place dans le menu ----------
+window.addEventListener('load', function(){
+  var ref=document.getElementById('scr-avant-match');
+  if(ref && !document.getElementById('scr-studio')){
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-studio';
+    d.innerHTML='<div class="ph"><div><div class="ph-title"><svg class="ico" aria-hidden="true"><use href="#i-clap"/></svg>Studio du match</div>'
+      +'<div class="ph-sub">Tout l’avant-match en 4 étapes. Ce que l’appli sait déjà est rempli, tu écris seulement ton plan.</div></div></div><div id="stu-ct"></div>';
+    ref.parentNode.insertBefore(d, ref);
+  }
+  try{ ECRANS_INFO['studio']={ic:'clap', l:'Studio du match'}; }catch(e){}
+  try{
+    var pole=NAV3_POLES.filter(function(p){ return p.id==='semaine'; })[0];
+    if(pole && !pole.screens.some(function(x){ return x.s==='studio'; })){
+      var i=pole.screens.findIndex(function(x){ return x.s==='adversaires'; });
+      if(i>=0){ var g=pole.screens[i].g; delete pole.screens[i].g; pole.screens.splice(i,0,{s:'studio',ic:'clap',l:'Studio du match',g:g}); }
+      if(typeof renderSideNav==='function') renderSideNav();
+    }
+  }catch(e){ console.error('studio menu', e); }
+  EXT.apres('goNav', function(s){
+    if(s && typeof s!=='string') s=(s.getAttribute&&s.getAttribute('data-s'))||'';
+    if(s==='studio') stRendre();
+  }, 'studio');
+  // Une synchro arrive (un autre coach a modifié) : on redessine, sauf en pleine frappe
+  EXT.apres('syncDepuisFirestore', function(){
+    var sc=document.getElementById('scr-studio');
+    if(!sc || !sc.classList.contains('on')) return;
+    var a=document.activeElement; if(a && sc.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+    stRendre();
+  }, 'studio');
+});
+</script>
+</body></html>
