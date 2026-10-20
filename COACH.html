@@ -10573,7 +10573,6 @@ function mmPages(d, opts){
     +'<div class="mm-rv">'+(Ri.rdv?'<div><span>⏰ Rendez-vous</span><b>'+mmEsc(Ri.rdv)+'</b>'+(Ri.rdvLieu?'<i>'+mmEsc(Ri.rdvLieu)+'</i>':'')+'</div>':'')
       +(Ri.tenue?'<div><span>👕 Tenue</span><b>'+mmEsc(Ri.tenue)+'</b></div>':'')
       +(Ri.covoit?'<div><span>🚗 Covoiturage</span><b style="white-space:pre-line">'+mmEsc(Ri.covoit)+'</b></div>':'')+'</div>'
-    +'<div class="mm-sac"><h5>🎒 Mon sac <em id="mm-sac-n"></em></h5>'+(Ri.sac||[]).map(function(s,i){ return '<button class="mm-si" data-i="'+i+'" onclick="event.stopPropagation();mmSacCoche('+i+')"><i></i>'+mmEsc(s)+'</button>'; }).join('')+'</div>'
     +(opts.rappel?'<button class="mm-rap" onclick="event.stopPropagation();'+opts.rappel+'">🔔 Me rappeler le rendez-vous 2 h avant</button>':'')});
   return P;
 }
@@ -10691,7 +10690,6 @@ function mmcHtml(){
       +'<div class="vv-g2">'+rangee('Rendez-vous', mmcChamp('rituel.rdv', Ri.rdv, 'Samedi 18h30'))+rangee('Où', mmcChamp('rituel.rdvLieu', Ri.rdvLieu, 'Parking du stade'))+'</div>'
       +rangee('Tenue', mmcChamp('rituel.tenue', Ri.tenue, 'Survêtement du club'))
       +rangee('Covoiturage', mmcChamp('rituel.covoit', Ri.covoit, 'Max : Tiago, Romain, Lucas\nBen : Sam, Yohan', 3))
-      +rangee('Le sac (une ligne par affaire — chaque joueur coche le sien)', mmcChamp('rituel.sacTxt', (Ri.sac||[]).join('\n'), '', 5))
       +'<div class="st-aide" style="padding:0">Le compte à rebours part de la date du match. Le joueur peut demander un rappel 2 h avant le rendez-vous.</div></div>'
     +'</div></div>';
 }
@@ -11517,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v168</b> · 19/10/2026<br>
-      <span style="opacity:.7">Mise à jour en un tap · missions · quiz · envois</span>
+      AST COACH <b style="color:var(--or)">v169</b> · 20/10/2026<br>
+      <span style="opacity:.7">Quiz facultatif · sans le sac</span>
     </div>
   </div>
 </div>
@@ -36861,7 +36859,6 @@ function stAuto(){
     DOSSIERS_ARCHIVE.some(function(d){ var x=d&&d.moments&&d.moments.rituel; if(x&&(x.rdv||x.tenue)){ old=x; return true; } return false; });
     if(old){
       Ri.rdv=old.rdv||''; Ri.rdvLieu=old.rdvLieu||''; Ri.tenue=old.tenue||'';
-      if(old.sac && old.sac.length) Ri.sac=old.sac.slice();
       S.rituel='repris';
     }
     S.rituelVu=true;
@@ -38197,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v168';
+var APP_BUILD='v169';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -38357,9 +38354,14 @@ function qzResultats(){
           +'<span style="font:700 13px \'Roboto Condensed\',sans-serif;color:'+(n?'var(--red)':'var(--green)')+'">'+(n?n+' raté'+(n>1?'s':'')+' : '+stE(rates[i].slice(0,6).join(', '))+(n>6?'…':''):'tout le monde a bon')+'</span></div>'; }).join('');
   }).catch(function(){ z.innerHTML='<div class="stu-v vide">Résultats indisponibles pour l’instant (réseau).</div>'; });
 }
+function qzActif(on){ DOSSIER.quizActif=!!on; stuSauver(); stRendre(); }
 function qzHtml(){
   var Q=DOSSIER.quiz||[];
-  return '<div class="stu-c"><h3>Le quiz « as-tu compris ? » <small>3 questions à la fin des stories, tirées de ton dossier</small></h3>'
+  var on=DOSSIER.quizActif===true;
+  var tete='<div class="stu-c"><h3>Le quiz <small>3 questions tirées de ton dossier, à la fin des stories. Facultatif.</small></h3>'
+    +'<label style="display:flex;align-items:center;gap:10px;font:700 14px \'Roboto Condensed\',sans-serif;color:var(--gris);cursor:pointer"><input type="checkbox" '+(on?'checked':'')+' onchange="qzActif(this.checked)" style="width:20px;height:20px"> Proposer le quiz aux joueurs '+(on?'':'<span style="color:var(--gris2);font-weight:500">(désactivé : il n’est pas envoyé)</span>')+'</label>';
+  if(!on) return tete+'</div>';
+  return tete
     +(Q.length?Q.map(function(q,i){ return '<div style="display:flex;flex-direction:column;gap:4px;padding:6px 0;border-top:'+(i?'1px solid var(--line)':'0')+'">'
         +'<span style="font:800 14px \'Roboto Condensed\',sans-serif;color:var(--gris)">'+(i+1)+'. '+stE(q.q)+'</span>'
         +'<span style="font:500 13px \'Roboto Condensed\',sans-serif;color:var(--gris2)">'+q.o.map(function(o,k){ return k===q.ok?'<b style="color:var(--green)">✓ '+stE(o)+'</b>':stE(o); }).join(' · ')+'</span></div>'; }).join('')
@@ -38374,7 +38376,7 @@ var ENV_ETAPES=[
   {k:'adv',    l:'L’adversaire',          d:'leur carte d’identité, le face-à-face', j:3, h:'18:00'},
   {k:'plan',   l:'Notre plan',            d:'le match en 3 temps, tes 3 messages, les situations', j:2, h:'18:00'},
   {k:'compo',  l:'La compo et sa mission', d:'le onze (s’il n’est pas caché) et la mission de chacun', j:1, h:'18:00'},
-  {k:'rituel', l:'Le rituel et le quiz',  d:'rendez-vous, sac, covoiturage, les 3 questions', j:0, h:''}
+  {k:'rituel', l:'Le rendez-vous',  d:'heure, lieu, tenue, covoiturage (et le quiz s’il est activé)', j:0, h:''}
 ];
 function envData(){
   if(!DOSSIER.envoi) DOSSIER.envoi={actif:true, etapes:{}};
@@ -38433,7 +38435,7 @@ window.addEventListener('load', function(){
     var bj=stJourJHtml;
     stJourJHtml=function(E){ var h=bj.apply(this, arguments);
       var k=h.indexOf('<div class="stu-c" style="border-color:var(--or)">'); var add=envHtml()+qzHtml();
-      setTimeout(qzResultats, 50);
+      if(DOSSIER.quizActif===true) setTimeout(qzResultats, 50);
       return k>=0?h.slice(0,k)+add+h.slice(k):h+add; };
     stJourJHtml.__v168=true;
   }
@@ -38450,7 +38452,7 @@ window.addEventListener('load', function(){
         if(t && stTrim(M[t.nom]) && !P.some(function(p){ return p.k==='mission'; })){
           P.splice(iR, 0, {k:'mission', html:'<div class="mm-h"><span>Ta mission</span><b>'+mmEsc(t.nom)+'</b></div><div class="mm-big or">'+mmEsc(M[t.nom])+'</div>'}); iR++;
         }
-        var Q=DOSSIER.quiz||[];
+        var Q=DOSSIER.quizActif===true?(DOSSIER.quiz||[]):[];
         if(Q.length) P.splice(iR, 0, {k:'quiz', html:'<div class="mm-h"><span>As-tu bien compris ?</span><b>3 questions</b></div>'
           +Q.map(function(q,n){ return '<div style="display:flex;flex-direction:column;gap:6px"><div style="font:800 16px \'Roboto Condensed\',sans-serif">'+(n+1)+'. '+mmEsc(q.q)+'</div>'
             +q.o.map(function(o){ return '<div style="padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.08);font:600 14px \'Roboto Condensed\',sans-serif">'+mmEsc(o)+'</div>'; }).join('')+'</div>'; }).join('')});

@@ -2385,7 +2385,6 @@ function mmPages(d, opts){
     +'<div class="mm-rv">'+(Ri.rdv?'<div><span>⏰ Rendez-vous</span><b>'+mmEsc(Ri.rdv)+'</b>'+(Ri.rdvLieu?'<i>'+mmEsc(Ri.rdvLieu)+'</i>':'')+'</div>':'')
       +(Ri.tenue?'<div><span>👕 Tenue</span><b>'+mmEsc(Ri.tenue)+'</b></div>':'')
       +(Ri.covoit?'<div><span>🚗 Covoiturage</span><b style="white-space:pre-line">'+mmEsc(Ri.covoit)+'</b></div>':'')+'</div>'
-    +'<div class="mm-sac"><h5>🎒 Mon sac <em id="mm-sac-n"></em></h5>'+(Ri.sac||[]).map(function(s,i){ return '<button class="mm-si" data-i="'+i+'" onclick="event.stopPropagation();mmSacCoche('+i+')"><i></i>'+mmEsc(s)+'</button>'; }).join('')+'</div>'
     +(opts.rappel?'<button class="mm-rap" onclick="event.stopPropagation();'+opts.rappel+'">🔔 Me rappeler le rendez-vous 2 h avant</button>':'')});
   return P;
 }
@@ -2467,7 +2466,7 @@ function mmjBandeau(){
   return '<div class="mm-band'+(mmjVu()?'':' neuf')+'" onclick="mmjOuvrir()">'
     +'<div class="mm-band-r"><i></i><b>'+(rb?mmEsc(rb.court):'▶')+'</b></div>'
     +'<div class="mm-band-c"><span>'+(mmjVu()?'Le dossier du match':'Nouveau · le dossier du match')+'</span><b>vs '+mmEsc(d.adv||'')+'</b>'
-      +'<em>'+[Ri.rdv?'⏰ RDV '+mmEsc(Ri.rdv):'', tot?'🎒 '+n+'/'+tot:''].filter(Boolean).join(' · ')+'</em></div>'
+      +'<em>'+(Ri.rdv?'⏰ RDV '+mmEsc(Ri.rdv):'')+'</em></div>'
     +'<div class="mm-band-go">▶</div></div>';
 }
 function mmjHub(){ return mmjBandeau(); }
@@ -7889,7 +7888,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v168';
+var APP_BUILD='v169';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -7925,7 +7924,7 @@ window.addEventListener('load', function(){
 });
 
 // ---------- 2. Le dossier se dévoile dans la semaine ----------
-var ENV_NOMS={adv:'l’adversaire', plan:'notre plan', compo:'la compo et ta mission', rituel:'le rituel et le quiz'};
+var ENV_NOMS={adv:'l’adversaire', plan:'notre plan', compo:'la compo et ta mission', rituel:'le rendez-vous'};
 var ENV_ORDRE=['adv','plan','compo','rituel'];
 var ENV_PAGE={cover:null, id:'adv', ff:'adv', plan:'plan', consignes:'plan', compo:'compo', mission:'compo', quiz:'rituel', rituel:'rituel'};
 function envQuand(d, k){
@@ -8037,7 +8036,7 @@ window.addEventListener('load', function(){
           var O=d._etapes||envOuvertes(d);
           P=P.filter(function(p){ var e=ENV_PAGE[p.k]; return !e || O.indexOf(e)>=0; });
         }
-        if(d && (d.quiz||[]).length){
+        if(d && d.quizActif===true && (d.quiz||[]).length){
           var iR=P.findIndex(function(p){ return p.k==='rituel'; }); if(iR<0) iR=P.length;
           P.splice(iR, 0, {k:'quiz', duree:600000, html:qzjHtml(d)});
         }
