@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v176</b> · 20/10/2026<br>
-      <span style="opacity:.7">Fiche joueur et séance simplifiées</span>
+      AST COACH <b style="color:var(--or)">v177</b> · 20/10/2026<br>
+      <span style="opacity:.7">Accueil sans doublons</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v176';
+var APP_BUILD='v177';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -39549,6 +39549,115 @@ window.addEventListener('load', function(){
     requestAnimationFrame(function(){ attente=false; try{ v176Fiche(); }catch(e){} try{ v176Seance(); }catch(e){} });
   }).observe(document.getElementById('scr-effectif')||document.body, {childList:true, subtree:true});
 });
+</script>
+
+<script>
+// ===== v177 : l'accueil sans doublons, deux niveaux de menu partout =====
+//  1. Accueil : la frise « Où en est la semaine » est la seule entrée par phase.
+//     Un clic sur une phase filtre « Maintenant » et ouvre son détail à droite ;
+//     les 4 tuiles toujours affichées disparaissent.
+//  2. « Je suis… » quitte l'accueil : ça se règle une fois dans Administration
+//     (« Sur cet appareil, je suis »). L'accueil propose alors « Tout le staff / Mes tâches ».
+//  3. Les onglets internes d'un écran (ex. La séance : Préparer, Présences, Chrono, Planning)
+//     montent dans la ligne des écrans : plus de troisième rangée.
+(function(){
+  var css=''
+  +'.v177-cache{display:none!important}'
+  +'.rub-barre.v177-miroir{display:none!important}'
+  +'.tn-grp{max-width:100%;overflow-x:auto;scrollbar-width:none;display:inline-flex;align-items:center;gap:4px;padding:3px;border-radius:999px;border:1px solid var(--pc);background:var(--carte)}'
+  +'.tn-grp > .tn-gl{display:inline-flex;align-items:center;gap:6px;padding:0 8px 0 6px;font:800 13px "Roboto Condensed",sans-serif;color:var(--pc);white-space:nowrap}'
+  +'.tn-grp > .tn-gl .ico{width:16px;height:16px}'
+  +'.tn-sub{min-height:30px;padding:0 11px;border-radius:999px;border:0;background:none;color:var(--gris);font:700 13px "Roboto Condensed",sans-serif;cursor:pointer;white-space:nowrap}'
+  +'.tn-sub:hover{color:var(--pc)}'
+  +'.tn-sub.on{background:var(--pc);color:#fff}'
+  +'.bv2-c.v177-det{border-color:var(--or)}';
+  var s=document.createElement('style'); s.id='v177-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// ---------- 1 & 2 : l'accueil ----------
+function v177Accueil(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  // les tuiles de phase : seule celle de la phase choisie dans la frise reste, ouverte
+  var tuiles=Array.prototype.filter.call(ct.querySelectorAll('.bv2-c.pt'), function(c){ return !!c.querySelector('.bv2-tile'); });
+  var f=(typeof BV2!=='undefined')?BV2.filtre:null;
+  tuiles.forEach(function(c, i){
+    var garde=(f!==null && f===i);
+    c.classList.toggle('v177-cache', !garde);
+    c.classList.toggle('v177-det', garde);
+    if(garde){ var det=c.querySelector('.bv2-det'); if(det) det.style.display='none'; }
+  });
+  // « Je suis… » : réglé dans Administration
+  var sel=ct.querySelector('.bv2-sel'); if(sel) sel.classList.add('v177-cache');
+  var seg=ct.querySelector('.bv2-seg');
+  if(seg){
+    var moi=''; try{ moi=nav3Moi(); }catch(e){}
+    if(!moi) seg.classList.add('v177-cache');
+    else { var b=seg.querySelectorAll('button')[1]; if(b) b.textContent='Mes tâches · '+moi; }
+  }
+}
+window.addEventListener('load', function(){
+  if(typeof renderSemaine==='function' && !renderSemaine.__v177){
+    var base=renderSemaine;
+    renderSemaine=function(){
+      try{ if(typeof BV2!=='undefined') BV2.ouvert=BV2.filtre; }catch(e){}
+      var r=base.apply(this, arguments);
+      try{ v177Accueil(); }catch(e){}
+      return r;
+    };
+    renderSemaine.__v177=true;
+  }
+  try{ v177Accueil(); }catch(e){}
+  try{ EXT.apres('goRubrique', function(){ try{ tnRendre(); }catch(e){} }); }catch(e){}
+  setTimeout(function(){ try{ tnRendre(); }catch(e){} }, 700);
+});
+
+// ---------- 3 : les onglets internes montent dans le menu ----------
+function v177SousOnglets(s){
+  var scr=document.getElementById('scr-'+s); if(!scr) return null;
+  var barre=scr.querySelector('.rub-barre'); if(!barre) return null;
+  var ecrans={}; try{ (POLES||[]).forEach(function(p){ p.screens.forEach(function(sc){ if(sc.s!==s) ecrans[sc.s]=1; }); }); }catch(e){}
+  var bs=Array.prototype.filter.call(barre.querySelectorAll('.rub-b'), function(b){ return b.style.display!=='none' && b.getAttribute('onclick') && !ecrans[b.getAttribute('data-r')]; });
+  if(bs.length<2) return null;
+  barre.classList.add('v177-miroir');
+  var actif=''; try{ actif=(RUBRIQUE_ACTIVE&&RUBRIQUE_ACTIVE[s])||''; }catch(e){}
+  if(!actif){ var on=bs.filter(function(b){ return b.classList.contains('on'); })[0]; actif=on?on.getAttribute('data-r'):''; }
+  return bs.map(function(b){
+    var t=(b.textContent||'').replace(/^\s*(?:\p{Extended_Pictographic}️?\s*)+/u,'').trim();
+    return {r:b.getAttribute('data-r'), l:t, act:b.getAttribute('onclick'), on:b.getAttribute('data-r')===actif};
+  });
+}
+(function(){
+  // on enveloppe le rendu du haut d'écran (v174) sans le réécrire
+  var base=window.tnRendre;
+  if(typeof base!=='function') return;
+  window.tnRendre=function(){
+    var r=base.apply(this, arguments);
+    try{
+      var z=document.getElementById('topnav'); if(!z) return r;
+      var row=z.querySelector('.tn-r2x'); if(!row) return r;
+      var s=tnEcranOuvert();
+      var hote=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[s])?RUBRIQUE_DE[s]:s;
+      var ra=''; try{ ra=(RUBRIQUE_ACTIVE&&RUBRIQUE_ACTIVE[hote])||''; }catch(e){}
+      var pr=ra && ra!==hote && row.querySelector('.tn-s[onclick="goNav(\''+ra+'\')"]');
+      if(pr){ row.querySelectorAll('.tn-s.on').forEach(function(x){ x.classList.remove('on'); }); pr.classList.add('on'); var bb=document.querySelector('#scr-'+hote+' .rub-barre'); if(bb) bb.classList.add('v177-miroir'); return r; }
+      if(hote!==s) return r;                       // écran logé dans un autre (ex. Vidéos) : sa pastille suffit
+      var subs=v177SousOnglets(hote); if(!subs) return r;
+      var pill=row.querySelector('.tn-s.on');
+      var pc=pill?pill.style.getPropertyValue('--pc'):'var(--or)';
+      var grp=document.createElement('span'); grp.className='tn-grp'; grp.style.setProperty('--pc', pc||'var(--or)');
+      var lab=document.createElement('span'); lab.className='tn-gl';
+      if(pill){ var sv=pill.querySelector('svg'); if(sv) lab.appendChild(sv.cloneNode(true)); lab.appendChild(document.createTextNode((pill.textContent||'').trim())); }
+      grp.appendChild(lab);
+      subs.forEach(function(x){
+        var b=document.createElement('button'); b.className='tn-sub'+(x.on?' on':''); b.textContent=x.l; b.setAttribute('onclick', x.act);
+        grp.appendChild(b);
+      });
+      if(pill) pill.replaceWith(grp);
+      else { var aide=row.querySelector('.tn-aidex'); row.insertBefore(grp, aide||null); }
+    }catch(e){}
+    return r;
+  };
+})();
 </script>
 
 </body></html>
