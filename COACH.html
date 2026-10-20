@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v175</b> · 20/10/2026<br>
-      <span style="opacity:.7">Une seule appli à l’œil</span>
+      AST COACH <b style="color:var(--or)">v176</b> · 20/10/2026<br>
+      <span style="opacity:.7">Fiche joueur et séance simplifiées</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v175';
+var APP_BUILD='v176';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -39422,6 +39422,132 @@ window.addEventListener('load', function(){
     });
   });
   obs.observe(document.body, {childList:true, subtree:true});
+});
+</script>
+
+<script>
+// ===== v176 : la fiche joueur et la séance, simplifiées =====
+//  Fiche joueur : en tête, deux boutons au lieu de trois (« Entretien ▾ » et « ⋯ ») ;
+//  dans le résumé, deux actions au lieu de cinq (Note sur lui, Signaler une blessure).
+//  Séance : une seule façon de préparer — la fiche de préparation. Le générateur s'ouvre
+//  à la demande, l'ancien plan en texte libre se replie (rien n'est effacé).
+(function(){
+  var css=''
+  +'.v176-dd{position:relative;display:inline-block}'
+  +'.v176-dd > summary{list-style:none;cursor:pointer}'
+  +'.v176-dd > summary::-webkit-details-marker{display:none}'
+  +'.v176-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:30;min-width:230px;padding:6px;border-radius:12px;background:var(--carte);border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:4px}'
+  +'.v176-dd.droite .v176-pop{left:auto;right:0}'
+  +'#main .v176-pop button{width:100%;justify-content:flex-start!important;border-color:transparent!important;background:none!important;color:var(--gris)!important;min-height:36px}'
+  +'#main .v176-pop button:hover{background:var(--voile)!important;color:var(--or)!important}'
+  +'.v176-pop small{display:block;padding:4px 10px 2px;font:700 11px "Roboto Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--gris2)}'
+  +'.fj-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}'
+  // la séance
+  +'body:not(.v176-gen) #scr-seances .rub-p[data-r="generateur"]{display:none!important}'
+  +'.v176-seance-alt{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font:500 13px "Roboto Condensed",sans-serif;color:var(--gris2)}'
+  +'#v176-brouillon > summary{cursor:pointer;padding:12px 14px;font:700 13px "Roboto Condensed",sans-serif;color:var(--gris2);list-style:none}'
+  +'#v176-brouillon > summary::-webkit-details-marker{display:none}'
+  +'#v176-brouillon[open] > summary{color:var(--gris)}';
+  var s=document.createElement('style'); s.id='v176-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+function v176Btn(txt, onclick, cls){
+  var b=document.createElement('button'); b.type='button'; b.className=cls||'jf-b2'; b.textContent=txt;
+  if(onclick) b.setAttribute('onclick', onclick);
+  return b;
+}
+function v176Menu(label, cls, droite){
+  var d=document.createElement('details'); d.className='v176-dd'+(droite?' droite':'');
+  var sm=document.createElement('summary'); sm.className=cls||'acc-b'; sm.innerHTML=label; d.appendChild(sm);
+  var p=document.createElement('div'); p.className='v176-pop'; d.appendChild(p);
+  return {d:d, pop:p};
+}
+// un menu ouvert se ferme dès qu'on clique ailleurs (ou sur un de ses choix)
+document.addEventListener('click', function(e){
+  document.querySelectorAll('details.v176-dd[open]').forEach(function(d){
+    if(!d.contains(e.target) || e.target.closest('.v176-pop button')) d.removeAttribute('open');
+  });
+}, true);
+
+// ---------- la fiche joueur ----------
+function v176Fiche(){
+  var scr=document.getElementById('scr-effectif'); if(!scr) return;
+  // l'en-tête : « Entretien ▾ » et « ⋯ »
+  scr.querySelectorAll('.fj-actions').forEach(function(act){
+    if(act.querySelector('.v176-dd')) return;
+    var origin=Array.prototype.slice.call(act.querySelectorAll(':scope > button'));
+    if(!origin.length) return;
+    var ent=v176Menu('Entretien <span style="opacity:.6">▾</span>', 'acc-b or');
+    var titres={0:'Préparer : la feuille d’entretien',1:'Pendant : l’écran face à face',2:'Observer : la fiche d’observation'};
+    origin.forEach(function(b,i){ b.className='jf-b2'; b.textContent=titres[i]||b.textContent; ent.pop.appendChild(b); });
+    act.appendChild(ent.d);
+    var num=''; try{ num=(scr.querySelector('.fj-num')||{}).textContent||''; }catch(e){}
+    var plus=v176Menu('⋯', 'acc-b', false);
+    plus.d.title='Autres actions';
+    plus.pop.appendChild(v176Btn('Photo, poste, attributs', 'fjBasculerReglages()'));
+    if(num) plus.pop.appendChild(v176Btn('Voir son appli', "window.open('JOUEUR.html?vue=coach&num="+num.replace(/\D/g,'')+"','ast_joueur')"));
+    act.appendChild(plus.d);
+  });
+  // le résumé : deux actions
+  scr.querySelectorAll('.jf-act').forEach(function(a){
+    if(a.__v176) return; a.__v176=true;
+    a.querySelectorAll('button').forEach(function(b){
+      var t=(b.textContent||'').toLowerCase();
+      if(/entretien|photo|appli/.test(t)) b.style.display='none';
+    });
+  });
+}
+
+// ---------- la séance ----------
+function v176Seance(){
+  var scr=document.getElementById('scr-seances'); if(!scr || scr.__v176) return;
+  var fiche=document.getElementById('fiche-seance-sel');
+  var blk=fiche && fiche.closest('.blk'); if(!blk) return;
+  scr.__v176=true;
+  // le texte d'explication devient une ligne
+  var bh=blk.querySelector('.bh .bt'); if(bh){ var sv=bh.querySelector('svg'); bh.textContent=''; if(sv) bh.appendChild(sv); bh.appendChild(document.createTextNode('Préparer la séance')); }
+  var bc=blk.querySelector('.bh .bc'); if(bc) bc.textContent='2 pages A4 · à remplir à l’écran ou à imprimer';
+  var corps=blk.querySelector(':scope > div:not(.bh)');
+  if(corps){
+    var expl=corps.firstElementChild;
+    if(expl && !expl.querySelector('select,button')) expl.innerHTML='Choisis la séance, ouvre la fiche : <b style="color:var(--gris)">page 1</b> pour le bord du terrain (présents, thème, minutage), <b style="color:var(--gris)">page 2</b> pour dessiner les situations.';
+    // la ligne : séance d'abord, bouton ensuite
+    var ligne=fiche.parentNode, lab=ligne.querySelector('label'), bouton=ligne.querySelector('button');
+    if(lab){ lab.textContent='Séance'; ligne.insertBefore(lab, ligne.firstChild); ligne.insertBefore(fiche, lab.nextSibling); }
+    var info=corps.lastElementChild;
+    if(info && /Docs à imprimer/.test(info.textContent)) info.innerHTML='Archivée, elle se range dans Club House › Documents.';
+    // l'autre voie : le générateur, à la demande
+    var alt=document.createElement('div'); alt.className='v176-seance-alt';
+    alt.innerHTML='<span>Pas d’idée pour ce soir ?</span>';
+    var g=v176Btn('Générer une proposition de séance', 'v176Generateur()', 'btn2'); g.id='v176-gen-b';
+    alt.appendChild(g);
+    corps.appendChild(alt);
+  }
+  // l'ancien plan en texte libre : replié en bas
+  var ta=document.getElementById('seance-txt');
+  var vieux=ta && ta.closest('.blk');
+  if(vieux && !document.getElementById('v176-brouillon')){
+    var d=document.createElement('details'); d.id='v176-brouillon'; d.className='blk';
+    var sm=document.createElement('summary'); sm.textContent='Brouillon texte (ancien plan de séance) ›'; d.appendChild(sm);
+    vieux.parentNode.insertBefore(d, vieux); d.appendChild(vieux);
+    vieux.style.border='0'; vieux.style.boxShadow='none'; vieux.style.margin='0';
+    var t=vieux.querySelector(':scope > .bh'); if(t) t.style.display='none';
+  }
+}
+function v176Generateur(){
+  var on=!document.body.classList.contains('v176-gen');
+  document.body.classList.toggle('v176-gen', on);
+  var b=document.getElementById('v176-gen-b'); if(b) b.textContent=on?'Masquer le générateur':'Générer une proposition de séance';
+  if(on){ var p=document.querySelector('#scr-seances .rub-p[data-r="generateur"]'); if(p) setTimeout(function(){ p.scrollIntoView({behavior:'smooth', block:'start'}); }, 60); }
+}
+
+window.addEventListener('load', function(){
+  setTimeout(function(){ try{ v176Seance(); }catch(e){} try{ v176Fiche(); }catch(e){} }, 600);
+  var attente=false;
+  new MutationObserver(function(){
+    if(attente) return; attente=true;
+    requestAnimationFrame(function(){ attente=false; try{ v176Fiche(); }catch(e){} try{ v176Seance(); }catch(e){} });
+  }).observe(document.getElementById('scr-effectif')||document.body, {childList:true, subtree:true});
 });
 </script>
 
