@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v169</b> · 20/10/2026<br>
-      <span style="opacity:.7">Quiz facultatif · sans le sac</span>
+      AST COACH <b style="color:var(--or)">v170</b> · 20/10/2026<br>
+      <span style="opacity:.7">Menu en haut · mode causerie</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v169';
+var APP_BUILD='v170';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -38460,6 +38460,305 @@ window.addEventListener('load', function(){
       return P;
     };
     stPagesDossier.__v168=true;
+  }
+});
+</script>
+<script>
+// ===== v170 : le menu des écrans passe en haut · le dossier en mode causerie =====
+
+// =====================================================================
+// 1. Le menu en haut
+//    À gauche : les 4 pôles seulement. En haut : les rubriques du pôle
+//    (Directeur sportif, Statistique, Communication…) puis ses écrans.
+// =====================================================================
+(function(){
+  var css=''
+  +'#side .n3-liste{display:none!important}'
+  +'#breadcrumb.mb-onglets .mb-l{display:none!important}'
+  +'#topnav{margin:0 0 12px;display:flex;flex-direction:column;gap:6px}'
+  +'.tn-r1{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}'
+  +'.tn-r1::-webkit-scrollbar,.tn-r2::-webkit-scrollbar{display:none}'
+  +'.tn-g{flex-shrink:0;min-height:42px;padding:0 14px;border:0;border-bottom:3px solid transparent;background:none;color:var(--gris2);cursor:pointer;font:800 13.5px "Roboto Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;margin-bottom:-1px}'
+  +'.tn-g:hover{color:var(--gris)}'
+  +'.tn-g.on{color:var(--pc);border-bottom-color:var(--pc)}'
+  +'.tn-g .tn-al{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-left:6px;vertical-align:middle}'
+  +'.tn-r2{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}'
+  +'.tn-s{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--carte);color:var(--gris);cursor:pointer;font:700 13px "Roboto Condensed",sans-serif;white-space:nowrap}'
+  +'.tn-s:hover{border-color:var(--pc)}'
+  +'.tn-s.on{background:var(--pc);border-color:var(--pc);color:#fff}'
+  +'.tn-s .ico{width:15px;height:15px}'
+  +'.tn-s .tn-al{width:7px;height:7px;border-radius:50%;background:var(--red)}'
+  +'.tn-s.on .tn-al{background:#fff}'
+  +'.tn-s .ni-ok{color:var(--green);font-weight:900}.tn-s.on .ni-ok{color:#fff}';
+  var s=document.createElement('style'); s.id='v170-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+function tnEsc(t){ return (typeof nav3Esc==='function')?nav3Esc(t):String(t==null?'':t); }
+// Les rubriques d'un pôle : un « g » ouvre une rubrique, les écrans suivants en font partie
+function tnRubriques(pole){
+  var R=[], cur=null;
+  (pole.screens||[]).forEach(function(sc){
+    if(sc.g || !cur){ cur={l:sc.g||sc.l, screens:[]}; R.push(cur); }
+    cur.screens.push(sc);
+  });
+  return R;
+}
+function tnEcranOuvert(){ var o=document.querySelector('.scr.on'); return o?o.id.replace(/^scr-/,''):''; }
+function tnRendre(){
+  var main=document.getElementById('main'); if(!main) return;
+  var z=document.getElementById('topnav');
+  if(!z){
+    z=document.createElement('div'); z.id='topnav';
+    var bc=document.getElementById('breadcrumb');
+    if(bc && bc.parentNode===main) main.insertBefore(z, bc.nextSibling); else main.insertBefore(z, main.firstChild);
+  }
+  var pole=(POLES||[]).filter(function(p){ return p.id===POLE_ACTIF; })[0];
+  if(!pole){ z.innerHTML=''; return; }
+  var s=tnEcranOuvert();
+  // l'écran ouvert peut être une rubrique hébergée par un autre écran
+  var hote=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[s])?RUBRIQUE_DE[s]:s;
+  var R=tnRubriques(pole), AL={}; try{ AL=fsAlertes(); }catch(e){}
+  var iR=R.findIndex(function(r){ return r.screens.some(function(sc){ return sc.s===s || sc.s===hote; }); });
+  if(iR<0) iR=0;
+  var c=(typeof couleurPole==='function')?couleurPole(pole):'var(--or)';
+  var alerte=function(sc){ try{ return fsAlerteEcran(AL, sc.s); }catch(e){ return null; } };
+  var h='<div class="tn-r1" role="tablist" aria-label="Rubriques">'+R.map(function(r,i){
+      var a=r.screens.some(alerte);
+      return '<button class="tn-g'+(i===iR?' on':'')+'" style="--pc:'+c+'" role="tab" aria-selected="'+(i===iR)+'" onclick="goNav(\''+r.screens[0].s+'\')">'+tnEsc(r.l)+(a&&i!==iR?'<span class="tn-al" aria-label="à faire"></span>':'')+'</button>';
+    }).join('')+'</div>';
+  var cur=R[iR];
+  if(cur && cur.screens.length>1){
+    h+='<div class="tn-r2">'+cur.screens.map(function(sc){
+      var on=(sc.s===s || sc.s===hote), a=alerte(sc);
+      var coche=(typeof mpFait==='function' && ['compos','plateau','cpa','avant-match','feuille-match'].indexOf(sc.s)>=0 && mpFait(sc.s))?'<span class="ni-ok">✓</span>':'';
+      return '<button class="tn-s'+(on?' on':'')+'" style="--pc:'+c+'" onclick="goNav(\''+sc.s+'\')">'+(typeof ic==='function'?ic(sc.ic):'')+tnEsc(sc.l)+coche+(a?'<span class="tn-al" aria-label="à faire"></span>':'')+'</button>';
+    }).join('')+'</div>';
+  }
+  z.innerHTML=h;
+  z.style.setProperty('--pc', c);
+}
+window.addEventListener('load', function(){
+  // un tap sur un pôle ouvre directement son premier écran, aussi sur téléphone
+  if(typeof ouvrirPole==='function' && !ouvrirPole.__v170){
+    ouvrirPole=function(id){
+      POLE_ACTIF=id;
+      var pole=(POLES||[]).filter(function(p){ return p.id===id; })[0];
+      try{ renderSideNav(); }catch(e){}
+      if(!pole || !pole.screens.length) return;
+      goNav(pole.screens[0].s);
+      try{ if(estModeTiroir()) toggleSideMobile(false); }catch(e){}
+    };
+    ouvrirPole.__v170=true;
+  }
+  EXT.apres('goNav', function(){ try{ tnRendre(); }catch(e){ console.error('menu haut', e); } }, 'menu-haut');
+  EXT.apres('renderSideNav', function(){ try{ tnRendre(); }catch(e){} }, 'menu-haut');
+  setTimeout(tnRendre, 300);
+});
+
+// =====================================================================
+// 2. Le dossier en mode causerie
+//    Construit à partir du Studio : affiche, en face, le match en 3 temps,
+//    les situations, le onze et les missions, les CPA, les vidéos, les 3 messages.
+//    Chrono discret, flèches ou clic pour avancer, les 3 temps apparaissent un par un.
+// =====================================================================
+function csCss(){
+  return '<style>'
+  +'.cs-ef{flex:1;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:3vw;min-height:0;align-items:start}'
+  +'.cs-ef .rap-t svg{width:100%;height:auto;max-height:66vh}'
+  +'.cs-cards{display:flex;flex-direction:column;gap:1vh;max-height:74vh;overflow:auto}'
+  +'.cs-card{border-left:6px solid var(--c,#f97316);background:rgba(255,255,255,.06);border-radius:12px;padding:1.1vh 1.2vw}'
+  +'.cs-card b{display:block;font:800 clamp(11px,1vw,15px) "Roboto Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:.4vh}'
+  +'.cs-card span{font:700 clamp(15px,1.6vw,26px)/1.2 "Roboto Condensed",sans-serif}'
+  +'.cs-radar{max-width:min(22vw,260px);max-height:30vh;align-self:center}.cs-radar svg{max-height:30vh}.cs-radar .mm-radar{width:100%;color:#fff}.cs-radar .mm-rl{font:700 12px "Roboto Condensed",sans-serif;fill:rgba(255,255,255,.75)}.cs-radar .mm-rl.fort{fill:#f97316}'
+  +'.cs-tps{flex:1;display:flex;flex-direction:column;gap:3vh;justify-content:center}'
+  +'.cs-ligne{position:relative;height:10px;border-radius:5px;background:rgba(255,255,255,.12);margin:0 .5vw}'
+  +'.cs-ligne i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:#f97316;width:0;transition:width .6s ease}'
+  +'.cs-ligne span{position:absolute;top:18px;transform:translateX(-50%);font:700 clamp(12px,1.2vw,18px) "Roboto Condensed",sans-serif;opacity:.65}'
+  +'.cs-temps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2vw;margin-top:3vh}'
+  +'.cs-t{border-radius:16px;background:rgba(255,255,255,.06);border-top:6px solid #f97316;padding:2.4vh 1.6vw;display:flex;flex-direction:column;gap:1.2vh;transition:opacity .45s ease,transform .45s ease}'
+  +'.cs-t.rv{opacity:.08;transform:translateY(12px)}'
+  +'.cs-t small{font:800 clamp(12px,1.2vw,18px) "Roboto Condensed",sans-serif;letter-spacing:.12em;color:#f97316;text-transform:uppercase}'
+  +'.cs-t b{font:400 clamp(24px,3vw,48px)/1 Anton,sans-serif;text-transform:uppercase}'
+  +'.cs-t p{margin:0;font:600 clamp(15px,1.6vw,25px)/1.35 "Roboto Condensed",sans-serif;opacity:.85}'
+  +'.cs-onze{flex:1;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:3vw;min-height:0;align-items:start}'
+  +'.cs-msn{display:flex;flex-direction:column;gap:1.2vh;overflow:auto;max-height:70vh}'
+  +'.cs-m{display:grid;grid-template-columns:minmax(120px,.42fr) minmax(0,1fr);gap:1.2vw;align-items:baseline;padding:1.1vh 0;border-bottom:1px solid rgba(255,255,255,.1)}'
+  +'.cs-m b{font:800 clamp(15px,1.6vw,25px) "Roboto Condensed",sans-serif;color:#f97316}'
+  +'.cs-m b i{font-style:normal;font-weight:600;opacity:.6;color:#fff;font-size:.75em;margin-left:.4em}'
+  +'.cs-m span{font:600 clamp(15px,1.6vw,25px)/1.3 "Roboto Condensed",sans-serif}'
+  +'.cs-cpa{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.6vw;align-content:start}'
+  +'.cs-cp{border-radius:14px;background:rgba(255,255,255,.06);border-top:5px solid var(--c,#f97316);padding:1.8vh 1.4vw}'
+  +'.cs-cp h3{margin:0 0 1vh;font:400 clamp(18px,2vw,32px) Anton,sans-serif;text-transform:uppercase}'
+  +'.cs-cp div{display:flex;justify-content:space-between;gap:1vw;padding:.5vh 0;font:600 clamp(14px,1.4vw,22px) "Roboto Condensed",sans-serif;border-bottom:1px solid rgba(255,255,255,.08)}'
+  +'.cs-cp div b{font-weight:800}.cs-cp div span{opacity:.7}'
+  +'.cs-cp p{margin:0;font:600 clamp(14px,1.4vw,22px)/1.35 "Roboto Condensed",sans-serif;opacity:.85}'
+  +'.cs-cd{margin-top:2.6vh;font:400 clamp(22px,3vw,44px) Anton,sans-serif;color:#f97316;letter-spacing:.04em}'
+  +'#cs-chrono{position:fixed;top:14px;right:16px;z-index:50;min-width:92px;padding:8px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.45);color:#fff;font:400 22px Anton,sans-serif;letter-spacing:.04em;cursor:pointer;text-align:center}'
+  +'#cs-chrono.fin{color:#f97316;border-color:#f97316}'
+  +'#cs-chrono small{display:block;font:700 10px "Roboto Condensed",sans-serif;letter-spacing:.1em;opacity:.6}'
+  +'@media print{#cs-chrono{display:none}.cs-t.rv{opacity:1;transform:none}}'
+  +'</style>';
+}
+// Le chrono et les 3 temps qui apparaissent un par un
+function csScript(minutes){
+  return '<script>(function(){'
+  +'var dur='+(minutes*60)+', rest=dur, t0=null, marche=false, tm=null;'
+  +'var el=document.createElement("button"); el.id="cs-chrono"; el.title="Toucher : démarrer / pause · double-toucher : remettre à zéro";'
+  +'function fmt(s){ var m=Math.floor(Math.abs(s)/60), x=Math.abs(s)%60; return (s<0?"+":"")+m+":"+(x<10?"0":"")+x; }'
+  +'function maj(){ el.innerHTML=fmt(rest)+"<small>"+(marche?"CAUSERIE":"PAUSE")+"</small>"; el.classList.toggle("fin", rest<=0); }'
+  +'function tic(){ if(!marche) return; rest--; maj(); }'
+  +'function go(){ if(marche) return; marche=true; tm=setInterval(tic,1000); maj(); }'
+  +'function stop(){ marche=false; clearInterval(tm); maj(); }'
+  +'el.onclick=function(e){ e.stopPropagation(); marche?stop():go(); };'
+  +'el.ondblclick=function(e){ e.stopPropagation(); stop(); rest=dur; maj(); };'
+  +'document.body.appendChild(el); maj();'
+  // avancer : d'abord révéler le temps suivant sur la page du plan
+  +'var base=window.aller;'
+  +'window.aller=function(sens){'
+    +'go();'
+    +'var p=document.querySelector(".pg.on");'
+    +'if(sens>0 && p){ var r=p.querySelector(".cs-t.rv"); if(r){ r.classList.remove("rv"); csLigne(p); return; } }'
+    +'base(sens);'
+    +'var q=document.querySelector(".pg.on"); if(q) csLigne(q);'
+  +'};'
+  +'function csLigne(p){ var L=p.querySelector(".cs-ligne i"); if(!L) return; var n=p.querySelectorAll(".cs-t").length, v=n-p.querySelectorAll(".cs-t.rv").length; L.style.width=(n?Math.round(v/n*100):0)+"%"; }'
+  +'document.addEventListener("click",function(e){ var p=document.querySelector(".pg.on"); if(!p || e.target.closest("button,a,.barre,[data-ed],#cs-chrono")) return; if(p.querySelector(".cs-t.rv")){ window.aller(1); } });'
+  +'})();<\/script>';
+}
+function csTxt(t){ return String(t==null?'':t).trim(); }
+function genererCauserie(){
+  var pages=[], logo=docLogoClub(), M=mmData(DOSSIER);
+  var r=null; try{ r=(typeof stRapport==='function')?stRapport():null; }catch(e){}
+  var dom=!/ext/i.test(DOSSIER.lieu||'');
+  // 1. L'affiche
+  var t=(typeof mmCoup==='function')?mmCoup(DOSSIER):null, cd='';
+  if(t){ var j=Math.ceil((new Date(t).setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/86400000); cd=j>0?'J-'+j:(j===0?'Jour de match':''); }
+  pages.push(dpPage('affiche','',
+    '<div class="affiche">'+(logo?'<img class="crest" src="'+logo+'" alt="">':'')
+    +'<div class="af-eq">'+dpEsc(NOM_CLUB)+'</div>'
+    +'<div class="af-vs">'+(dom?'reçoit':'se déplace chez')+'</div>'
+    +'<div class="af-adv" data-ed="'+dpAdr('s','adv')+'" data-vide="L\'adversaire">'+dpEsc(DOSSIER.adv||'')+'</div>'
+    +'<div class="af-meta">'+['date','lieu','comp'].map(function(k,i){
+        var lab=['La date','Le lieu','La compétition'][i];
+        return '<span class="af-m'+(csTxt(DOSSIER[k])?'':' vide')+'" data-ed="'+dpAdr('s',k)+'" data-vide="'+lab+'">'+dpEsc(DOSSIER[k]||'')+'</span>'; }).join('<span class="af-sep"> · </span>')+'</div>'
+    +(cd?'<div class="cs-cd">'+dpEsc(cd)+'</div>':'')
+    +'</div>','affiche-pg'));
+  // 2. En face
+  {
+    var force=r?rapListeTxt(r.forces).join(' · '):csTxt(M.force), faille=r?rapListeTxt(r.failles).join(' · '):csTxt(M.faille);
+    var tenir=dpVal('adv','Le joueur à tenir'), cles=r?rapListeTxt(r.cles):[];
+    var terr=r?'<div class="rap-t">'+rapTerrainSvg(rapTerrainDe(r))+'</div><div class="sous-t">'+dpEsc((r.systeme||'')+(csTxt(r.resume)?' — « '+r.resume+' »':''))+'</div>':'';
+    var radar=(M.radar && Object.keys(M.radar).length && typeof mmRadarSvg==='function')?'<div class="cs-radar">'+mmRadarSvg(M.radar)+'</div>':'';
+    var cards=[[force,'Leur arme','#ef4444'],[faille,'Leur faille','#22c55e'],[tenir,'Le joueur à tenir','#f97316'],[cles.join(' · '),'Comment on les bat','#38bdf8']]
+      .filter(function(x){ return csTxt(x[0]); })
+      .map(function(x){ return '<div class="cs-card" style="--c:'+x[2]+'"><b>'+x[1]+'</b><span>'+dpEsc(x[0])+'</span></div>'; }).join('');
+    pages.push(dpPage('adv','En face · '+dpEsc(DOSSIER.adv||''),
+      '<div class="cs-ef"><div>'+(terr||radar)+'</div><div class="cs-cards">'+(terr&&radar?radar:'')+cards+'</div></div>',
+      (cards||terr)?'':'pg-vide'));
+  }
+  // 3. Le match en 3 temps
+  {
+    var ph=(M.phases||[]).filter(function(p){ return csTxt(p.mot)||csTxt(p.txt); });
+    pages.push(dpPage('plan','Le match en 3 temps',
+      '<div class="cs-tps"><div class="cs-ligne"><i></i>'+['0′','30′','60′','90′'].map(function(x,i){ return '<span style="left:'+(i*33.33)+'%">'+x+'</span>'; }).join('')+'</div>'
+      +'<div class="cs-temps">'+(M.phases||[]).map(function(p){
+        if(!(csTxt(p.mot)||csTxt(p.txt))) return '';
+        return '<div class="cs-t rv"><small>'+dpEsc(p.t)+' · '+dpEsc(p.l)+'</small>'+(csTxt(p.mot)?'<b>'+dpEsc(p.mot)+'</b>':'')+(csTxt(p.txt)?'<p>'+dpEsc(p.txt)+'</p>':'')+'</div>'; }).join('')+'</div></div>',
+      ph.length?'':'pg-vide'));
+  }
+  // 4. Les situations : une page chacune, animées comme avant
+  var sitsOk=dmSituationsSaines();
+  sitsOk.forEach(function(s,i){
+    try{
+      if(s.type==='image'){
+        pages.push(dpPage('sit'+i, dpEsc(s.titre||('Situation '+(i+1))),
+          '<div class="sit sit-capture"><div class="sit-t"><img class="sit-img" src="'+s.image+'" alt=""></div><div class="sit-c">'+dpEd(dpAdr('u',s.id), s.consigne||s.sous, 'sit-sous')+'</div></div>','sit-pg'));
+        return;
+      }
+      var pleines=[]; (s.plateau.sequence||[]).forEach(function(st,k){ if(st) pleines.push(k); });
+      var cons=(s.plateau.joueurs||[]).filter(function(jj){ return csTxt(jj.note); });
+      pages.push(dpPage('sit'+i, '<span data-ed="'+dpAdr('t',s.id)+'">'+dpEsc(s.titre||('Situation '+(i+1)))+'</span>',
+        '<div class="sit" data-sit="'+i+'"><div class="sit-t" id="sit-t-'+i+'">'+dpTerrainSituation(s.plateau, pleines.length?pleines[0]:null, false)+'</div>'
+        +'<div class="sit-c">'+dpEd(dpAdr('u',s.id), s.sous, 'sit-sous')
+          +(pleines.length>1?'<div class="sit-cmd"><button class="pb" onclick="sitPas('+i+',-1)">‹</button><button class="pb play" id="sit-b-'+i+'" onclick="sitLire('+i+')">▶ Lire la phase</button><button class="pb" onclick="sitPas('+i+',1)">›</button><div class="sit-e" id="sit-e-'+i+'">Étape 1 sur '+pleines.length+'</div></div>':'')
+          +(cons.length?'<div class="sit-cons"><div class="carte-l">Les consignes individuelles</div>'+cons.map(function(jj){ return '<div class="cons-l"><b>'+dpEsc(jj.nom||jj.label)+'</b><span data-ed="'+dpAdr('n',s.id,jj.cle)+'" data-sitidx="'+i+'">'+dpEsc(jj.note)+'</span></div>'; }).join('')+'</div>':'')
+        +'</div></div>','sit-pg'));
+    }catch(e){}
+  });
+  // 5. Le onze et les missions
+  {
+    var compo=dpCompo(), cache=(typeof difCompoCachee==='function')?false:false;
+    var titus=compo?compo.slots.filter(function(sl){ return !sl.bench; }):[];
+    var Ms=DOSSIER.missions||{};
+    var lignes=titus.filter(function(sl){ return sl.nom && csTxt(Ms[sl.nom]); }).map(function(sl){
+      return '<div class="cs-m"><b>'+dpEsc(sl.nom)+'<i>'+dpEsc(sl.pos||'')+'</i></b><span>'+dpEsc(Ms[sl.nom])+'</span></div>'; }).join('');
+    var banc=compo?compo.slots.filter(function(sl){ return sl.bench && (sl.nom||sl.num); }):[];
+    pages.push(dpPage('grp','Notre onze'+(lignes?' et les missions':''),
+      '<div class="cs-onze">'+(titus.length?'<div class="col-t">'+dpTerrainCompo(titus,'#d97706',true)+'<div class="sous-t">'+dpEsc(compo.formation||'')+(banc.length?' · Banc : '+banc.map(function(b){ return dpEsc(b.nom||b.num); }).join(', '):'')+'</div></div>':'<div></div>')
+      +'<div class="cs-msn">'+(lignes||'<div class="cs-m"><span style="opacity:.6">Pas de mission particulière posée dans le Studio.</span></div>')+'</div></div>',
+      titus.length?'':'pg-vide'));
+  }
+  // 6. Les coups de pied arrêtés
+  {
+    var F=(typeof FEUILLE_MATCH!=='undefined'&&FEUILLE_MATCH)||{}, blocs='';
+    if(typeof FM_CPA!=='undefined' && typeof CPA_POSTES!=='undefined'){
+      FM_CPA.forEach(function(c){
+        var R=(F.cpaRoles||{})[c.k]||{}, L=(CPA_POSTES[c.k]||[]).map(function(p){
+          var jj=(typeof cpaJoueurDuNum==='function')?cpaJoueurDuNum(R[p.k]):null; return jj?'<div><span>'+dpEsc(p.l)+'</span><b>'+dpEsc(jj.nom)+'</b></div>':''; }).join('');
+        if(L) blocs+='<div class="cs-cp" style="--c:'+(c.c||'#f97316')+'"><h3>'+dpEsc(c.lab)+'</h3>'+L+'</div>';
+      });
+    }
+    var pens=[F.pen1,F.pen2,F.pen3].filter(function(x){ return csTxt(x); });
+    if(pens.length) blocs+='<div class="cs-cp" style="--c:#a855f7"><h3>Penalty</h3>'+pens.map(function(p,i){ return '<div><span>'+(i+1)+'<sup>'+(i?'e':'er')+'</sup> tireur</span><b>'+dpEsc(p)+'</b></div>'; }).join('')+'</div>';
+    ['Corners offensifs','Corners défensifs','Coups francs','Penalty'].forEach(function(l){ var v=dpVal('cpa',l); if(csTxt(v) && blocs.indexOf('<h3>'+dpEsc(l))<0) blocs+='<div class="cs-cp"><h3>'+dpEsc(l)+'</h3><p>'+dpEsc(v)+'</p></div>'; });
+    if(r && csTxt(r.cpa)) blocs+='<div class="cs-cp" style="--c:#ef4444"><h3>Leurs coups de pied arrêtés</h3><p>'+dpEsc(r.cpa)+'</p></div>';
+    pages.push(dpPage('cpa','Coups de pied arrêtés','<div class="cs-cpa">'+blocs+'</div>', blocs?'':'pg-vide'));
+  }
+  // 7. Les vidéos
+  if((DOSSIER.videos||[]).length){
+    pages.push(dpPage('videos','À regarder',
+      '<div class="vids">'+DOSSIER.videos.map(function(v){
+        var fond=v.vignetteUrl?('background:#0c1116 '+cssUrl(v.vignetteUrl)+' center/cover no-repeat'):(v.apercuId?'':'background:#12161c');
+        return '<a class="vid" href="'+dpEsc(dmLienAvecMinute(v))+'" target="_blank" rel="noopener"><span class="vid-v" style="'+fond+'"'+(v.apercuId?(' data-apercu="'+v.apercuId+'"'):'')+'>'+(v.vignetteUrl||v.apercuId?'':'🎬')+'<span class="play-o">▶</span></span>'
+          +'<span class="vid-t" data-ed="'+dpAdr('v',v.id,'t')+'">'+dpEsc(v.titre)+'</span>'
+          +'<span class="vid-n'+(csTxt(v.note)?'':' vide')+'" data-ed="'+dpAdr('v',v.id,'n')+'" data-vide="Ce qu\'il faut y voir">'+dpEsc(v.note||'')+'</span></a>';
+      }).join('')+'</div>'));
+  }
+  // 8. Les 3 messages : la page qui reste à l'écran
+  pages.push(dpPage('collectif','Les 3 messages',
+    '<div class="collectif" data-ed="'+dpAdr('c')+'" data-lignes="1" data-vide="Une consigne par ligne">'
+      +(DOSSIER.collectif||'').split('\n').filter(function(l){ return l.trim(); }).map(function(l){ return '<div class="cl">'+dpEsc(l.trim())+'</div>'; }).join('')
+    +'</div>','collectif-pg'+(csTxt(DOSSIER.collectif)?'':' pg-vide')));
+
+  var donneesSit=JSON.stringify(sitsOk.map(function(s){ return s.plateau; })).replace(/</g,'\\u003c');
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+    +'<title>Causerie — '+dpEsc(DOSSIER.adv||NOM_CLUB)+'</title>'
+    +docStylesCommuns()+dpStyles()+csCss()
+    +'</head><body>'
+    +'<div class="pres" id="pres">'+pages.join('')+'</div>'
+    +'<div class="barre">'
+      +'<button class="nb" onclick="aller(-1)">‹</button>'
+      +'<div class="points" id="points"></div>'
+      +'<button class="nb" onclick="aller(1)">›</button>'
+      +'<span class="cpt" id="cpt"></span>'
+      +'<button class="nb ed" id="b-edit" onclick="edBasculer()" style="display:none">✏️ Modifier</button>'
+      +'<button class="nb ed" id="b-edit-ok" onclick="edEnregistrer()" style="display:none">💾 Enregistrer</button>'
+      +'<button class="nb pl" onclick="pleinEcran()">⛶ Plein écran</button>'
+    +'</div>'
+    +'<div class="ed-aide">✏️ <b>Mode modification</b> — clique sur un texte et corrige-le. <b>Échap</b> pour sortir, <b>💾 Enregistrer</b> pour renvoyer tout ça dans l\'appli.</div>'
+    +dpScript(donneesSit)
+    +csScript(8)
+    +'</body></html>';
+  docOuvrir(html, 'Causerie — '+(DOSSIER.adv||''));
+}
+window.addEventListener('load', function(){
+  if(typeof voirLeDossier==='function' && !voirLeDossier.__v170){
+    voirLeDossier=function(){
+      try{ genererCauserie(); }
+      catch(e){ console.error('causerie', e); notif('⚠ Le mode causerie n’a pas pu être construit : '+(e&&e.message?e.message:'erreur')); }
+    };
+    voirLeDossier.__v170=true;
   }
 });
 </script>
