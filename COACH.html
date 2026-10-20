@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v171</b> · 20/10/2026<br>
-      <span style="opacity:.7">Plateau fluide au doigt</span>
+      AST COACH <b style="color:var(--or)">v172</b> · 20/10/2026<br>
+      <span style="opacity:.7">Le grand rangement</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v171';
+var APP_BUILD='v172';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -38760,6 +38760,191 @@ window.addEventListener('load', function(){
     };
     voirLeDossier.__v170=true;
   }
+});
+</script>
+<script>
+// ===== v172 : le grand rangement =====
+//   Une seule porte par besoin. L'appli s'ouvre sur « Cette semaine ».
+//   Chaque écran a « ‹ Retour » et « Cette semaine », et une ligne qui dit à quoi il sert et quand.
+//   Rien n'est effacé : les écrans sortis du menu s'ouvrent depuis l'endroit logique.
+
+(function(){
+  var css=''
+  // l'ancien parcours en 7 étapes : remplacé par le dossier d'avant-match (Studio)
+  +'.scr > .pg, .scr > .pg-bas{display:none!important}'
+  // l'ancien formulaire du dossier devient « Situations & vidéos »
+  +'#scr-avant-match .dm-pilote, #scr-avant-match #dm-etapes, #scr-avant-match #dm-ct{display:none!important}'
+  // une seule vue du board
+  +'.bv2-band .bv2-btn:not(.or){display:none!important}'
+  +'.tn-r0{display:flex;align-items:center;gap:8px;flex-wrap:wrap}'
+  +'.tn-b{min-height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--carte);color:var(--gris);cursor:pointer;font:700 13px "Roboto Condensed",sans-serif;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}'
+  +'.tn-b:hover{border-color:var(--or);color:var(--or)}'
+  +'.tn-b.par{border-color:var(--or);color:var(--or)}'
+  +'.tn-fil{font:600 12.5px "Roboto Condensed",sans-serif;color:var(--gris2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}'
+  +'.tn-fil b{color:var(--gris);font-weight:800}'
+  +'.tn-aide{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:10px;background:var(--voile);border:1px solid var(--line);font:500 13px/1.4 "Roboto Condensed",sans-serif;color:var(--gris2)}'
+  +'.tn-aide b{color:var(--gris);font-weight:800}'
+  +'.tn-aide i{font-style:normal;color:var(--or);font-weight:900}'
+  +'.tn-aide button{margin-left:auto;background:none;border:0;color:var(--gris2);cursor:pointer;font-size:15px;min-width:28px;min-height:28px}';
+  var s=document.createElement('style'); s.id='v172-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// Les écrans sortis du menu : leur « parent », là où ils s'ouvrent
+var RG_PARENT={adversaires:'studio', convos:'studio', cpa:'studio', 'avant-match':'studio', dash:'semaine'};
+var RG_NOM_PARENT={studio:'Dossier d’avant-match', semaine:'Cette semaine'};
+
+// À quoi sert chaque écran, et quand
+var RG_AIDE={
+  semaine:'<b>Ton point de départ.</b> « Maintenant » donne les 3 choses à faire en priorité ; coche quand c’est fait.',
+  matchs:'<b>Lundi</b> · Enregistre le score, les buteurs et les notes. Les stats et le temps de jeu se calculent seuls.',
+  'notes-staff':'<b>Toute la semaine</b> · Les notes du staff (écrites ou vocales), à lire et à traiter.',
+  decoupe:'<b>Lundi-mardi</b> · Les faits du bord de touche deviennent des passages vidéo à couper.',
+  seances:'<b>Avant chaque entraînement</b> · Prépare ou génère la séance du jour.',
+  charge:'<b>Après les séances</b> · Le ressenti des joueurs : repère qui est dans le rouge.',
+  studio:'<b>Mercredi → vendredi</b> · Tout l’avant-match en 4 étapes. Tu envoies une fois : le dossier se dévoile aux joueurs dans la semaine.',
+  plateau:'<b>Pour préparer les situations</b> · Glisse les joueurs, enregistre, puis ajoute la situation au dossier d’avant-match.',
+  compos:'<b>Jeudi-vendredi</b> · Le onze et le banc. La compo part dans le dossier, cachée tant que tu ne l’ouvres pas.',
+  'feuille-match':'<b>Samedi</b> · La feuille à imprimer : compo, adversaire, coups de pied arrêtés, consignes.',
+  adversaires:'<b>En début de semaine</b> · Tout ce que tu sais d’eux, saisi une seule fois : le dossier, la feuille et les stories s’en servent.',
+  convos:'<b>Mardi-jeudi</b> · Le groupe convoqué. Les joueurs ne le voient que quand tu l’ouvres (interrupteur sur le board).',
+  cpa:'<b>Avant le match</b> · Qui tire, qui va où, sur chaque coup de pied arrêté.',
+  'avant-match':'<b>Situations & vidéos du dossier</b> · Ajoute les situations du plateau et les vidéos que les joueurs verront.',
+  effectif:'<b>Chaque joueur</b> · Son signal du moment et sa fiche complète : forme, médical, notes, objectifs.',
+  'forme-coach':'<b>Chaque semaine</b> · Sommeil, jambes, moral : qui décroche.',
+  thermo:'<b>Chaque semaine</b> · L’ambiance du groupe, en réponses anonymes.',
+  medical:'<b>Dès qu’un joueur est touché</b> · Les blessures déclarées, les reprises, les indisponibles.',
+  programmes:'<b>Reprise, entretien, prévention</b> · Le programme individuel de chacun.',
+  'suivi-objectifs':'<b>Sur la saison</b> · Les objectifs individuels et où en est chacun.',
+  'obj-coll':'<b>Sur la saison</b> · Les objectifs collectifs, votés par le groupe.',
+  entretien:'<b>En fin de cycle</b> · La feuille d’entretien individuel, pré-remplie.',
+  jeu:'<b>Une fois, puis on ajuste</b> · Les non-négociables et les principes, phase par phase.',
+  constructeur:'<b>Quand tu prépares tes séances</b> · Dessine tes exercices et retrouve la bibliothèque du club.',
+  videos:'<b>Après les matchs</b> · Les clips à envoyer au groupe ou à un joueur.',
+  'biblio-generale':'<b>Les ressources</b> · Formations, documents, articles, vidéos du club.',
+  stats:'<b>Le résumé</b> · Toutes les stats de la saison sur un écran, et les sites extérieurs.',
+  classement:'<b>Après chaque journée</b> · Le classement de la poule et les autres résultats.',
+  rotation:'<b>Pour la rotation</b> · Le temps de jeu de chacun : total, moyenne, titularisations.',
+  recap:'<b>Pour comparer</b> · Tous les joueurs côte à côte, stat par stat.',
+  points:'<b>Assiduité</b> · Les présences à l’entraînement.',
+  bilan:'<b>À chaque bilan</b> · Ce que disent tes chiffres : séries, forme, buteurs.',
+  'correction-buts':'<b>Si une stat est fausse</b> · Corrige un but, une passe, des minutes.',
+  vivier:'<b>Directeur sportif</b> · L’effectif poste par poste, aujourd’hui et la saison prochaine.',
+  recrutement:'<b>Directeur sportif</b> · Les pistes, de « à contacter » à « signé ».',
+  reunions:'<b>Réunions</b> · Les réunions du staff et les réunions techniques avec les éducateurs.',
+  visuels:'<b>Communication</b> · Les visuels du club, remplis avec les données du match.',
+  photos:'<b>Communication</b> · La photothèque du club.',
+  partenaires:'<b>Communication</b> · Les partenaires et leur visibilité.',
+  'club-com':'<b>Communication</b> · Messages, notifications et sondages aux joueurs.',
+  'club-vie':'<b>Administration</b> · Le calendrier de la saison et la vie du club.',
+  'club-docs':'<b>Administration</b> · Les documents à imprimer et les archives.',
+  reglages:'<b>Administration</b> · Le staff, la sécurité, la sauvegarde.',
+  aide:'<b>Le mode d’emploi</b> · Toutes les fiches pour se servir de l’appli.'
+};
+function rgAideFermee(){ try{ return localStorage.getItem('ast-aide-off')==='1'; }catch(e){ return false; } }
+function rgAideBasculer(){ try{ localStorage.setItem('ast-aide-off', rgAideFermee()?'0':'1'); }catch(e){} tnRendre(); }
+
+// ---------- Le nouveau menu ----------
+function rgRanger(){
+  var L=(typeof POLES!=='undefined' && POLES)?POLES:NAV3_POLES;
+  var tous={}; (NAV3_POLES||[]).concat(L||[]).forEach(function(p){ (p.screens||[]).forEach(function(sc){ if(!tous[sc.s]) tous[sc.s]=sc; }); });
+  var E=function(s, l, g, ic){ var b=tous[s]||{}; return {s:s, ic:ic||b.ic||'liste', l:l||b.l||s, g:g}; };
+  var existe=function(sc){ return !!document.getElementById('scr-'+sc.s) || !!tous[sc.s] || (typeof RUBRIQUE_DE!=='undefined' && !!RUBRIQUE_DE[sc.s]); };
+  var defs={
+    semaine:[
+      E('semaine','Cette semaine'),
+      E('matchs','Score et notes du match','Après le match'), E('notes-staff','Notes du staff'), E('decoupe','Découpe Veo'),
+      E('seances','La séance','Entraînements'), E('charge','Charge d’entraînement'),
+      E('studio','Dossier d’avant-match','Avant le match','clap'), E('plateau','Plateau tactique'), E('compos','Compositions'),
+      E('feuille-match','Feuille de match','Jour J')
+    ],
+    joueurs:[
+      E('effectif','Fiches joueurs'),
+      E('forme-coach','Forme du groupe','Le groupe'), E('thermo','Thermomètre'), E('medical','Infirmerie'),
+      E('programmes','Programmes individuels','Suivi'), E('suivi-objectifs','Objectifs de chacun'), E('obj-coll','Objectifs collectifs'), E('entretien','Feuille d’entretien')
+    ],
+    fond:[
+      E('jeu','Le projet de jeu'), E('constructeur','Exercices & bibliothèque'), E('videos','Vidéos'), E('biblio-generale','Documentation')
+    ]
+  };
+  L.forEach(function(p){
+    if(defs[p.id]) p.screens=defs[p.id].filter(existe);
+  });
+  // le Studio porte désormais le nom que tout le monde connaît
+  try{ ECRANS_INFO['studio']={ic:'clap', l:'Dossier d’avant-match'}; ECRANS_INFO['avant-match']={ic:'megaphone', l:'Situations & vidéos'}; }catch(e){}
+  var t=document.querySelector('#scr-studio .ph-title'); if(t) t.innerHTML='<svg class="ico" aria-hidden="true"><use href="#i-clap"/></svg>Dossier d’avant-match';
+  var t2=document.querySelector('#scr-avant-match .ph-title'); if(t2) t2.innerHTML='<svg class="ico" aria-hidden="true"><use href="#i-megaphone"/></svg>Situations & vidéos du dossier';
+  var s2=document.querySelector('#scr-avant-match .ph-sub'); if(s2) s2.textContent='Les situations du plateau et les vidéos que les joueurs verront avec le dossier d’avant-match';
+}
+
+// ---------- Le menu du haut, avec retour et aide ----------
+function tnRendre(){
+  var main=document.getElementById('main'); if(!main) return;
+  var z=document.getElementById('topnav');
+  if(!z){
+    z=document.createElement('div'); z.id='topnav';
+    var bc=document.getElementById('breadcrumb');
+    if(bc && bc.parentNode===main) main.insertBefore(z, bc.nextSibling); else main.insertBefore(z, main.firstChild);
+  }
+  var s=tnEcranOuvert();
+  var parent=RG_PARENT[s]||null;
+  var hote=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[s])?RUBRIQUE_DE[s]:s;
+  var cible=parent||hote;
+  var pole=(POLES||[]).filter(function(p){ return p.id===POLE_ACTIF; })[0];
+  if(pole && !pole.screens.some(function(sc){ return sc.s===s || sc.s===cible; })){
+    var autre=(POLES||[]).filter(function(p){ return p.screens.some(function(sc){ return sc.s===s || sc.s===cible; }); })[0];
+    if(autre){ POLE_ACTIF=autre.id; pole=autre; try{ nav3RenderSide(); }catch(e){} }
+  }
+  if(!pole){ z.innerHTML=''; return; }
+  var R=tnRubriques(pole), AL={}; try{ AL=fsAlertes(); }catch(e){}
+  var iR=R.findIndex(function(r){ return r.screens.some(function(sc){ return sc.s===s || sc.s===cible; }); });
+  if(iR<0) iR=0;
+  var c=(typeof couleurPole==='function')?couleurPole(pole):'var(--or)';
+  var alerte=function(sc){ try{ return fsAlerteEcran(AL, sc.s); }catch(e){ return null; } };
+  var info=(typeof ECRANS_INFO!=='undefined' && ECRANS_INFO[s])||null;
+  var nomEcran=(info&&info.l)||((R[iR]&&R[iR].screens.filter(function(sc){ return sc.s===s; })[0])||{}).l||'';
+  // ligne 0 : retour, accueil, où je suis
+  var h='<div class="tn-r0">'
+    +(parent && parent!=='semaine'
+      ? '<button class="tn-b par" onclick="goNav(\''+parent+'\')">‹ Retour au '+tnEsc(RG_NOM_PARENT[parent]||'')+'</button>'
+      : '<button class="tn-b" onclick="navRetour()" aria-label="Revenir à l’écran précédent">‹ Retour</button>')
+    +(s!=='semaine'?'<button class="tn-b" onclick="ouvrirPole(\'semaine\');goNav(\'semaine\')">⌂ Cette semaine</button>':'')
+    +'<span class="tn-fil">'+tnEsc(pole.label)+(R[iR]&&R[iR].l!==nomEcran?' › '+tnEsc(R[iR].l):'')+(nomEcran?' › <b>'+tnEsc(nomEcran)+'</b>':'')+'</span>'
+    +(rgAideFermee()&&RG_AIDE[s]?'<button class="tn-b" onclick="rgAideBasculer()" aria-label="Afficher l’aide de cet écran">ⓘ</button>':'')
+  +'</div>';
+  // ligne 1 : les rubriques
+  h+='<div class="tn-r1" role="tablist" aria-label="Rubriques">'+R.map(function(r,i){
+      var a=r.screens.some(alerte);
+      return '<button class="tn-g'+(i===iR?' on':'')+'" style="--pc:'+c+'" role="tab" aria-selected="'+(i===iR)+'" onclick="goNav(\''+r.screens[0].s+'\')">'+tnEsc(r.l)+(a&&i!==iR?'<span class="tn-al" aria-label="à faire"></span>':'')+'</button>';
+    }).join('')+'</div>';
+  // ligne 2 : les écrans de la rubrique
+  var cur=R[iR];
+  if(cur && cur.screens.length>1){
+    h+='<div class="tn-r2">'+cur.screens.map(function(sc){
+      var on=(sc.s===s || sc.s===cible), a=alerte(sc);
+      return '<button class="tn-s'+(on?' on':'')+'" style="--pc:'+c+'" onclick="goNav(\''+sc.s+'\')">'+(typeof ic==='function'?ic(sc.ic):'')+tnEsc(sc.l)+(a?'<span class="tn-al" aria-label="à faire"></span>':'')+'</button>';
+    }).join('')+'</div>';
+  }
+  // l'aide de l'écran
+  if(RG_AIDE[s] && !rgAideFermee()) h+='<div class="tn-aide"><i>ⓘ</i><span>'+RG_AIDE[s]+'</span><button onclick="rgAideBasculer()" aria-label="Masquer les aides" title="Masquer les aides (le ⓘ les remet)">✕</button></div>';
+  z.innerHTML=h;
+}
+
+window.addEventListener('load', function(){
+  try{ rgRanger(); }catch(e){ console.error('rangement', e); }
+  // un écran sorti du menu appartient au pôle de son parent
+  if(typeof trouverPoleDeEcran==='function' && !trouverPoleDeEcran.__v172){
+    var base=trouverPoleDeEcran;
+    trouverPoleDeEcran=function(s){ var p=base.apply(this, arguments); if(!p && RG_PARENT[s]) p=base.call(this, RG_PARENT[s]); return p; };
+    trouverPoleDeEcran.__v172=true;
+  }
+  try{ localStorage.setItem('ast-board-vue','v2'); }catch(e){}
+  try{ renderSideNav(); }catch(e){}
+  // l'appli s'ouvre sur « Cette semaine »
+  setTimeout(function(){
+    var s=tnEcranOuvert();
+    if(!s || s==='dash'){ try{ POLE_ACTIF='semaine'; goNav('semaine'); }catch(e){} }
+    tnRendre();
+  }, 400);
 });
 </script>
 </body></html>
