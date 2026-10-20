@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v172</b> · 20/10/2026<br>
-      <span style="opacity:.7">Le grand rangement</span>
+      AST COACH <b style="color:var(--or)">v173</b> · 20/10/2026<br>
+      <span style="opacity:.7">Menu en haut, plus de colonne</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v172';
+var APP_BUILD='v173';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -38947,4 +38947,97 @@ window.addEventListener('load', function(){
   }, 400);
 });
 </script>
+<script>
+// ===== v173 : plus de menu à gauche =====
+//  Sur ordinateur et tablette, la colonne de gauche disparaît.
+//  Une barre en haut porte : le logo, les 4 portes (La semaine, Les joueurs,
+//  Le fond de jeu, Club House), Rechercher, Note, le thème, le bord de touche,
+//  Sauvegarder & publier, et « ⋯ » pour le reste (export, restauration, cloud).
+//  Sur téléphone, rien ne change : la barre du bas fait déjà ce travail.
+(function(){
+  if(window.__v173) return; window.__v173=true;
+
+  var css=document.createElement('style');
+  css.textContent=
+   'body.sans-side .side{position:fixed;top:0;left:0;height:100%;z-index:56;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.35);width:270px}'
+  +'body.sans-side .side.side-ouvert{transform:translateX(0)}'
+  +'body.sans-side #side-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:54}'
+  +'body.sans-side #side-overlay.actif{display:block}'
+  +'body.sans-side #breadcrumb,body.sans-side #main > .breadcrumb{display:none!important}'
+  +'body.sans-side #burger-mobile{display:none!important}'
+  +'#hb{display:none}'
+  +'body.sans-side #hb{display:flex;position:sticky;top:0;z-index:40;align-items:center;gap:6px;padding:8px 16px;background:var(--fond2);border-bottom:1px solid var(--line);font-family:"Roboto Condensed",Arial,sans-serif;flex-wrap:wrap}'
+  +'#hb .hb-logo{display:flex;align-items:center;gap:8px;margin-right:10px;cursor:pointer}'
+  +'#hb .hb-logo img{width:36px;height:36px;object-fit:contain}'
+  +'#hb .hb-logo b{font-size:14px;line-height:1.1}#hb .hb-logo small{display:block;font-size:10.5px;color:var(--or);letter-spacing:.08em;text-transform:uppercase}'
+  +'#hb .hb-p{position:relative;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:10px;border:1px solid transparent;background:none;color:var(--txt,inherit);font:700 14px "Roboto Condensed",Arial,sans-serif;cursor:pointer}'
+  +'#hb .hb-p .ico{width:17px;height:17px}'
+  +'#hb .hb-p:hover{background:var(--carte2)}'
+  +'#hb .hb-p.on{background:var(--carte);border-color:var(--pc);color:var(--pc);box-shadow:inset 0 -3px 0 var(--pc)}'
+  +'#hb .hb-p .fs-al-pole,#hb .hb-p .hb-n{position:static;margin-left:2px}'
+  +'#hb .hb-esp{flex:1}'
+  +'#hb .hb-b{display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:9px;border:1px solid var(--line);background:var(--carte);color:inherit;font:700 13px "Roboto Condensed",Arial,sans-serif;cursor:pointer;white-space:nowrap}'
+  +'#hb .hb-b:hover{border-color:var(--or)}'
+  +'#hb .hb-b.or{background:var(--or);border-color:var(--or);color:#fff}'
+  +'#hb .hb-b.ligne{color:var(--or);border-color:var(--or)}'
+  +'@media(max-width:1180px){#hb .hb-b .hb-t{display:none}#hb .hb-logo span{display:none}}';
+  document.head.appendChild(css);
+
+  function actif(){ try{ return !(typeof estModeTiroir==='function' && estModeTiroir()); }catch(e){ return true; } }
+
+  window.hbRecherche=function(){
+    try{ toggleSideMobile(true); switchTab('recherche'); setTimeout(function(){ var i=document.getElementById('recherche-input'); if(i) i.focus(); }, 80); }catch(e){}
+  };
+  window.hbPlus=function(){ try{ toggleSideMobile(true); if(TAB_ACTIF==='recherche') switchTab('terrain'); }catch(e){} };
+  window.hbPorte=function(id){
+    try{ toggleSideMobile(false); }catch(e){}
+    var p=(POLES||[]).filter(function(x){ return x.id===id; })[0]; if(!p) return;
+    POLE_ACTIF=id;
+    try{ ouvrirPole(id); }catch(e){}
+    try{ goNav(p.screens[0].s); }catch(e){}
+  };
+
+  function rendre(){
+    document.body.classList.toggle('sans-side', actif());
+    var main=document.getElementById('main'); if(!main) return;
+    var hb=document.getElementById('hb');
+    if(!hb){ hb=document.createElement('div'); hb.id='hb'; main.insertBefore(hb, main.firstChild); }
+    if(!actif()){ hb.innerHTML=''; return; }
+    var AL={}; try{ AL=fsAlertes(); }catch(e){}
+    var logo=document.querySelector('.side-logo img'), src=logo?logo.getAttribute('src'):'';
+    var portes=(POLES||[]).map(function(p){
+      var a=null; try{ a=fsAlertePole(AL, p); }catch(e){}
+      var c='var(--or)'; try{ c=couleurPole(p); }catch(e){}
+      var past=''; try{ past=fsPastille(a,'fs-al-pole')||''; }catch(e){}
+      return '<button class="hb-p'+(POLE_ACTIF===p.id?' on':'')+'" style="--pc:'+c+'" onclick="hbPorte(\''+p.id+'\')">'+(typeof ic==='function'?ic(p.icon):'')+p.label+past+'</button>';
+    }).join('');
+    var nNotes=0; try{ nNotes=(NR_NOTES||[]).filter(function(x){ return !x.traite; }).length; }catch(e){}
+    var clair=document.documentElement.classList.contains('clair');
+    hb.innerHTML=
+      '<div class="hb-logo" onclick="hbPorte(\'semaine\')">'+(src?'<img src="'+src+'" alt="">':'')+'<span><b>AST TARNOS</b><small>Coach R2</small></span></div>'
+      +portes
+      +'<span class="hb-esp"></span>'
+      +'<button class="hb-b" onclick="hbRecherche()" title="Rechercher un écran">🔍<span class="hb-t">Rechercher</span></button>'
+      +'<button class="hb-b" onclick="nrOuvrir()" title="Note rapide">📍<span class="hb-t">Note'+(nNotes?' ('+nNotes+')':'')+'</span></button>'
+      +'<button class="hb-b" onclick="basculerTheme();setTimeout(hbRendre,50)" title="Thème clair / sombre">'+(clair?'🌙':'☀️')+'</button>'
+      +'<button class="hb-b ligne" onclick="bdtOuvrir()" title="Mode bord de touche">📣<span class="hb-t">Bord de touche</span></button>'
+      +'<button class="hb-b or" onclick="sauvegarder()" title="Sauvegarder & publier">💾<span class="hb-t">Sauvegarder &amp; publier</span></button>'
+      +'<button class="hb-b" onclick="hbPlus()" title="Menu complet">⋯</button>';
+  }
+  window.hbRendre=rendre;
+
+  var attente=null;
+  function bientot(){ clearTimeout(attente); attente=setTimeout(rendre, 30); }
+  window.addEventListener('load', function(){
+    ['goNav','renderSideNav','ouvrirPole','retourHub','tnRendre'].forEach(function(n){
+      var f=window[n]; if(typeof f!=='function' || f.__hb) return;
+      var g=function(){ var r=f.apply(this, arguments); bientot(); return r; }; g.__hb=true; window[n]=g;
+    });
+    window.addEventListener('resize', bientot);
+    setTimeout(rendre, 60);
+    setInterval(function(){ if(actif()) rendre(); }, 20000);   // pastilles à jour
+  });
+})();
+</script>
+
 </body></html>
