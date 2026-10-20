@@ -1378,5 +1378,119 @@ document.getElementById("modeBall").onclick();
 applyLockButtonUI();
 </script>
 
+<script>
+// ===== Plateau fluide (v171) : placer les joueurs au doigt comme à la souris =====
+//   1. On attrape le joueur le plus proche du doigt (zone large), plus besoin de viser le rond.
+//   2. La page ne défile plus pendant qu'on place.
+//   3. Le joueur grossit sous le doigt ; le terrain se redessine au rythme de l'écran.
+//   4. En mode édition, chaque déplacement s'enregistre tout seul pour la zone :
+//      un tap à côté ne fait plus perdre le placement en cours.
+(function(){
+  if(window.__plFluide) return; window.__plFluide=true;
+  function enEdition(){ try{ return (currentMode==='edit'||currentMode==='seq') && !systemLocked; }catch(e){ return false; } }
+  function petitEcran(){ try{ return svg.getBoundingClientRect().width<560; }catch(e){ return false; } }
+
+  // --- 2. pas de défilement pendant la mise en place
+  function majToucher(){ try{ svg.style.touchAction = enEdition() ? 'none' : ''; }catch(e){} }
+  setInterval(majToucher, 300); majToucher();
+
+  // --- des ronds plus gros sur téléphone
+  var R_J=2.25, R_O=2.15;
+  function tailles(){
+    var p=petitEcran(); R_J=p?3.1:2.25; R_O=p?2.9:2.15;
+    try{
+      Object.keys(dotEls).forEach(function(k){ if(k!==draggingKey) dotEls[k].setAttribute('r', R_J); labelEls[k].setAttribute('font-size', p?2.5:1.95); });
+      Object.keys(oppDotEls).forEach(function(k){ if(k!==draggingOppKey) oppDotEls[k].setAttribute('r', R_O); oppLabelEls[k].setAttribute('font-size', p?2.5:2.1); });
+    }catch(e){}
+  }
+  window.addEventListener('resize', tailles); setTimeout(tailles, 50);
+
+  // --- coordonnées justes, même quand le terrain est coupé en deux (CPA)
+  function ptSvg(e){
+    try{ var m=svg.getScreenCTM(); if(m){ var p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; var q=p.matrixTransform(m.inverse()); return {x:q.x, y:q.y}; } }catch(err){}
+    var r=svg.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*100, y:(e.clientY-r.top)/r.height*130};
+  }
+  function visible(c){ return c && c.style.display!=='none' && c.getAttribute('opacity')!=='0' && c.getAttribute('visibility')!=='hidden'; }
+
+  // --- 1. attraper le plus proche
+  var pris=false;
+  svg.addEventListener('pointerdown', function(e){
+    if(!enEdition()) return;
+    if(e.target.closest && e.target.closest('.note-badge')) return;
+    var p=ptSvg(e), seuil=(e.pointerType==='mouse')?4.2:8.5;
+    var best=null, bd=1e9, adv=false;
+    Object.keys(dotEls).forEach(function(k){ var c=dotEls[k]; if(!visible(c)) return;
+      var d=Math.hypot(+c.getAttribute('cx')-p.x, +c.getAttribute('cy')-p.y); if(d<bd){ bd=d; best=k; adv=false; } });
+    try{ if(oppVisible) Object.keys(oppDotEls).forEach(function(k){ var c=oppDotEls[k]; if(!visible(c)) return;
+      var d=Math.hypot(+c.getAttribute('cx')-p.x, +c.getAttribute('cy')-p.y); if(d<bd){ bd=d; best=k; adv=true; } }); }catch(err){}
+    if(!best || bd>seuil) return;
+    if(adv){ draggingOppKey=best; oppDotEls[best].setAttribute('r', R_O*1.45); }
+    else { draggingKey=best; dotEls[best].setAttribute('r', R_J*1.45); }
+    dragMoved=false; pris=true;
+    try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+
+  // --- 3. déplacer, au rythme de l'écran
+  var attente=false;
+  function dessiner(){
+    if(attente) return; attente=true;
+    requestAnimationFrame(function(){ attente=false; try{ if(draggingKey) render(); if(draggingOppKey) renderOpp(); }catch(err){} });
+  }
+  window.addEventListener('pointermove', function(e){
+    if(!(draggingKey||draggingOppKey) || !enEdition()) return;
+    var p=ptSvg(e);
+    if(draggingKey){ current[draggingKey]=[Math.max(3,Math.min(97,p.x)), Math.max(3,Math.min(127,130-p.y))]; }
+    else { oppPos[draggingOppKey]=[Math.max(2,Math.min(98,p.x)), Math.max(2,Math.min(128,130-p.y))]; }
+    dragMoved=true; dessiner();
+    e.preventDefault(); e.stopImmediatePropagation();
+  }, {capture:true, passive:false});
+
+  // --- 4. au lâcher : le rond reprend sa taille, la zone s'enregistre
+  window.addEventListener('pointerup', function(){
+    var k=draggingKey, ko=draggingOppKey, bouge=dragMoved, etaitPris=pris;
+    pris=false;
+    if(!k && !ko) return;
+    if(etaitPris) suppressClick=true;           // un tap sur un joueur ne déplace plus le ballon
+    setTimeout(function(){
+      try{ if(k && dotEls[k]) dotEls[k].setAttribute('r', R_J); if(ko && oppDotEls[ko]) oppDotEls[ko].setAttribute('r', R_O); render(); if(ko) renderOpp(); }catch(err){}
+      if(k && bouge) autoEnregistrer();
+      setTimeout(function(){ suppressClick=false; }, 350);
+    }, 0);
+  }, true);
+
+  function bulle(txt, ok){
+    try{
+      var w=document.querySelector('.board-wrap'); if(!w) return;
+      var b=document.getElementById('pl-ok');
+      if(!b){ b=document.createElement('div'); b.id='pl-ok'; b.style.cssText='position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:30;padding:6px 12px;border-radius:999px;font:700 13px "Roboto Condensed",Arial,sans-serif;pointer-events:none;transition:opacity .3s'; w.appendChild(b); }
+      b.textContent=txt; b.style.background=ok?'rgba(22,163,74,.92)':'rgba(17,17,17,.88)'; b.style.color='#fff'; b.style.opacity='1';
+      clearTimeout(b._t); b._t=setTimeout(function(){ b.style.opacity='0'; }, 1300);
+    }catch(e){}
+  }
+  function autoEnregistrer(){
+    try{
+      if(currentMode!=='edit' || systemLocked) return;
+      var idx=activeZoneIdx>=0?activeZoneIdx:zoneIndexFor(currentBall[0], currentBall[1]);
+      if(activePlacementIndex<0 && customZones[idx] && customZones[idx].length>=MAX_PLACEMENTS){
+        bulle('Zone pleine : choisis un des 3 placements pour le modifier', false); return;
+      }
+      var a=window.alert; window.alert=function(){};
+      try{ document.getElementById('saveZoneBtn').onclick(); } finally { window.alert=a; }
+      bulle('✓ Placement enregistré', true);
+    }catch(e){}
+  }
+
+  // --- les textes du mode édition disent la nouvelle règle
+  try{
+    var bE=document.getElementById('modeEdit'), oE=bE.onclick;
+    bE.onclick=function(){ var r=oE.apply(this, arguments); var h=document.getElementById('ballHint');
+      if(h && currentMode==='edit') h.textContent='Touche une zone du terrain, puis fais glisser les joueurs : chaque déplacement s’enregistre tout seul.'; majToucher(); tailles(); return r; };
+    var sb=document.getElementById('saveZoneBtn'); if(sb) sb.textContent='Enregistrer maintenant (c’est aussi automatique)';
+    ['modeBall','modeSeq'].forEach(function(id){ var b=document.getElementById(id); if(!b) return; var o=b.onclick; b.onclick=function(){ var r=o.apply(this, arguments); majToucher(); return r; }; });
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
