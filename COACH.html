@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v173</b> · 20/10/2026<br>
-      <span style="opacity:.7">Menu en haut, plus de colonne</span>
+      AST COACH <b style="color:var(--or)">v174</b> · 20/10/2026<br>
+      <span style="opacity:.7">Un seul match, partout</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v173';
+var APP_BUILD='v174';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -39038,6 +39038,230 @@ window.addEventListener('load', function(){
     setInterval(function(){ if(actif()) rendre(); }, 20000);   // pastilles à jour
   });
 })();
+</script>
+
+<script>
+// ===== v174 : un seul match, partout — et un haut d'écran allégé =====
+//  1. « Le match de la semaine » = le prochain match du calendrier à venir (date ≥ aujourd'hui).
+//     Un match passé sans résultat n'est plus « préparé » : il va dans « Après le match ».
+//  2. Le dossier d'avant-match suit tout seul : quand son match est passé, il part aux archives
+//     et un dossier neuf s'ouvre pour le match suivant.
+//  3. « Score et notes » s'ouvre sur le dernier match joué ; la convocation sur le match de la semaine.
+//  4. Une pastille « match » dans le haut de chaque écran dit pour quel match on travaille.
+//  5. Le haut des écrans passe de 6 étages à 2.
+(function(){
+  var css=''
+  // --- le haut d'écran : 2 lignes
+  +'#topnav{gap:6px!important}'
+  +'.tn-r1x{display:flex;align-items:stretch;gap:4px;border-bottom:1px solid var(--line);flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}'
+  +'.tn-r1x::-webkit-scrollbar{display:none}'
+  +'.tn-r1x .tn-g{flex-shrink:0}'
+  +'.tn-r1x .tn-esp{flex:1;min-width:8px}'
+  +'.tn-ret{align-self:center;flex-shrink:0;min-height:32px;padding:0 11px;margin-right:6px;border-radius:8px;border:1px solid var(--line);background:var(--carte);color:var(--gris);cursor:pointer;font:700 13px "Roboto Condensed",sans-serif;white-space:nowrap}'
+  +'.tn-ret:hover,.tn-ret.par{border-color:var(--or);color:var(--or)}'
+  +'.tn-mt{align-self:center;flex-shrink:0;display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--carte);color:var(--gris);cursor:pointer;font:700 13px "Roboto Condensed",sans-serif;white-space:nowrap}'
+  +'.tn-mt:hover{border-color:var(--or)}'
+  +'.tn-mt em{font-style:normal;color:var(--gris2);font-weight:600}'
+  +'.tn-mt b{font-family:Anton,"Roboto Condensed",sans-serif;font-weight:400;color:var(--or);letter-spacing:.02em}'
+  +'.tn-mt.rouge{border-color:var(--red);color:var(--red)}.tn-mt.rouge b{color:var(--red)}'
+  +'.tn-ib{align-self:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--carte);color:var(--gris2);cursor:pointer;font-size:14px;margin-left:4px}'
+  +'.tn-ib.on{color:var(--or);border-color:var(--or)}'
+  +'.tn-r2x{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:0}'
+  +'.tn-aidex{flex:1 1 260px;min-width:0;font:500 12.5px/1.35 "Roboto Condensed",sans-serif;color:var(--gris2);padding:2px 4px}'
+  +'.tn-aidex b{color:var(--gris);font-weight:800}'
+  +'.tn-r1x{padding:0 12px}.tn-r2x{padding:0 12px}'
+  +'.tn-mt-m{display:none}'
+  +'@media(max-width:760px){.tn-r1x .tn-mt{display:none}.tn-mt.tn-mt-m{display:inline-flex;margin:0 0 0 2px;max-width:100%;overflow:hidden;text-overflow:ellipsis}.tn-aidex{display:none}}'
+  // les anciens étages remplacés
+  +'#topnav .tn-r0,#topnav .tn-aide{display:none!important}'
+  // le titre de page répète l'onglet : on le garde court, sans sous-titre
+  +'.scr > .ph .ph-sub{display:none!important}'
+  +'.scr > .ph{padding-top:4px!important;padding-bottom:4px!important;margin-bottom:6px!important}'
+  +'.scr > .ph .ph-title{font-size:21px!important}'
+  +'.scr > .ph.v174-vide{display:none!important}'
+  // la note rapide est déjà dans la barre du haut (ordinateur)
+  +'body.sans-side .bv2-band .bv2-btn.or{display:none!important}'
+  // le studio : sous-titre déjà dans l'aide
+  +'#scr-studio > .ph{display:none!important}';
+  var s=document.createElement('style'); s.id='v174-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// ---------- 1. le match de la semaine, le dernier match ----------
+function msJour(c){ try{ var d=dvJourDe(c); return d||null; }catch(e){ return null; } }
+function msEcart(c){ var d=msJour(c); if(!d) return null; try{ return dvEcartJours(d); }catch(e){ return null; } }
+function msSemaine(){ try{ return docProchainMatch(); }catch(e){ return null; } }
+function msDernier(){ try{ var o=dvDernierMatch(); return o?o.c:null; }catch(e){ return null; } }
+function msDateCourte(c){
+  var d=msJour(c); if(!d) return c&&c.date||'';
+  try{ return d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'}); }catch(e){ return c.date||''; }
+}
+function msResultat(c){ try{ var m=dvResultatEnregistre(c.adversaire); return (m && m.res)?m:null; }catch(e){ return null; } }
+
+window.addEventListener('load', function(){
+  // Le calendrier « à préparer » : seulement les matchs à venir, dans l'ordre des dates.
+  if(typeof mpListe==='function' && !mpListe.__v174){
+    var baseListe=mpListe;
+    mpListe=function(){
+      var L=baseListe.apply(this, arguments).filter(function(c){ var e=msEcart(c); return e===null || e>=0; });
+      L.sort(function(a,b){ var da=msJour(a), db=msJour(b); return (da?da.getTime():9e15)-(db?db.getTime():9e15); });
+      return L;
+    };
+    mpListe.__v174=true;
+  }
+  // « Score et notes » : on part du dernier match passé dont le résultat manque.
+  if(typeof renderMatchCalSelect==='function' && !renderMatchCalSelect.__v174){
+    var baseSel=renderMatchCalSelect;
+    renderMatchCalSelect=function(){
+      var r=baseSel.apply(this, arguments);
+      try{
+        var sel=document.getElementById('m-cal-select'), adv=document.getElementById('m-adv');
+        var md=document.getElementById('m-date');
+        if(adv) adv.placeholder='Adversaire'; if(md) md.placeholder='Date du match';
+        if(sel && sel.value==='' && adv && !adv.value){
+          var R=sel.__restants||[], best=-1, bd=null;
+          R.forEach(function(c,i){ var e=msEcart(c), d=msJour(c); if(e!==null && e<=0 && (!bd || d>bd)){ bd=d; best=i; } });
+          if(best>=0){ sel.value=String(best); remplirDepuisCalendrier(); }
+        }
+      }catch(e){}
+      return r;
+    };
+    renderMatchCalSelect.__v174=true;
+  }
+  // La convocation : le match de la semaine.
+  if(typeof renderConvoCalSelect==='function' && !renderConvoCalSelect.__v174){
+    var baseCv=renderConvoCalSelect;
+    renderConvoCalSelect=function(){
+      var r=baseCv.apply(this, arguments);
+      try{
+        var sel=document.getElementById('c-cal-select'), m=msSemaine();
+        if(sel && sel.value==='' && m){
+          var opts=Array.prototype.slice.call(sel.options);
+          var o=opts.filter(function(x){ return x.value!=='' && x.textContent.indexOf(m.date||'§')===0 && x.textContent.indexOf(m.adversaire||'§')>0; })[0];
+          if(o && sel.__v174!==mpCle(m)){ sel.__v174=mpCle(m); sel.value=o.value; if(typeof sel.onchange==='function') sel.onchange(); }
+        }
+      }catch(e){}
+      return r;
+    };
+    renderConvoCalSelect.__v174=true;
+  }
+  // Le dossier d'avant-match suit le match de la semaine.
+  if(typeof stRendre==='function' && !stRendre.__v174){
+    var baseSt=stRendre;
+    stRendre=function(){ try{ msDossierSuit(); }catch(e){} return baseSt.apply(this, arguments); };
+    stRendre.__v174=true;
+  }
+});
+
+// Le dossier est-il celui d'un match passé ? Alors il part aux archives et
+// un dossier neuf s'ouvre pour le match de la semaine. S'il est vide, on le
+// rattache simplement.
+function msDossierSuit(){
+  if(typeof DOSSIER==='undefined' || !DOSSIER) return;
+  var m=msSemaine(); if(!m) return;
+  var adv=(DOSSIER.adv||'').trim();
+  if(!adv){ try{ dmPreremplir(false); }catch(e){} return; }
+  if(adv.toLowerCase()===(m.adversaire||'').toLowerCase()) return;
+  // de quel match est ce dossier ?
+  var c=(CALENDRIER||[]).filter(function(x){ return (x.adversaire||'').toLowerCase()===adv.toLowerCase() && (!DOSSIER.date || x.date===DOSSIER.date); })[0];
+  var passe=false;
+  if(c){ var e=msEcart(c); passe=(e!==null && e<0); }
+  else { try{ var t=parseDateFr(DOSSIER.date); passe=(t!=null && t<new Date().setHours(0,0,0,0)); }catch(err){} }
+  if(!passe) return;               // un autre match à venir : le coach l'a choisi, on n'y touche pas
+  var vide=!(DOSSIER.situations||[]).length && !(DOSSIER.moments && (DOSSIER.moments.force||DOSSIER.moments.faille||DOSSIER.moments.rituel));
+  if(vide){
+    DOSSIER.adv=m.adversaire||''; DOSSIER.date=m.date||'';
+    DOSSIER.lieu=(m.lieu==='D'?'À domicile':(m.lieu==='E'?'À l’extérieur':'')); DOSSIER.comp=m.comp||'';
+    try{ sauvegardeAuto(); }catch(err){}
+    return;
+  }
+  try{
+    DOSSIERS_ARCHIVE.unshift(JSON.parse(JSON.stringify(DOSSIER)));
+    DOSSIERS_ARCHIVE=DOSSIERS_ARCHIVE.slice(0,8);
+  }catch(err){}
+  DOSSIER=dmVide(); try{ dmPreremplir(true); }catch(err){}
+  try{ ST.etape=0; ST.page=''; }catch(err){}
+  try{ sauvegardeAuto(); }catch(err){}
+  try{ notif('Le dossier contre '+adv+' est rangé aux archives — nouveau dossier pour '+(m.adversaire||'le match de la semaine')); }catch(err){}
+}
+
+// ---------- 2. la pastille « match » ----------
+var MS_APRES=['matchs','notes-staff','decoupe'];
+function msPastille(s){
+  if(s==='semaine') return '';   // le bandeau J-x le dit déjà
+  if(MS_APRES.indexOf(s)>=0){
+    var d=msDernier(); if(!d) return '';
+    var r=msResultat(d);
+    return '<button class="tn-mt'+(r?'':' rouge')+'" onclick="goNav(\'matchs\')" title="Le dernier match joué">'
+      +'<em>Dernier match</em> '+tnEsc(d.adversaire||'')+' <em>· '+tnEsc(msDateCourte(d))+'</em>'
+      +(r?' <b>'+(r.ast!=null?r.ast:'?')+'-'+(r.adv!=null?r.adv:'?')+'</b>':' <b>À ENREGISTRER</b>')+'</button>';
+  }
+  var m=msSemaine(); if(!m) return '<button class="tn-mt" onclick="goNav(\'classement\')"><em>Aucun match à venir</em> · ajouter au calendrier</button>';
+  var e=msEcart(m), j=(e===null?'':(e===0?'JOUR J':'J-'+e));
+  return '<button class="tn-mt" onclick="goNav(\'studio\')" title="Le match que toute l’appli prépare">'
+    +'<em>Match de la semaine</em> '+tnEsc(m.adversaire||'')+' <em>· '+tnEsc(msDateCourte(m))+(m.lieu==='E'?' · ext.':(m.lieu==='D'?' · dom.':''))+'</em>'
+    +(j?' <b>'+j+'</b>':'')+'</button>';
+}
+
+// ---------- 3. le haut d'écran en 2 lignes ----------
+function tnRendre(){
+  var main=document.getElementById('main'); if(!main) return;
+  var z=document.getElementById('topnav');
+  if(!z){
+    z=document.createElement('div'); z.id='topnav';
+    var bc=document.getElementById('breadcrumb');
+    if(bc && bc.parentNode===main) main.insertBefore(z, bc.nextSibling); else main.insertBefore(z, main.firstChild);
+  }
+  var s=tnEcranOuvert();
+  var parent=RG_PARENT[s]||null;
+  var hote=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[s])?RUBRIQUE_DE[s]:s;
+  var cible=parent||hote;
+  var pole=(POLES||[]).filter(function(p){ return p.id===POLE_ACTIF; })[0];
+  if(pole && !pole.screens.some(function(sc){ return sc.s===s || sc.s===cible; })){
+    var autre=(POLES||[]).filter(function(p){ return p.screens.some(function(sc){ return sc.s===s || sc.s===cible; }); })[0];
+    if(autre){ POLE_ACTIF=autre.id; pole=autre; try{ nav3RenderSide(); }catch(e){} }
+  }
+  if(!pole){ z.innerHTML=''; return; }
+  var R=tnRubriques(pole), AL={}; try{ AL=fsAlertes(); }catch(e){}
+  var iR=R.findIndex(function(r){ return r.screens.some(function(sc){ return sc.s===s || sc.s===cible; }); });
+  if(iR<0) iR=0;
+  var c=(typeof couleurPole==='function')?couleurPole(pole):'var(--or)';
+  var alerte=function(sc){ try{ return fsAlerteEcran(AL, sc.s); }catch(e){ return null; } };
+  var accueil=(s==='semaine');
+  var retour='';
+  if(parent && parent!=='semaine') retour='<button class="tn-ret par" onclick="goNav(\''+parent+'\')">‹ '+tnEsc(RG_NOM_PARENT[parent]||'Retour')+'</button>';
+  else if(!accueil) retour='<button class="tn-ret" onclick="navRetour()" aria-label="Revenir à l’écran précédent">‹ Retour</button>';
+  var aideOff=rgAideFermee(), aide=RG_AIDE[s]||'';
+  // ligne 1 : retour · rubriques · match · aide
+  var h='<div class="tn-r1x" role="tablist" aria-label="Rubriques">'+retour
+    +R.map(function(r,i){
+      var a=r.screens.some(alerte);
+      return '<button class="tn-g'+(i===iR?' on':'')+'" style="--pc:'+c+'" role="tab" aria-selected="'+(i===iR)+'" onclick="goNav(\''+r.screens[0].s+'\')">'+tnEsc(r.l)+(a&&i!==iR?'<span class="tn-al" aria-label="à faire"></span>':'')+'</button>';
+    }).join('')
+    +'<span class="tn-esp"></span>'+msPastille(s)
+    +(aide?'<button class="tn-ib'+(aideOff?'':' on')+'" onclick="rgAideBasculer()" title="'+(aideOff?'Afficher':'Masquer')+' l’aide des écrans" aria-label="Aide">ⓘ</button>':'')
+    +'</div>';
+  // ligne 2 : les écrans de la rubrique + l'aide en une ligne
+  var cur=R[iR], pills='';
+  if(cur && cur.screens.length>1){
+    pills=cur.screens.map(function(sc){
+      var on=(sc.s===s || sc.s===cible), a=alerte(sc);
+      return '<button class="tn-s'+(on?' on':'')+'" style="--pc:'+c+'" onclick="goNav(\''+sc.s+'\')">'+(typeof ic==='function'?ic(sc.ic):'')+tnEsc(sc.l)+(a?'<span class="tn-al" aria-label="à faire"></span>':'')+'</button>';
+    }).join('');
+  }
+  var aideTxt=(aide && !aideOff)?'<span class="tn-aidex">'+aide+'</span>':'';
+  var mob=msPastille(s).replace('class="tn-mt','class="tn-mt tn-mt-m');
+  h+='<div class="tn-r2x">'+mob+pills+aideTxt+'</div>';
+  z.innerHTML=h;
+  // le titre de page qui ne porte que son nom (déjà dans l'onglet) disparaît
+  try{
+    var scr=document.getElementById('scr-'+s);
+    var ph=scr && scr.querySelector(':scope > .ph');
+    if(ph){
+      var seul=Array.prototype.every.call(ph.children, function(el){ return el.querySelector && (el.querySelector('.ph-title')||el.classList.contains('ph-title')) && !el.querySelector('button,select,input,a,.bc,.btn'); });
+      ph.classList.toggle('v174-vide', seul);
+    }
+  }catch(e){}
+}
 </script>
 
 </body></html>
