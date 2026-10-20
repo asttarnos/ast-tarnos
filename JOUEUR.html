@@ -2455,8 +2455,8 @@ function mmjOpts(){
   }catch(e){}
   return o;
 }
-function mmjOuvrir(){ if(!DOSSIER_MATCH) return; mmOuvrir(DOSSIER_MATCH, mmjOpts()); try{ localStorage.setItem('ast_stories_vues_'+mmjCle(DOSSIER_MATCH), '1'); }catch(e){} }
-function mmjVu(){ try{ return !!localStorage.getItem('ast_stories_vues_'+mmjCle(DOSSIER_MATCH)); }catch(e){ return false; } }
+function mmjOuvrir(){ if(!DOSSIER_MATCH) return; mmOuvrir(DOSSIER_MATCH, mmjOpts()); try{ localStorage.setItem('ast_stories_vues_'+mmjCle(DOSSIER_MATCH)+'|'+((DOSSIER_MATCH&&DOSSIER_MATCH._etapes)||[]).join(','), '1'); }catch(e){} }
+function mmjVu(){ try{ return !!localStorage.getItem('ast_stories_vues_'+mmjCle(DOSSIER_MATCH)+'|'+((DOSSIER_MATCH&&DOSSIER_MATCH._etapes)||[]).join(',')); }catch(e){ return false; } }
 // Le bandeau : sur l'accueil et en haut du dossier
 function mmjBandeau(){
   var d=DOSSIER_MATCH; if(!d) return '';
@@ -7887,5 +7887,188 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+<script>
+// ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
+var APP_BUILD='v168';
+
+// ---------- 1. Nouvelle version disponible ----------
+var MAJ_VUE=false;
+function majVerifier(){
+  if(MAJ_VUE || !window.fetch) return;
+  var page=(location.pathname.split('/').pop()||'JOUEUR.html');
+  fetch('./'+page+'?maj='+Date.now(), {cache:'no-store'}).then(function(r){ return r.ok?r.text():''; }).then(function(t){
+    var m=/var APP_BUILD='([^']+)'/.exec(t||'');
+    if(m && m[1] && m[1]!==APP_BUILD) majBandeau(m[1]);
+  }).catch(function(){});
+}
+function majBandeau(v){
+  if(document.getElementById('maj-bandeau')) return;
+  MAJ_VUE=true;
+  var b=document.createElement('div'); b.id='maj-bandeau';
+  b.style.cssText='position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:10060;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);padding:10px 10px 10px 14px;border-radius:12px;background:#1b1d21;color:#fff;border:1px solid #3a3f47;box-shadow:0 10px 30px rgba(0,0,0,.35);font:600 14px "Roboto Condensed",sans-serif';
+  b.innerHTML='<span>Nouvelle version de l’appli</span>'
+    +'<button style="min-height:40px;padding:0 14px;border-radius:8px;border:0;background:#f2a35c;color:#1b1d21;font:800 13px \'Roboto Condensed\',sans-serif;cursor:pointer" onclick="majAppliquer()">Mettre à jour</button>'
+    +'<button aria-label="Plus tard" style="min-height:40px;min-width:40px;border-radius:8px;border:1px solid #3a3f47;background:transparent;color:#c9cdd3;cursor:pointer" onclick="this.parentNode.remove()">✕</button>';
+  document.body.appendChild(b);
+}
+function majAppliquer(){
+  var fin=function(){ location.replace(location.pathname+'?v='+Date.now()+location.hash); };
+  var p=[];
+  try{ if(window.caches) p.push(caches.keys().then(function(K){ return Promise.all(K.map(function(k){ return caches.delete(k); })); })); }catch(e){}
+  try{ if(navigator.serviceWorker) p.push(navigator.serviceWorker.getRegistrations().then(function(R){ return Promise.all(R.map(function(r){ return r.update().catch(function(){}); })); })); }catch(e){}
+  Promise.all(p).then(function(){ setTimeout(fin, 600); }, function(){ setTimeout(fin, 600); });
+}
+window.addEventListener('load', function(){
+  setTimeout(majVerifier, 6000);
+  setInterval(majVerifier, 15*60*1000);
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') majVerifier(); });
+});
+
+// ---------- 2. Le dossier se dévoile dans la semaine ----------
+var ENV_NOMS={adv:'l’adversaire', plan:'notre plan', compo:'la compo et ta mission', rituel:'le rituel et le quiz'};
+var ENV_ORDRE=['adv','plan','compo','rituel'];
+var ENV_PAGE={cover:null, id:'adv', ff:'adv', plan:'plan', consignes:'plan', compo:'compo', mission:'compo', quiz:'rituel', rituel:'rituel'};
+function envQuand(d, k){
+  var E=d.envoi&&d.envoi.etapes&&d.envoi.etapes[k]; if(!E) return null;
+  var t=(typeof mmCoup==='function')?mmCoup(d):null; if(!t) return null;
+  var x=new Date(t);
+  if(!E.h) return new Date(t-3*3600000);
+  x.setDate(x.getDate()-(+E.j||0));
+  var m=/^(\d{1,2}):(\d{2})$/.exec(E.h); if(m) x.setHours(+m[1], +m[2], 0, 0);
+  return x;
+}
+function envOuvertes(d){
+  if(!d || !d.envoi || !d.envoi.actif) return ENV_ORDRE.slice();
+  var now=Date.now();
+  return ENV_ORDRE.filter(function(k){ var q=envQuand(d, k); return !q || q.getTime()<=now; });
+}
+// On retire du dossier ce qui n'est pas encore à l'heure : tout l'affichage suit
+function envAppliquer(){
+  var d=DOSSIER_MATCH; if(!d) return;
+  var O=envOuvertes(d), ouvert=function(k){ return O.indexOf(k)>=0; };
+  d._etapes=O.slice();
+  d._suite=null;
+  if(d.envoi && d.envoi.actif){
+    var k=ENV_ORDRE.filter(function(x){ return !ouvert(x); })[0];
+    if(k){ var q=envQuand(d,k); d._suite={k:k, nom:ENV_NOMS[k], quand:q}; }
+  }
+  if(!ouvert('adv')){ if(d.moments){ d.moments.radar={}; d.moments.force=''; d.moments.faille=''; } if(d.bulles) delete d.bulles.adv; }
+  if(!ouvert('plan')){ d.collectif=''; d.situations=[]; d.videos=[]; if(d.moments) d.moments.phases=[]; if(d.bulles){ delete d.bulles.plan; delete d.bulles.obj; } }
+  if(!ouvert('compo')){ d.compoIdx=null; d.missions={}; }
+  if(!ouvert('rituel')){ d.quiz=[]; }
+}
+function envQuandTxt(q){
+  if(!q) return '';
+  return q.toLocaleDateString('fr-FR',{weekday:'long'})+' '+q.toLocaleTimeString('fr-FR',{hour:'2-digit', minute:'2-digit'}).replace(':','h');
+}
+
+// ---------- 3. Le quiz ----------
+var QZJ={rep:[]};
+function qzjCle(d){ return String(d.adv||'')+'|'+String(d.date||''); }
+function qzjFait(d){ try{ return localStorage.getItem('ast_quiz_'+qzjCle(d))||''; }catch(e){ return ''; } }
+function qzjHtml(d){
+  var Q=d.quiz||[], deja=qzjFait(d), R=[]; try{ R=deja?JSON.parse(deja):[]; }catch(e){}
+  QZJ.rep=R.slice();
+  return '<div class="mm-h"><span>As-tu bien compris ?</span><b>3 questions</b></div>'
+    +Q.map(function(q,i){
+      return '<div class="mmq" data-q="'+i+'" style="display:flex;flex-direction:column;gap:7px"><div style="font:800 17px \'Roboto Condensed\',sans-serif">'+(i+1)+'. '+mmEsc(q.q)+'</div>'
+        +q.o.map(function(o,k){
+          var st='';
+          if(R[i]!=null){ st=(k===q.ok)?'background:#16a34a;border-color:#16a34a':(k===R[i]?'background:#7f1d1d;border-color:#dc2626':'opacity:.55'); }
+          return '<button class="mmq-o" data-k="'+k+'" onclick="event.stopPropagation();qzjRepondre('+i+','+k+',this)" style="text-align:left;min-height:46px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);color:#fff;font:700 15px \'Roboto Condensed\',sans-serif;cursor:pointer;'+st+'"'+(R[i]!=null?' disabled':'')+'>'+mmEsc(o)+'</button>';
+        }).join('')+'</div>';
+    }).join('')
+    +'<div id="mmq-fin" style="font:700 15px \'Roboto Condensed\',sans-serif;color:#f2a35c;min-height:20px">'+(deja?'Merci, le coach a tes réponses.':'')+'</div>';
+}
+function qzjRepondre(i, k, btn){
+  var d=DOSSIER_MATCH; if(!d || !d.quiz || QZJ.rep[i]!=null) return;
+  QZJ.rep[i]=k;
+  var q=d.quiz[i], bloc=btn.closest('.mmq');
+  [].forEach.call(bloc.querySelectorAll('.mmq-o'), function(b){
+    var kk=+b.getAttribute('data-k'); b.disabled=true;
+    if(kk===q.ok){ b.style.background='#16a34a'; b.style.borderColor='#16a34a'; }
+    else if(kk===k){ b.style.background='#7f1d1d'; b.style.borderColor='#dc2626'; }
+    else b.style.opacity='.55';
+  });
+  var fini=d.quiz.every(function(_,n){ return QZJ.rep[n]!=null; });
+  if(!fini) return;
+  var score=d.quiz.filter(function(qq,n){ return QZJ.rep[n]===qq.ok; }).length;
+  var f=document.getElementById('mmq-fin'); if(f) f.textContent=score+' / '+d.quiz.length+' · '+(score===d.quiz.length?'Parfait. ':'')+'Le coach a tes réponses.';
+  try{ localStorage.setItem('ast_quiz_'+qzjCle(d), JSON.stringify(QZJ.rep)); }catch(e){}
+  if(typeof MON_NUM==='undefined' || MON_NUM==null) return;
+  var id=(qzjCle(d)+'_'+MON_NUM).replace(/[^A-Za-z0-9_-]+/g,'_').slice(0,140);
+  fbFetch(FIRESTORE_BASE+'/quiz_dossier/'+id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:{
+    cle:{stringValue:qzjCle(d)}, joueur:{stringValue:MON_NOM||''},
+    joueurNum:{integerValue:String(MON_NUM)}, auteurNum:{integerValue:String(MON_NUM)},
+    reponses:{stringValue:JSON.stringify(QZJ.rep)}, score:{integerValue:String(score)}, total:{integerValue:String(d.quiz.length)},
+    date:{stringValue:new Date().toISOString()}
+  }})}).catch(function(){});
+}
+
+// ---------- Branchements ----------
+window.addEventListener('load', function(){
+  if(typeof chargerDossierMatch==='function' && !chargerDossierMatch.__v168){
+    var bc=chargerDossierMatch;
+    chargerDossierMatch=function(){
+      return Promise.resolve(bc.apply(this, arguments)).then(function(r){ try{ envAppliquer(); }catch(e){ console.error('envoi', e); } return DOSSIER_MATCH; });
+    };
+    chargerDossierMatch.__v168=true;
+  }
+  // la mission : celle que le coach a posée pour moi, sinon ma consigne au plateau
+  if(typeof mmjOpts==='function' && !mmjOpts.__v168){
+    var bo=mmjOpts;
+    mmjOpts=function(){
+      var o=bo.apply(this, arguments);
+      try{
+        var M=(DOSSIER_MATCH&&DOSSIER_MATCH.missions)||{};
+        Object.keys(M).some(function(n){ if(String(M[n]||'').trim() && fexNomsCorrespondent(n, MON_NOM)){ o.mission=String(M[n]).trim(); return true; } return false; });
+      }catch(e){}
+      return o;
+    };
+    mmjOpts.__v168=true;
+  }
+  // les stories : ce qui est à l'heure, le quiz avant le rituel, et « la suite » à la fin
+  if(typeof mmPages==='function' && !mmPages.__v168){
+    var bp=mmPages;
+    mmPages=function(d, opts){
+      var P=bp.apply(this, arguments);
+      try{
+        if(d && d.envoi && d.envoi.actif){
+          var O=d._etapes||envOuvertes(d);
+          P=P.filter(function(p){ var e=ENV_PAGE[p.k]; return !e || O.indexOf(e)>=0; });
+        }
+        if(d && (d.quiz||[]).length){
+          var iR=P.findIndex(function(p){ return p.k==='rituel'; }); if(iR<0) iR=P.length;
+          P.splice(iR, 0, {k:'quiz', duree:600000, html:qzjHtml(d)});
+        }
+        if(d && d._suite){
+          P.push({k:'suite', duree:8000, html:'<div class="mm-h"><span>La suite arrive</span><b>'+mmEsc(d._suite.nom)+'</b></div>'
+            +'<div class="mm-big or">'+mmEsc(envQuandTxt(d._suite.quand)||'bientôt')+'</div>'
+            +'<div style="font:600 15px \'Roboto Condensed\',sans-serif;opacity:.75">Le dossier du match se dévoile au fil de la semaine. Tu seras prévenu à l’ouverture de l’appli.</div>'});
+        }
+      }catch(e){ console.error('stories v168', e); }
+      return P;
+    };
+    mmPages.__v168=true;
+  }
+  // la page « Avant le match » : la même règle, et ce qui arrive ensuite
+  if(typeof renderDossierMatchHtml==='function' && !renderDossierMatchHtml.__v168){
+    var br=renderDossierMatchHtml;
+    renderDossierMatchHtml=function(){
+      var h=br.apply(this, arguments), d=DOSSIER_MATCH;
+      try{
+        if(h && d && d._suite){
+          var s='<div class="blk"><div class="blk-body" style="font:600 15px \'Roboto Condensed\',sans-serif">⏱ La suite du dossier : <b>'+mmEsc(d._suite.nom)+'</b>, '+mmEsc(envQuandTxt(d._suite.quand))+'.</div></div>';
+          var k=h.indexOf('<div class="blk">');
+          h = k>=0 ? h.slice(0,k)+s+h.slice(k) : h+s;
+        }
+      }catch(e){}
+      return h;
+    };
+    renderDossierMatchHtml.__v168=true;
+  }
+});
+</script>
+
 </body>
 </html>
