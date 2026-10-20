@@ -11515,8 +11515,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v174</b> · 20/10/2026<br>
-      <span style="opacity:.7">Un seul match, partout</span>
+      AST COACH <b style="color:var(--or)">v175</b> · 20/10/2026<br>
+      <span style="opacity:.7">Une seule appli à l’œil</span>
     </div>
   </div>
 </div>
@@ -38194,7 +38194,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v174';
+var APP_BUILD='v175';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -39262,6 +39262,167 @@ function tnRendre(){
     }
   }catch(e){}
 }
+</script>
+
+<script>
+// ===== v175 : une seule appli à l'œil =====
+//  1. Un seul style de bouton : orange plein pour l'action principale, bordé pour le reste,
+//     même police, même taille, en minuscules (plus de MAJUSCULES qui crient).
+//  2. Les emojis des boutons et des titres deviennent des icônes au trait (ou disparaissent).
+//  3. Les outils techniques (recalcul des stats, anciens joueurs) passent dans Administration.
+(function(){
+  var P='.btn,.gen-btn,.bv2-btn.or,.stu-b.pl,.hb-b.or,.mpn-b';
+  var S='.btn2,.gen-btn2,.jf-b2,.acc-b,.fa-o,.bv2-btn:not(.or),.stu-b:not(.pl):not(.nr),.dv-action,.mt-b,.mc-b,.cv-bloc-b,.rub-b,.space-btn,.pb';
+  function sel(list, suffix){ return list.split(',').map(function(x){ return '#main '+x+suffix+',#side '+x+suffix; }).join(','); }
+  var css=''
+  // toutes les familles : même police, pas de majuscules forcées
+  +sel(P+','+S,'')+'{font-family:"Roboto Condensed",Arial,sans-serif!important;text-transform:none!important;letter-spacing:0!important;border-radius:9px!important;font-weight:700!important}'
+  // l'action principale
+  +sel(P,'')+'{background:var(--or)!important;color:#fff!important;border:1px solid var(--or)!important;font-size:14px!important;min-height:38px;padding:0 16px!important;display:inline-flex;align-items:center;justify-content:center;gap:6px}'
+  +sel(P,':hover')+'{filter:brightness(1.07)}'
+  // le reste
+  +sel(S,'')+'{background:var(--carte)!important;color:var(--gris)!important;border:1px solid var(--line)!important;font-size:13px!important;min-height:34px;padding:0 12px!important;display:inline-flex;align-items:center;justify-content:center;gap:6px}'
+  +sel(S,':hover')+'{border-color:var(--or)!important;color:var(--or)!important}'
+  +sel(S,'.on')+','+sel(S,'.active')+'{background:var(--or)!important;border-color:var(--or)!important;color:#fff!important}'
+  // le bandeau noir du board garde ses boutons sombres
+  +'#main .bv2-band .bv2-btn:not(.or){background:#262a30!important;border-color:#3a3f47!important;color:#fff!important}'
+  // les petits liens d'en-tête de bloc
+  +'#main .bh .bc{text-transform:none;letter-spacing:0}'
+  // icônes posées à la place des emojis
+  +'.v175-ic{width:1.05em;height:1.05em;flex-shrink:0;vertical-align:-.16em;margin-right:.35em;stroke:currentColor}'
+  +'button .v175-ic,label .v175-ic{margin-right:0}'
+  // le lien technique de la fiche joueurs
+  +'#scr-effectif > .ph > .bc{display:none!important}';
+  var s=document.createElement('style'); s.id='v175-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// ---------- emojis → icônes ----------
+var V175_IC={
+  '🔍':'loupe','🔎':'loupe','📝':'ecrire','✏':'ecrire','✍':'ecrire','📣':'megaphone','📢':'megaphone',
+  '📅':'calendrier','🗓':'calendrier','📆':'calendrier','🎯':'cible','⚽':'ballon','📊':'barres','📈':'hausse',
+  '🏆':'coupe','🥇':'coupe','📄':'document','📋':'document','📑':'document','🖨':'document','📁':'dossier','📂':'dossier','🗂':'dossier',
+  '🎬':'clap','🎥':'clap','📹':'clap','🔔':'cloche','⏱':'chrono','⏲':'chrono','💪':'halteres','🏋':'halteres',
+  '🏥':'hopital','🩹':'pansement','🚑':'hopital','🌡':'thermo','✅':'valide','✔':'valide','📍':'lieu','🔄':'rafraichir','🔁':'rafraichir','♻':'rafraichir',
+  '📸':'appareil','📷':'appareil','🧠':'cerveau','⭐':'etoile','🌟':'etoile','🗣':'parole','💬':'bulle','📚':'livres','📖':'livres',
+  '🏠':'maison','🏟':'maison','⚡':'eclair','📐':'equerre','🎨':'palette','🧬':'adn','📰':'journal','🗒':'memo','📌':'lieu','🚩':'fanion','🏁':'fanion',
+  '📤':'sortant','📥':'entrant','✈':'avion','🔢':'chiffres','📜':'reglement','⚙':'reglement','🛠':'reglement'
+};
+var V175_RE=/^\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:️|‍(?:\p{Extended_Pictographic})|[\u{1F3FB}-\u{1F3FF}])*)\s*/u;
+var V175_SIGLES={AST:1,CPA:1,R1:1,R2:1,R3:1,PDF:1,FFF:1,OK:1,QR:1,CSV:1,GPS:1,VMA:1,PPG:1,MVP:1,ID:1,TV:1,U17:1,U19:1,U20:1,VEO:1,PD:1,J:1,HT:1,LFNA:1,SMS:1,URL:1,RPE:1};
+function v175Casse(t){
+  var lettres=t.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g,'');
+  if(lettres.length<4 || lettres!==lettres.toUpperCase()) return t;   // pas tout en majuscules : on n'y touche pas
+  var premier=true;
+  return t.replace(/[A-Za-zÀ-ÖØ-öø-ÿ0-9’']+/g, function(w){
+    var nu=w.replace(/[’']/g,'');
+    var out=(V175_SIGLES[nu]||/\d/.test(w))?w:w.toLowerCase();
+    if(premier && !V175_SIGLES[nu]){ out=out.charAt(0).toUpperCase()+out.slice(1); }
+    premier=false; return out;
+  });
+}
+function v175PremierTexte(el){
+  var w=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n;
+  while((n=w.nextNode())){ if(n.nodeValue.trim()) return n; }
+  return null;
+}
+function v175Traiter(el){
+  if(!el || el.__v175===el.innerHTML.length) return;
+  var t=v175PremierTexte(el);
+  if(t){
+    var m=t.nodeValue.match(V175_RE);
+    if(m){
+      var reste=(el.textContent||'').replace(m[1],'').replace(/[^A-Za-zÀ-ÿ]/g,'');
+      if(reste.length>=2){                       // un bouton fait d'un seul emoji reste tel quel
+        var cle=m[1].replace(/️/g,'');
+        t.nodeValue=t.nodeValue.replace(V175_RE,'');
+        var nom=V175_IC[cle]||V175_IC[cle.charAt(0)];
+        if(nom && !el.querySelector('svg') && document.getElementById('i-'+nom)){
+          var sv=document.createElementNS('http://www.w3.org/2000/svg','svg');
+          sv.setAttribute('class','ico v175-ic'); sv.setAttribute('aria-hidden','true');
+          var u=document.createElementNS('http://www.w3.org/2000/svg','use'); u.setAttribute('href','#i-'+nom); sv.appendChild(u);
+          t.parentNode.insertBefore(sv, t);
+        }
+      }
+    }
+  }
+  if(el.tagName==='BUTTON' || (el.classList && (el.classList.contains('gen-btn2')||el.classList.contains('gen-btn')))){
+    var w=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n;
+    while((n=w.nextNode())){ var v=v175Casse(n.nodeValue); if(v!==n.nodeValue) n.nodeValue=v; }
+  }
+  el.__v175=el.innerHTML.length;
+}
+var V175_CIBLES='button,.bt,.ph-title,.bh .bc,label.gen-btn2,label.btn,label.btn2,.stu-k';
+function v175Passe(racine){
+  try{
+    (racine||document).querySelectorAll(V175_CIBLES).forEach(function(el){
+      if(el.closest('#hb') || el.closest('#topnav')) return;
+      v175Traiter(el);
+    });
+  }catch(e){}
+}
+
+// ---------- la barre du haut : des icônes au trait ----------
+var V175_SVG={
+  sauver:'<svg class="v175-ic" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3"/><rect x="8" y="13" width="8" height="6" rx="1"/></svg>',
+  soleil:'<svg class="v175-ic" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  lune:'<svg class="v175-ic" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  points:'<svg class="v175-ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>'
+};
+function v175Ic(n){ return (typeof ic==='function')?ic(n):''; }
+function v175Barre(){
+  var hb=document.getElementById('hb'); if(!hb || !hb.children.length || hb.__v175) return;
+  hb.querySelectorAll('.hb-b').forEach(function(b){
+    var t=b.getAttribute('title')||'', html=b.innerHTML;
+    if(/Rechercher/.test(t)) html=html.replace('🔍', v175Ic('loupe'));
+    else if(/Note rapide/.test(t)) html=html.replace('📍', v175Ic('ecrire'));
+    else if(/Thème/.test(t)) html=html.replace('🌙', V175_SVG.lune).replace('☀️', V175_SVG.soleil).replace('☀', V175_SVG.soleil);
+    else if(/bord de touche/i.test(t)) html=html.replace('📣', v175Ic('megaphone'));
+    else if(/Sauvegarder/.test(t)) html=html.replace('💾', V175_SVG.sauver);
+    else if(/Menu complet/.test(t)) html=V175_SVG.points;
+    if(html!==b.innerHTML) b.innerHTML=html;
+  });
+  hb.__v175=true;
+}
+
+// ---------- les outils techniques vont dans Administration ----------
+function v175Outils(){
+  var reg=document.getElementById('scr-reglages'); if(!reg || document.getElementById('v175-outils')) return;
+  var blk=document.createElement('div'); blk.className='blk'; blk.id='v175-outils'; blk.style.marginTop='12px';
+  blk.innerHTML='<div class="bh"><span class="bt">Outils</span><span class="bc" style="color:var(--gris2)">à utiliser rarement</span></div>'
+    +'<div style="padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">'
+    +'<button class="btn2" onclick="recalculerStats()">Recalculer les stats depuis l’historique des matchs</button>'
+    +'<span style="font-size:12.5px;color:var(--gris2)">Les stats se calculent seules : ce bouton sert seulement si un chiffre semble faux.</span></div>';
+  reg.appendChild(blk);
+  // la purge des anciens joueurs : une fois par saison, pas au milieu des fiches
+  var a=document.getElementById('anciens-ct');
+  var b=a && a.closest('.blk');
+  if(b && !reg.contains(b)) reg.appendChild(b);
+}
+
+window.addEventListener('load', function(){
+  try{ v175Outils(); }catch(e){}
+  setTimeout(function(){ v175Passe(document); v175Barre(); }, 500);
+  var attente=false, aFaire=[];
+  var obs=new MutationObserver(function(muts){
+    muts.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) aFaire.push(n); }); });
+    if(attente) return; attente=true;
+    requestAnimationFrame(function(){
+      attente=false; var L=aFaire; aFaire=[];
+      var hbTouche=false;
+      L.forEach(function(n){
+        if(!n.isConnected) return;
+        if(n.id==='hb' || (n.closest && n.closest('#hb'))){ hbTouche=true; return; }
+        if(n.id==='topnav' || (n.closest && n.closest('#topnav'))) return;
+        if(n.matches && n.matches(V175_CIBLES)) v175Traiter(n);
+        if(n.querySelectorAll) v175Passe(n);
+        var p=n.parentElement && n.parentElement.closest && n.parentElement.closest(V175_CIBLES);
+        if(p) v175Traiter(p);
+      });
+      if(hbTouche){ var hb=document.getElementById('hb'); if(hb) hb.__v175=false; v175Barre(); }
+    });
+  });
+  obs.observe(document.body, {childList:true, subtree:true});
+});
 </script>
 
 </body></html>
