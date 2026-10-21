@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v180</b> · 21/10/2026<br>
-      <span style="opacity:.7">Statuts, mouvement, mode stade</span>
+      AST COACH <b style="color:var(--or)">v181</b> · 21/10/2026<br>
+      <span style="opacity:.7">Notifications, vestiaire, vidéo, proches</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v180';
+var APP_BUILD='v181';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -40098,6 +40098,406 @@ window.addEventListener('load', function(){
   }
   setTimeout(function(){ a8AppliquerStade(); try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1000);
   setInterval(a8AppliquerStade, 60000);
+});
+</script>
+
+<script>
+// ===== v181 : notifications, vestiaire, vidéos Veo, lien des proches (coach) =====
+//  1. Réglages > « Notifications & relances » : les relances automatiques
+//     (séance sans réponse, convocation pas confirmée) s'allument ou s'éteignent.
+//  2. Le vestiaire : le fil de l'équipe avec ses réactions, et les messages
+//     privés des joueurs, auxquels le coach répond.
+//  3. Après le match : un lien Veo par joueur, et le match en entier pour tous.
+//  4. Le lien des proches : une page publique (score, minute, buteurs, groupe).
+(function(){
+  var css=''
+  +'.a9-ov{position:fixed;inset:0;z-index:9000;background:rgba(10,9,8,.55);display:flex;justify-content:flex-end}'
+  +'.a9-pan{width:min(560px,100%);height:100%;overflow-y:auto;background:var(--fond);color:var(--gris);padding:22px 22px 40px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;font-family:"Roboto Condensed",sans-serif;animation:a9in .22s ease-out}'
+  +'@keyframes a9in{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}'
+  +'@media (prefers-reduced-motion:reduce){.a9-pan{animation:none}}'
+  +'.a9-pan .hd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}'
+  +'.a9-pan h1{margin:0;font:900 48px/.86 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.a9-pan .sub{margin:4px 0 0;font-size:14px;color:var(--gris2)}'
+  +'.a9-x{min-width:44px;min-height:44px;border-radius:12px;border:0;background:var(--carte);color:var(--gris);font:700 14px "Roboto Condensed",sans-serif;cursor:pointer;padding:0 12px}'
+  +'.a9-seg{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--carte)}'
+  +'.a9-seg button{flex:1;min-height:40px;border:0;border-radius:9px;background:transparent;color:var(--gris2);font:700 14px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.a9-seg button.on{background:var(--gris);color:var(--fond)}'
+  +'.a9-seg button i{font-style:normal;margin-left:6px;padding:1px 7px;border-radius:9px;background:var(--or);color:#fff;font-size:11px}'
+  +'.a9-ec{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--carte)}'
+  +'.a9-ec textarea,.a9-pan input.fi{width:100%;box-sizing:border-box;border:1.5px solid var(--line2);border-radius:12px;background:var(--fond);color:var(--gris);padding:10px 12px;font:500 15px "Inter",sans-serif}'
+  +'.a9-ec textarea{min-height:70px;resize:vertical}'
+  +'.a9-ec .pied{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--gris2)}'
+  +'.a9-ec label{display:flex;align-items:center;gap:6px;cursor:pointer}'
+  +'.a9-m{padding:12px 14px;border-radius:16px;background:var(--carte);display:flex;flex-direction:column;gap:6px}'
+  +'.a9-m.coach{box-shadow:inset 0 0 0 2px var(--or)}'
+  +'.a9-m .h{display:flex;align-items:center;gap:10px}.a9-m .h b{flex:1;font-size:15px}.a9-m .h span{font-size:12px;color:var(--gris2)}'
+  +'.a9-m .t{font-size:15px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}'
+  +'.a9-m .r{display:flex;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--gris2)}.a9-m .r em{font-style:normal;padding:3px 9px;border-radius:999px;background:var(--carte3)}'
+  +'.a9-m .lk{border:0;background:none;color:var(--gris2);text-decoration:underline;cursor:pointer;font-size:12.5px;padding:2px}'
+  +'.a9-m.prive{box-shadow:inset 0 0 0 1.5px var(--line2)}.a9-m.prive.att{box-shadow:inset 0 0 0 2px var(--gold)}'
+  +'.a9-m .rp{padding:8px 10px;border-radius:10px;background:var(--fond);font-size:14.5px}'
+  +'.a9-m .rpz{display:flex;gap:6px}.a9-m .rpz input{flex:1}'
+  +'.a9-sw{display:flex;align-items:flex-start;gap:14px}.a9-sw>div{flex:1;min-width:0}'
+  +'.a9-tog{position:relative;width:52px;height:30px;border-radius:15px;border:0;background:var(--line2);cursor:pointer;flex-shrink:0;transition:background .2s}'
+  +'.a9-tog::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}'
+  +'.a9-tog.on{background:var(--green)}.a9-tog.on::after{transform:translateX(22px)}'
+  +'.a9-veo{display:flex;flex-direction:column;gap:8px}'
+  +'.a9-veo .l{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--carte)}'
+  +'.a9-veo .l b{min-width:130px;font-size:14px}.a9-veo .l input{flex:1;min-width:0}'
+  +'.a9-veo .l.ok{box-shadow:inset 0 0 0 1.5px var(--green)}'
+  +'.a9-mini{display:flex;flex-direction:column;gap:6px}'
+  +'.a9-mini .a9-m .t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.a9-lien{align-self:flex-end;border:0;background:none;color:var(--or);cursor:pointer;font:700 13px "Roboto Condensed",sans-serif;padding:0 0 4px;text-decoration:underline}';
+  var s=document.createElement('style'); s.id='v181-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var A9={msgs:null, prives:null, onglet:'equipe', t:0, charge:false, relances:null, jetons:null, pubSig:'', pubT:0, pubAtt:null};
+var A9_PAGE_MATCH='https://asttarnos.github.io/ast-tarnos/MATCH.html';
+function a9E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function a9Quand(iso){
+  var d=new Date(iso); if(isNaN(d)) return '';
+  var s=(Date.now()-d.getTime())/1000;
+  if(s<3600) return Math.max(1,Math.floor(s/60))+' min';
+  if(s<86400) return Math.floor(s/3600)+' h';
+  return d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
+}
+function a9Doc(doc){ var f=doc.fields||{}, o={id:(doc.name||'').split('/').pop()}; Object.keys(f).forEach(function(k){ var v=f[k]; o[k]=v.stringValue!=null?v.stringValue:(v.integerValue!=null?+v.integerValue:(v.booleanValue!=null?v.booleanValue:(v.mapValue?v.mapValue:null))); }); return o; }
+function a9Vu(){ try{ return localStorage.getItem('ast-vest-vu')||''; }catch(e){ return ''; } }
+
+// ---------- 0. les règles de sécurité apprennent les nouvelles collections ----------
+(function(){
+  try{
+    var ajout="    // ---- Le vestiaire : chacun réagit pour lui (une seule clé : la sienne)\n"
+      +"    match /mots_coach/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update: if estCoach();\n      allow delete: if estCoach() || (estJoueur() && resource.data.joueurNum == monNum());\n    }\n"
+      +"    // ---- Réglages lus par l'appli (relances automatiques)\n"
+      +"    match /reglages/{doc} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n"
+      +"    // ---- La page des proches : lisible par tous, écrite par le staff\n"
+      +"    match /public/{doc} {\n      allow read: if true;\n      allow write: if estCoach();\n    }\n"
+      +"    // ---- Mémoire des relances automatiques : réservée au serveur\n"
+      +"    match /relances/{id} { allow read, write: if estCoach(); }\n";
+    if(SEC_REGLES.indexOf('match /public/{doc}')<0){
+      SEC_REGLES=SEC_REGLES.replace('    match /stats_live/{id} {', ajout+'    match /stats_live/{id} {');
+      SEC_REGLES=SEC_REGLES.replace("    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n",
+        "    match /messages_chat/{id} {\n      allow read: if membre();\n      allow create: if estCoach() || signeParMoi();\n"
+        +"      allow update: if estCoach() || (estJoueur()\n        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reac'])\n        && request.resource.data.get('reac', {}).diff(resource.data.get('reac', {})).affectedKeys().hasOnly(['j' + string(monNum())]));\n");
+    }
+  }catch(e){ console.error('v181 règles', e); }
+})();
+
+// ---------- 1. Notifications & relances (Réglages) ----------
+async function a9LireRelances(){
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/reglages/relances');
+    A9.relances=r.ok?!!(((await r.json()).fields||{}).actif||{}).booleanValue:false;
+  }catch(e){ A9.relances=false; }
+  try{
+    var r2=await fbFetch(FIRESTORE_BASE+'/fcm_tokens?pageSize=300');
+    A9.jetons=r2.ok?(((await r2.json()).documents)||[]).map(a9Doc):[];
+  }catch(e){ A9.jetons=null; }
+  a9RendreNotifs();
+}
+async function a9BasculerRelances(){
+  var v=!A9.relances; A9.relances=v; a9RendreNotifs();
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/reglages/relances',{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{actif:{booleanValue:v}, maj:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    notif(v?'✓ Relances automatiques allumées':'Relances automatiques éteintes');
+  }catch(e){ A9.relances=!v; a9RendreNotifs(); notif('⚠ Pas enregistré : vérifie la connexion'); }
+}
+async function a9Test(){
+  var num=prompt('Numéro du joueur qui reçoit le test (toi, si tu as l’appli joueur) :', ''); if(!num) return;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/notifications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+      titre:{stringValue:'Test AST Tarnos'}, corps:{stringValue:'Si tu lis ça sur ton téléphone, les notifications marchent.'},
+      cibles:{stringValue:String(num).trim()}, dateEnvoi:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw new Error();
+    notif('✓ Test envoyé au n°'+num+' : il arrive dans les secondes qui suivent');
+  }catch(e){ notif('⚠ Test impossible : vérifie la connexion'); }
+}
+function a9RendreNotifs(){
+  var ct=document.getElementById('a9-notifs'); if(!ct) return;
+  var J=JOUEURS||[], T=A9.jetons;
+  var avec=T?J.filter(function(j){ return T.some(function(t){ return String(t.num!=null?t.num:t.id)===String(j.num) && t.token; }); }):[];
+  var sans=T?J.filter(function(j){ return avec.indexOf(j)<0; }):[];
+  ct.innerHTML='<div class="a9-sw"><button class="a9-tog'+(A9.relances?' on':'')+'" onclick="a9BasculerRelances()" aria-pressed="'+!!A9.relances+'" aria-label="Relances automatiques"></button>'
+    +'<div><b>Relances automatiques '+(A9.relances===null?'…':(A9.relances?'allumées':'éteintes'))+'</b><br><span style="font-size:13px;color:var(--gris2)">Chaque jour à midi : ceux qui n’ont pas dit s’ils viennent à la séance (le jour même ou la veille), et la veille du match les convoqués qui n’ont pas confirmé. Jamais deux fois la même relance.</span></div></div>'
+    +'<p style="margin:10px 0 4px"><b>'+(T?avec.length+' / '+J.length:'?')+' joueurs</b> reçoivent les notifications sur leur téléphone.'
+      +(T&&sans.length?' Pas encore : '+sans.slice(0,30).map(function(j){ return a9E(String(j.nom).split(' ').pop()); }).join(', ')+(sans.length>30?' et '+(sans.length-30)+' autres':'')+'. Chacun les active en un geste dans son appli (bandeau « Activer les notifications »).':'')+'</p>'
+    +'<p style="margin:4px 0;font-size:13px;color:var(--gris2)">Sur iPhone, le joueur doit d’abord avoir ajouté l’appli à son écran d’accueil. Les envois partent une fois l’expéditeur installé (dossier firebase-ast, une seule fois).</p>'
+    +'<button class="jf-b2" onclick="a9Test()">Envoyer une notification de test</button>';
+}
+function a9BlocNotifs(){
+  var sec=document.getElementById('sec-blk'); if(!sec || document.getElementById('a9-notifs-blk')) return;
+  var b=document.createElement('div'); b.className='blk'; b.id='a9-notifs-blk';
+  b.innerHTML='<div class="bh"><span class="bt">Notifications & relances</span><span class="bc">sur le téléphone des joueurs</span></div><div class="n3-reg-c" id="a9-notifs"><p>Chargement…</p></div>';
+  sec.parentNode.insertBefore(b, sec.nextSibling);
+  a9LireRelances();
+}
+
+// ---------- 2. Le vestiaire ----------
+async function a9Charger(){
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/messages_chat?pageSize=300');
+    A9.msgs=r.ok?(((await r.json()).documents)||[]).map(function(d){ var o=a9Doc(d); var m=(o.reac&&o.reac.fields)||{}; o.reac={}; Object.keys(m).forEach(function(k){ o.reac[k]=m[k].stringValue; }); return o; })
+      .sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }):(A9.msgs||[]);
+  }catch(e){ if(!A9.msgs) A9.msgs=[]; }
+  try{
+    var r2=await fbFetch(FIRESTORE_BASE+'/mots_coach?pageSize=300');
+    A9.prives=r2.ok?(((await r2.json()).documents)||[]).map(a9Doc).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }):(A9.prives||[]);
+  }catch(e){ if(!A9.prives) A9.prives=[]; }
+  A9.t=Date.now();
+}
+function a9Compte(){
+  var vu=a9Vu();
+  return {nouveaux:(A9.msgs||[]).filter(function(m){ return m.role!=='coach' && String(m.date||'')>vu; }).length,
+          attente:(A9.prives||[]).filter(function(p){ return !p.reponse; }).length};
+}
+function a9ReacTxt(m){
+  var c={}; Object.keys(m.reac||{}).forEach(function(k){ var v=m.reac[k]; if(v) c[v]=(c[v]||0)+1; });
+  var L=[['bravo','Bravo'],['allez','Allez'],['top','Top']].filter(function(x){ return c[x[0]]; }).map(function(x){ return '<em>'+x[1]+' '+c[x[0]]+'</em>'; });
+  return L.length?'<div class="r">'+L.join('')+'</div>':'';
+}
+function a9MsgHtml(m, mini){
+  var coach=m.role==='coach';
+  return '<div class="a9-m'+(coach?' coach':'')+'"><div class="h"><b>'+a9E(coach?(m.auteur||'Coach')+' · staff':m.auteur)+'</b><span>'+a9E(a9Quand(m.date))+'</span>'
+    +(mini?'':'<button class="lk" onclick="a9Suppr(\''+a9E(m.id)+'\')">Retirer</button>')+'</div>'
+    +'<div class="t">'+a9E(m.texte)+'</div>'+a9ReacTxt(m)+'</div>';
+}
+function a9VestHtml(){
+  var C=a9Compte();
+  var h='<div class="hd"><div><h1>Le vestiaire</h1><p class="sub">Le fil de l’équipe, et ce que les joueurs t’écrivent à toi seul.</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +'<div class="a9-seg"><button class="'+(A9.onglet==='equipe'?'on':'')+'" onclick="A9.onglet=\'equipe\';a9Peindre()">L’équipe</button><button class="'+(A9.onglet==='prive'?'on':'')+'" onclick="A9.onglet=\'prive\';a9Peindre()">À toi seul'+(C.attente?'<i>'+C.attente+'</i>':'')+'</button></div>';
+  if(A9.onglet==='equipe'){
+    h+='<div class="a9-ec"><textarea id="a9-txt" maxlength="1200" placeholder="Un mot pour le groupe : bravo, info, rappel…"></textarea>'
+      +'<div class="pied"><label><input type="checkbox" id="a9-prev" checked> Prévenir les joueurs sur leur téléphone</label><button class="a7-b or" onclick="a9Poster()">Publier</button></div></div>';
+    h+=(A9.msgs===null?'<div class="a7-vide">Chargement…</div>':(A9.msgs.length?A9.msgs.slice(0,80).map(function(m){ return a9MsgHtml(m,false); }).join(''):'<div class="a7-vide">Le vestiaire est vide. Un premier mot du coach donne le ton.</div>'));
+  } else {
+    var P=A9.prives||[];
+    h+=(A9.prives===null?'<div class="a7-vide">Chargement…</div>':(P.length?P.slice(0,80).map(function(p){
+      return '<div class="a9-m prive'+(p.reponse?'':' att')+'"><div class="h"><b>'+a9E(p.joueurNom||('n°'+p.joueurNum))+'</b><span>'+a9E(a9Quand(p.date))+'</span></div>'
+        +'<div class="t">'+a9E(p.texte)+'</div>'
+        +(p.reponse?'<div class="rp"><b style="color:var(--or)">Ta réponse :</b> '+a9E(p.reponse)+'</div>'
+          :'<div class="rpz"><input class="fi" id="a9-rp-'+a9E(p.id)+'" placeholder="Lui répondre (lui seul le lira)" onkeydown="if(event.key===\'Enter\')a9Repondre(\''+a9E(p.id)+'\')"><button class="a7-b or" onclick="a9Repondre(\''+a9E(p.id)+'\')">Envoyer</button></div>')
+        +'</div>';
+    }).join(''):'<div class="a7-vide">Aucun message privé. Quand un joueur choisit « Au coach seulement », ça arrive ici.</div>'));
+  }
+  return h;
+}
+function a9Peindre(){ var p=document.querySelector('#a9-ov .a9-pan'); if(p){ var g=(document.getElementById('a9-txt')||{}).value||''; p.innerHTML=a9VestHtml(); var t=document.getElementById('a9-txt'); if(t&&g) t.value=g; } }
+function a9Ouvrir(html){
+  var v=document.getElementById('a9-ov'); if(v) v.remove();
+  var o=document.createElement('div'); o.id='a9-ov'; o.className='a9-ov';
+  o.innerHTML='<div class="a9-pan" role="dialog" aria-modal="true">'+html+'</div>';
+  o.addEventListener('click', function(e){ if(e.target===o) a9Fermer(); });
+  document.body.appendChild(o);
+}
+function a9Fermer(){ var o=document.getElementById('a9-ov'); if(o){ o.remove(); try{ renderSemaine(); }catch(e){} } }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('a9-ov')) a9Fermer(); });
+async function a9OuvrirVestiaire(onglet){
+  A9.onglet=onglet||'equipe';
+  a9Ouvrir(a9VestHtml());
+  await a9Charger(); a9Peindre();
+  try{ localStorage.setItem('ast-vest-vu', new Date().toISOString()); }catch(e){}
+}
+async function a9Notifier(titre, corps, cibles){
+  var f={titre:{stringValue:titre}, corps:{stringValue:corps}, dateEnvoi:{stringValue:new Date().toISOString()}};
+  if(cibles) f.cibles={stringValue:String(cibles)};
+  try{ await fbFetch(FIRESTORE_BASE+'/notifications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:f})}); }catch(e){}
+}
+async function a9Poster(){
+  var t=document.getElementById('a9-txt'); var texte=(t&&t.value||'').trim(); if(!texte) return;
+  var prev=(document.getElementById('a9-prev')||{}).checked;
+  var qui=(typeof NOM_COACH!=='undefined'&&NOM_COACH)||'Coach';
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/messages_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+      auteur:{stringValue:qui}, texte:{stringValue:texte}, role:{stringValue:'coach'}, date:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    if(prev) a9Notifier('Le vestiaire · '+qui, texte.length>140?texte.slice(0,137)+'…':texte);
+    t.value=''; notif('✓ Publié dans le vestiaire'+(prev?' · les joueurs sont prévenus':''));
+  }catch(e){ notif('⚠ Pas publié : vérifie la connexion'); }
+  await a9Charger(); a9Peindre();
+}
+async function a9Suppr(id){
+  if(!confirm('Retirer ce message du vestiaire ? Il disparaît pour tout le monde.')) return;
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/messages_chat/'+id,{method:'DELETE'}); if(!r.ok) throw new Error(); }catch(e){ notif('⚠ Impossible pour l’instant'); }
+  await a9Charger(); a9Peindre();
+}
+async function a9Repondre(id){
+  var i=document.getElementById('a9-rp-'+id); var texte=(i&&i.value||'').trim(); if(!texte) return;
+  var p=(A9.prives||[]).filter(function(x){ return x.id===id; })[0];
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/mots_coach/'+id+'?updateMask.fieldPaths=reponse&updateMask.fieldPaths=dateReponse&updateMask.fieldPaths=lu',{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{reponse:{stringValue:texte}, dateReponse:{stringValue:new Date().toISOString()}, lu:{booleanValue:true}}})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    if(p && p.joueurNum!=null) a9Notifier('Le coach t’a répondu', texte.length>140?texte.slice(0,137)+'…':texte, p.joueurNum);
+    notif('✓ Réponse envoyée, à lui seul');
+  }catch(e){ notif('⚠ Pas envoyée : vérifie la connexion'); }
+  await a9Charger(); a9Peindre();
+}
+
+// ---------- 3. Les vidéos Veo du match ----------
+function a9DernierMatch(){ try{ var d=dvDernierMatch(); if(!d) return null; var e=-dvEcartJours(d.d); return e>=0&&e<=6?{c:d.c, d:d.d, ecart:e, adv:d.c.adversaire||''}:null; }catch(e){ return null; } }
+function a9VeoDuMatch(adv){ return (CLIPS||[]).filter(function(c){ return c && c.veo && c.adv===adv; }); }
+function a9Groupe(adv){
+  var J=JOUEURS||[], noms=[];
+  try{ if(CONVOS && CONVOS.adv && fexNomsCorrespondent(CONVOS.adv, adv)) noms=[].concat(CONVOS.a||[], CONVOS.b||[]); }catch(e){}
+  var dedans=J.filter(function(j){ return noms.some(function(n){ try{ return memeJoueur(String(n).replace(/\s*\(.*\)\s*$/,''), j.nom); }catch(e){ return false; } }); });
+  return {groupe:dedans.length?dedans:J.slice(), autres:dedans.length?J.filter(function(j){ return dedans.indexOf(j)<0; }):[]};
+}
+function a9OuvrirVeo(){
+  var M=a9DernierMatch(); if(!M){ notif('Pas de match joué ces 6 derniers jours'); return; }
+  var deja=a9VeoDuMatch(M.adv), G=a9Groupe(M.adv);
+  var val=function(num){ var c=deja.filter(function(x){ return (x.joueurs||[]).length===1 && String(x.joueurs[0])===String(num); })[0]; return c?c.url:''; };
+  var tous=deja.filter(function(x){ return !(x.joueurs||[]).length; })[0];
+  var ligne=function(j){ var v=val(j.num); return '<div class="l'+(v?' ok':'')+'"><b>'+a9E(j.num+'. '+j.nom)+'</b><input class="fi" data-num="'+a9E(j.num)+'" value="'+a9E(v)+'" placeholder="lien Veo de ses actions"></div>'; };
+  a9Ouvrir('<div class="hd"><div><h1>La vidéo du match</h1><p class="sub">vs '+a9E(M.adv)+' · colle les liens Veo (partage d’un moment ou d’une sélection). Chaque joueur ne voit que les siens, en tête de sa semaine.</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +'<div class="a9-veo"><div class="l'+(tous?' ok':'')+'" style="background:var(--gris);color:var(--fond)"><b>Le match en entier</b><input class="fi" id="a9-veo-tous" value="'+a9E(tous?tous.url:'')+'" placeholder="lien Veo du match, pour tout le groupe"></div>'
+    +'<h2 class="a7-h2" style="margin-top:6px">Le groupe<em>'+G.groupe.length+' joueurs</em></h2>'+G.groupe.map(ligne).join('')
+    +(G.autres.length?'<details><summary style="cursor:pointer;font-weight:700;padding:6px 0">Les autres joueurs ('+G.autres.length+')</summary><div class="a9-veo">'+G.autres.map(ligne).join('')+'</div></details>':'')
+    +'<label style="display:flex;gap:6px;align-items:center;font-size:14px;margin-top:4px"><input type="checkbox" id="a9-veo-prev" checked> Prévenir chaque joueur sur son téléphone</label>'
+    +'<button class="a7-b or" style="align-self:flex-start" onclick="a9EnregistrerVeo()">Envoyer aux joueurs</button></div>');
+}
+function a9EnregistrerVeo(){
+  var M=a9DernierMatch(); if(!M) return;
+  var ok=function(u){ return /^https?:\/\//i.test(u); };
+  var auteur=(typeof NOM_COACH!=='undefined'&&NOM_COACH)||'Coach', cree=new Date().toLocaleDateString('fr-FR');
+  // on remplace les liens Veo déjà posés pour ce match
+  var anciens=a9VeoDuMatch(M.adv), avant={};
+  anciens.forEach(function(c){ avant[(c.joueurs||[]).join(',')]=c.url; });
+  CLIPS=(CLIPS||[]).filter(function(c){ return !(c.veo && c.adv===M.adv); });
+  var nouveaux=[], cibles=[];
+  var t=(document.getElementById('a9-veo-tous')||{}).value||''; t=t.trim();
+  if(ok(t)){ nouveaux.push({id:'veo_'+Date.now()+'_tous', url:t, seconde:0, titre:'Le match en entier · vs '+M.adv, commentaire:'', principes:[], joueurs:[], cree:cree, auteur:auteur, veo:true, adv:M.adv}); }
+  document.querySelectorAll('#a9-ov input[data-num]').forEach(function(i){
+    var u=(i.value||'').trim(); if(!ok(u)) return;
+    var num=isNaN(+i.dataset.num)?i.dataset.num:+i.dataset.num;
+    nouveaux.push({id:'veo_'+Date.now()+'_'+num, url:u, seconde:0, titre:'Tes actions · vs '+M.adv, commentaire:'', principes:[], joueurs:[num], cree:cree, auteur:auteur, veo:true, adv:M.adv});
+    if(avant[String(num)]!==u) cibles.push(num);
+  });
+  CLIPS=nouveaux.concat(CLIPS);
+  try{ sauvegarder(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
+  try{ if(typeof renderClips==='function') renderClips(); }catch(e){}
+  if((document.getElementById('a9-veo-prev')||{}).checked){
+    if(cibles.length) a9Notifier('Tes actions vs '+M.adv+' sont prêtes', 'Le coach a monté ta vidéo. Regarde-la avant la séance.', cibles.join(','));
+    if(ok(t) && avant['']!==t) a9Notifier('La vidéo du match est là', 'AST Tarnos vs '+M.adv+' : à revoir avant la séance.');
+  }
+  notif('✓ '+nouveaux.length+' lien'+(nouveaux.length>1?'s':'')+' envoyé'+(nouveaux.length>1?'s':'')+' aux joueurs');
+  a9Fermer();
+}
+
+// ---------- 4. La page des proches ----------
+function a9PublicStatique(){
+  var D=bv2Donnees(), p=D.C.prochain; if(!p) return null;
+  var adv=D.C.adv||p.c.adversaire||'';
+  var txt=(p.c.heure||'')+' '+(p.c.date||''), m=/(\d{1,2})\s*h\s*(\d{2})?/i.exec(txt);
+  var groupe=[], adresse='';
+  try{
+    if(CONVOS && !CONVOS.masque && CONVOS.adv && fexNomsCorrespondent(CONVOS.adv, adv)){
+      groupe=(CONVOS.a||[]).map(function(n){ return String(n).replace(/\s*\(.*\)\s*$/,'').trim(); }).filter(Boolean);
+      adresse=CONVOS.lieu||'';
+    }
+  }catch(e){}
+  var d=p.d;
+  return {adv:adv, jour:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),
+    heure:m?(m[1]+'h'+(m[2]||'00')):'', dom:p.c.lieu==='D', ext:p.c.lieu==='E', adresse:adresse, comp:p.c.comp||'', groupe:groupe};
+}
+function a9PublicLive(){
+  if(typeof BDT==='undefined' || !BDT.ouvert) return null;
+  var buts=(BDT.evenements||[]).filter(function(e){ return e.type==='but'; }).map(function(e){ var j=JOUEURS[e.idx]; return {m:e.minute, n:j?String(j.nom).split(' ').slice(-1)[0]:''}; });
+  return {adv:BDT.adversaire||'', nous:BDT.nous, eux:BDT.eux, base:BDT.chronoBase||0, debut:BDT.chronoDebut||0, actif:!!BDT.chronoActif, mt:!!BDT.miTemps, buts:buts, maj:Date.now()};
+}
+var A9_PUB={statique:null, live:null, fin:false};
+function a9PublicEcrire(urgent){
+  var faire=function(){
+    A9.pubT=Date.now(); A9.pubAtt=null;
+    var d={club:'AST Tarnos', s:A9_PUB.statique, live:A9_PUB.live, fin:A9_PUB.fin, maj:Date.now()};
+    var sig=JSON.stringify([d.s, d.live&&[d.live.nous,d.live.eux,d.live.actif,d.live.mt,d.live.base,d.live.debut,(d.live.buts||[]).length], d.fin]);
+    if(sig===A9.pubSig) return; A9.pubSig=sig;
+    fbFetch(FIRESTORE_BASE+'/public/match',{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(d)}}})}).catch(function(){ A9.pubSig=''; });
+  };
+  if(urgent || Date.now()-A9.pubT>10000){ clearTimeout(A9.pubAtt); faire(); }
+  else if(!A9.pubAtt) A9.pubAtt=setTimeout(faire, 10000-(Date.now()-A9.pubT));
+}
+function a9PublicMaj(){
+  try{ var s=a9PublicStatique(); if(s){ if(A9_PUB.statique && A9_PUB.statique.adv!==s.adv){ A9_PUB.live=null; A9_PUB.fin=false; } A9_PUB.statique=s; } }catch(e){}
+  if(A9_PUB.statique) a9PublicEcrire(false);
+}
+function a9LienProches(){
+  var s=A9_PUB.statique, txt='AST Tarnos'+(s&&s.adv?' vs '+s.adv:'')+' : le score et la minute en direct';
+  if(navigator.share){ navigator.share({title:'AST Tarnos · le match', text:txt, url:A9_PAGE_MATCH}).catch(function(){}); return; }
+  try{ navigator.clipboard.writeText(txt+' : '+A9_PAGE_MATCH).then(function(){ notif('✓ Lien des proches copié : colle-le sur le groupe des parents, Facebook…'); }, function(){ prompt('Lien des proches :', A9_PAGE_MATCH); }); }
+  catch(e){ prompt('Lien des proches :', A9_PAGE_MATCH); }
+}
+
+// ---------- l'accueil : vestiaire, vidéo, proches ----------
+function a9ApresAccueil(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  var a7=ct.querySelector('.a7'); if(!a7) return;
+  // le vestiaire, dans la colonne des gens, avant les notes du staff
+  var dr=a7.querySelector('.a7-droite');
+  if(dr && !dr.querySelector('#a9-vest')){
+    var C=a9Compte(), L=(A9.msgs||[]).slice(0,2);
+    var z=document.createElement('div'); z.id='a9-vest'; z.className='a7-col';
+    z.innerHTML='<h2 class="a7-h2" style="margin-top:10px">Le vestiaire<em>'+(C.attente?C.attente+' message'+(C.attente>1?'s':'')+' pour toi seul':(C.nouveaux?C.nouveaux+' nouveau'+(C.nouveaux>1?'x':''):'le fil de l’équipe'))+'</em></h2>'
+      +(C.attente?'<button class="a7-ligne" onclick="a9OuvrirVestiaire(\'prive\')" style="box-shadow:inset 0 0 0 2px var(--gold)"><span class="n">Un joueur t’a écrit en privé</span><span class="a7-tag" style="background:var(--gold);color:#fff">'+C.attente+'</span></button>':'')
+      +'<div class="a9-mini">'+(L.length?L.map(function(m){ return a9MsgHtml(m,true); }).join(''):'<div class="a7-vide">'+(A9.msgs===null?'Chargement…':'Rien dans le vestiaire cette semaine.')+'</div>')+'</div>'
+      +'<button class="a7-ligne" onclick="a9OuvrirVestiaire(\'equipe\')"><span class="n">Ouvrir le vestiaire</span><span class="a7-tag">Écrire</span></button>';
+    var notes=dr.querySelector('.a7-ligne[onclick*="notes-staff"]');
+    if(notes) dr.insertBefore(z, notes); else dr.appendChild(z);
+  }
+  if(!A9.charge && Date.now()-A9.t>90000){ A9.charge=true; a9Charger().then(function(){ A9.charge=false; var v=document.getElementById('a9-vest'); if(v){ v.remove(); a9ApresAccueil(); } }); }
+  // la vidéo du match, en tête de « ce qui s'ouvre chez les joueurs »
+  var env=a7.querySelector('.a7-env'), M=a9DernierMatch();
+  if(env && M && !env.querySelector('.a9-e')){
+    var n=a9VeoDuMatch(M.adv).length;
+    var b=document.createElement('button'); b.className='a7-e a9-e'+(n?'':' prog'); b.onclick=a9OuvrirVeo;
+    b.innerHTML='<span class="q">Après le match</span><b>La vidéo Veo</b><span>'+(n?n+' lien'+(n>1?'s':'')+' chez les joueurs · modifier':'vs '+a9E(M.adv)+' · colle les liens, chacun voit les siens')+'</span>';
+    env.insertBefore(b, env.firstChild);
+  }
+  // le lien des proches : en mode stade, et dans l'en-tête les 2 jours d'avant
+  var sb=a7.querySelector('.a7-stade-b');
+  if(sb && !sb.querySelector('.a9-pr')){ var bp=document.createElement('button'); bp.className='ln a9-pr'; bp.textContent='Lien des proches'; bp.onclick=a9LienProches; sb.insertBefore(bp, sb.querySelector('.q')); }
+  try{
+    var D=bv2Donnees();
+    if(!sb && D.C.prochain && D.C.J!=null && D.C.J>=0 && D.C.J<=2){
+      var pr=a7.querySelector('.a7-pr');
+      if(pr && !pr.querySelector('.a9-lien')){ var l=document.createElement('button'); l.className='a9-lien'; l.textContent='Envoyer le lien du match aux proches'; l.onclick=a9LienProches; pr.appendChild(l); }
+    }
+  }catch(e){}
+  a9PublicMaj();
+}
+
+window.addEventListener('load', function(){
+  if(typeof renderSemaine==='function' && !renderSemaine.__v181){
+    var b1=renderSemaine;
+    renderSemaine=function(){ var r=b1.apply(this, arguments); try{ a9ApresAccueil(); }catch(e){ console.error('a9', e); } return r; };
+    renderSemaine.__v181=true;
+  }
+  if(typeof renderReglages==='function' && !renderReglages.__v181){
+    var b2=renderReglages;
+    renderReglages=function(){ var r=b2.apply(this, arguments); try{ a9BlocNotifs(); }catch(e){ console.error('a9 réglages', e); } return r; };
+    renderReglages.__v181=true;
+  }
+  if(typeof mdPublier==='function' && !mdPublier.__v181){
+    var b3=mdPublier;
+    mdPublier=function(urgent){ var r=b3.apply(this, arguments); try{ A9_PUB.live=a9PublicLive(); if(!A9_PUB.statique) A9_PUB.statique=a9PublicStatique(); a9PublicEcrire(!!urgent); }catch(e){} return r; };
+    mdPublier.__v181=true;
+  }
+  if(typeof bdtTerminer==='function' && !bdtTerminer.__v181){
+    var b4=bdtTerminer;
+    bdtTerminer=function(){
+      var conf=window.confirm, dit=false;
+      window.confirm=function(m){ var v=conf.call(window, m); dit=dit||v; return v; };
+      try{ var r=b4.apply(this, arguments); } finally { window.confirm=conf; }
+      if(dit){ try{ A9_PUB.live=a9PublicLive()||A9_PUB.live; A9_PUB.fin=true; a9PublicEcrire(true); }catch(e){} }
+      return r;
+    };
+    bdtTerminer.__v181=true;
+  }
+  try{ if(document.getElementById('n3-reglages')) a9BlocNotifs(); }catch(e){}
+  setTimeout(function(){ try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1200);
 });
 </script>
 

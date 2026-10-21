@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v180';
+var APP_BUILD='v181';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -8590,6 +8590,313 @@ window.addEventListener('load', function(){
   var obs=new MutationObserver(function(){ a8Vides(document.querySelector('.wrap')); });
   var w=document.querySelector('.wrap'); if(w) obs.observe(w, {childList:true, subtree:true});
   setTimeout(function(){ a8Vides(document); a8Entete(); }, 1500);
+});
+</script>
+
+<script>
+// ===== v181 : le vestiaire, les vidéos du match, le lien des proches (joueur) =====
+//  · « Le vestiaire » remplace la discussion : le plus récent en haut, des
+//    réactions d'un geste (Bravo · Allez · Top), et un message « au coach
+//    seulement » quand ça ne regarde pas tout le groupe.
+//  · Après le match, « Ton match en vidéo » apparaît dans la semaine dès que le
+//    coach a déposé les liens Veo.
+//  · Jour de match : un bouton envoie aux proches la page du match (score en direct).
+(function(){
+  var css=''
+  +'.a9-v{display:flex;flex-direction:column;gap:12px;padding-bottom:24px}'
+  +'.a9-v h1{margin:4px 2px 0;font:900 56px/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.a9-v .sub{margin:0 2px;font-size:13.5px;color:var(--mute)}'
+  +'.a9-ec{background:var(--surface);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px}'
+  +'.a9-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:var(--bg)}'
+  +'.a9-seg button{min-height:38px;border:0;border-radius:9px;background:transparent;color:var(--mute);font:700 13.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.a9-seg button.on{background:var(--ink);color:var(--bg)}'
+  +'.a9-ec textarea{width:100%;box-sizing:border-box;min-height:64px;resize:vertical;border:1.5px solid var(--hair);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px 12px;font:500 15px "Inter",sans-serif}'
+  +'.a9-ec .pied{display:flex;justify-content:space-between;align-items:center;gap:10px}'
+  +'.a9-ec .pied span{font-size:12.5px;color:var(--mute)}'
+  +'.a9-go{min-height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--or);color:#14130F;font:800 14.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.a9-go:disabled{opacity:.5}'
+  +'.a9-m{background:var(--surface);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}'
+  +'.a9-m.coach{background:var(--ink);color:var(--bg)}.a9-m.coach .qd,.a9-m.coach .x{color:var(--bg);opacity:.7}'
+  +'.a9-m .hd{display:flex;align-items:center;gap:10px}'
+  +'.a9-m .av{width:32px;height:32px;flex-shrink:0;border-radius:50%;background:var(--surface2,var(--bg));display:flex;align-items:center;justify-content:center;font:800 12px "Roboto Condensed",sans-serif}'
+  +'.a9-m.coach .av{background:#E2561F;color:#14130F}'
+  +'.a9-m .qui{flex:1;min-width:0;display:flex;flex-direction:column}.a9-m .qui b{font:700 15px "Roboto Condensed",sans-serif}'
+  +'.a9-m .qd{font-size:12px;color:var(--mute)}'
+  +'.a9-m .x{border:0;background:none;color:var(--mute);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:4px}'
+  +'.a9-m .tx{font-size:15px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}'
+  +'.a9-r{display:flex;gap:6px;flex-wrap:wrap}'
+  +'.a9-r button{min-height:34px;padding:0 12px;border-radius:999px;border:1.5px solid var(--hair);background:transparent;color:inherit;font:700 13px "Roboto Condensed",sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .1s ease}'
+  +'.a9-m.coach .a9-r button{border-color:rgba(127,127,127,.45)}'
+  +'.a9-r button:active{transform:scale(.94)}'
+  +'.a9-r button b{font-weight:800}'
+  +'.a9-r button.on{background:var(--or);border-color:var(--or);color:#14130F}'
+  +'.a9-prive{border:1.5px dashed var(--hair);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}'
+  +'.a9-prive .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}'
+  +'.a9-prive .t{font-size:14.5px;line-height:1.4}.a9-prive .rp{font-size:14.5px;line-height:1.4;padding:8px 10px;border-radius:10px;background:var(--surface)}'
+  +'.a9-prive .rp b{color:var(--or)}'
+  +'.a9-hub{display:flex;flex-direction:column;gap:8px}'
+  +'.a9-hub .a9-m .tx{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.a9-video{border-radius:18px;padding:16px;background:#14130F;color:#F2EEE6;display:flex;flex-direction:column;gap:8px}'
+  +'.a9-video .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#FF7A45}'
+  +'.a9-video b{font:900 26px/1 "Roboto Condensed",sans-serif}.a9-video span{font-size:14px;color:#CFC8BB}'
+  +'.a9-video .bt{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}'
+  +'.a9-video a,.a9-video button{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:12px;border:0;text-decoration:none;cursor:pointer;font:700 14px "Inter",sans-serif;background:#E2561F;color:#14130F}'
+  +'.a9-video button.ln{background:transparent;color:#F2EEE6;box-shadow:inset 0 0 0 1.5px #4A463E}'
+  +'.a9-proches{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--surface)}'
+  +'.a9-proches .tx{flex:1;display:flex;flex-direction:column;gap:2px}.a9-proches b{font:700 15px "Roboto Condensed",sans-serif}.a9-proches span{font-size:12.5px;color:var(--mute)}'
+  +'.a9-proches button{min-height:42px;padding:0 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:700 13.5px "Inter",sans-serif;cursor:pointer;white-space:nowrap}';
+  var s=document.createElement('style'); s.id='v181-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var A9_REAC=[['bravo','Bravo'],['allez','Allez'],['top','Top']];
+var VEST={msgs:null, t:0, mode:'equipe', prives:null, charge:false};
+try{ JS_A_MOI.mots_coach='joueurNum'; }catch(e){}
+
+function a9E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function a9Init(n){ n=String(n||'').trim(); if(/^coach$/i.test(n)) return 'C'; return n.split(/\s+/).map(function(m){ return m.charAt(0); }).join('').slice(0,2).toUpperCase(); }
+function a9Quand(iso){
+  var d=new Date(iso); if(isNaN(d)) return '';
+  var s=(Date.now()-d.getTime())/1000;
+  if(s<60) return 'à l’instant';
+  if(s<3600) return 'il y a '+Math.floor(s/60)+' min';
+  if(s<86400) return 'il y a '+Math.floor(s/3600)+' h';
+  if(s<172800) return 'hier';
+  return d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
+}
+function a9Reac(f){
+  var o={}, m=(((f||{}).reac||{}).mapValue||{}).fields||{};
+  Object.keys(m).forEach(function(k){ o[k]=(m[k]||{}).stringValue||''; });
+  return o;
+}
+
+// ---------- lire ----------
+async function a9Charger(){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/messages_chat?pageSize=300');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    VEST.msgs=(data.documents||[]).map(function(doc){
+      var f=doc.fields||{};
+      return {id:(doc.name||'').split('/').pop(), auteur:(f.auteur||{}).stringValue||'', texte:(f.texte||{}).stringValue||'',
+        role:(f.role||{}).stringValue||'joueur', date:(f.date||{}).stringValue||'',
+        num:(f.auteurNum||{}).integerValue!=null?String(f.auteurNum.integerValue):'', reac:a9Reac(f)};
+    }).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    VEST.t=Date.now();
+    try{ window._chatSignature=JSON.stringify({n:VEST.msgs.length,last:VEST.msgs.length?VEST.msgs[0].date:''}); }catch(e){}
+  }catch(e){ if(!VEST.msgs) VEST.msgs=[]; }
+  return VEST.msgs;
+}
+async function a9ChargerPrives(){
+  try{
+    var res=await fbFetch(FIRESTORE_BASE+'/mots_coach?pageSize=100');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    VEST.prives=(data.documents||[]).map(function(doc){
+      var f=doc.fields||{};
+      return {id:(doc.name||'').split('/').pop(), texte:(f.texte||{}).stringValue||'', date:(f.date||{}).stringValue||'',
+        reponse:(f.reponse||{}).stringValue||'', dateReponse:(f.dateReponse||{}).stringValue||''};
+    }).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  }catch(e){ if(!VEST.prives) VEST.prives=[]; }
+  return VEST.prives;
+}
+function a9EstMoi(m){ return (m.num && String(m.num)===String(MON_NUM)) || (!m.num && m.role!=='coach' && m.auteur===MON_NOM); }
+
+// ---------- une carte ----------
+function a9CarteHtml(m){
+  var coach=m.role==='coach', moi=a9EstMoi(m);
+  var mien=m.reac['j'+MON_NUM]||'';
+  var cpt={}; Object.keys(m.reac).forEach(function(k){ var v=m.reac[k]; if(v) cpt[v]=(cpt[v]||0)+1; });
+  return '<div class="a9-m'+(coach?' coach':'')+'" data-id="'+a9E(m.id)+'">'
+    +'<div class="hd"><span class="av">'+a9E(a9Init(m.auteur))+'</span><span class="qui"><b>'+a9E(coach?(m.auteur&&m.auteur!=='Coach'?m.auteur+' · staff':'Le coach'):(moi?'Toi':m.auteur))+'</b><span class="qd">'+a9E(a9Quand(m.date))+'</span></span>'
+    +(moi?'<button class="x" onclick="a9Supprimer(\''+a9E(m.id)+'\')">Retirer</button>':'')+'</div>'
+    +'<div class="tx">'+a9E(m.texte)+'</div>'
+    +'<div class="a9-r">'+A9_REAC.map(function(r){
+      var n=cpt[r[0]]||0;
+      return '<button class="'+(mien===r[0]?'on':'')+'" onclick="a9Reagir(\''+a9E(m.id)+'\',\''+r[0]+'\')" aria-pressed="'+(mien===r[0])+'">'+r[1]+(n?' <b>'+n+'</b>':'')+'</button>';
+    }).join('')+'</div></div>';
+}
+
+// ---------- l'écran ----------
+function a9EcranHtml(){
+  var L=VEST.msgs||[];
+  var h='<div class="a9-v"><h1>Le vestiaire</h1><p class="sub">'+(VEST.mode==='coach'?'Ce message ne part qu’au staff : personne d’autre ne le lit.':'Toute l’équipe et le staff lisent ici. Un bravo, une info, une question.')+'</p>';
+  h+='<div class="a9-ec"><div class="a9-seg"><button class="'+(VEST.mode==='equipe'?'on':'')+'" onclick="VEST.mode=\'equipe\';a9Rendre()">Toute l’équipe</button><button class="'+(VEST.mode==='coach'?'on':'')+'" onclick="VEST.mode=\'coach\';a9Rendre()">Au coach seulement</button></div>'
+    +'<textarea id="a9-txt" maxlength="800" placeholder="'+(VEST.mode==='coach'?'Écris au coach…':'Écris à l’équipe…')+'"></textarea>'
+    +'<div class="pied"><span>'+(VEST.mode==='coach'?'Le coach te répondra ici.':'Visible par tous.')+'</span><button class="a9-go" id="a9-go" onclick="a9Envoyer()">Envoyer</button></div></div>';
+  if(VEST.mode==='coach'){
+    var P=VEST.prives;
+    if(P===null) h+='<div class="empty-txt a8-vide">Chargement de tes messages au coach…</div>';
+    else if(!P.length) h+='<div class="empty-txt a8-vide">Tes messages au coach et ses réponses apparaîtront ici.</div>';
+    else h+=P.slice(0,20).map(function(p){
+      return '<div class="a9-prive"><span class="k">Toi au coach · '+a9E(a9Quand(p.date))+'</span><div class="t">'+a9E(p.texte)+'</div>'
+        +(p.reponse?'<div class="rp"><b>Le coach :</b> '+a9E(p.reponse)+'</div>':'<span class="k" style="letter-spacing:.04em;text-transform:none;font-weight:600">Pas encore de réponse</span>')+'</div>';
+    }).join('');
+  } else {
+    if(VEST.msgs===null) h+='<div class="empty-txt a8-vide">Chargement du vestiaire…</div>';
+    else if(!L.length) h+='<div class="empty-txt a8-vide">Le vestiaire est vide pour l’instant. Le premier bravo, c’est toi ?</div>';
+    else h+=L.slice(0,60).map(a9CarteHtml).join('');
+  }
+  return h+'</div>';
+}
+function a9Rendre(){
+  var ct=document.getElementById('scr-messages'); if(!ct) return;
+  var garde=(document.getElementById('a9-txt')||{}).value||'';
+  ct.innerHTML=a9EcranHtml();
+  var t=document.getElementById('a9-txt'); if(t && garde) t.value=garde;
+  if(VEST.mode==='coach' && VEST.prives===null) a9ChargerPrives().then(function(){ if(ECRAN_ACTIF==='messages') a9Rendre(); });
+}
+async function a9RenderVestiaire(){
+  a9Rendre();
+  await a9Charger();
+  if(ECRAN_ACTIF==='messages') a9Rendre();
+}
+
+// ---------- écrire ----------
+async function a9Envoyer(){
+  var t=document.getElementById('a9-txt'), b=document.getElementById('a9-go');
+  var texte=(t&&t.value||'').trim(); if(!texte) return;
+  if(b) b.disabled=true;
+  var maintenant=new Date().toISOString();
+  try{
+    if(VEST.mode==='coach'){
+      var res=await fbFetch(FIRESTORE_BASE+'/mots_coach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+        joueurNum:{integerValue:String(MON_NUM)}, joueurNom:{stringValue:MON_NOM||''}, texte:{stringValue:texte}, date:{stringValue:maintenant}, lu:{booleanValue:false}}})});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      if(!VEST.prives) VEST.prives=[];
+      VEST.prives.unshift({id:'', texte:texte, date:maintenant, reponse:''});
+      notif('✓ Envoyé au coach, à lui seul');
+    } else {
+      var r2=await fbFetch(FIRESTORE_BASE+'/messages_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+        auteur:{stringValue:MON_NOM||''}, texte:{stringValue:texte}, role:{stringValue:'joueur'}, date:{stringValue:maintenant}}})});
+      if(!r2.ok) throw new Error('HTTP '+r2.status);
+      await a9Charger();
+    }
+    if(t) t.value='';
+  }catch(e){ notif('⚠ Pas parti : vérifie ta connexion'); }
+  if(b) b.disabled=false;
+  a9Rendre(); a9HubRemplir();
+}
+async function a9Supprimer(id){
+  if(!confirm('Retirer ce message du vestiaire ?')) return;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/messages_chat/'+id,{method:'DELETE'});
+    if(!r.ok) throw new Error();
+    VEST.msgs=(VEST.msgs||[]).filter(function(m){ return m.id!==id; });
+  }catch(e){ notif('⚠ Impossible de le retirer pour l’instant'); }
+  a9Rendre(); a9HubRemplir();
+}
+async function a9Reagir(id, k){
+  var m=(VEST.msgs||[]).filter(function(x){ return x.id===id; })[0]; if(!m) return;
+  var cle='j'+MON_NUM, avant=m.reac[cle]||'';
+  var apres=(avant===k)?'':k;
+  if(apres) m.reac[cle]=apres; else delete m.reac[cle];
+  a9Rendre(); a9HubRemplir();
+  var corps=apres?{fields:{reac:{mapValue:{fields:{}}}}}:{fields:{}};
+  if(apres) corps.fields.reac.mapValue.fields[cle]={stringValue:apres};
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/messages_chat/'+id+'?updateMask.fieldPaths=reac.'+cle,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(corps)});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+  }catch(e){
+    if(avant) m.reac[cle]=avant; else delete m.reac[cle];
+    notif('⚠ Réaction pas enregistrée : vérifie ta connexion');
+    a9Rendre(); a9HubRemplir();
+  }
+}
+// un lien Veo s'ouvre déjà au bon endroit : pas d'avertissement « va à 0:00 »
+try{ var a9SautBase=cjSaitSauter; cjSaitSauter=function(u){ return /veo\.co|app\.veo/i.test(String(u||'')) || a9SautBase(u); }; }catch(e){}
+// les anciennes fonctions de la discussion passent par le vestiaire
+renderMessages=a9RenderVestiaire;
+envoyerMessageChat=a9Envoyer;
+supprimerMessageChat=a9Supprimer;
+
+// ---------- dans la semaine : le vestiaire, la vidéo, les proches ----------
+function a9HubRemplir(){
+  var z=document.getElementById('a9-vest-hub'); if(!z) return;
+  var L=(VEST.msgs||[]).slice(0,2);
+  z.innerHTML=(L.length?L.map(a9CarteHtml).join(''):'<div class="empty-txt a8-vide">'+(VEST.msgs===null?'Chargement…':'Personne n’a encore écrit cette semaine. Un bravo après la séance ?')+'</div>')
+    +'<div class="a8-liens"><button onclick="VEST.mode=\'equipe\';jAller(\'messages\')">Ouvrir le vestiaire</button><button onclick="VEST.mode=\'coach\';VEST.prives=null;jAller(\'messages\')">Écrire au coach</button></div>';
+}
+function a9DateClip(c){
+  var m=/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(c.cree||'')); if(!m) return null;
+  return new Date(+m[3], +m[2]-1, +m[1]);
+}
+function a9ClipsRecents(){
+  var L=((SAISON&&SAISON.CLIPS)||[]).filter(function(c){ return c && c.veo && cjMeConcerne(c); });
+  var lim=Date.now()-8*86400000;
+  return L.filter(function(c){ var d=a9DateClip(c); return d && d.getTime()>=lim; })
+    .sort(function(a,b){ return (cjPourMoi(b)?1:0)-(cjPourMoi(a)?1:0); });
+}
+function a9VideoHtml(){
+  var L=[]; try{ L=a9ClipsRecents(); }catch(e){}
+  if(!L.length) return '';
+  var moi=L.filter(cjPourMoi)[0], tous=L.filter(function(c){ return !cjPourMoi(c); })[0];
+  var adv=(moi||tous).adv||'';
+  var lien=function(c){ try{ return cjLien(c); }catch(e){ return c.url; } };
+  return '<div class="a9-video"><span class="k">Le match en vidéo'+(adv?' · vs '+a9E(adv):'')+'</span>'
+    +'<b>'+(moi?'Tes actions sont prêtes':'La vidéo du match est là')+'</b>'
+    +'<span>'+(moi?'Le coach a monté tes séquences. Regarde-les avant la séance de mardi.':'Revois le match avant la séance de mardi.')+'</span>'
+    +'<div class="bt">'+(moi?'<a href="'+a9E(lien(moi))+'" target="_blank" rel="noopener">Voir mes actions</a>':'')
+    +(tous?'<a href="'+a9E(lien(tous))+'" target="_blank" rel="noopener"'+(moi?' style="background:transparent;color:#F2EEE6;box-shadow:inset 0 0 0 1.5px #4A463E"':'')+'>Le match en entier</a>':'')
+    +'<button class="ln" onclick="jAller(\'clips\')">Tous mes clips</button></div></div>';
+}
+var A9_PAGE_MATCH='https://asttarnos.github.io/ast-tarnos/MATCH.html';
+function a9Proches(){
+  var p=null; try{ p=jvProchainMatch(); }catch(e){}
+  var adv=p&&p.c?(p.c.adversaire||''):'';
+  var texte='AST Tarnos'+(adv?' vs '+adv:'')+' : suis le match en direct (score et minute) ici';
+  if(navigator.share){ navigator.share({title:'AST Tarnos · le match', text:texte, url:A9_PAGE_MATCH}).catch(function(){}); return; }
+  try{ navigator.clipboard.writeText(texte+' : '+A9_PAGE_MATCH).then(function(){ notif('✓ Lien copié : colle-le dans un message à tes proches'); }); }
+  catch(e){ prompt('Copie ce lien pour tes proches :', A9_PAGE_MATCH); }
+}
+function a9ProchesHtml(){
+  return '<div class="a9-proches"><span class="tx"><b>Tes proches suivent le match</b><span>Une page avec le score et la minute en direct, sans appli ni code.</span></span><button onclick="a9Proches()">Leur envoyer</button></div>';
+}
+function a9ApresHub(){
+  var ct=document.getElementById('scr-hub'); if(!ct) return;
+  var a7=ct.querySelector('.a7j'); if(!a7) return;
+  var h2s=a7.querySelectorAll('h2.a7j-h2'), saison=null, match=null;
+  h2s.forEach(function(x){ var t=x.textContent||''; if(/^Ta saison/.test(t)) saison=x; if(/^Le match/.test(t)) match=x; });
+  // la vidéo : juste après « à toi de répondre », c'est le premier geste de la semaine
+  var vid=a9VideoHtml();
+  if(vid && match){ var d=document.createElement('div'); d.innerHTML=vid; match.parentNode.insertBefore(d.firstChild, match); }
+  // les proches : dans le mode stade, et dans « le match » les 2 jours qui précèdent
+  var p=null; try{ p=jvProchainMatch(); }catch(e){}
+  var jx=p?Math.round((p.d-new Date(new Date().setHours(0,0,0,0)))/86400000):99;
+  var st=a7.querySelector('.a8-stade .bt');
+  if(st && !st.querySelector('.a9-pr')){ var b=document.createElement('button'); b.className='ln a9-pr'; b.textContent='Lien pour mes proches'; b.onclick=a9Proches; st.insertBefore(b, st.querySelector('.q')); }
+  else if(match && jx>=0 && jx<=2){
+    var lk=match.nextElementSibling; var d2=document.createElement('div'); d2.innerHTML=a9ProchesHtml();
+    var ref=a7.querySelector('.a8-liens button[onclick*="jourmatch"]'); ref=ref&&ref.parentNode;
+    if(ref) ref.parentNode.insertBefore(d2.firstChild, ref); else if(lk) lk.parentNode.insertBefore(d2.firstChild, lk);
+  }
+  // le vestiaire, avant « Ta saison »
+  if(saison){
+    var h=document.createElement('h2'); h.className='a7j-h2'; h.innerHTML='Le vestiaire<em>'+((VEST.msgs||[]).length?'les derniers mots':'l’équipe')+'</em>';
+    var z=document.createElement('div'); z.id='a9-vest-hub'; z.className='a9-hub';
+    saison.parentNode.insertBefore(h, saison); saison.parentNode.insertBefore(z, saison);
+    a9HubRemplir();
+    if(!VEST.charge && Date.now()-VEST.t>60000){ VEST.charge=true; a9Charger().then(function(){ VEST.charge=false; a9HubRemplir(); var e=h.querySelector('em'); if(e && VEST.msgs.length) e.textContent='les derniers mots'; }); }
+  }
+  // la version
+  var v=document.getElementById('app-version-joueur');
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v181</b> · 21/10/2026<br><span style="opacity:.8">Le vestiaire, la vidéo du match, les proches</span>';
+}
+
+window.addEventListener('load', function(){
+  try{ RENDER_MAP.messages=[a9RenderVestiaire]; }catch(e){}
+  try{ if(RUB_INFO.messages) RUB_INFO.messages.l='Vestiaire'; }catch(e){}
+  try{ A8_CLUB.forEach(function(t){ if(t.s==='messages'){ t.l='Le vestiaire'; t.d='l’équipe, les bravos, le coach'; t.f=true; } if(t.s==='accueil') t.f=false; }); }catch(e){}
+  if(typeof jxRenderHub==='function' && !jxRenderHub.__v181){
+    var base=jxRenderHub;
+    jxRenderHub=function(){ var r=base.apply(this, arguments); try{ a9ApresHub(); }catch(e){ console.error('a9', e); } return r; };
+    jxRenderHub.__v181=true; try{ window.jxRenderHub=jxRenderHub; }catch(e){}
+  }
+  // « En parler au coach » (pas convoqué) ouvre le message privé, pas la discussion de groupe
+  document.addEventListener('click', function(e){
+    var b=e.target.closest && e.target.closest('.a8-nc button');
+    if(b && /coach/i.test(b.textContent||'')){ VEST.mode='coach'; VEST.prives=null; }
+  }, true);
+  try{ if(ECRAN_ACTIF==='hub') renderHub(); }catch(e){}
 });
 </script>
 
