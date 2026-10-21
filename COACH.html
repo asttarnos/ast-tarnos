@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v184</b> · 21/10/2026<br>
-      <span style="opacity:.7">Le groupe des leaders</span>
+      AST COACH <b style="color:var(--or)">v185</b> · 21/10/2026<br>
+      <span style="opacity:.7">Le coin des coachs, l’analyse vidéo</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v184';
+var APP_BUILD='v185';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -41387,6 +41387,320 @@ window.addEventListener('load', function(){
     a7ChargerSoir.__v184=true;
   }
   setTimeout(function(){ try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1700);
+});
+</script>
+
+<script>
+// ===== v184 · correctif : le rapport adversaire a son bouton « Enregistrer » =====
+// Le rapport s'enregistrait tout seul à chaque champ quitté, mais rien ne le
+// disait et aucun bouton ne ramenait au dossier d'avant-match. Désormais :
+// « Enregistrer et revenir au dossier » (ou « Enregistrer » si on n'en vient pas).
+var R4={origine:''};
+var R4_NOMS={studio:'au dossier d’avant-match', 'avant-match':'au dossier d’avant-match', 'feuille-match':'à la feuille de match', semaine:'à la semaine', compos:'aux compositions'};
+function r4EcranOuvert(){ var e=document.querySelector('.scr.on'); return e?e.id.replace(/^scr-/,''):''; }
+try{
+  EXT.avant('goNav', function(x){
+    var s=(typeof x==='string')?x:'';
+    if(s==='adversaires'){ var o=r4EcranOuvert(); if(o && o!=='adversaires') R4.origine=o; }
+    return null;
+  }, 'retour du rapport');
+}catch(e){}
+function r4Enregistrer(){
+  // le champ en cours de frappe s'enregistre d'abord (il n'a pas encore été quitté)
+  var a=document.activeElement;
+  if(a && a.closest && a.closest('#rap-ct') && typeof a.onchange==='function'){ try{ a.onchange(); }catch(e){} }
+  if(a && a.blur) a.blur();
+  try{ if(RAP_NOM) rapEcrire(function(){}); }catch(e){}
+  try{ sauvegarder(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
+  notif('✓ Rapport enregistré');
+  var o=R4.origine;
+  if(o && R4_NOMS[o]){ R4.origine=''; setTimeout(function(){ goNav(o); }, 250); }
+}
+function r4Bouton(){
+  var o=R4.origine, lab=(o && R4_NOMS[o])?'✓ Enregistrer et revenir '+R4_NOMS[o]:'✓ Enregistrer';
+  document.querySelectorAll('#rap-blk .r4-b').forEach(function(x){ x.textContent=lab; });
+  var bas=document.querySelector('#rap-ct .rap-bas'); if(!bas || bas.querySelector('.r4-b')) return;
+  var b=document.createElement('button');
+  b.className='btn r4-b'; b.type='button';
+  b.style.cssText='width:auto;margin:0 0 0 auto;padding:12px 20px;white-space:nowrap';
+  b.textContent=lab;
+  b.onclick=r4Enregistrer;
+  bas.appendChild(b);
+  // et le même en haut du rapport, pour ne pas descendre chercher
+  var bh=document.querySelector('#rap-blk .bh');
+  if(bh && !bh.querySelector('.r4-b')){ var b2=b.cloneNode(true); b2.onclick=r4Enregistrer; b2.style.cssText='width:auto;margin:0 0 0 12px;padding:8px 14px;font-size:13px;white-space:nowrap'; bh.appendChild(b2); }
+}
+window.addEventListener('load', function(){
+  if(typeof rapRender==='function' && !rapRender.__v184){
+    var b=rapRender;
+    rapRender=function(){ var r=b.apply(this, arguments); try{ r4Bouton(); }catch(e){} return r; };
+    rapRender.__v184=true;
+  }
+  try{ EXT.apres('goNav', function(x){ if(x==='adversaires') setTimeout(r4Bouton, 120); }, 'bouton du rapport'); }catch(e){}
+});
+</script>
+
+<script>
+// ===== v185 : « Le coin des coachs » et l'analyse vidéo =====
+//  · « Le fond de jeu » devient « Le coin des coachs » : Le projet de jeu ·
+//    Exercices & séances · Analyse vidéo · Documentation.
+//  · Analyse vidéo : toutes les vidéos au même endroit, en quatre rayons
+//    (nos matchs, adversaires, nos séances, inspiration), étiquetées par
+//    adversaire, phase de jeu / principe et joueurs. Les vidéos d'un adversaire
+//    remontent dans son rapport et dans le dossier d'avant-match.
+//  · La fiche d'une équipe adverse : ses vidéos, ton rapport, l'aller et le retour.
+var AV_RAYONS=[
+  {k:'matchs', l:'Nos matchs', d:'Veo, matchs entiers, résumés', cat:'Divers'},
+  {k:'adversaires', l:'Adversaires', d:'rangés par équipe', cat:'Adversaires'},
+  {k:'seances', l:'Nos séances', d:'exercices filmés, situations', cat:'Entrainement'},
+  {k:'inspiration', l:'Inspiration', d:'clips pros, tutos, idées', cat:'Divers'}
+];
+var AV_PHASES=[['OFF','Avec le ballon','#d97706'],['DEF','Sans le ballon','#22a06b'],['TRP','Transition à la perte','#dc4444'],['TRR','Transition à la récup.','#4ea8de'],['CPA','Coups de pied arrêtés','#b285e8']];
+(function(){
+  var css=''
+  +'.av{display:flex;flex-direction:column;gap:16px;padding:6px 0 30px;font-family:"Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.av-hero{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;padding-bottom:14px;border-bottom:2px solid var(--gris)}'
+  +'.av-hero h1{margin:0;font:900 clamp(48px,7vw,84px)/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.av-hero p{margin:6px 0 0;font-size:15px;color:var(--gris2);max-width:620px;line-height:1.45}'
+  +'.av-ray{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}'
+  +'@media(max-width:900px){.av-ray{grid-template-columns:repeat(2,minmax(0,1fr))}}'
+  +'.av-r{padding:12px 14px;border-radius:16px;background:var(--carte);border:0;text-align:left;cursor:pointer;color:var(--gris);display:flex;flex-direction:column;gap:2px;font-family:"Roboto Condensed",sans-serif}'
+  +'.av-r b{font:900 30px/.9 "Roboto Condensed",sans-serif}.av-r span{font-size:15px;font-weight:700}.av-r i{font-style:normal;font-size:12px;color:var(--gris2)}'
+  +'.av-r.on{background:var(--gris);color:var(--fond)}.av-r.on i{color:var(--fond);opacity:.75}'
+  +'.av-fil{display:flex;flex-wrap:wrap;gap:8px;align-items:center}'
+  +'.av-fil select,.av-fil input{min-height:42px}'
+  +'.av-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}'
+  +'.av-c{border-radius:16px;background:var(--carte);overflow:hidden;display:flex;flex-direction:column}'
+  +'.av-th{position:relative;aspect-ratio:16/9;background:#14130F;display:flex;align-items:center;justify-content:center;color:#F2EEE6;font:900 20px "Roboto Condensed",sans-serif;text-decoration:none}'
+  +'.av-th img{width:100%;height:100%;object-fit:cover;display:block}'
+  +'.av-th .pl{position:absolute;width:46px;height:46px;border-radius:50%;background:rgba(226,86,31,.92);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}'
+  +'.av-th .src{position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.65);font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase}'
+  +'.av-cb{padding:12px;display:flex;flex-direction:column;gap:6px}'
+  +'.av-cb b{font-size:16px;line-height:1.2}.av-cb .m{font-size:12.5px;color:var(--gris2)}'
+  +'.av-tags{display:flex;flex-wrap:wrap;gap:4px}.av-tags span{padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--carte3)}'
+  +'.av-act{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}'
+  +'.av-act button{min-height:34px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line2);background:transparent;color:var(--gris);font:700 12.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.av-eq{padding:16px;border-radius:18px;background:var(--carte);display:flex;flex-direction:column;gap:10px}'
+  +'.av-eq .h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}'
+  +'.av-eq h2{margin:0;font:900 34px/.9 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.av-eq .ar{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}.av-eq .ar span{padding:6px 10px;border-radius:10px;background:var(--fond)}'
+  +'.av-ph{display:flex;flex-wrap:wrap;gap:6px}.av-ph span{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line2);cursor:pointer;font-size:13.5px;font-weight:700}'
+  +'.av-ph span.on{background:var(--pc);border-color:var(--pc);color:#fff}'
+  +'.av-vids{display:flex;flex-direction:column;gap:6px;margin-top:6px}'
+  +'.av-vids a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--voile2,rgba(127,127,127,.08));color:inherit;text-decoration:none;font-size:14px}';
+  var s=document.createElement('style'); s.id='v185-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var AV={rayon:'tout', adv:'', phase:'', joueur:'', q:'', edit:null, f:null, ouvertEq:''};
+function avE(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function avMeme(a,b){ try{ return fexNomsCorrespondent(a||'', b||''); }catch(e){ return String(a||'').toLowerCase()===String(b||'').toLowerCase(); } }
+function avRayonDe(v){
+  if(v.rayon) return v.rayon;
+  if(/^adversaire/i.test(v.categorie||'')) return 'adversaires';
+  if(/^entra/i.test(v.categorie||'')) return 'seances';
+  if(/veo\.co/i.test(v.url||'')) return 'matchs';
+  return 'inspiration';
+}
+// ce que l'appli connaît déjà : la bibliothèque, et les liens vidéo des rapports adverses
+function avToutes(){
+  var L=(VIDEOS||[]).map(function(v,i){ return Object.assign({}, v, {_i:i, _r:avRayonDe(v), _adv:v.adv||(avRayonDe(v)==='adversaires'?avAdvDuTitre(v.titre):'')}); });
+  (ADVERSAIRES||[]).forEach(function(a){
+    var r=a.rapport||{}, u=String(r.video||'').trim();
+    if(u && !L.some(function(v){ return v.url===u; })) L.push({titre:'Vidéo d’eux (rapport)', url:u, _r:'adversaires', _adv:a.nom, _rapport:true, date:r.maj||''});
+    (a.fiches||[]).forEach(function(f){ var u2=String(f.video||'').trim(); if(u2 && !L.some(function(v){ return v.url===u2; })) L.push({titre:'Vidéo (ancienne fiche)', url:u2, _r:'adversaires', _adv:a.nom, _rapport:true, date:f.date||''}); });
+  });
+  return L;
+}
+function avAdvDuTitre(t){
+  var n=(ADVERSAIRES||[]).filter(function(a){ return a.nom && String(t||'').toLowerCase().indexOf(String(a.nom).toLowerCase())>=0; })[0];
+  return n?n.nom:'';
+}
+function avYt(u){ var m=String(u||'').match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/); return m?m[1]:null; }
+function avSource(u){ return /veo\.co/i.test(u)?'Veo':(avYt(u)?'YouTube':(/vimeo/i.test(u)?'Vimeo':'Lien')); }
+function avFiltrer(L){
+  return L.filter(function(v){
+    if(AV.rayon!=='tout' && v._r!==AV.rayon) return false;
+    if(AV.adv && !avMeme(v._adv, AV.adv)) return false;
+    if(AV.phase && (v.phases||[]).indexOf(AV.phase)<0 && !(v.principes||[]).some(function(c){ return String(c).indexOf(AV.phase)===0; })) return false;
+    if(AV.joueur && (v.joueurs||[]).map(String).indexOf(String(AV.joueur))<0) return false;
+    if(AV.q){ var t=(v.titre+' '+(v.notes||'')+' '+(v._adv||'')).toLowerCase(); if(t.indexOf(AV.q.toLowerCase())<0) return false; }
+    return true;
+  });
+}
+function avCarte(v){
+  var yt=avYt(v.url), src=avSource(v.url);
+  var tags=[];
+  if(v._adv) tags.push(v._adv);
+  (v.phases||[]).forEach(function(p){ tags.push(p); });
+  (v.principes||[]).forEach(function(p){ tags.push(p); });
+  var noms=(v.joueurs||[]).map(function(n){ var j=(JOUEURS||[]).filter(function(x){ return String(x.num)===String(n); })[0]; return j?String(j.nom).split(' ').pop():null; }).filter(Boolean);
+  return '<div class="av-c"><a class="av-th" href="'+avE(v.url)+'" target="_blank" rel="noopener">'+(yt?'<img src="https://img.youtube.com/vi/'+yt+'/mqdefault.jpg" alt="" loading="lazy">':'')+'<span class="src">'+src+'</span><span class="pl">▶</span></a>'
+    +'<div class="av-cb"><b>'+avE(v.titre||'Sans titre')+'</b><span class="m">'+avE([AV_RAYONS.filter(function(r){ return r.k===v._r; }).map(function(r){ return r.l; })[0], v.date].filter(Boolean).join(' · '))+(v._rapport?' · depuis le rapport':(v.partage===false?' · staff seulement':' · visible joueurs'))+'</span>'
+    +((tags.length||noms.length)?'<div class="av-tags">'+tags.map(function(t){ return '<span>'+avE(t)+'</span>'; }).join('')+noms.map(function(n){ return '<span style="background:var(--or);color:#fff">'+avE(n)+'</span>'; }).join('')+'</div>':'')
+    +(v.notes?'<span class="m" style="color:var(--gris)">'+avE(v.notes)+'</span>':'')
+    +'<div class="av-act">'+(v._adv?'<button onclick="AV.ouvertEq='+avE(JSON.stringify(v._adv))+';AV.rayon=\'adversaires\';avRendre()">Fiche '+avE(String(v._adv).split(' ')[0])+'</button>':'')
+    +'<button onclick="avClip('+avE(JSON.stringify(v.url))+')">Faire un clip</button>'
+    +(v._rapport?'':'<button onclick="avModifier('+v._i+')">Modifier</button><button onclick="avSuppr('+v._i+')">Retirer</button>')+'</div></div></div>';
+}
+function avFicheEquipe(nom){
+  var L=avToutes().filter(function(v){ return avMeme(v._adv, nom); });
+  var a=(ADVERSAIRES||[]).filter(function(x){ return avMeme(x.nom, nom); })[0]||{nom:nom};
+  var r=a.rapport||{};
+  var cal=(CALENDRIER||[]).filter(function(c){ return avMeme(c.adversaire, nom); });
+  var res=function(c){ try{ var m=dvResultatEnregistre(c.adversaire); var d=dvJourDe(c); var passe=d && dvEcartJours(d)<0; if(!passe) return 'à venir · '+(c.date||''); if(m) return (m.ast!=null?m.ast:'?')+' – '+(m.adv!=null?m.adv:'?'); return 'joué · score non saisi'; }catch(e){ return c.date||''; } };
+  return '<div class="av-eq"><div class="h"><h2>'+avE(nom)+'</h2><button class="a7-b cl" onclick="AV.ouvertEq=\'\';avRendre()">Toutes les équipes</button></div>'
+    +'<div class="ar">'+(cal.length?cal.map(function(c,i){ return '<span><b>'+(c.lieu==='D'?'Domicile':(c.lieu==='E'?'Extérieur':(i?'Retour':'Aller')))+'</b> · '+avE(res(c))+'</span>'; }).join(''):'<span>Pas au calendrier cette saison</span>')
+      +'<span><b>Rapport</b> · '+(r.maj?(r.diffuse?'diffusé':'brouillon')+' du '+avE(r.maj):'pas encore fait')+'</span></div>'
+    +(r.resume?'<span style="font-size:15px">« '+avE(r.resume)+' »</span>':'')
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="a7-b or" onclick="rapOuvrir('+avE(JSON.stringify(nom))+')">'+(r.maj?'Ouvrir le rapport':'Faire le rapport')+'</button><button class="a7-b cl" onclick="avNouvelle(\'adversaires\','+avE(JSON.stringify(nom))+')">+ Une vidéo d’eux</button></div></div>'
+    +'<div class="av-g">'+(L.length?L.map(avCarte).join(''):'<div class="a7-vide">Aucune vidéo de '+avE(nom)+' pour l’instant.</div>')+'</div>';
+}
+function avEquipes(){
+  var noms={};
+  avToutes().forEach(function(v){ if(v._r==='adversaires' && v._adv) noms[v._adv]=(noms[v._adv]||0)+1; });
+  (CALENDRIER||[]).forEach(function(c){ if(c.adversaire && !Object.keys(noms).some(function(n){ return avMeme(n, c.adversaire); })) noms[c.adversaire]=0; });
+  return Object.keys(noms).sort(function(a,b){ return noms[b]-noms[a] || a.localeCompare(b); }).map(function(n){ return {nom:n, n:noms[n]}; });
+}
+function avRendre(){
+  var ct=document.getElementById('av-ct'); if(!ct) return;
+  var T=avToutes();
+  var cpt=function(k){ return k==='tout'?T.length:T.filter(function(v){ return v._r===k; }).length; };
+  var h='<div class="av"><div class="av-hero"><div><h1>Analyse vidéo</h1><p>Toutes les vidéos du staff au même endroit : nos matchs, les adversaires, nos séances, l’inspiration. Étiquette-les une fois, retrouve-les en deux touches, fais-en des clips pour les joueurs.</p></div>'
+    +'<button class="btn" style="width:auto;margin:0;padding:12px 18px" onclick="avNouvelle()">+ Ajouter une vidéo</button></div>';
+  h+='<div class="av-ray">'+[{k:'tout', l:'Tout', d:'toutes les vidéos'}].concat(AV_RAYONS).map(function(r){ return '<button class="av-r'+(AV.rayon===r.k?' on':'')+'" onclick="AV.rayon=\''+r.k+'\';AV.ouvertEq=\'\';avRendre()"><b>'+cpt(r.k)+'</b><span>'+r.l+'</span><i>'+r.d+'</i></button>'; }).join('')+'</div>';
+  if(AV.f) h+=avFormHtml();
+  if(AV.rayon==='adversaires' && AV.ouvertEq){ ct.innerHTML=h+avFicheEquipe(AV.ouvertEq)+'</div>'; return; }
+  if(AV.rayon==='adversaires' && !AV.adv && !AV.q){
+    var E=avEquipes();
+    h+='<h2 class="a7-h2">Les équipes<em>touche une équipe pour sa fiche</em></h2><div class="av-g" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">'
+      +(E.length?E.map(function(e){ return '<button class="av-r" onclick="AV.ouvertEq='+avE(JSON.stringify(e.nom))+';avRendre()"><b>'+e.n+'</b><span>'+avE(e.nom)+'</span><i>'+(e.n?'vidéo'+(e.n>1?'s':''):'aucune vidéo')+'</i></button>'; }).join(''):'<div class="a7-vide">Aucun adversaire au calendrier.</div>')+'</div></div>';
+    ct.innerHTML=h; return;
+  }
+  var tous=pjTousSurs();
+  h+='<div class="av-fil"><input class="fi" style="flex:1;min-width:180px" placeholder="Chercher : titre, adversaire, note…" value="'+avE(AV.q)+'" oninput="AV.q=this.value;clearTimeout(AV._t);AV._t=setTimeout(avRendre,350)">'
+    +'<select class="fi" style="width:auto" onchange="AV.adv=this.value;avRendre()"><option value="">Tous les adversaires</option>'+avEquipes().map(function(e){ return '<option'+(avMeme(e.nom,AV.adv)&&AV.adv?' selected':'')+'>'+avE(e.nom)+'</option>'; }).join('')+'</select>'
+    +'<select class="fi" style="width:auto" onchange="AV.phase=this.value;avRendre()"><option value="">Toutes les phases</option>'+AV_PHASES.map(function(p){ return '<option value="'+p[0]+'"'+(AV.phase===p[0]?' selected':'')+'>'+p[0]+' · '+p[1]+'</option>'; }).join('')+'</select>'
+    +'<select class="fi" style="width:auto" onchange="AV.joueur=this.value;avRendre()"><option value="">Tous les joueurs</option>'+(JOUEURS||[]).map(function(j){ return '<option value="'+j.num+'"'+(String(AV.joueur)===String(j.num)?' selected':'')+'>'+avE(j.nom)+'</option>'; }).join('')+'</select>'
+    +((AV.adv||AV.phase||AV.joueur||AV.q)?'<button class="a7-b cl" onclick="AV.adv=AV.phase=AV.joueur=AV.q=\'\';avRendre()">Tout effacer</button>':'')+'</div>';
+  var F=avFiltrer(T);
+  h+='<div class="av-g">'+(F.length?F.map(avCarte).join(''):'<div class="a7-vide">'+(T.length?'Aucune vidéo ne correspond.':'Pas encore de vidéo. Commence par le lien Veo de ton dernier match, ou par une vidéo de ton prochain adversaire.')+'</div>')+'</div>';
+  h+='<div class="a7-band"><span>Les clips envoyés aux joueurs (moments précis, questions) se font depuis une vidéo : <b>Faire un clip</b>.</span><button class="a7-b cl" onclick="goNav(\'videos\')">Mes clips ('+(CLIPS||[]).length+')</button></div>';
+  ct.innerHTML=h+'</div>';
+}
+function pjTousSurs(){ try{ return pjTous().filter(function(x){ return (x.titre||'').trim(); }); }catch(e){ return []; } }
+
+// ---------- ajouter / modifier ----------
+function avNouvelle(rayon, adv){ AV.edit=null; AV.f={titre:'', url:'', rayon:rayon||(AV.rayon!=='tout'?AV.rayon:'matchs'), adv:adv||AV.ouvertEq||'', date:new Date().toLocaleDateString('fr-FR'), notes:'', phases:[], principes:[], joueurs:[], partage:null}; AV.ouvertEq=''; avRendre(); setTimeout(function(){ var e=document.getElementById('av-url'); if(e){ e.focus(); e.scrollIntoView({block:'center'}); } }, 50); }
+function avModifier(i){ var v=VIDEOS[i]; if(!v) return; AV.edit=i; AV.f={titre:v.titre||'', url:v.url||'', rayon:avRayonDe(v), adv:v.adv||'', date:v.date||'', notes:v.notes||'', phases:(v.phases||[]).slice(), principes:(v.principes||[]).slice(), joueurs:(v.joueurs||[]).slice(), partage:v.partage==null?null:v.partage}; avRendre(); }
+function avFormHtml(){
+  var f=AV.f, tous=pjTousSurs();
+  var partage=f.partage==null?(f.rayon==='matchs'||f.rayon==='seances'):f.partage;
+  return '<div class="a9-ec" style="gap:10px"><b style="font-size:18px">'+(AV.edit!=null?'Modifier la vidéo':'Ajouter une vidéo')+'</b>'
+    +'<div style="display:grid;grid-template-columns:2fr 1fr;gap:8px"><input class="fi" id="av-url" placeholder="Lien : YouTube, Veo, Vimeo…" value="'+avE(f.url)+'" onchange="AV.f.url=this.value.trim()"><input class="fi" placeholder="Date" value="'+avE(f.date)+'" onchange="AV.f.date=this.value"></div>'
+    +'<input class="fi" placeholder="Titre : ex. Graves FC – Mérignac, 1re période" value="'+avE(f.titre)+'" onchange="AV.f.titre=this.value">'
+    +'<div class="av-ph">'+AV_RAYONS.map(function(r){ return '<span class="'+(f.rayon===r.k?'on':'')+'" style="--pc:var(--gris)'+(f.rayon===r.k?';color:var(--fond)':'')+'" onclick="AV.f.rayon=\''+r.k+'\';AV.f.partage=null;avRendre()">'+r.l+'</span>'; }).join('')+'</div>'
+    +(f.rayon==='adversaires'||f.rayon==='matchs'?'<input class="fi" list="av-advs" placeholder="'+(f.rayon==='adversaires'?'Quelle équipe ?':'Contre qui ? (facultatif)')+'" value="'+avE(f.adv)+'" onchange="AV.f.adv=this.value.trim()"><datalist id="av-advs">'+avEquipes().map(function(e){ return '<option value="'+avE(e.nom)+'">'; }).join('')+'</datalist>':'')
+    +'<span class="fl">Phase de jeu</span><div class="av-ph">'+AV_PHASES.map(function(p){ var on=f.phases.indexOf(p[0])>=0; return '<span class="'+(on?'on':'')+'" style="--pc:'+p[2]+'" onclick="avBasc(\'phases\',\''+p[0]+'\')">'+p[0]+' · '+p[1]+'</span>'; }).join('')+'</div>'
+    +(tous.length?'<span class="fl">Nos principes</span><div class="av-ph">'+tous.map(function(x){ var on=f.principes.indexOf(x.code)>=0; return '<span class="'+(on?'on':'')+'" style="--pc:'+x.phase.coul+'" title="'+avE(x.titre)+'" onclick="avBasc(\'principes\',\''+x.code+'\')"><b>'+x.code+'</b> '+avE(x.titre.length>28?x.titre.slice(0,27)+'…':x.titre)+'</span>'; }).join('')+'</div>':'')
+    +'<span class="fl">Joueurs concernés <span style="font-weight:400;color:var(--gris2);text-transform:none;letter-spacing:0">(facultatif)</span></span><div class="av-ph" style="max-height:120px;overflow-y:auto">'+(JOUEURS||[]).map(function(j){ var on=f.joueurs.map(String).indexOf(String(j.num))>=0; return '<span class="'+(on?'on':'')+'" style="--pc:var(--or)" onclick="avBasc(\'joueurs\','+j.num+')">'+avE(String(j.nom).split(' ').pop())+'</span>'; }).join('')+'</div>'
+    +'<textarea class="fi" rows="2" placeholder="Ce qu’il faut y voir (facultatif)" onchange="AV.f.notes=this.value">'+avE(f.notes)+'</textarea>'
+    +'<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="av-part"'+(partage?' checked':'')+' onchange="AV.f.partage=this.checked"> Visible par les joueurs dans leur appli (rubrique Vidéos)</label>'
+    +'<div style="display:flex;gap:8px"><button class="a7-b or" onclick="avEnregistrer()">'+(AV.edit!=null?'Enregistrer':'Ajouter')+'</button><button class="a7-b cl" onclick="AV.f=null;AV.edit=null;avRendre()">Annuler</button></div></div>';
+}
+function avBasc(k, val){
+  var L=AV.f[k], i=L.map(String).indexOf(String(val));
+  if(i<0) L.push(val); else L.splice(i,1);
+  // on garde ce qui a été tapé
+  var u=document.getElementById('av-url'); if(u) AV.f.url=u.value.trim();
+  avRendre();
+}
+function avEnregistrer(){
+  var u=document.getElementById('av-url'); if(u) AV.f.url=u.value.trim();
+  var f=AV.f; if(!/^https?:\/\//i.test(f.url)){ notif('⚠ Colle un lien qui commence par http'); return; }
+  if(f.rayon==='adversaires' && !f.adv){ notif('⚠ Dis de quelle équipe il s’agit'); return; }
+  var r=AV_RAYONS.filter(function(x){ return x.k===f.rayon; })[0];
+  var partage=f.partage==null?(f.rayon==='matchs'||f.rayon==='seances'):!!f.partage;
+  var v={titre:f.titre||(f.adv?f.adv:'Vidéo')+(f.date?' · '+f.date:''), url:f.url, categorie:r.cat, date:f.date, notes:f.notes, rayon:f.rayon, adv:f.adv, phases:f.phases, principes:f.principes, joueurs:f.joueurs, partage:partage};
+  if(AV.edit!=null && VIDEOS[AV.edit]) VIDEOS[AV.edit]=Object.assign({}, VIDEOS[AV.edit], v); else VIDEOS.unshift(v);
+  if(v.adv){ try{ trouverOuCreerAdversaire(v.adv); }catch(e){} }
+  AV.f=null; AV.edit=null;
+  try{ sauvegarder(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
+  try{ renderVideos(); }catch(e){}
+  notif('✓ Vidéo rangée'+(v.adv?' · elle apparaît dans le rapport de '+v.adv:''));
+  avRendre();
+}
+function avSuppr(i){ var v=VIDEOS[i]; if(!v || !confirm('Retirer « '+(v.titre||'')+' » de la vidéothèque ?')) return; VIDEOS.splice(i,1); try{ sauvegarder(); }catch(e){} avRendre(); }
+function avClip(url){
+  goNav('videos');
+  setTimeout(function(){ var c=document.getElementById('cl-url'); if(c){ c.value=url; c.scrollIntoView({block:'center'}); c.focus(); } notif('Le lien est posé : indique le moment, le titre, et pour qui'); }, 300);
+}
+
+// ---------- les vidéos d'un adversaire, dans son rapport et dans le dossier ----------
+function avPourAdv(nom){ return avToutes().filter(function(v){ return v._adv && avMeme(v._adv, nom) && !v._rapport; }); }
+function avBlocAdv(nom, cls){
+  var L=avPourAdv(nom); if(!L.length) return '';
+  return '<div class="av-vids">'+L.slice(0,5).map(function(v){ return '<a href="'+avE(v.url)+'" target="_blank" rel="noopener" class="'+(cls||'')+'">▶ '+avE(v.titre||'Vidéo')+'<span style="margin-left:auto;font-size:12px;opacity:.7">'+avSource(v.url)+'</span></a>'; }).join('')
+    +'<a href="#" onclick="event.preventDefault();avOuvrirEquipe('+avE(JSON.stringify(nom))+')" style="justify-content:center;font-weight:700">Toutes leurs vidéos ('+L.length+') · fiche de l’équipe</a></div>';
+}
+function avOuvrirEquipe(nom){ AV.rayon='adversaires'; AV.ouvertEq=nom; goNav('analyse'); }
+
+// ---------- le menu : « Le coin des coachs » ----------
+function avInstaller(){
+  if(!document.getElementById('scr-analyse')){
+    var ref=document.getElementById('scr-adversaires');
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-analyse'; d.innerHTML='<div id="av-ct"></div>';
+    if(ref && ref.parentNode) ref.parentNode.insertBefore(d, ref);
+  }
+  [typeof NAV3_POLES!=='undefined'?NAV3_POLES:null, typeof POLES!=='undefined'?POLES:null].forEach(function(L){
+    if(!L) return; var p=L.filter(function(x){ return x.id==='fond'; })[0]; if(!p) return;
+    p.label='Le coin des coachs'; p.sous='Le projet, les exercices, la vidéo';
+    var garde=function(s){ return p.screens.filter(function(x){ return x.s===s; })[0]; };
+    var jeu=Object.assign({}, garde('jeu')||{s:'jeu',ic:'equerre',l:'Le projet de jeu'}, {g:'Le coin des coachs'});
+    var cons=Object.assign({}, garde('constructeur')||{s:'constructeur',ic:'palette'}, {l:'Exercices & séances'});
+    var doc=garde('biblio-generale')||{s:'biblio-generale',ic:'dossier',l:'Documentation'};
+    p.screens=[jeu, cons, {s:'analyse', ic:'clap', l:'Analyse vidéo'}, doc];
+  });
+  try{ ECRANS_INFO.analyse={ic:'clap', l:'Analyse vidéo'}; ECRANS_INFO.constructeur={ic:'palette', l:'Exercices & séances'}; }catch(e){}
+  try{ RG_AIDE.analyse='Range toutes les vidéos : nos matchs, les adversaires, nos séances, l’inspiration'; }catch(e){}
+  try{ RG_PARENT.videos='analyse'; RG_NOM_PARENT.analyse='Analyse vidéo'; }catch(e){}
+  // les anciens libellés visibles
+  document.querySelectorAll('button, a, span, div').forEach(function(el){
+    if(el.children.length===0 && /^\s*(Le )?[Ff]ond de jeu\s*$/.test(el.textContent)) el.textContent=el.textContent.replace(/(Le )?[Ff]ond de jeu/, 'Le coin des coachs');
+  });
+}
+
+window.addEventListener('load', function(){
+  avInstaller();
+  try{ EXT.apres('rendreEcran', function(s){ if(s==='analyse') avRendre(); }, 'analyse vidéo'); }catch(e){}
+  try{ nav3RenderSide(); }catch(e){}
+  try{ if(typeof tnRendre==='function') tnRendre(); }catch(e){}
+  // le rapport adversaire montre les vidéos de l'équipe
+  if(typeof rapRender==='function' && !rapRender.__v185){
+    var b=rapRender;
+    rapRender=function(nom){
+      var r=b.apply(this, arguments);
+      try{
+        var ct=document.getElementById('rap-ct'), col=ct&&ct.querySelector('.rap-col');
+        if(col && nom){ var z=document.createElement('div'); z.innerHTML='<label class="fl" style="margin-top:12px">🎬 Leurs vidéos <span class="rap-aide">rangées dans Analyse vidéo</span></label>'+(avBlocAdv(nom)||'<div class="av-vids"><a href="#" onclick="event.preventDefault();avOuvrirEquipe('+avE(JSON.stringify(nom))+');setTimeout(function(){avNouvelle(\'adversaires\','+avE(JSON.stringify(nom))+')},400)">+ Ranger une vidéo de '+avE(nom)+'</a></div>'); col.appendChild(z); }
+      }catch(e){}
+      return r;
+    };
+    rapRender.__v185=true;
+  }
+  // le dossier d'avant-match aussi
+  if(typeof stEnFaceHtml==='function' && !stEnFaceHtml.__v185){
+    var bf=stEnFaceHtml;
+    stEnFaceHtml=function(E){
+      var h=bf.apply(this, arguments);
+      try{
+        var nom=(typeof DOSSIER!=='undefined' && DOSSIER.adv)||'';
+        var bloc=nom?avBlocAdv(nom,'stu-b'):'';
+        if(bloc){ var k=h.lastIndexOf('<div class="stu-btns">'); var enc='<div class="stu-c"><div class="stu-l">Leurs vidéos</div>'+bloc+'</div>'; h=k>=0?h.slice(0,k)+enc+h.slice(k):h+enc; }
+      }catch(e){}
+      return h;
+    };
+    stEnFaceHtml.__v185=true;
+  }
 });
 </script>
 

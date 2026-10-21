@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v184';
+var APP_BUILD='v185';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v184</b> · 21/10/2026<br><span style="opacity:.8">Les leaders, l’emploi, ton feu</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v185</b> · 21/10/2026<br><span style="opacity:.8">Les leaders, l’emploi, ton feu</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9477,6 +9477,22 @@ window.addEventListener('load', function(){
     jxRenderHub.__v184=true; try{ window.jxRenderHub=jxRenderHub; }catch(e){}
   }
   l4jCharger();
+});
+</script>
+
+<script>
+// ===== v185 : les vidéos réservées au staff ne s'affichent pas chez les joueurs =====
+window.addEventListener('load', function(){
+  if(typeof renderVideosJoueur==='function' && !renderVideosJoueur.__v185){
+    var b=renderVideosJoueur;
+    renderVideosJoueur=async function(){
+      var tout=(SAISON&&SAISON.VIDEOS)||[], garde=SAISON.VIDEOS;
+      try{ SAISON.VIDEOS=tout.filter(function(v){ return v && v.partage!==false; }); return await b.apply(this, arguments); }
+      finally{ SAISON.VIDEOS=garde; }
+    };
+    renderVideosJoueur.__v185=true;
+    try{ RENDER_MAP.videos=[renderVideosJoueur]; }catch(e){}
+  }
 });
 </script>
 
