@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v182';
+var APP_BUILD='v183';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v182</b> · 21/10/2026<br><span style="opacity:.8">Ton feu, le défi, tes séries</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v183</b> · 21/10/2026<br><span style="opacity:.8">Emploi &amp; stages, ton feu, le défi</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9192,6 +9192,113 @@ window.addEventListener('load', function(){
     try{ RENDER_MAP.clips=[renderMesClips]; }catch(e){}
   }
   b2VieLire();
+});
+</script>
+
+<script>
+// ===== v183 : « Emploi & stages » (joueur) =====
+// Le joueur dit ce qu'il cherche (seul le staff le lit), voit les offres du
+// réseau du club, et dit « ça m'intéresse » d'un geste.
+(function(){
+  var css=''
+  +'.e3j{display:flex;flex-direction:column;gap:12px;padding-bottom:26px}'
+  +'.e3j h1{margin:4px 2px 0;font:900 52px/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.e3j .sub{margin:0 2px;font-size:14px;color:var(--mute);line-height:1.45}'
+  +'.e3j-c{background:var(--surface);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px}'
+  +'.e3j-c.pour{box-shadow:inset 0 0 0 2px var(--or)}'
+  +'.e3j-c .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--or)}'
+  +'.e3j-c b{font:800 19px/1.1 "Roboto Condensed",sans-serif}'
+  +'.e3j-c p{margin:0;font-size:14px;line-height:1.45;color:var(--mute)}'
+  +'.e3j-c .ln{font-size:14px;color:var(--ink)}'
+  +'.e3j-f{display:flex;flex-direction:column;gap:8px}'
+  +'.e3j-f label{display:flex;flex-direction:column;gap:4px;font:700 13px "Roboto Condensed",sans-serif;color:var(--mute)}'
+  +'.e3j-f input,.e3j-f select,.e3j-f textarea{width:100%;box-sizing:border-box;border:1.5px solid var(--hair);border-radius:10px;background:var(--bg);color:var(--ink);padding:10px;font:500 15px "Inter",sans-serif}'
+  +'.e3j-f .ck{flex-direction:row;align-items:center;gap:8px;font:500 14px "Inter",sans-serif;color:var(--ink)}.e3j-f .ck input{width:auto}'
+  +'.e3j button.go{align-self:flex-start;min-height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--or);color:#14130F;font:800 14.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.e3j button.ln2{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:12px;border:0;background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair);font:700 13.5px "Inter",sans-serif;cursor:pointer}'
+  +'.e3j button.ok{background:var(--green);color:#fff}'
+  +'.e3j .etat{display:flex;align-items:center;gap:10px;font-size:14px}.e3j .etat i{width:10px;height:10px;border-radius:50%;background:var(--green)}';
+  var s=document.createElement('style'); s.id='v183-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var E3J={moi:null, off:null, ouvert:false, t:0};
+var E3J_TYPES=['CDI','CDD','Intérim','Alternance','Stage','Job étudiant / extra','Reconversion'];
+try{ JS_A_MOI.emploi_demandes='joueurNum'; }catch(e){}
+function e3jE(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function e3jDoc(d){ var f=d.fields||{}, o={id:(d.name||'').split('/').pop()}; Object.keys(f).forEach(function(k){ var v=f[k]; o[k]=v.stringValue!=null?v.stringValue:(v.integerValue!=null?+v.integerValue:(v.booleanValue!=null?v.booleanValue:null)); }); return o; }
+async function e3jCharger(){
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/emploi_demandes?pageSize=10'); var L=r.ok?(((await r.json()).documents)||[]).map(e3jDoc):[]; E3J.moi=L.filter(function(d){ return +d.joueurNum===+MON_NUM; })[0]||{}; }catch(e){ E3J.moi=E3J.moi||{}; }
+  try{ var r2=await fbFetch(FIRESTORE_BASE+'/emploi_offres?pageSize=200'); E3J.off=r2.ok?(((await r2.json()).documents)||[]).map(e3jDoc).filter(function(o){ return o.actif!==false; }):[]; }catch(e){ E3J.off=E3J.off||[]; }
+  E3J.off.sort(function(a,b){ var pa=String(a.pour||'').split(',').indexOf(String(MON_NUM))>=0, pb=String(b.pour||'').split(',').indexOf(String(MON_NUM))>=0; return (pb?1:0)-(pa?1:0) || String(b.date||'').localeCompare(String(a.date||'')); });
+  E3J.t=Date.now();
+}
+function e3jRendre(){
+  var ct=document.getElementById('scr-emploi'); if(!ct) return;
+  var M=E3J.moi, O=E3J.off;
+  var h='<div class="e3j"><h1>Emploi &amp; stages</h1><p class="sub">Le club a un réseau : partenaires, dirigeants, anciens. Dis ce que tu cherches, on fait le lien. Ta recherche n’est lue que par le staff.</p>';
+  if(M===null){ ct.innerHTML=h+'<div class="empty-txt a8-vide">Chargement…</div></div>'; return; }
+  var actif=M.actif===true;
+  if(actif && !E3J.ouvert){
+    h+='<div class="e3j-c"><div class="etat"><i></i><b style="font-size:17px">Tu cherches : '+e3jE(M.recherche||'')+(M.metier?' · '+e3jE(M.metier):'')+'</b></div>'
+      +'<p>'+[M.secteur, M.zone?('secteur '+M.zone):'', M.dispo?('dispo '+M.dispo):''].filter(Boolean).map(e3jE).join(' · ')+'</p>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ln2" onclick="E3J.ouvert=true;e3jRendre()">Modifier</button><button class="ln2" onclick="e3jArreter()">J’ai trouvé / j’arrête</button></div></div>';
+  } else {
+    var sel=function(v){ return E3J_TYPES.map(function(t){ return '<option'+(t===v?' selected':'')+'>'+t+'</option>'; }).join(''); };
+    h+='<div class="e3j-c"><span class="k">'+(actif?'Ma recherche':'Je cherche quelque chose')+'</span><div class="e3j-f">'
+      +'<label>Ce que je cherche<select id="e3j-rech">'+sel(M.recherche||'CDI')+'</select></label>'
+      +'<label>Métier ou domaine<input id="e3j-metier" value="'+e3jE(M.metier||'')+'" placeholder="Électricien, commerce, logistique, BTS compta…"></label>'
+      +'<label>Secteur géographique<input id="e3j-zone" value="'+e3jE(M.zone||'')+'" placeholder="Tarnos, BAB, sud Landes…"></label>'
+      +'<label>Dispo à partir de<input id="e3j-dispo" value="'+e3jE(M.dispo||'')+'" placeholder="tout de suite, janvier, été…"></label>'
+      +'<label class="ck"><input type="checkbox" id="e3j-permis"'+(M.permis?' checked':'')+'> J’ai le permis B</label>'
+      +'<label>Un mot pour le staff<textarea id="e3j-msg" rows="2" placeholder="Ton parcours en une phrase, ce qui compte pour toi">'+e3jE(M.message||'')+'</textarea></label>'
+      +'</div><button class="go" onclick="e3jEnvoyer()">'+(actif?'Mettre à jour':'Le dire au staff')+'</button></div>';
+  }
+  h+='<h2 class="a7j-h2">Les offres du réseau<em>'+(O.length?O.length+' ouverte'+(O.length>1?'s':''):'')+'</em></h2>';
+  var ints=String(M.interets||'').split(',').filter(Boolean);
+  h+=O.length?O.map(function(o){
+    var pour=String(o.pour||'').split(',').indexOf(String(MON_NUM))>=0, inte=ints.indexOf(o.id)>=0;
+    return '<div class="e3j-c'+(pour?' pour':'')+'">'+(pour?'<span class="k">Le club a pensé à toi</span>':'<span class="k" style="color:var(--mute)">'+e3jE(o.type||'')+'</span>')
+      +'<b>'+e3jE(o.titre)+'</b><p>'+[o.entreprise, o.lieu, pour?o.type:''].filter(Boolean).map(e3jE).join(' · ')+'</p>'
+      +(o.description?'<p class="ln">'+e3jE(o.description)+'</p>':'')
+      +(o.contact?'<p>Contact : '+e3jE(o.contact)+'</p>':'')
+      +'<button class="'+(inte?'go ok':'go')+'" onclick="e3jInteret(\''+e3jE(o.id)+'\')">'+(inte?'✓ Le staff sait que ça t’intéresse':'Ça m’intéresse')+'</button></div>';
+  }).join(''):'<div class="empty-txt a8-vide">Pas d’offre en ce moment. Les offres des partenaires arrivent ici dès que le responsable social les dépose.</div>';
+  ct.innerHTML=h+'</div>';
+}
+async function e3jSauver(m){
+  m.joueurNum=MON_NUM; m.joueurNom=MON_NOM||''; m.maj=new Date().toISOString();
+  var f={}; Object.keys(m).forEach(function(k){ if(k==='id') return; var v=m[k]; f[k]=typeof v==='boolean'?{booleanValue:v}:(typeof v==='number'?{integerValue:String(v)}:{stringValue:String(v==null?'':v)}); });
+  var r=await fbFetch(FIRESTORE_BASE+'/emploi_demandes/j'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:f})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  E3J.moi=m;
+}
+async function e3jEnvoyer(){
+  var v=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
+  var m=Object.assign({}, E3J.moi||{}, {recherche:v('e3j-rech'), metier:v('e3j-metier'), zone:v('e3j-zone'), dispo:v('e3j-dispo'), permis:!!(document.getElementById('e3j-permis')||{}).checked, message:v('e3j-msg'), actif:true});
+  try{ await e3jSauver(m); E3J.ouvert=false; notif('✓ C’est noté : le staff s’en occupe'); }catch(e){ notif('⚠ Pas envoyé : vérifie ta connexion'); }
+  e3jRendre();
+}
+async function e3jArreter(){
+  if(!confirm('Retirer ta recherche ?')) return;
+  try{ await e3jSauver(Object.assign({}, E3J.moi, {actif:false})); notif('✓ Recherche retirée. Bonne route !'); }catch(e){ notif('⚠ Pas enregistré'); }
+  e3jRendre();
+}
+async function e3jInteret(id){
+  var m=Object.assign({}, E3J.moi||{}); var L=String(m.interets||'').split(',').filter(Boolean);
+  if(L.indexOf(id)>=0) L=L.filter(function(x){ return x!==id; }); else L.push(id);
+  m.interets=L.join(','); if(m.actif==null) m.actif=false;
+  try{ await e3jSauver(m); if(L.indexOf(id)>=0) notif('✓ Le staff sait que ça t’intéresse'); }catch(e){ notif('⚠ Pas envoyé : vérifie ta connexion'); }
+  e3jRendre();
+}
+async function renderEmploiJoueur(){ e3jRendre(); await e3jCharger(); if(ECRAN_ACTIF==='emploi') e3jRendre(); }
+
+window.addEventListener('load', function(){
+  var w=document.querySelector('.wrap');
+  if(w && !document.getElementById('scr-emploi')){ var d=document.createElement('div'); d.id='scr-emploi'; d.className='screen hidden'; w.appendChild(d); }
+  try{ RUB_INFO.emploi={s:'emploi', l:'Emploi'}; ONGLET_DE.emploi='today'; }catch(e){}
+  try{ RENDER_MAP.emploi=[renderEmploiJoueur]; }catch(e){}
+  try{ if(!A8_CLUB.some(function(t){ return t.s==='emploi'; })) A8_CLUB.splice(2, 0, {s:'emploi', ic:'main', l:'Emploi & stages', d:'le réseau du club pour le boulot'}); }catch(e){}
+  try{ var v=document.getElementById('app-version-joueur'); if(v) v.innerHTML=v.innerHTML.replace('v182','v183'); }catch(e){}
 });
 </script>
 

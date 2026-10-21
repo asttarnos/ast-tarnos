@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v182</b> · 21/10/2026<br>
-      <span style="opacity:.7">Forme du groupe, défi, séries, questions vidéo</span>
+      AST COACH <b style="color:var(--or)">v183</b> · 21/10/2026<br>
+      <span style="opacity:.7">Réseau emploi, conseils au bord de touche</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v182';
+var APP_BUILD='v183';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -40939,6 +40939,254 @@ window.addEventListener('load', function(){
     a9EnregistrerVeo.__v182=true;
   }
   setTimeout(function(){ try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1500);
+});
+</script>
+
+<script>
+// ===== v183 : le réseau emploi du club, le conseiller de changements (coach) =====
+//  1. Club House › Responsable social › « Réseau emploi » : les joueurs qui
+//     cherchent (travail, stage, alternance), les offres des partenaires et
+//     des dirigeants, et la mise en relation (le joueur est prévenu).
+//  2. Bord de touche › « Conseils » : un coup d'œil sur qui sortir en premier
+//     (minutes, feu de forme, carton, retour de blessure) et qui est prêt à entrer.
+(function(){
+  var css=''
+  +'.e3{display:flex;flex-direction:column;gap:16px;padding:6px 0 30px;font-family:"Roboto Condensed",sans-serif;color:var(--gris)}'
+  +'.e3-hero{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;padding-bottom:14px;border-bottom:2px solid var(--gris)}'
+  +'.e3-hero h1{margin:0;font:900 clamp(48px,7vw,84px)/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.e3-hero p{margin:6px 0 0;font-size:15px;color:var(--gris2);max-width:640px;line-height:1.45}'
+  +'.e3-cpt{display:flex;gap:18px}.e3-cpt div{display:flex;flex-direction:column}.e3-cpt b{font:900 40px/.9 "Roboto Condensed",sans-serif}.e3-cpt span{font-size:12.5px;color:var(--gris2)}'
+  +'.e3-resp{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--carte);font-size:14px}'
+  +'.e3-resp .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px}'
+  +'.e3-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}'
+  +'@media(max-width:1000px){.e3-cols{grid-template-columns:minmax(0,1fr)}}'
+  +'.e3-col{display:flex;flex-direction:column;gap:10px;min-width:0}'
+  +'.e3-c{padding:14px;border-radius:16px;background:var(--carte);display:flex;flex-direction:column;gap:6px}'
+  +'.e3-c.nouv{box-shadow:inset 0 0 0 2px var(--gold)}'
+  +'.e3-c .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.e3-c .h b{font-size:17px}'
+  +'.e3-tag{padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:var(--carte3);color:var(--gris)}'
+  +'.e3-tag.or{background:var(--or);color:#fff}.e3-tag.vert{background:var(--green);color:#fff}'
+  +'.e3-c p{margin:0;font-size:14px;line-height:1.45;color:var(--gris2)}'
+  +'.e3-c .e3-bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}'
+  +'.e3-f{display:grid;grid-template-columns:1fr 1fr;gap:8px}.e3-f .pl{grid-column:1/-1}'
+  +'.e3-f input,.e3-f select,.e3-f textarea{width:100%;box-sizing:border-box}.e3-f input[type=checkbox]{width:auto;margin:0}'
+  +'.e3-int{font-size:13px;color:var(--green);font-weight:700}'
+  // le conseiller
+  +'#c3-pan{position:fixed;inset:0;z-index:100050;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}'
+  +'#c3-pan .in{width:min(560px,100%);max-height:86vh;overflow-y:auto;background:#14130F;color:#F2EEE6;border-radius:20px 20px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;font-family:"Roboto Condensed",sans-serif}'
+  +'#c3-pan h2{margin:0;font:900 34px/.9 "Roboto Condensed",sans-serif;text-transform:uppercase;color:#FF7A45}'
+  +'#c3-pan .k{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#B8B1A4}'
+  +'#c3-pan .l{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:12px;background:#1F1E1A}'
+  +'#c3-pan .l .pt{width:12px;height:12px;border-radius:50%;margin-top:4px;flex-shrink:0}'
+  +'#c3-pan .l b{font-size:17px}#c3-pan .l span{display:block;font-size:13.5px;color:#CFC8BB;line-height:1.35}'
+  +'#c3-pan .l em{font-style:normal;margin-left:auto;font:900 22px "Roboto Condensed",sans-serif;color:#F2EEE6;white-space:nowrap}'
+  +'#c3-pan .nb{font-size:13px;color:#B8B1A4;line-height:1.4}'
+  +'#c3-pan button.f{min-height:46px;border-radius:12px;border:0;background:#E2561F;color:#14130F;font:800 15px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.bdt-bas .c3-b{position:relative}.bdt-bas .c3-b i{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#E2561F;color:#fff;font:800 11px "Roboto Condensed",sans-serif;font-style:normal;display:flex;align-items:center;justify-content:center;padding:0 4px}';
+  var s=document.createElement('style'); s.id='v183-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// ================================================================ 1. le réseau emploi
+var E3={dem:null, off:null, part:null, t:0, en:false};
+var E3_TYPES=['CDI','CDD','Intérim','Alternance','Stage','Job étudiant / extra','Reconversion'];
+function e3E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function e3Doc(d){ var f=d.fields||{}, o={id:(d.name||'').split('/').pop()}; Object.keys(f).forEach(function(k){ var v=f[k]; o[k]=v.stringValue!=null?v.stringValue:(v.integerValue!=null?+v.integerValue:(v.booleanValue!=null?v.booleanValue:null)); }); return o; }
+function e3Champs(o){ var f={}; Object.keys(o).forEach(function(k){ var v=o[k]; if(typeof v==='boolean') f[k]={booleanValue:v}; else if(typeof v==='number') f[k]={integerValue:String(v)}; else f[k]={stringValue:String(v==null?'':v)}; }); return {fields:f}; }
+function e3Resp(){
+  var M=[]; try{ M=nav3Membres(); }catch(e){}
+  return M.filter(function(m){ return /social/i.test(m.role||''); })[0]||null;
+}
+async function e3Charger(){
+  if(E3.en) return; E3.en=true;
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/emploi_demandes?pageSize=300'); E3.dem=r.ok?(((await r.json()).documents)||[]).map(e3Doc):(E3.dem||[]); }catch(e){ E3.dem=E3.dem||[]; }
+  try{ var r2=await fbFetch(FIRESTORE_BASE+'/emploi_offres?pageSize=300'); E3.off=r2.ok?(((await r2.json()).documents)||[]).map(e3Doc):(E3.off||[]); }catch(e){ E3.off=E3.off||[]; }
+  try{ if(typeof ptCharger==='function' && !PT.liste) await ptCharger(); E3.part=(PT.liste||[]).map(function(p){ return p.nom; }).filter(Boolean); }catch(e){ E3.part=[]; }
+  E3.dem.sort(function(a,b){ return String(b.maj||'').localeCompare(String(a.maj||'')); });
+  E3.off.sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
+  E3.t=Date.now(); E3.en=false;
+  e3Rendre();
+}
+function e3Vu(){ try{ return localStorage.getItem('ast-emploi-vu')||''; }catch(e){ return ''; } }
+function e3Rendre(){
+  var ct=document.getElementById('e3-ct'); if(!ct) return;
+  if(E3.dem===null){ ct.innerHTML='<div class="a7-vide">Chargement du réseau…</div>'; e3Charger(); return; }
+  var D=E3.dem.filter(function(d){ return d.actif!==false; }), O=E3.off.filter(function(o){ return o.actif!==false; });
+  var vu=e3Vu(), R=e3Resp();
+  var relations=E3.off.reduce(function(s,o){ return s+String(o.pour||'').split(',').filter(Boolean).length; },0);
+  var h='<div class="e3"><div class="e3-hero"><div><h1>Réseau emploi</h1><p>Les joueurs qui cherchent un travail, un stage ou une alternance, les offres des partenaires et des dirigeants. Le club fait le lien : c’est aussi pour ça qu’on vient et qu’on reste.</p></div>'
+    +'<div class="e3-cpt"><div><b>'+D.length+'</b><span>joueurs en recherche</span></div><div><b>'+O.length+'</b><span>offres ouvertes</span></div><div><b>'+relations+'</b><span>mises en relation</span></div></div></div>';
+  h+='<div class="e3-resp">'+(R?'<span class="av" style="background:'+(R.c||'#475569')+'">'+e3E(nav3Initiales(R.nom))+'</span><span>Responsable social : <b>'+e3E(R.nom)+'</b>. Les joueurs le trouvent dans « Le club › Emploi & stages ».</span>'
+    :'<span>Pas encore de <b>responsable social</b> : dans <b>Réglages › Le staff</b>, écris « Responsable social » dans le rôle de la personne qui s’en occupe (un dirigeant, le directeur technique…).</span>')+'</div>';
+  h+='<div class="e3-cols"><div class="e3-col"><h2 class="a7-h2">Ils cherchent<em>visible par le staff seulement</em></h2>';
+  h+=D.length?D.map(function(d){
+    var ints=String(d.interets||'').split(',').filter(Boolean).map(function(id){ var o=E3.off.filter(function(x){ return x.id===id; })[0]; return o?o.titre:null; }).filter(Boolean);
+    return '<div class="e3-c'+(String(d.maj||'')>vu?' nouv':'')+'"><div class="h"><b>'+e3E(d.joueurNom||('n°'+d.joueurNum))+'</b><span class="e3-tag or">'+e3E(d.recherche||'Recherche')+'</span>'+(d.metier?'<span class="e3-tag">'+e3E(d.metier)+'</span>':'')+'</div>'
+      +'<p>'+[d.secteur, d.zone?('secteur '+d.zone):'', d.dispo?('dispo '+d.dispo):'', d.permis?'permis B':''].filter(Boolean).map(e3E).join(' · ')+'</p>'
+      +(d.message?'<p style="color:var(--gris)">« '+e3E(d.message)+' »</p>':'')
+      +(ints.length?'<span class="e3-int">Intéressé par : '+ints.map(e3E).join(', ')+'</span>':'')
+      +'<div class="e3-bt">'+(O.length?'<button class="a7-b cl" onclick="e3Proposer(null,'+d.joueurNum+')">Lui proposer une offre</button>':'')+'<button class="a7-b cl" onclick="jfOuvrirNom('+e3E(JSON.stringify(d.joueurNom||''))+')">Sa fiche</button></div></div>';
+  }).join(''):'<div class="a7-vide">Aucun joueur n’a encore signalé de recherche. Ils le font depuis leur appli, rubrique « Emploi & stages ». Un mot dans le vestiaire pour le faire savoir ?</div>';
+  h+='</div><div class="e3-col"><h2 class="a7-h2">Les offres<em>visibles par les joueurs</em></h2>';
+  h+='<div class="e3-c"><b>Ajouter une offre</b><div class="e3-f">'
+    +'<input class="fi pl" id="e3-titre" placeholder="Poste : magasinier, apprenti électricien, serveur le week-end…">'
+    +'<input class="fi" id="e3-ent" list="e3-parts" placeholder="Entreprise"><datalist id="e3-parts">'+(E3.part||[]).map(function(n){ return '<option value="'+e3E(n)+'">'; }).join('')+'</datalist>'
+    +'<select class="fi" id="e3-type">'+E3_TYPES.map(function(t){ return '<option>'+t+'</option>'; }).join('')+'</select>'
+    +'<input class="fi" id="e3-lieu" placeholder="Lieu (Tarnos, Bayonne…)">'
+    +'<input class="fi" id="e3-contact" placeholder="Contact (nom, téléphone ou e-mail)">'
+    +'<textarea class="fi pl" id="e3-desc" rows="2" placeholder="En deux lignes : horaires, profil, ce qui compte"></textarea>'
+    +'<label class="pl" style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="e3-prev" checked> Prévenir les joueurs en recherche</label>'
+    +'</div><button class="a7-b or" style="align-self:flex-start" onclick="e3AjouterOffre()">Publier l’offre</button></div>';
+  h+=E3.off.length?E3.off.map(function(o){
+    var interesses=E3.dem.filter(function(d){ return String(d.interets||'').split(',').indexOf(o.id)>=0; });
+    var pour=String(o.pour||'').split(',').filter(Boolean);
+    return '<div class="e3-c" style="'+(o.actif===false?'opacity:.55':'')+'"><div class="h"><b>'+e3E(o.titre)+'</b><span class="e3-tag">'+e3E(o.type||'')+'</span>'+(o.actif===false?'<span class="e3-tag">pourvue / archivée</span>':'')+'</div>'
+      +'<p>'+[o.entreprise, o.lieu].filter(Boolean).map(e3E).join(' · ')+'</p>'+(o.description?'<p>'+e3E(o.description)+'</p>':'')
+      +(o.contact?'<p style="color:var(--gris)">Contact : '+e3E(o.contact)+'</p>':'')
+      +(interesses.length?'<span class="e3-int">'+interesses.length+' intéressé'+(interesses.length>1?'s':'')+' : '+interesses.map(function(d){ return e3E(String(d.joueurNom||'').split(' ').pop()); }).join(', ')+'</span>':'')
+      +(pour.length?'<p>Proposée à '+pour.length+' joueur'+(pour.length>1?'s':'')+'</p>':'')
+      +'<div class="e3-bt">'+(o.actif===false?'<button class="a7-b cl" onclick="e3Archiver(\''+e3E(o.id)+'\',true)">Rouvrir</button>':'<button class="a7-b cl" onclick="e3Proposer(\''+e3E(o.id)+'\')">Proposer à un joueur</button><button class="a7-b cl" onclick="e3Archiver(\''+e3E(o.id)+'\',false)">Pourvue</button>')+'<button class="a7-b cl" onclick="e3Suppr(\''+e3E(o.id)+'\')">Supprimer</button></div></div>';
+  }).join(''):'<div class="a7-vide">Aucune offre pour l’instant. Les partenaires sont la première source : un message à chacun en début de saison suffit souvent.</div>';
+  h+='</div></div></div>';
+  ct.innerHTML=h;
+  try{ localStorage.setItem('ast-emploi-vu', new Date().toISOString()); }catch(e){}
+}
+async function e3AjouterOffre(){
+  var v=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
+  if(!v('e3-titre')){ notif('⚠ Donne un intitulé de poste'); return; }
+  var o={titre:v('e3-titre'), entreprise:v('e3-ent'), type:v('e3-type'), lieu:v('e3-lieu'), contact:v('e3-contact'), description:v('e3-desc'), date:new Date().toISOString(), actif:true, pour:''};
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/emploi_offres',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(e3Champs(o))});
+    if(!r.ok) throw new Error();
+    if((document.getElementById('e3-prev')||{}).checked){
+      var nums=(E3.dem||[]).filter(function(d){ return d.actif!==false; }).map(function(d){ return d.joueurNum; });
+      if(nums.length) try{ a9Notifier('Une offre pour toi ?', o.titre+(o.entreprise?' · '+o.entreprise:'')+' : à voir dans Le club › Emploi & stages.', nums.join(',')); }catch(e){}
+    }
+    notif('✓ Offre publiée');
+  }catch(e){ notif('⚠ Pas publiée : vérifie la connexion'); }
+  E3.dem=E3.dem||[]; e3Charger();
+}
+async function e3Maj(id, champs){
+  var q=Object.keys(champs).map(function(k){ return 'updateMask.fieldPaths='+k; }).join('&');
+  var r=await fbFetch(FIRESTORE_BASE+'/emploi_offres/'+id+'?'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(e3Champs(champs))});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+}
+async function e3Archiver(id, rouvrir){ try{ await e3Maj(id,{actif:!!rouvrir}); }catch(e){ notif('⚠ Impossible pour l’instant'); } e3Charger(); }
+async function e3Suppr(id){ if(!confirm('Supprimer cette offre ?')) return; try{ await fbFetch(FIRESTORE_BASE+'/emploi_offres/'+id,{method:'DELETE'}); }catch(e){} e3Charger(); }
+function e3Proposer(offreId, num){
+  var O=(E3.off||[]).filter(function(o){ return o.actif!==false; }), D=(E3.dem||[]).filter(function(d){ return d.actif!==false; });
+  var choixO=offreId?O.filter(function(o){ return o.id===offreId; }):O;
+  a9Ouvrir('<div class="hd"><div><h1>Mettre en relation</h1><p class="sub">Le joueur reçoit une notification : « Le club a une piste pour toi », et l’offre apparaît en tête de sa rubrique Emploi.</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +'<label style="display:flex;flex-direction:column;gap:6px;font-weight:700">L’offre<select class="fi" id="e3-po">'+choixO.map(function(o){ return '<option value="'+e3E(o.id)+'">'+e3E(o.titre+(o.entreprise?' · '+o.entreprise:''))+'</option>'; }).join('')+'</select></label>'
+    +'<div style="font-weight:700">Pour qui</div>'
+    +(D.length?D.map(function(d){ return '<label class="a9-m" style="flex-direction:row;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" class="e3-pj" value="'+d.joueurNum+'"'+(num!=null&&+num===+d.joueurNum?' checked':'')+'><span><b>'+e3E(d.joueurNom||'')+'</b> · '+e3E([d.recherche,d.metier,d.zone].filter(Boolean).join(' · '))+'</span></label>'; }).join(''):'<div class="a7-vide">Aucun joueur en recherche.</div>')
+    +'<button class="a7-b or" style="align-self:flex-start" onclick="e3Envoyer()">Envoyer la piste</button>');
+}
+async function e3Envoyer(){
+  var id=(document.getElementById('e3-po')||{}).value; if(!id) return;
+  var nums=[].slice.call(document.querySelectorAll('.e3-pj:checked')).map(function(i){ return i.value; });
+  if(!nums.length){ notif('⚠ Coche au moins un joueur'); return; }
+  var o=(E3.off||[]).filter(function(x){ return x.id===id; })[0]||{};
+  var pour=String(o.pour||'').split(',').filter(Boolean); nums.forEach(function(n){ if(pour.indexOf(n)<0) pour.push(n); });
+  try{ await e3Maj(id,{pour:pour.join(',')}); a9Notifier('Le club a une piste pour toi', (o.titre||'Une offre')+(o.entreprise?' · '+o.entreprise:'')+' : regarde dans Le club › Emploi & stages.', nums.join(',')); notif('✓ Piste envoyée'); }
+  catch(e){ notif('⚠ Pas envoyée : vérifie la connexion'); }
+  a9Fermer(); goNav('emploi');
+}
+// l'écran, sa place dans Club House, les règles
+function e3Installer(){
+  if(!document.getElementById('scr-emploi')){
+    var ref=document.getElementById('scr-club-docs');
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-emploi'; d.innerHTML='<div id="e3-ct"></div>';
+    if(ref && ref.parentNode) ref.parentNode.insertBefore(d, ref.nextSibling);
+  }
+  [typeof NAV3_POLES!=='undefined'?NAV3_POLES:null, typeof POLES!=='undefined'?POLES:null].forEach(function(L){
+    if(!L) return; var p=L.filter(function(x){ return x.id==='clubhouse'; })[0]; if(!p || p.screens.some(function(s){ return s.s==='emploi'; })) return;
+    var i=p.screens.findIndex(function(s){ return s.s==='club-vie'; });
+    p.screens.splice(i<0?p.screens.length:i, 0, {s:'emploi', ic:'main', l:'Réseau emploi', g:'Responsable social'});
+  });
+  try{ ECRANS_INFO.emploi={ic:'main', l:'Réseau emploi'}; }catch(e){}
+  try{ if(STAFF_ROLES.indexOf('Responsable social')<0) STAFF_ROLES.splice(STAFF_ROLES.length-1, 0, 'Directeur technique', 'Responsable social'); }catch(e){}
+  try{ RG_AIDE.emploi='Mets en relation les joueurs qui cherchent un emploi et les offres des partenaires'; }catch(e){}
+}
+(function(){
+  try{
+    var ajout="    // ---- v183 : le réseau emploi (la recherche d'un joueur ne se lit que par lui et le staff)\n"
+      +"    match /emploi_demandes/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create, update: if estCoach() || signeParMoi();\n      allow delete: if estCoach() || (estJoueur() && resource.data.joueurNum == monNum());\n    }\n"
+      +"    match /emploi_offres/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n";
+    if(SEC_REGLES.indexOf('match /emploi_offres/{id}')<0) SEC_REGLES=SEC_REGLES.replace('    match /stats_live/{id} {', ajout+'    match /stats_live/{id} {');
+  }catch(e){}
+})();
+
+// ================================================================ 2. le conseiller de changements
+function c3Retour(idx){
+  // revenu de blessure dans les 3 dernières semaines
+  try{
+    return (BLESSURES||[]).some(function(b){
+      if(!b || b.joueurIdx!==idx || b.statut!=='disponible') return false;
+      var t=b.dateRepriseGroupe||b.dateReprise||b.dateRetour||''; var m=/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(t)||/(\d{4})-(\d{2})-(\d{2})/.exec(t);
+      if(!m) return false;
+      var d=m[1].length===4?new Date(+m[1],+m[2]-1,+m[3]):new Date(+m[3],+m[2]-1,+m[1]);
+      return (Date.now()-d.getTime())<21*86400000;
+    });
+  }catch(e){ return false; }
+}
+function c3Analyse(){
+  var F=null; try{ F=b2Feux(); }catch(e){}
+  var feu=function(idx){ var j=JOUEURS[idx]; if(!F||!j) return null; return F.L.filter(function(x){ return x.j===j; })[0]||null; };
+  var min=bdtMinuteCourante();
+  var aff=bdtJoueursAffiches();
+  var cartons={}; (BDT.evenements||[]).forEach(function(e){ if(e.type==='cj') cartons[e.idx]=e.minute; });
+  var sortir=aff.filter(function(i){ return bdtSurTerrain(i) && !bdtEstGardien(i); }).map(function(i){
+    var t=bdtTempsDeJeu(i), f=feu(i), R=[], sc=0;
+    if(t>=60){ sc+=Math.min(3,(t-55)/10); }
+    if(f && f.k==='rouge'){ sc+=3; R.push('feu rouge cette semaine'+(f.R[0]?' ('+f.R[0]+')':'')); }
+    else if(f && f.k==='orange'){ sc+=1.5; R.push('feu orange'+(f.R[0]?' ('+f.R[0]+')':'')); }
+    if(cartons[i]!=null){ sc+=2; R.push('averti à la '+cartons[i]+'e'); }
+    if(c3Retour(i)){ sc+=2; R.push('revient de blessure'); }
+    if(t>=70) R.unshift(t+' min dans les jambes');
+    return {i:i, t:t, sc:sc, R:R, k:f?f.k:'gris'};
+  }).filter(function(x){ return x.R.length; }).sort(function(a,b){ return b.sc-a.sc; });
+  var entrer=aff.filter(function(i){ return !bdtSurTerrain(i) && !BDT.ecartes[i]; }).map(function(i){
+    var f=feu(i), s=(STATS||[])[i]||{}, sc=0, R=[];
+    if(f && f.k==='vert'){ sc+=2; R.push('feu vert'); } else if(f && f.k==='rouge'){ sc-=3; R.push('feu rouge : à éviter'); }
+    if(bdtTempsDeJeu(i)===0 && (s.tpsTotal||0)<300){ sc+=1; R.push((s.tpsTotal||0)+' min cette saison'); }
+    if(bdtEstGardien(i)){ sc-=5; }
+    return {i:i, sc:sc, R:R, k:f?f.k:'gris'};
+  }).filter(function(x){ return !bdtEstGardien(x.i); }).sort(function(a,b){ return b.sc-a.sc; });
+  return {min:min, sortir:sortir, entrer:entrer, feux:!!F};
+}
+var C3_COUL={vert:'#3DBA7E', orange:'#F0A830', rouge:'#FF6B5B', soin:'#2E7D8C', gris:'#5A564D'};
+function c3Ouvrir(){
+  if(!B2.forme && !B2.charge_en) try{ b2ChargerDonnees().then(function(){ if(document.getElementById('c3-pan')) c3Ouvrir(); }); }catch(e){}
+  var A=c3Analyse(), o=document.getElementById('c3-pan'); if(o) o.remove();
+  o=document.createElement('div'); o.id='c3-pan';
+  var L=function(x, droite){ var j=JOUEURS[x.i]||{}; return '<div class="l"><span class="pt" style="background:'+C3_COUL[x.k]+'"></span><div><b>'+e3E(j.nom||'')+'</b><span>'+e3E(x.R.join(' · ')||'—')+'</span></div>'+(droite!=null?'<em>'+droite+'</em>':'')+'</div>'; };
+  o.innerHTML='<div class="in"><h2>Conseils · '+A.min+'’</h2>'
+    +'<span class="k">À sortir en premier</span>'+(A.sortir.length?A.sortir.slice(0,3).map(function(x){ return L(x, x.t+'’'); }).join(''):'<div class="nb">Rien de particulier pour l’instant : personne de fatigué, d’averti ou de fragile.</div>')
+    +'<span class="k">Prêts à entrer</span>'+(A.entrer.length?A.entrer.slice(0,3).map(function(x){ return L(x); }).join(''):'<div class="nb">Pas de remplaçant disponible dans la liste du match.</div>')
+    +'<div class="nb">Un coup d’œil à partir de ce que l’appli sait : minutes jouées, feu de forme de la semaine, cartons, retours de blessure. '+(A.feux?'':'Les feux de forme sont en cours de lecture. ')+'C’est toi qui décides.</div>'
+    +'<button class="f" onclick="document.getElementById(\'c3-pan\').remove()">Fermer</button></div>';
+  o.addEventListener('click', function(e){ if(e.target===o) o.remove(); });
+  document.body.appendChild(o);
+}
+function c3Bouton(){
+  var bas=document.querySelector('#bdt .bdt-bas'); if(!bas) return;
+  var b=bas.querySelector('.c3-b');
+  if(!b){ b=document.createElement('button'); b.className='bdt-annuler c3-b'; b.type='button'; b.innerHTML='💡 Conseils'; b.onclick=c3Ouvrir; bas.insertBefore(b, bas.querySelector('.bdt-fin')); }
+  // une pastille à partir de la 50e minute quand un joueur mérite un coup d'œil
+  try{
+    var A=(typeof BDT!=='undefined' && BDT.ouvert && bdtMinuteCourante()>=50)?c3Analyse():null;
+    var n=A?A.sortir.filter(function(x){ return x.sc>=3; }).length:0;
+    var i=b.querySelector('i'); if(n){ if(!i){ i=document.createElement('i'); b.appendChild(i); } i.textContent=n; } else if(i) i.remove();
+  }catch(e){}
+}
+
+window.addEventListener('load', function(){
+  e3Installer();
+  try{ EXT.apres('rendreEcran', function(s){ if(s==='emploi'){ if(Date.now()-E3.t>30000) E3.dem=null; e3Rendre(); } }, 'réseau emploi'); }catch(e){}
+  try{ nav3RenderSide(); }catch(e){}
+  if(typeof bdtRender==='function'){ try{ EXT.apres('bdtRender', function(){ c3Bouton(); }, 'conseiller'); }catch(e){} }
+  setInterval(function(){ try{ if(typeof BDT!=='undefined' && BDT.ouvert) c3Bouton(); }catch(e){} }, 30000);
+  setTimeout(c3Bouton, 1500);
 });
 </script>
 
