@@ -12,18 +12,31 @@ firebase.initializeApp({
 });
 try{
   var messaging=firebase.messaging();
+  // Un message avec « notification » est déjà affiché par Firebase lui-même :
+  // l'afficher ici aussi le doublait. On n'affiche que les messages « data ».
   messaging.onBackgroundMessage(function(payload){
-    var titre=(payload.notification&&payload.notification.title)||'AST Tarnos';
-    var options={
-      body:(payload.notification&&payload.notification.body)||'',
-      icon:'./icons/icon-192.png',
-      badge:'./icons/icon-192.png'
-    };
-    self.registration.showNotification(titre,options);
+    if(payload && payload.notification) return;
+    var d=(payload&&payload.data)||{};
+    self.registration.showNotification(d.titre||'AST Tarnos',{
+      body:d.corps||'', icon:'./icons/icon-192.png', badge:'./icons/icon-192.png',
+      tag:d.tag||undefined, data:{lien:d.lien||'./JOUEUR.html'}
+    });
   });
 }catch(e){ /* config pas encore complétée, on ignore */ }
 
-const CACHE_NAME = 'ast-tarnos-v181';
+// Toucher une notification ouvre la bonne page (l'appli ou la page du match)
+self.addEventListener('notificationclick', function(event){
+  // seulement nos propres notifications : Firebase gère le clic sur les siennes
+  var lien=event.notification.data && event.notification.data.lien;
+  if(!lien) return;
+  event.notification.close();
+  event.waitUntil(clients.matchAll({type:'window', includeUncontrolled:true}).then(function(L){
+    for(var i=0;i<L.length;i++){ if(L[i].url.indexOf(lien.replace('./',''))>=0 && 'focus' in L[i]) return L[i].focus(); }
+    return clients.openWindow(lien);
+  }));
+});
+
+const CACHE_NAME = 'ast-tarnos-v182';
 const URLS_TO_CACHE = [
   './',
   './index.html',

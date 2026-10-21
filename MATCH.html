@@ -8,6 +8,9 @@
 <meta name="theme-color" content="#0B0A09">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="match.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AST Match">
 <meta property="og:title" content="AST Tarnos · le match en direct">
 <meta property="og:description" content="Le score et la minute, en direct du bord du terrain.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +61,10 @@ html.live .score{border-color:var(--or)}
 .btn.ln{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .pied{font-size:12.5px;color:var(--mute);text-align:center;line-height:1.5}
 .vide{padding:22px 16px;border-radius:18px;border:1.5px dashed var(--line);color:var(--mute);font-size:15px;line-height:1.5}
+.alerte{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:var(--ink);color:var(--fond)}
+.alerte .tx{flex:1;display:flex;flex-direction:column;gap:2px}.alerte b{font:800 18px "Barlow Condensed",sans-serif}.alerte span{font-size:13px;opacity:.8;line-height:1.35}
+.alerte button{min-height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--or);color:#14130F;font:700 14px "Barlow",sans-serif;cursor:pointer;white-space:nowrap}
+.alerte.ok{background:var(--carte);color:var(--ink)}.alerte.ok b{color:var(--green)}
 .flash{animation:flash .9s ease-out}
 @keyframes flash{0%{transform:scale(1.18);color:var(--or2)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.flash,.top span.on::before{animation:none}}
@@ -147,9 +154,47 @@ function rendre(){
       h+='<div class="carte"><span class="k">Le groupe · '+s.groupe.length+' joueurs</span><div class="groupe">'+s.groupe.map(function(n){ return '<span>'+e(n)+'</span>'; }).join('')+'</div></div>';
     }
   }
+  if(st!=='fin' && st!=='vieux') h+=alerteHtml();
   h+='<div class="btns"><button class="btn" id="bp" onclick="partager()">Partager le lien</button></div>'
     +'<div class="pied">Mis à jour depuis le bord du terrain par le staff de l’AST Tarnos.<br>La page se rafraîchit toute seule.</div>';
   app.innerHTML=h;
+}
+// ---------- « Me prévenir » : coup d'envoi, buts, mi-temps, fin ----------
+var VAPID='BIiq0wKfDq0J4LmDlfoo1hmqpW94OKzGaDmKGmWFiVx0gd0zBc6d2Quc_2gZA89Vw4a7Z-V-sSpG3DP36jCNGYY';
+var FB_CONF={apiKey:'AIzaSyC2Ip1OWL505ZfXIuvt7UHHy3t7wr6Vq1U', authDomain:'notes-match-ast.firebaseapp.com', projectId:'notes-match-ast', storageBucket:'notes-match-ast.firebasestorage.app', messagingSenderId:'512648656255', appId:'1:512648656255:web:9243b8d6139e9ac82f564a'};
+var ABO=null; try{ ABO=localStorage.getItem('ast-proche-abo'); }catch(x){}
+function iosSansEcran(){ var ios=/iphone|ipad|ipod/i.test(navigator.userAgent); var app=window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); return ios && !app; }
+function alerteHtml(){
+  if(ABO) return '<div class="alerte ok"><span class="tx"><b>✓ Tu seras prévenu</b><span>Coup d’envoi, chaque but, la mi-temps et le score final, sur ce téléphone.</span></span></div>';
+  if(!('serviceWorker' in navigator) || !('Notification' in window)){
+    if(iosSansEcran()) return '<div class="alerte"><span class="tx"><b>Être prévenu des buts</b><span>Sur iPhone : touche Partager puis « Sur l’écran d’accueil », ouvre la page depuis la nouvelle icône, puis reviens ici.</span></span></div>';
+    return '';
+  }
+  if(Notification.permission==='denied') return '<div class="alerte"><span class="tx"><b>Notifications bloquées</b><span>Ce téléphone les a refusées pour cette page : ça se réactive dans les réglages du navigateur.</span></span></div>';
+  return '<div class="alerte"><span class="tx"><b>Être prévenu des buts</b><span>Coup d’envoi, chaque but, la mi-temps et le score final. Sans appli, sans inscription.</span></span><button id="babo" onclick="abonner()">Me prévenir</button></div>';
+}
+function charger_script(u){ return new Promise(function(ok, ko){ var s=document.createElement('script'); s.src=u; s.onload=ok; s.onerror=ko; document.head.appendChild(s); }); }
+async function abonner(){
+  var b=document.getElementById('babo'); if(b){ b.disabled=true; b.textContent='Un instant…'; }
+  try{
+    var perm=await Notification.requestPermission();
+    if(perm!=='granted'){ rendre(); return; }
+    await charger_script('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await charger_script('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+    if(!firebase.apps.length) firebase.initializeApp(FB_CONF);
+    var reg=await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    var jeton=await firebase.messaging().getToken({vapidKey:VAPID, serviceWorkerRegistration:reg});
+    if(!jeton) throw new Error('pas de jeton');
+    var r=await fetch('https://firestore.googleapis.com/v1/projects/notes-match-ast/databases/(default)/documents/proches',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{token:{stringValue:jeton}, cree:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    ABO='1'; try{ localStorage.setItem('ast-proche-abo','1'); }catch(x){}
+  }catch(x){
+    if(b){ b.disabled=false; b.textContent='Réessayer'; }
+    return;
+  }
+  rendre();
 }
 async function charger(){
   try{

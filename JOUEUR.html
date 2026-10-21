@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v181';
+var APP_BUILD='v182';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -8897,6 +8897,301 @@ window.addEventListener('load', function(){
     if(b && /coach/i.test(b.textContent||'')){ VEST.mode='coach'; VEST.prives=null; }
   }, true);
   try{ if(ECRAN_ACTIF==='hub') renderHub(); }catch(e){}
+});
+</script>
+
+<script>
+// ===== v182 : ce qu'on prend aux autres sports (joueur) =====
+//  · Ton feu : vert / orange / rouge, d'après ta forme et ta charge (comme les pros).
+//  · Le défi du mois : la jauge de l'équipe.
+//  · Tes séries et ton mois : présences d'affilée, convocations, l'équipe invaincue,
+//    et une carte du mois à partager.
+//  · « Qu'aurais-tu fait ? » : tu réponds au coach sous le clip.
+(function(){
+  var css=''
+  +'.b2-feu{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--surface);border:0;width:100%;text-align:left;cursor:pointer;color:var(--ink);font-family:"Inter",sans-serif}'
+  +'.b2-feu .rond{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px color-mix(in srgb, currentColor 18%, transparent)}'
+  +'.b2-feu .tx{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}'
+  +'.b2-feu .tx b{font:800 16px "Roboto Condensed",sans-serif}.b2-feu .tx span{font-size:13px;color:var(--mute);line-height:1.35}'
+  +'.b2-feu .go{font:700 13px "Roboto Condensed",sans-serif;color:var(--or)}'
+  +'.b2-defi{border-radius:18px;padding:14px 16px;background:var(--ink);color:var(--bg);display:flex;flex-direction:column;gap:8px}'
+  +'.b2-defi .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#F2A07E}'
+  +'.b2-defi b{font:900 24px/1 "Roboto Condensed",sans-serif}'
+  +'.b2-defi .jg{height:12px;border-radius:6px;background:rgba(127,127,127,.35);overflow:hidden}'
+  +'.b2-defi .jg i{display:block;height:100%;background:#E2561F;border-radius:6px;transition:width .6s ease}'
+  +'.b2-defi .bas{display:flex;justify-content:space-between;gap:8px;font-size:13px;opacity:.85}'
+  +'.b2-series{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}'
+  +'.b2-s{background:var(--surface);border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;gap:3px}'
+  +'.b2-s b{font:900 34px/.9 "Roboto Condensed",sans-serif}.b2-s b.or{color:var(--or)}'
+  +'.b2-s span{font-size:12px;color:var(--mute);line-height:1.3}'
+  +'.b2-mois{background:var(--surface);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}'
+  +'.b2-mois .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}'
+  +'.b2-mois .h b{font:800 18px "Roboto Condensed",sans-serif}.b2-mois .h span{font-size:12px;color:var(--mute)}'
+  +'.b2-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}'
+  +'.b2-g div{display:flex;flex-direction:column}.b2-g b{font:900 26px/1 "Roboto Condensed",sans-serif}.b2-g span{font-size:11.5px;color:var(--mute)}'
+  +'.b2-mois button{align-self:flex-start;min-height:42px;padding:0 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:700 13.5px "Inter",sans-serif;cursor:pointer}'
+  +'.b2-q{margin-top:10px;padding:12px;border-radius:14px;background:var(--bg);display:flex;flex-direction:column;gap:8px}'
+  +'.b2-q .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--or)}'
+  +'.b2-q b{font:700 15px "Roboto Condensed",sans-serif}'
+  +'.b2-q textarea{width:100%;box-sizing:border-box;min-height:60px;border:1.5px solid var(--hair);border-radius:10px;background:var(--surface);color:var(--ink);padding:9px 10px;font:500 14.5px "Inter",sans-serif}'
+  +'.b2-q button{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:10px;border:0;background:var(--or);color:#14130F;font:800 13.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.b2-q .ok{font-size:13px;color:var(--green);font-weight:700}'
+  +'.b2-ov{position:fixed;inset:0;z-index:9500;background:rgba(10,9,8,.6);display:flex;align-items:flex-end;justify-content:center}'
+  +'.b2-sheet{width:min(520px,100%);max-height:88vh;overflow-y:auto;background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}'
+  +'.b2-sheet h2{margin:0;font:900 40px/.9 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.b2-sheet p{margin:0;font-size:14.5px;line-height:1.5;color:var(--mute)}'
+  +'.b2-sheet ul{margin:0;padding-left:18px;font-size:14.5px;line-height:1.5}'
+  +'.b2-sheet .bt{display:flex;gap:8px;flex-wrap:wrap}'
+  +'.b2-sheet button{min-height:44px;padding:0 16px;border-radius:12px;border:0;cursor:pointer;font:700 14px "Inter",sans-serif;background:var(--ink);color:var(--bg)}'
+  +'.b2-sheet button.ln{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}'
+  +'.b2-sheet img{width:100%;border-radius:14px}';
+  var s=document.createElement('style'); s.id='v182-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var VIEJ={d:null, t:0, en:false};
+var B2J={reps:null, repsT:0};
+try{ JS_A_MOI.reponses_clips='joueurNum'; }catch(e){}
+var B2_COUL={vert:'var(--green)', orange:'var(--gold)', rouge:'var(--red)', soin:'#2E7D8C', gris:'var(--mute)'};
+function b2E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function b2Iso(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function b2Mois(d){ return b2Iso(d).slice(0,7); }
+
+async function b2VieLire(){
+  if(VIEJ.en) return; VIEJ.en=true;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/saison/vie');
+    if(r.ok){ VIEJ.d=JSON.parse((((await r.json()).fields||{}).data||{}).stringValue||'null'); }
+    else if(!VIEJ.d) VIEJ.d={};
+  }catch(e){ if(!VIEJ.d) VIEJ.d={}; }
+  VIEJ.t=Date.now(); VIEJ.en=false;
+  try{ if(ECRAN_ACTIF==='hub') renderHub(); }catch(e){}
+}
+
+// ---------- ton feu ----------
+function b2MonFeu(){
+  if(typeof a8MaBlessure==='function' && a8MaBlessure()) return {k:'soin', titre:'En soins', phrase:'Suis le plan de reprise du staff. Ton feu reviendra quand tu reprendras avec le groupe.', R:[]};
+  var f=null; try{ var x=lireMaForme()[0]; if(x && Date.now()-new Date(x.date).getTime()<7*86400000) f=x; }catch(e){}
+  var L=[]; try{ L=lireMaCharge(); }catch(e){}
+  var j=function(dec){ var d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-dec); return b2Iso(d); };
+  var j7=j(6), j28=j(27), aig=0, c28=0, prem=null;
+  L.forEach(function(e){ var c=e.charge||(e.rpe*e.duree)||0; if(e.date>=j7) aig+=c; if(e.date>=j28) c28+=c; if(!prem || e.date<prem) prem=e.date; });
+  var anc=prem?Math.round((new Date(j(0))-new Date(prem))/86400000):0;
+  var ratio=(c28>0 && anc>=21)?aig/(c28/4):null;
+  var R=[], rouge=false, orange=false, moy=null;
+  if(f){ var v=['forme','mental','sommeil','jambes','courbatures','motivation'].map(function(c){ return f[c]; }).filter(function(n){ return typeof n==='number'; }); if(v.length) moy=v.reduce(function(a,b){ return a+b; },0)/v.length; }
+  if(ratio!=null && ratio>=1.5){ rouge=true; R.push('ta charge des 7 derniers jours est '+ratio.toFixed(1)+' fois ton habitude'); }
+  else if(ratio!=null && ratio>=1.3){ orange=true; R.push('ta charge monte plus vite que d’habitude'); }
+  if(f){
+    if(moy!=null && moy<=4){ rouge=true; R.push('tu te sens à '+moy.toFixed(1)+'/10'); }
+    else if(moy!=null && moy<6){ orange=true; R.push('forme moyenne ('+moy.toFixed(1)+'/10)'); }
+    if(f.jambes!=null && f.jambes<=3){ rouge=true; R.push('jambes à '+f.jambes+'/10'); }
+    if(f.courbatures!=null && f.courbatures<=3){ rouge=true; R.push('courbatures fortes'); }
+    if(f.sommeil!=null && f.sommeil<=4){ orange=true; R.push('sommeil à '+f.sommeil+'/10'); }
+    if(f.bobo){ rouge=true; R.push('tu as signalé une gêne'); }
+  }
+  if(rouge) return {k:'rouge', titre:'Feu rouge', phrase:'Lève le pied et parles-en au staff avant la séance.', R:R, ratio:ratio, moy:moy};
+  if(orange) return {k:'orange', titre:'Feu orange', phrase:'Rien de grave : récupère bien (sommeil, eau, étirements) et dis au coach si ça ne passe pas.', R:R, ratio:ratio, moy:moy};
+  if(f || ratio!=null) return {k:'vert', titre:'Feu vert', phrase:'Tu es dans ta zone. Continue comme ça.', R:R, ratio:ratio, moy:moy};
+  return {k:'gris', titre:'Ton feu de forme', phrase:'Donne ta forme et ton ressenti après la séance : ton feu s’allume.', R:[], ratio:null, moy:null};
+}
+function b2FeuHtml(){
+  var F=b2MonFeu();
+  return '<button class="b2-feu" onclick="b2FeuDetail()"><span class="rond" style="background:'+B2_COUL[F.k]+';color:'+B2_COUL[F.k]+'"></span><span class="tx"><b>'+b2E(F.titre)+'</b><span>'+b2E(F.R.length?F.R[0].charAt(0).toUpperCase()+F.R[0].slice(1):F.phrase)+'</span></span><span class="go">Pourquoi ›</span></button>';
+}
+function b2Feuille(html){
+  var o=document.createElement('div'); o.className='b2-ov'; o.innerHTML='<div class="b2-sheet" role="dialog" aria-modal="true">'+html+'</div>';
+  o.addEventListener('click', function(e){ if(e.target===o) o.remove(); });
+  document.body.appendChild(o); return o;
+}
+function b2FeuDetail(){
+  var F=b2MonFeu();
+  b2Feuille('<h2 style="color:'+B2_COUL[F.k]+'">'+b2E(F.titre)+'</h2><p>'+b2E(F.phrase)+'</p>'
+    +(F.R.length?'<ul>'+F.R.map(function(r){ return '<li>'+b2E(r)+'</li>'; }).join('')+'</ul>':'')
+    +'<p>Ton feu se calcule sur ta <b>dernière forme</b> (de moins de 7 jours) et sur ta <b>charge</b> : l’effort de chaque séance multiplié par sa durée. On compare tes 7 derniers jours à tes 4 dernières semaines, comme dans les clubs pros (il faut 3 semaines de réponses). Monter trop vite, c’est là que les blessures arrivent.</p>'
+    +'<div class="bt"><button onclick="this.closest(\'.b2-ov\').remove();jAller(\'formephysique\')">Donner ma forme</button><button class="ln" onclick="this.closest(\'.b2-ov\').remove()">Fermer</button></div>');
+}
+
+// ---------- le défi du mois ----------
+function b2DefiHtml(){
+  var D=VIEJ.d&&VIEJ.d.defi; if(!D || D.mois!==b2Mois()) return '';
+  var pct=D.valeur==null?0:Math.min(100, Math.round(D.valeur/D.cible*100));
+  var nomMois=new Date().toLocaleDateString('fr-FR',{month:'long'});
+  var fin=new Date(); fin.setMonth(fin.getMonth()+1,0); var reste=fin.getDate()-new Date().getDate();
+  var moi='';
+  if(D.type==='presence'){
+    var p=0,t=0; (VIEJ.d.presHisto||[]).forEach(function(x){ if(x.d.slice(0,7)!==D.mois) return; if(x.p.indexOf(MON_NUM)>=0){ p++; t++; } else if(x.a.indexOf(MON_NUM)>=0) t++; });
+    if(t) moi='Toi : '+p+' séance'+(p>1?'s':'')+' sur '+t;
+  }
+  var etat=D.perdu?'Défi perdu ce mois-ci, on repart le mois prochain':(D.valeur!=null && D.valeur>=D.cible?'Défi réussi !':(reste>0?'encore '+reste+' jour'+(reste>1?'s':''):'dernier jour'));
+  return '<div class="b2-defi"><span class="k">Le défi de '+b2E(nomMois)+' · toute l’équipe</span><b>'+b2E(D.titre)+'</b>'
+    +'<div class="jg"><i style="width:'+(D.perdu?0:pct)+'%"></i></div>'
+    +'<div class="bas"><span>'+(D.valeur==null?'Pas encore de chiffre':b2E(D.valeur+(D.unite==='%'?' %':' / '+D.cible)))+(moi?' · '+b2E(moi):'')+'</span><span>'+b2E(etat)+'</span></div></div>';
+}
+
+// ---------- tes séries et ton mois ----------
+function b2Series(){
+  var V=VIEJ.d||{}, out={pres:null, conv:null, equipe:null};
+  var H=(V.presHisto||[]).slice().sort(function(a,b){ return a.d<b.d?1:-1; });
+  if(H.length){
+    var n=0;
+    for(var i=0;i<H.length;i++){ var x=H[i]; if(x.p.indexOf(MON_NUM)>=0) n++; else if(x.a.indexOf(MON_NUM)>=0) break; }
+    out.pres=n;
+  }
+  try{
+    var C=(SAISON.CONVOCATIONS_HISTORIQUE||[]), k=0;
+    for(var j=C.length-1;j>=0;j--){ if((C[j].a||[]).some(function(nm){ return memeJoueur(String(nm).replace(/\s*\(.*\)\s*$/,''), MON_NOM||''); })) k++; else break; }
+    if(C.length) out.conv=k;
+  }catch(e){}
+  var M=(SAISON.MATCHS||[]);
+  if(M.length){ var q=0; for(var m=0;m<M.length;m++){ if(M[m].res==='D') break; q++; } out.equipe=q; }
+  return out;
+}
+function b2Mien(){ var i=lecMonIndex(); var s=(SAISON.STATS||[])[i]||{}; return {pres:s.pres||0, seances:s.seances||0, tpsTotal:s.tpsTotal||0, buts:s.buts||0, pd:s.pd||0, matchsJoues:s.matchsJoues||0, titu:s.titu||0}; }
+function b2Recap(){
+  var S=(VIEJ.d||{}).snaps||{}; var m=b2Mois(), now=new Date();
+  var cles=Object.keys(S).sort(); if(!cles.length) return null;
+  var diff=function(a,b){ var o={}; Object.keys(a).forEach(function(k){ o[k]=Math.max(0,(a[k]||0)-((b||{})[k]||0)); }); return o; };
+  // les 5 premiers jours du mois : on montre le mois qui vient de finir
+  var prec=b2Mois(new Date(now.getFullYear(), now.getMonth()-1, 15));
+  if(now.getDate()<=5 && S[prec] && S[m]){
+    return {mois:prec, depuis:S[prec].pris, fini:true, v:diff((S[m].s||{})[MON_NUM]||{}, (S[prec].s||{})[MON_NUM])};
+  }
+  if(!S[m]) return null;
+  return {mois:m, depuis:S[m].pris, fini:false, v:diff(b2Mien(), (S[m].s||{})[MON_NUM])};
+}
+function b2NomMois(m){ var p=m.split('-'); return new Date(+p[0], +p[1]-1, 15).toLocaleDateString('fr-FR',{month:'long'}); }
+function b2SaisonHtml(){
+  var S=b2Series(), R=b2Recap();
+  var h='';
+  var tuile=function(v, lab, or){ return '<div class="b2-s"><b class="'+(or?'or':'')+'">'+(v==null?'–':v)+'</b><span>'+lab+'</span></div>'; };
+  if(S.pres!=null || S.conv!=null || S.equipe!=null){
+    h+='<div class="b2-series">'+tuile(S.pres, S.pres===1?'séance d’affilée':'séances d’affilée', S.pres>=4)+tuile(S.conv, 'convocations en A d’affilée', S.conv>=3)+tuile(S.equipe, S.equipe===1?'match sans défaite (équipe)':'matchs sans défaite (équipe)', S.equipe>=3)+'</div>';
+  }
+  if(R){
+    var v=R.v, jour=R.depuis?+R.depuis.slice(8,10):1;
+    h+='<div class="b2-mois"><div class="h"><b>Ton mois '+(/^[aeiouy]/i.test(b2NomMois(R.mois))?'d’':'de ')+b2E(b2NomMois(R.mois))+'</b><span>'+(R.fini?'terminé':(jour>1?'depuis le '+jour:'en cours'))+'</span></div>'
+      +'<div class="b2-g"><div><b>'+v.pres+'<small style="font-size:14px;color:var(--mute)">/'+v.seances+'</small></b><span>séances</span></div><div><b>'+v.tpsTotal+'</b><span>minutes</span></div><div><b>'+v.matchsJoues+'</b><span>matchs</span></div><div><b>'+(v.buts+v.pd)+'</b><span>buts + passes</span></div></div>'
+      +'<button onclick="b2Carte()">Ma carte du mois</button></div>';
+  }
+  return h;
+}
+// la carte à partager (image)
+async function b2Carte(){
+  var R=b2Recap(); if(!R) return;
+  try{ await document.fonts.ready; }catch(e){}
+  var c=document.createElement('canvas'); c.width=1080; c.height=1350; var x=c.getContext('2d');
+  x.fillStyle='#0B0A09'; x.fillRect(0,0,1080,1350);
+  x.fillStyle='#E2561F'; x.fillRect(0,0,1080,14);
+  var F=function(w,s){ return w+' '+s+'px "Roboto Condensed", "Barlow Condensed", sans-serif'; };
+  x.fillStyle='#B8B1A4'; x.font=F(800,34); x.fillText('AST TARNOS · SÉNIORS R2', 80, 120);
+  x.fillStyle='#FF7A45'; x.font=F(900,150); x.fillText(b2NomMois(R.mois).toUpperCase(), 72, 290);
+  x.fillStyle='#F2EEE6'; x.font=F(800,64);
+  var nom=String(MON_NOM||'').toUpperCase(); x.fillText(nom.length>22?nom.slice(0,22)+'…':nom, 80, 390);
+  var v=R.v, cases=[[v.pres+'/'+v.seances,'SÉANCES'],[v.tpsTotal,'MINUTES'],[v.matchsJoues,'MATCHS'],[v.buts,'BUTS'],[v.pd,'PASSES D.'],[v.titu,'TITULAIRE']];
+  cases.forEach(function(k,i){
+    var cx=80+(i%2)*470, cy=520+Math.floor(i/2)*230;
+    x.fillStyle='#1A1916'; x.fillRect(cx, cy, 440, 200);
+    x.fillStyle=i===0?'#FF7A45':'#F2EEE6'; x.font=F(900,110); x.fillText(String(k[0]), cx+30, cy+125);
+    x.fillStyle='#B8B1A4'; x.font=F(800,30); x.fillText(k[1], cx+32, cy+172);
+  });
+  var S=b2Series();
+  x.fillStyle='#F2EEE6'; x.font=F(700,36);
+  var ligne=[S.pres?S.pres+' séance'+(S.pres>1?'s':'')+' d’affilée':'', S.equipe?'équipe invaincue depuis '+S.equipe+' match'+(S.equipe>1?'s':''):''].filter(Boolean).join('  ·  ');
+  if(ligne) x.fillText(ligne, 80, 1250);
+  x.fillStyle='#E2561F'; x.fillRect(80, 1280, 120, 8);
+  var url=c.toDataURL('image/png');
+  var nomFichier='AST-'+R.mois+'-'+String(MON_NOM||'joueur').replace(/\s+/g,'-')+'.png';
+  var o=b2Feuille('<h2>Ta carte</h2><img src="'+url+'" alt="Ta carte du mois"><div class="bt"><button id="b2-part">Partager</button><a download="'+b2E(nomFichier)+'" href="'+url+'" style="display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:12px;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair);text-decoration:none;font:700 14px Inter,sans-serif">Enregistrer</a><button class="ln" onclick="this.closest(\'.b2-ov\').remove()">Fermer</button></div>');
+  o.querySelector('#b2-part').onclick=function(){
+    c.toBlob(function(b){
+      try{
+        var f=new File([b], nomFichier, {type:'image/png'});
+        if(navigator.canShare && navigator.canShare({files:[f]})) navigator.share({files:[f], title:'Mon mois avec l’AST'}).catch(function(){});
+        else notif('Touche « Enregistrer », puis partage l’image où tu veux');
+      }catch(e){ notif('Touche « Enregistrer », puis partage l’image où tu veux'); }
+    }, 'image/png');
+  };
+}
+
+// ---------- « Qu'aurais-tu fait ? » ----------
+async function b2MesReps(force){
+  if(!force && B2J.reps && Date.now()-B2J.repsT<60000) return B2J.reps;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/reponses_clips?pageSize=300');
+    B2J.reps=r.ok?(((await r.json()).documents)||[]).map(function(d){ var f=d.fields||{}; return {clip:(f.clipId||{}).stringValue||'', texte:(f.texte||{}).stringValue||''}; }):[];
+  }catch(e){ B2J.reps=B2J.reps||[]; }
+  B2J.repsT=Date.now(); return B2J.reps;
+}
+async function b2Repondre(id){
+  var t=document.getElementById('b2-r-'+id); var texte=(t&&t.value||'').trim(); if(!texte) return;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/reponses_clips/'+encodeURIComponent(id+'_'+MON_NUM),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{
+      joueurNum:{integerValue:String(MON_NUM)}, joueurNom:{stringValue:MON_NOM||''}, clipId:{stringValue:id}, texte:{stringValue:texte}, date:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw new Error();
+    B2J.reps=(B2J.reps||[]).filter(function(x){ return x.clip!==id; }); B2J.reps.push({clip:id, texte:texte});
+    notif('✓ Réponse envoyée au coach');
+  }catch(e){ notif('⚠ Pas envoyée : vérifie ta connexion'); }
+  try{ renderMesClips(); }catch(e){}
+}
+function b2ApresClips(){
+  var ct=document.getElementById('scr-clips'); if(!ct) return;
+  var liste=((SAISON&&SAISON.CLIPS)||[]).filter(cjMeConcerne);
+  liste.sort(function(a,b){ return (cjPourMoi(b)?1:0)-(cjPourMoi(a)?1:0); });
+  var R=B2J.reps||[];
+  ct.querySelectorAll('.cj-c').forEach(function(el, i){
+    var c=liste[i]; if(!c || !c.question || el.querySelector('.b2-q')) return;
+    var mine=R.filter(function(r){ return r.clip===c.id; })[0];
+    var z=document.createElement('div'); z.className='b2-q';
+    z.innerHTML='<span class="k">Le coach te demande</span><b>'+b2E(c.question)+'</b>'
+      +'<textarea id="b2-r-'+b2E(c.id)+'" placeholder="Ta réponse, en une ou deux phrases">'+b2E(mine?mine.texte:'')+'</textarea>'
+      +(mine?'<span class="ok">✓ Envoyée, tu peux la modifier</span>':'')+'<button onclick="b2Repondre(\''+b2E(c.id)+'\')">'+(mine?'Modifier':'Envoyer au coach')+'</button>';
+    (el.querySelector('.cj-corps')||el).appendChild(z);
+  });
+  if(!B2J.reps || Date.now()-B2J.repsT>60000) b2MesReps().then(function(){ ct.querySelectorAll('.b2-q').forEach(function(x){ x.remove(); }); b2ApresClips(); });
+}
+
+// ---------- dans la semaine ----------
+function b2ApresHub(){
+  var ct=document.getElementById('scr-hub'); if(!ct) return;
+  var a7=ct.querySelector('.a7j'); if(!a7) return;
+  var ins=function(html, avant){ if(!html || !avant) return; var d=document.createElement('div'); d.innerHTML=html; var n=d.firstElementChild; avant.parentNode.insertBefore(n, avant); return n; };
+  // le feu, juste sous le jour (pas en mode stade)
+  var rep=a7.querySelector('#a7j-rep');
+  if(rep && !a7.querySelector('.a8-stade') && !a7.querySelector('.b2-feu')) ins(b2FeuHtml(), rep);
+  // le défi, avant « Le match »
+  var h2s=[].slice.call(a7.querySelectorAll('h2.a7j-h2'));
+  var match=h2s.filter(function(x){ return /^Le match/.test(x.textContent||''); })[0];
+  var video=a7.querySelector('.a9-video');
+  if(!a7.querySelector('.b2-defi')) ins(b2DefiHtml(), video||match);
+  // la question du coach sur la vidéo
+  if(video && !video.querySelector('.b2-vq')){
+    var L=[]; try{ L=a9ClipsRecents().filter(function(c){ return c.question && cjPourMoi(c); }); }catch(e){}
+    if(L.length){ var q=document.createElement('span'); q.className='b2-vq'; q.style.cssText='color:#F2EEE6;font-weight:600'; q.textContent='Le coach te demande : « '+L[0].question+' »'; var bt=video.querySelector('.bt'); video.insertBefore(q, bt); }
+  }
+  // tes séries et ton mois, en tête de « Ta saison »
+  var saison=h2s.filter(function(x){ return /^Ta saison/.test(x.textContent||''); })[0];
+  if(saison && !a7.querySelector('.b2-saison')){
+    var z=document.createElement('div'); z.className='b2-saison'; z.style.cssText='display:flex;flex-direction:column;gap:10px';
+    z.innerHTML=b2SaisonHtml(); if(z.innerHTML) saison.after(z);
+  }
+  if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
+  var v=document.getElementById('app-version-joueur');
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v182</b> · 21/10/2026<br><span style="opacity:.8">Ton feu, le défi, tes séries</span>';
+}
+
+window.addEventListener('load', function(){
+  if(typeof jxRenderHub==='function' && !jxRenderHub.__v182){
+    var base=jxRenderHub;
+    jxRenderHub=function(){ var r=base.apply(this, arguments); try{ b2ApresHub(); }catch(e){ console.error('b2', e); } return r; };
+    jxRenderHub.__v182=true; try{ window.jxRenderHub=jxRenderHub; }catch(e){}
+  }
+  if(typeof renderMesClips==='function' && !renderMesClips.__v182){
+    var b2=renderMesClips;
+    renderMesClips=function(){ var r=b2.apply(this, arguments); try{ b2ApresClips(); }catch(e){ console.error('b2 clips', e); } return r; };
+    renderMesClips.__v182=true;
+    try{ RENDER_MAP.clips=[renderMesClips]; }catch(e){}
+  }
+  b2VieLire();
 });
 </script>
 

@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v181</b> · 21/10/2026<br>
-      <span style="opacity:.7">Notifications, vestiaire, vidéo, proches</span>
+      AST COACH <b style="color:var(--or)">v182</b> · 21/10/2026<br>
+      <span style="opacity:.7">Forme du groupe, défi, séries, questions vidéo</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v181';
+var APP_BUILD='v182';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -40498,6 +40498,425 @@ window.addEventListener('load', function(){
   }
   try{ if(document.getElementById('n3-reglages')) a9BlocNotifs(); }catch(e){}
   setTimeout(function(){ try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1200);
+});
+</script>
+
+<script>
+// ===== v182 : ce qu'on prend aux autres sports (coach) =====
+//  1. Le feu de forme : vert / orange / rouge par joueur (forme déclarée +
+//     charge 7 jours rapportée aux 4 semaines), le groupe en %, une suggestion.
+//  2. Les proches prévenus : la page du match propose « Me prévenir » (le serveur
+//     envoie coup d'envoi, buts, mi-temps, fin).
+//  3. La saison de chacun : séries (présences, convocations, invincibilité) et
+//     récap du mois, calculés depuis ce que le coach saisit déjà.
+//  4. Le défi du mois : un objectif collectif, une jauge chez les joueurs.
+//  5. « Qu'aurais-tu fait ? » : une question sur un clip, les joueurs répondent.
+(function(){
+  var css=''
+  +'.b2-forme{padding:16px;border-radius:18px;background:var(--carte);display:flex;flex-direction:column;gap:12px}'
+  +'.b2-forme .tete{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}'
+  +'.b2-forme .pc{font:900 54px/.85 "Roboto Condensed",sans-serif}'
+  +'.b2-forme .pc small{font-size:22px}'
+  +'.b2-forme .lg{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--gris2)}'
+  +'.b2-barre{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line2)}'
+  +'.b2-barre span{display:block;height:100%}'
+  +'.b2-cpt{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;font-weight:700}'
+  +'.b2-cpt span{display:inline-flex;align-items:center;gap:6px}'
+  +'.b2-pt{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}'
+  +'.b2-sug{padding:10px 12px;border-radius:12px;background:var(--fond);font-size:14px;line-height:1.4}'
+  +'.b2-sug b{color:var(--or)}'
+  +'.b2-l{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;color:var(--gris);font-family:"Roboto Condensed",sans-serif}'
+  +'.b2-l b{font-size:14.5px;min-width:120px}.b2-l span{font-size:13px;color:var(--gris2);flex:1}'
+  +'.b2-tab{width:100%;border-collapse:collapse;font-size:14px}'
+  +'.b2-tab td{padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}'
+  +'.b2-tab td:first-child{white-space:nowrap;font-weight:700}'
+  +'.b2-tab em{font-style:normal;color:var(--gris2)}'
+  +'.b2-defi .jg{height:8px;border-radius:4px;background:var(--line2);overflow:hidden;margin-top:4px}'
+  +'.b2-defi .jg i{display:block;height:100%;background:var(--or)}'
+  +'.a7-e.live.b2-defi .jg{background:#3A372F}'
+  +'.b2-q{margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--voile2,rgba(127,127,127,.08));font-size:13px;line-height:1.35}'
+  +'.b2-q button{margin-top:6px;border:0;background:none;color:var(--or);font:700 13px "Roboto Condensed",sans-serif;cursor:pointer;padding:0;text-decoration:underline}'
+  +'.b2-rep{padding:10px 12px;border-radius:12px;background:var(--carte);display:flex;flex-direction:column;gap:4px}'
+  +'.b2-rep b{font-size:14.5px}.b2-rep span{font-size:12px;color:var(--gris2)}.b2-rep p{margin:0;font-size:15px;line-height:1.45}';
+  var s=document.createElement('style'); s.id='v182-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var B2={forme:null, charge:null, t:0, charge_en:false, feux:null, reps:null, repsT:0};
+var B2_COUL={vert:'var(--green)', orange:'var(--gold)', rouge:'var(--red)', soin:'#2E7D8C', gris:'var(--line2)'};
+
+// ---------- 0. ce qui s'ajoute à la saison : « saison/vie » ----------
+// Un document à part, lu par l'appli joueur : l'historique des présences
+// (séance par séance), les photos de début de mois des stats, le défi.
+var VIE={presHisto:[], snaps:{}, defi:null, maj:0};
+function b2Iso(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function b2Mois(d){ return b2Iso(d).slice(0,7); }
+function b2VieLocal(){ try{ var x=JSON.parse(localStorage.getItem('ast-vie')||'null'); if(x) VIE=Object.assign(VIE, x); }catch(e){} }
+var B2_SAUVE=null;
+function b2VieSauver(){
+  VIE.maj=Date.now();
+  try{ localStorage.setItem('ast-vie', JSON.stringify(VIE)); }catch(e){}
+  clearTimeout(B2_SAUVE);
+  B2_SAUVE=setTimeout(function(){
+    fbFetch(FIRESTORE_BASE+'/saison/vie',{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{data:{stringValue:JSON.stringify(VIE)}}})}).catch(function(){});
+  }, 1500);
+}
+async function b2VieCharger(){
+  b2VieLocal();
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/saison/vie');
+    if(r.ok){ var x=JSON.parse((((await r.json()).fields||{}).data||{}).stringValue||'null'); if(x && (x.maj||0)>(VIE.maj||0)){ VIE=Object.assign({presHisto:[], snaps:{}, defi:null}, x); try{ localStorage.setItem('ast-vie', JSON.stringify(VIE)); }catch(e){} } }
+  }catch(e){}
+  b2Photo();
+}
+// la photo de début de mois des stats : le récap du mois = maintenant - photo
+function b2Photo(){
+  var m=b2Mois();
+  if(VIE.snaps[m]) return;
+  var S={}; (JOUEURS||[]).forEach(function(j,i){ var s=(STATS||[])[i]||{}; S[j.num]={pres:s.pres||0, seances:s.seances||0, tpsTotal:s.tpsTotal||0, buts:s.buts||0, pd:s.pd||0, matchsJoues:s.matchsJoues||0, titu:s.titu||0}; });
+  VIE.snaps[m]={pris:b2Iso(), s:S};
+  // on ne garde que les 14 derniers mois
+  var cles=Object.keys(VIE.snaps).sort(); while(cles.length>14){ delete VIE.snaps[cles.shift()]; }
+  b2VieSauver();
+}
+
+// ---------- 3. les présences, séance par séance ----------
+function b2Seance(saisie){
+  var e={d:b2Iso(), p:[], a:[], b:[]};
+  (JOUEURS||[]).forEach(function(j,i){ var st=(saisie[i]||{}).statut; if(st==='P') e.p.push(j.num); else if(st==='A') e.a.push(j.num); else if(st==='B') e.b.push(j.num); });
+  VIE.presHisto=(VIE.presHisto||[]).filter(function(x){ return x.d!==e.d; });
+  VIE.presHisto.push(e);
+  if(VIE.presHisto.length>160) VIE.presHisto=VIE.presHisto.slice(-160);
+  b2VieSauver();
+}
+
+// ---------- 1. le feu de forme ----------
+function b2Feu(f, ratio, monotonie, blesse){
+  // f : dernière forme déclarée dans les 7 jours {forme,mental,sommeil,jambes,courbatures,motivation,bobo}
+  var R=[], k='gris';
+  if(blesse) return {k:'soin', R:['en soins']};
+  var crit=['forme','mental','sommeil','jambes','courbatures','motivation'];
+  var moy=null;
+  if(f){ var v=crit.map(function(c){ return f[c]; }).filter(function(x){ return typeof x==='number' && !isNaN(x); }); if(v.length) moy=v.reduce(function(a,b){ return a+b; },0)/v.length; }
+  var rouge=false, orange=false;
+  if(ratio!=null && ratio>=1.5){ rouge=true; R.push('charge ×'+ratio.toFixed(1)+' en 7 jours'); }
+  else if(ratio!=null && ratio>=1.3){ orange=true; R.push('charge en hausse (×'+ratio.toFixed(1)+')'); }
+  if(f){
+    if(moy!=null && moy<=4){ rouge=true; R.push('forme basse ('+moy.toFixed(1)+'/10)'); }
+    else if(moy!=null && moy<6){ orange=true; R.push('forme moyenne ('+moy.toFixed(1)+'/10)'); }
+    if(f.jambes!=null && f.jambes<=3){ rouge=true; R.push('jambes '+f.jambes+'/10'); }
+    if(f.courbatures!=null && f.courbatures<=3){ rouge=true; R.push('courbatures fortes'); }
+    if(f.sommeil!=null && f.sommeil<=4){ orange=true; R.push('dort mal ('+f.sommeil+'/10)'); }
+    if(f.bobo){ rouge=true; R.push('signale : '+f.bobo); }
+  }
+  if(monotonie!=null && monotonie>2){ orange=true; R.push('semaine très monotone'); }
+  if(rouge) k='rouge'; else if(orange) k='orange'; else if(f || ratio!=null) k='vert';
+  return {k:k, R:R, moy:moy};
+}
+async function b2ChargerDonnees(){
+  if(B2.charge_en) return; B2.charge_en=true;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/forme?pageSize=300');
+    var L=r.ok?((await r.json()).documents||[]):[];
+    var lim=Date.now()-7*86400000, par={};
+    L.forEach(function(d){
+      var f=d.fields||{}, n=function(k){ var v=f[k]; return v?parseInt(v.integerValue!=null?v.integerValue:v.stringValue,10):null; };
+      var num=n('joueurNum'), date=(f.dateEnvoi||{}).stringValue||'';
+      if(num==null || !date || new Date(date).getTime()<lim) return;
+      if(par[num] && par[num].date>date) return;
+      par[num]={date:date, forme:n('forme'), mental:n('mental'), sommeil:n('sommeil'), jambes:n('jambes'), courbatures:n('courbatures'), motivation:n('motivation'), bobo:((f.bobo||{}).stringValue||'').trim()};
+    });
+    B2.forme=par;
+  }catch(e){ B2.forme=B2.forme||{}; }
+  try{
+    var docs=[], jeton='';
+    for(var t=0;t<20;t++){
+      var r2=await fbFetch(FIRESTORE_BASE+'/charge?pageSize=300'+(jeton?'&pageToken='+encodeURIComponent(jeton):''));
+      if(!r2.ok) break;
+      var d2=await r2.json(); docs=docs.concat(d2.documents||[]); jeton=d2.nextPageToken||''; if(!jeton) break;
+    }
+    B2.charge=docs.map(function(x){ var f=x.fields||{}, n=function(k){ var v=f[k]||{}; return parseInt(v.integerValue!=null?v.integerValue:(v.doubleValue||0),10)||0; };
+      return {num:n('joueurNum'), date:(f.date||{}).stringValue||'', charge:n('charge')||n('rpe')*n('duree')}; }).filter(function(e){ return /^\d{4}-\d{2}-\d{2}$/.test(e.date); });
+  }catch(e){ B2.charge=B2.charge||[]; }
+  B2.t=Date.now(); B2.charge_en=false; B2.feux=null;
+  try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){}
+}
+function b2Ratio(L){
+  // L : [{date, charge}] d'un joueur
+  var j=function(dec){ var d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-dec); return b2Iso(d); };
+  var j7=j(6), j28=j(27);
+  var aig=0, c28=0, prem=null;
+  L.forEach(function(e){ if(e.date>=j7) aig+=e.charge; if(e.date>=j28) c28+=e.charge; if(!prem || e.date<prem) prem=e.date; });
+  var anc=prem?Math.round((new Date(j(0))-new Date(prem))/86400000):0;
+  var ratio=(c28>0 && anc>=21)?aig/(c28/4):null;
+  var jours=[]; for(var q=0;q<7;q++){ var iso=j(q); jours.push(L.filter(function(e){ return e.date===iso; }).reduce(function(s,e){ return s+e.charge; },0)); }
+  var moy=jours.reduce(function(s,v){ return s+v; },0)/7, et=Math.sqrt(jours.reduce(function(s,v){ return s+(v-moy)*(v-moy); },0)/7);
+  return {ratio:ratio, monotonie:(et>0 && moy>0)?moy/et:null};
+}
+function b2Blesse(idx){ return (typeof BLESSURES!=='undefined' && BLESSURES||[]).some(function(b){ return b && b.joueurIdx===idx && b.statut && b.statut!=='disponible'; }); }
+function b2Feux(){
+  if(B2.feux) return B2.feux;
+  if(!B2.forme || !B2.charge) return null;
+  var par={}; B2.charge.forEach(function(e){ (par[e.num]=par[e.num]||[]).push(e); });
+  var L=(JOUEURS||[]).map(function(j,i){
+    var r=b2Ratio(par[j.num]||[]);
+    var f=b2Feu(B2.forme[j.num]||null, r.ratio, r.monotonie, b2Blesse(i));
+    f.j=j; f.ratio=r.ratio; f.f=B2.forme[j.num]||null; return f;
+  });
+  var c={vert:0, orange:0, rouge:0, soin:0, gris:0}; L.forEach(function(x){ c[x.k]++; });
+  var info=c.vert+c.orange+c.rouge;
+  var pct=info?Math.round((c.vert*100+c.orange*60+c.rouge*20)/info):null;
+  // la suggestion du jour
+  var sug=[];
+  var chargeR=L.filter(function(x){ return x.k==='rouge' && x.ratio!=null && x.ratio>=1.5; });
+  if(chargeR.length) sug.push('Allège la prochaine séance pour <b>'+chargeR.slice(0,4).map(function(x){ return a9E(String(x.j.nom).split(' ').pop()); }).join(', ')+'</b> : leur charge a grimpé trop vite.');
+  var jb=L.filter(function(x){ return x.f && x.f.jambes!=null; }).map(function(x){ return x.f.jambes; });
+  if(jb.length>=5){ var mj=jb.reduce(function(a,b){ return a+b; },0)/jb.length; if(mj<6) sug.push('Le groupe a les jambes lourdes ('+mj.toFixed(1)+'/10 en moyenne) : baisse le volume, garde l’intensité courte.'); }
+  var bo=L.filter(function(x){ return x.f && x.f.bobo; });
+  if(bo.length) sug.push('<b>'+bo.length+'</b> joueur'+(bo.length>1?'s signalent':' signale')+' une gêne : passe le voir avant la séance.');
+  if(c.gris>(JOUEURS||[]).length*0.5) sug.push('Plus de la moitié du groupe n’a pas donné sa forme cette semaine : un rappel dans le vestiaire ?');
+  B2.feux={L:L, c:c, pct:pct, sug:sug};
+  return B2.feux;
+}
+function b2FormeHtml(){
+  var F=b2Feux();
+  if(!F) return '<div class="a7-vide">Lecture de la forme et de la charge…</div>';
+  var c=F.c, n=(JOUEURS||[]).length||1;
+  var barre=['vert','orange','rouge','soin','gris'].map(function(k){ return c[k]?'<span style="flex:'+c[k]+';background:'+B2_COUL[k]+'"></span>':''; }).join('');
+  var alerte=F.L.filter(function(x){ return x.k==='rouge'||x.k==='orange'; }).sort(function(a,b){ return (a.k==='rouge'?0:1)-(b.k==='rouge'?0:1); });
+  return '<div class="b2-forme"><div class="tete"><span class="pc" style="color:'+(F.pct==null?'var(--gris2)':(F.pct>=75?'var(--green)':(F.pct>=55?'var(--gold)':'var(--red)')))+'">'+(F.pct==null?'–':F.pct+'<small>%</small>')+'</span>'
+    +'<span class="lg"><b style="color:var(--gris);font-size:15px">Forme du groupe</b><span>forme déclarée + charge des 7 derniers jours</span></span></div>'
+    +'<div class="b2-barre">'+barre+'</div>'
+    +'<div class="b2-cpt"><span><i class="b2-pt" style="background:var(--green)"></i>'+c.vert+' prêts</span><span><i class="b2-pt" style="background:var(--gold)"></i>'+c.orange+' à surveiller</span><span><i class="b2-pt" style="background:var(--red)"></i>'+c.rouge+' alertes</span>'+(c.soin?'<span><i class="b2-pt" style="background:#2E7D8C"></i>'+c.soin+' en soins</span>':'')+'<span style="color:var(--gris2)">'+c.gris+' sans info</span></div>'
+    +(F.sug.length?'<div class="b2-sug">'+F.sug[0]+'</div>':'')
+    +alerte.slice(0,4).map(function(x){ return '<button class="b2-l" onclick="jfOuvrirNom('+a9E(JSON.stringify(x.j.nom))+')"><i class="b2-pt" style="background:'+B2_COUL[x.k]+'"></i><b>'+a9E(x.j.nom)+'</b><span>'+a9E(x.R.slice(0,2).join(' · '))+'</span></button>'; }).join('')
+    +'<button class="a7-b cl" style="align-self:flex-start" onclick="b2OuvrirForme()">Tout le groupe</button></div>';
+}
+function b2OuvrirForme(){
+  var F=b2Feux(); if(!F) return;
+  var ordre={rouge:0, orange:1, vert:2, soin:3, gris:4};
+  var L=F.L.slice().sort(function(a,b){ return ordre[a.k]-ordre[b.k] || String(a.j.nom).localeCompare(String(b.j.nom)); });
+  a9Ouvrir('<div class="hd"><div><h1>La forme du groupe</h1><p class="sub">Le feu de chaque joueur : sa dernière forme déclarée (7 jours) et sa charge des 7 derniers jours comparée à ses 4 dernières semaines (il faut 3 semaines de réponses pour la charge). Un signal pour aller lui parler, pas un verdict.</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +(F.sug.length?'<div class="b2-sug">'+F.sug.join('<br><br>')+'</div>':'')
+    +'<table class="b2-tab">'+L.map(function(x){
+      var lab={vert:'Prêt', orange:'À surveiller', rouge:'Alerte', soin:'En soins', gris:'Pas d’info'}[x.k];
+      return '<tr><td><i class="b2-pt" style="background:'+B2_COUL[x.k]+';margin-right:8px"></i>'+a9E(x.j.nom)+'</td><td><b>'+lab+'</b>'+(x.R.length?' · <em>'+a9E(x.R.join(' · '))+'</em>':(x.k==='gris'?' · <em>ni forme cette semaine, ni assez de charge</em>':''))+'</td></tr>';
+    }).join('')+'</table>');
+}
+
+// ---------- 4. le défi du mois ----------
+var B2_DEFIS={
+  presence:{l:'Présence aux séances', u:'%', def:85, aide:'Part des présents sur toutes les séances du mois.'},
+  invaincus:{l:'Aucune défaite', u:'matchs', def:0, aide:'Les matchs du mois sans défaite. Une défaite et le défi est perdu.'},
+  buts:{l:'Buts marqués', u:'buts', def:8, aide:'Le total de buts de l’équipe sur le mois.'}
+};
+function b2DateMatch(m){ try{ var p=parserDateCalendrierMatch(m.date); return p?new Date(p.y,p.m,p.d):null; }catch(e){ return null; } }
+function b2DefiValeur(D){
+  var mois=b2Mois();
+  if(D.type==='presence'){
+    var p=0, a=0; (VIE.presHisto||[]).forEach(function(x){ if(x.d.slice(0,7)===mois){ p+=x.p.length; a+=x.a.length; } });
+    return {v:(p+a)?Math.round(p/(p+a)*100):null, txt:(p+a)?p+' présences sur '+(p+a):'pas encore de séance saisie ce mois'};
+  }
+  var M=(MATCHS||[]).filter(function(m){ var d=b2DateMatch(m); return d && b2Mois(d)===mois; });
+  if(D.type==='buts'){ var b=M.reduce(function(s,m){ return s+(+m.ast||0); },0); return {v:b, txt:M.length+' match'+(M.length>1?'s':'')+' joué'+(M.length>1?'s':'')}; }
+  if(D.type==='invaincus'){ var perdu=M.some(function(m){ return m.res==='D'; }); var ok=M.filter(function(m){ return m.res!=='D'; }).length; return {v:ok, perdu:perdu, txt:perdu?'une défaite ce mois : défi perdu':ok+' match'+(ok>1?'s':'')+' sans défaite'}; }
+  return {v:null, txt:''};
+}
+function b2NbMatchsMois(){ var mois=b2Mois(); return (CALENDRIER||[]).filter(function(c){ try{ var d=dvJourDe(c); return d && b2Mois(d)===mois; }catch(e){ return false; } }).length; }
+function b2DefiMaj(){
+  var D=VIE.defi; if(!D || D.mois!==b2Mois()) return null;
+  var r=b2DefiValeur(D);
+  if(D.valeur!==r.v || D.txt!==r.txt || D.perdu!==!!r.perdu){ D.valeur=r.v; D.txt=r.txt; D.perdu=!!r.perdu; b2VieSauver(); }
+  return D;
+}
+function b2OuvrirDefi(){
+  var D=(VIE.defi && VIE.defi.mois===b2Mois())?VIE.defi:null;
+  var nomMois=new Date().toLocaleDateString('fr-FR',{month:'long'});
+  var opt=function(k){ var x=B2_DEFIS[k]; return '<label class="a9-m" style="cursor:pointer;flex-direction:row;align-items:flex-start;gap:10px"><input type="radio" name="b2d" value="'+k+'"'+((D?D.type===k:k==='presence')?' checked':'')+' style="margin-top:4px"><span><b>'+x.l+'</b><br><span style="font-size:13px;color:var(--gris2)">'+x.aide+'</span></span></label>'; };
+  a9Ouvrir('<div class="hd"><div><h1>Le défi de '+nomMois+'</h1><p class="sub">Un objectif pour tout le groupe, avec une jauge dans la semaine de chaque joueur. Le compte se fait tout seul à partir de ce que tu saisis déjà (présences, matchs).</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +Object.keys(B2_DEFIS).map(opt).join('')
+    +'<label style="display:flex;flex-direction:column;gap:6px;font-weight:700">Objectif<input class="fi" id="b2-cible" inputmode="numeric" value="'+a9E(D?D.cible:85)+'" placeholder="85"></label>'
+    +'<p class="sub" id="b2-aide">Présence : un pourcentage (85 = 85 %). Aucune défaite : le nombre de matchs du mois ('+b2NbMatchsMois()+' au calendrier). Buts : un total.</p>'
+    +'<label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="b2-prev" checked> Annoncer le défi dans le vestiaire et sur les téléphones</label>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="a7-b or" onclick="b2EnregistrerDefi()">Lancer le défi</button>'+(D?'<button class="a7-b cl" onclick="VIE.defi=null;b2VieSauver();a9Fermer()">Arrêter le défi</button>':'')+'</div>');
+}
+function b2EnregistrerDefi(){
+  var t=(document.querySelector('input[name="b2d"]:checked')||{}).value||'presence';
+  var c=parseInt((document.getElementById('b2-cible')||{}).value,10);
+  if(t==='invaincus' && !(c>0)) c=b2NbMatchsMois()||3;
+  if(!(c>0)) c=B2_DEFIS[t].def;
+  var x=B2_DEFIS[t];
+  var titre=t==='presence'?c+' % de présence aux séances':(t==='invaincus'?c+' match'+(c>1?'s':'')+' sans défaite':c+' buts marqués');
+  VIE.defi={mois:b2Mois(), type:t, cible:c, unite:x.u, titre:titre, lance:b2Iso()};
+  b2DefiMaj(); b2VieSauver();
+  if((document.getElementById('b2-prev')||{}).checked){
+    var nomMois=new Date().toLocaleDateString('fr-FR',{month:'long'});
+    var texte='Le défi de '+nomMois+' : '+titre+'. On le fait ensemble, la jauge est dans votre appli.';
+    var qui=(typeof NOM_COACH!=='undefined'&&NOM_COACH)||'Coach';
+    fbFetch(FIRESTORE_BASE+'/messages_chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{auteur:{stringValue:qui}, texte:{stringValue:texte}, role:{stringValue:'coach'}, date:{stringValue:new Date().toISOString()}}})}).catch(function(){});
+    try{ a9Notifier('Le défi de '+nomMois, titre+' : la jauge est dans ton appli.'); }catch(e){}
+  }
+  notif('✓ Défi lancé : '+titre);
+  a9Fermer();
+}
+function b2DefiCarte(){
+  var D=b2DefiMaj();
+  var b=document.createElement('button'); b.className='a7-e b2-defi'+(D?' live':' prog'); b.onclick=b2OuvrirDefi;
+  if(!D){ b.innerHTML='<span class="q">Défi du mois</span><b>Lancer un défi d’équipe</b><span>présence, invincibilité ou buts : une jauge chez tous les joueurs</span>'; return b; }
+  var pct=D.valeur==null?0:Math.min(100, Math.round(D.valeur/D.cible*100));
+  b.innerHTML='<span class="q">Défi du mois</span><b>'+a9E(D.titre)+'</b><span>'+(D.valeur==null?'—':a9E(D.valeur+(D.unite==='%'?' %':' / '+D.cible)))+' · '+a9E(D.txt||'')+'</span><div class="jg"><i style="width:'+(D.perdu?0:pct)+'%"></i></div>';
+  return b;
+}
+
+// ---------- 5. « Qu'aurais-tu fait ? » ----------
+async function b2ChargerReps(force){
+  if(!force && B2.reps && Date.now()-B2.repsT<60000) return B2.reps;
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/reponses_clips?pageSize=300');
+    B2.reps=r.ok?(((await r.json()).documents)||[]).map(function(d){ var f=d.fields||{}; return {clip:(f.clipId||{}).stringValue||'', num:(f.joueurNum||{}).integerValue, nom:(f.joueurNom||{}).stringValue||'', texte:(f.texte||{}).stringValue||'', date:(f.date||{}).stringValue||''}; }):[];
+  }catch(e){ B2.reps=B2.reps||[]; }
+  B2.repsT=Date.now();
+  return B2.reps;
+}
+async function b2VoirReps(id){
+  var c=(CLIPS||[]).filter(function(x){ return x.id===id; })[0]; if(!c) return;
+  a9Ouvrir('<div class="hd"><div><h1>Leurs réponses</h1><p class="sub">'+a9E(c.titre||'')+'<br><b>« '+a9E(c.question||'')+' »</b></p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div><div class="a7-vide">Chargement…</div>');
+  var R=(await b2ChargerReps(true)).filter(function(r){ return r.clip===id; }).sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
+  var p=document.querySelector('#a9-ov .a9-pan'); if(!p) return;
+  var v=p.querySelector('.a7-vide'); if(v) v.outerHTML=R.length?R.map(function(r){ return '<div class="b2-rep"><b>'+a9E(r.nom||('n°'+r.num))+'</b><span>'+a9E(a9Quand(r.date))+'</span><p>'+a9E(r.texte)+'</p></div>'; }).join(''):'<div class="a7-vide">Personne n’a encore répondu.</div>';
+}
+function b2QuestionChamp(){
+  var com=document.getElementById('cl-com'); if(!com || document.getElementById('cl-q')) return;
+  var d=document.createElement('div'); d.className='fg'; d.style.margin='10px 0 0';
+  d.innerHTML='<label class="fl">Une question au joueur <span style="color:var(--gris2);font-weight:400;text-transform:none;letter-spacing:0">— facultatif, il répond avant la séance</span></label><input class="fi" id="cl-q" placeholder="Qu’aurais-tu fait à sa place ?">';
+  com.closest('.fg').after(d);
+}
+function b2ApresClips(){
+  b2QuestionChamp();
+  var ct=document.getElementById('cl-liste'); if(!ct) return;
+  var liste=(CLIPS||[]).filter(function(c){ return !CLIP_FILTRE || (c.principes||[]).indexOf(CLIP_FILTRE)!==-1; });
+  var cartes=ct.querySelectorAll('.cl-c');
+  var R=B2.reps||[];
+  cartes.forEach(function(el, i){
+    var c=liste[i]; if(!c || el.querySelector('.b2-q')) return;
+    var corps=el.querySelector('.cl-corps'); if(!corps) return;
+    var z=document.createElement('div'); z.className='b2-q';
+    if(c.question){
+      var n=R.filter(function(r){ return r.clip===c.id; }).length;
+      z.innerHTML='<b>Question :</b> '+a9E(c.question)+'<br><button onclick="b2VoirReps(\''+a9E(c.id)+'\')">'+(n?n+' réponse'+(n>1?'s':''):'Voir les réponses')+'</button> <button onclick="b2PoserQuestion(\''+a9E(c.id)+'\')">Modifier</button>';
+    } else {
+      z.innerHTML='<button onclick="b2PoserQuestion(\''+a9E(c.id)+'\')">+ Poser une question aux joueurs</button>';
+    }
+    var act=corps.querySelector('.cl-actions'); corps.insertBefore(z, act);
+  });
+  if(!B2.reps || Date.now()-B2.repsT>60000) b2ChargerReps().then(function(){ ct.querySelectorAll('.b2-q').forEach(function(x){ x.remove(); }); b2ApresClips(); });
+}
+function b2PoserQuestion(id){
+  var c=(CLIPS||[]).filter(function(x){ return x.id===id; })[0]; if(!c) return;
+  var q=prompt('La question pour les joueurs concernés par ce clip (vide = aucune) :', c.question||'Qu’aurais-tu fait à sa place ?');
+  if(q===null) return;
+  c.question=String(q).trim();
+  try{ sauvegarder(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
+  try{ renderClips(); }catch(e){}
+  if(c.question){
+    var cibles=(c.joueurs||[]).join(',');
+    try{ a9Notifier('Une question du coach', '« '+c.question+' » · sur le clip '+(c.titre||''), cibles||null); }catch(e){}
+    notif('✓ Question envoyée aux joueurs du clip');
+  }
+}
+
+// ---------- 2. les proches : les règles et le compteur ----------
+(function(){
+  try{
+    var ajout="    // ---- v182 : réponses aux clips, abonnés de la page des proches\n"
+      +"    match /reponses_clips/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create, update: if estCoach() || signeParMoi();\n      allow delete: if estCoach();\n    }\n"
+      +"    match /proches/{id} {\n      allow create: if request.resource.data.keys().hasOnly(['token','cree']) && request.resource.data.token is string;\n      allow read, update, delete: if estCoach();\n    }\n";
+    if(SEC_REGLES.indexOf('match /proches/{id}')<0) SEC_REGLES=SEC_REGLES.replace('    match /stats_live/{id} {', ajout+'    match /stats_live/{id} {');
+  }catch(e){}
+})();
+
+// ---------- l'accueil ----------
+function b2ApresAccueil(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  var a7=ct.querySelector('.a7'); if(!a7) return;
+  // la forme du groupe, en tête de la colonne des gens
+  var dr=a7.querySelector('.a7-droite');
+  if(dr && !dr.querySelector('#b2-forme')){
+    var z=document.createElement('div'); z.id='b2-forme'; z.className='a7-col';
+    var F=b2Feux();
+    z.innerHTML='<h2 class="a7-h2">Forme du groupe<em>'+(F?(F.c.rouge+F.c.orange)+' à surveiller':'')+'</em></h2>'+b2FormeHtml();
+    dr.insertBefore(z, dr.firstChild);
+  }
+  if(!B2.charge_en && Date.now()-B2.t>5*60000) b2ChargerDonnees();
+  // le défi, dans « ce qui s'ouvre chez les joueurs »
+  var env=a7.querySelector('.a7-env');
+  if(env && !env.querySelector('.b2-defi')){ var b=b2DefiCarte(); var v=env.querySelector('.a9-e'); if(v) v.after(b); else env.insertBefore(b, env.firstChild); }
+}
+
+// la page des proches garde son score si l'appli coach redémarre en plein match
+async function b2RelirePublic(){
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/public/match'); if(!r.ok) return;
+    var d=JSON.parse((((await r.json()).fields||{}).data||{}).stringValue||'null');
+    if(d && d.live && Date.now()-(d.live.maj||0)<4*3600000 && !A9_PUB.live){ A9_PUB.live=d.live; A9_PUB.fin=!!d.fin; if(!A9_PUB.statique) A9_PUB.statique=d.s; }
+  }catch(e){}
+}
+window.addEventListener('load', function(){
+  b2VieCharger();
+  b2RelirePublic();
+  if(typeof renderSemaine==='function' && !renderSemaine.__v182){
+    var b1=renderSemaine;
+    renderSemaine=function(){ var r=b1.apply(this, arguments); try{ b2ApresAccueil(); }catch(e){ console.error('b2', e); } return r; };
+    renderSemaine.__v182=true;
+  }
+  if(typeof validerSeance==='function' && !validerSeance.__v182){
+    var b2=validerSeance;
+    validerSeance=function(){ var copie=(SEANCE_SAISIE||[]).map(function(s){ return Object.assign({}, s); }); var r=b2.apply(this, arguments); try{ b2Seance(copie); }catch(e){ console.error('b2 séance', e); } return r; };
+    validerSeance.__v182=true;
+  }
+  if(typeof renderClips==='function' && !renderClips.__v182){
+    var b3=renderClips;
+    renderClips=function(){ var r=b3.apply(this, arguments); try{ b2ApresClips(); }catch(e){ console.error('b2 clips', e); } return r; };
+    renderClips.__v182=true;
+  }
+  if(typeof clipCreer==='function' && !clipCreer.__v182){
+    var b4=clipCreer;
+    clipCreer=function(){
+      var q=((document.getElementById('cl-q')||{}).value||'').trim(), avant=(CLIPS[0]||{}).id;
+      var r=b4.apply(this, arguments);
+      if(q && CLIPS[0] && CLIPS[0].id!==avant){ CLIPS[0].question=q; document.getElementById('cl-q').value=''; try{ sauvegarder(); }catch(e){} try{ renderClips(); }catch(e){}
+        try{ a9Notifier('Une question du coach', '« '+q+' » · sur le clip '+(CLIPS[0].titre||''), (CLIPS[0].joueurs||[]).join(',')||null); }catch(e){} }
+      return r;
+    };
+    clipCreer.__v182=true;
+  }
+  // la vidéo Veo : une question pour chacun
+  if(typeof a9OuvrirVeo==='function' && !a9OuvrirVeo.__v182){
+    var b5=a9OuvrirVeo;
+    a9OuvrirVeo=function(){
+      var r=b5.apply(this, arguments);
+      var bt=document.querySelector('#a9-ov .a9-veo > button.a7-b.or');
+      if(bt && !document.getElementById('b2-veo-q')){
+        var M=a9DernierMatch(), dq=M?(a9VeoDuMatch(M.adv).filter(function(c){ return c.question; })[0]||{}).question:'';
+        var l=document.createElement('label'); l.style.cssText='display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px';
+        l.innerHTML='Une question pour chacun <span style="font-weight:400;color:var(--gris2)">facultatif : il répond sous sa vidéo, avant la séance</span><input class="fi" id="b2-veo-q" value="'+a9E(dq||'')+'" placeholder="Sur ta 2e séquence, qu’aurais-tu fait autrement ?">';
+        bt.parentNode.insertBefore(l, bt.previousElementSibling);
+      }
+      return r;
+    };
+    a9OuvrirVeo.__v182=true;
+  }
+  if(typeof a9EnregistrerVeo==='function' && !a9EnregistrerVeo.__v182){
+    var b6=a9EnregistrerVeo;
+    a9EnregistrerVeo=function(){
+      var q=((document.getElementById('b2-veo-q')||{}).value||'').trim(), M=a9DernierMatch();
+      var r=b6.apply(this, arguments);
+      if(M){ a9VeoDuMatch(M.adv).forEach(function(c){ if((c.joueurs||[]).length) c.question=q; }); try{ sauvegarder(); }catch(e){} }
+      return r;
+    };
+    a9EnregistrerVeo.__v182=true;
+  }
+  setTimeout(function(){ try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1500);
 });
 </script>
 
