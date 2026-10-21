@@ -40861,6 +40861,28 @@ async function b2RelirePublic(){
     if(d && d.live && Date.now()-(d.live.maj||0)<4*3600000 && !A9_PUB.live){ A9_PUB.live=d.live; A9_PUB.fin=!!d.fin; if(!A9_PUB.statique) A9_PUB.statique=d.s; }
   }catch(e){}
 }
+// ---------- correctif : « Exercices & bibliothèque » ----------
+// Le bouton rouvrait la dernière rubrique vue dans cet écran (Vidéos ou
+// Documentation) : on avait l'impression qu'il ne faisait rien. Un clic sur
+// un écran ouvre maintenant sa rubrique principale.
+try{
+  EXT.avant('goNav', function(x){
+    var s=(typeof x==='string')?x:'';
+    if(!s || (typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[s])) return null;
+    if(document.querySelector('#scr-'+s+' .rub-p[data-r="'+s+'"]')){
+      RUBRIQUE_ACTIVE[s]=s;
+      try{ localStorage.setItem('ast-rub-'+s, s); }catch(e){}
+    }
+    return null;
+  }, 'rubrique principale');
+}catch(e){}
+// le nom du groupe (« Exercices & bibliothèque ») se touche aussi : il ouvre son premier écran
+document.addEventListener('click', function(e){
+  var g=e.target.closest && e.target.closest('#topnav .tn-grp > .tn-gl'); if(!g) return;
+  var b=g.parentNode.querySelector('button'); if(b) b.click();
+});
+(function(){ var s=document.createElement('style'); s.textContent='#topnav .tn-grp > .tn-gl{cursor:pointer}'; document.head.appendChild(s); })();
+
 window.addEventListener('load', function(){
   b2VieCharger();
   b2RelirePublic();
