@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v179';
+var APP_BUILD='v180';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -8231,6 +8231,365 @@ window.addEventListener('load', function(){
     jAller=function(s){ var r=base.apply(this, arguments); try{ var b=document.getElementById('a7j-pill'); if(b && s!=='hub') b.classList.add('cache'); }catch(e){} return r; };
     jAller.__a7j=true;
   }
+});
+</script>
+
+<script>
+// ===== v180 : la semaine devient le seul menu (joueur) =====
+//  · Plus de barre d'onglets : le logo ouvre « Le club », l'avatar ouvre « Moi »,
+//    chaque section de la semaine mène à ses écrans, « ‹ Ma semaine » ramène.
+//  · Statuts : vert = fait/présent, ambre = à faire, rouge = retard/blessure.
+//  · On glisse d'un jour à l'autre ; la réponse choisie s'anime.
+//  · Jour de match : mode stade automatique (fond noir, JOUR J, chrono, direct).
+//  · Blessé : la semaine devient « Ma reprise ». Pas convoqué : on le dit franchement.
+//  · Écrans vides : on dit ce qui va arriver, et quand.
+(function(){
+  var css=''
+  +'html.clair{--green:#1E7A4C;--gold:#9A5B00;--red:#C42B1C}'
+  +'html:not(.clair){--green:#3DBA7E;--gold:#F0A830;--red:#FF6B5B}'
+  +'html.stade,html.clair.stade{--bg:#0B0A09;--bg2:#0B0A09;--surface:#1A1916;--surface2:#24221E;--champ:#151412;--ink:#F2EEE6;--mute:#B8B1A4;--or:#E2561F;--hair:rgba(242,238,230,.14);--voile:rgba(242,238,230,.04);--voile2:rgba(242,238,230,.07);--green:#3DBA7E;--gold:#F0A830;--red:#FF6B5B;--bandeau:rgba(11,10,9,.96)}'
+  // plus d'onglets
+  +'#jtabs,#jrub{display:none!important}'
+  +'.wrap{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))!important}'
+  +'.a7j-pill{bottom:calc(18px + env(safe-area-inset-bottom))!important}'
+  +'.jhdr{position:relative}'
+  +'.a8-ret{display:none;align-items:center;gap:4px;min-height:40px;padding:0 10px 0 6px;margin-right:2px;border-radius:12px;border:0;background:var(--surface);color:var(--ink);font:800 14px "Roboto Condensed",sans-serif;cursor:pointer;flex-shrink:0}'
+  +'body.a8-ailleurs .a8-ret{display:inline-flex}'
+  +'.a8-pt{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--or);box-shadow:0 0 0 2px var(--bg);pointer-events:none}'
+  // les portes
+  +'.a8-porte{display:flex;flex-direction:column;gap:12px;padding-bottom:20px}'
+  +'.a8-porte h1{margin:4px 2px 6px;font:900 64px/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.a8-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}'
+  +'.a8-tuile{position:relative;display:flex;flex-direction:column;gap:6px;min-height:104px;padding:14px;border-radius:18px;border:0;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font-family:"Inter",sans-serif}'
+  +'.a8-tuile .ic{width:24px;height:24px;color:var(--or)}'
+  +'.a8-tuile b{font:700 16px "Roboto Condensed",sans-serif}.a8-tuile span{font-size:12.5px;color:var(--mute);line-height:1.35}'
+  +'.a8-tuile.fonce{background:var(--ink);color:var(--bg)}.a8-tuile.fonce span{color:var(--bg);opacity:.75}.a8-tuile.fonce .ic{color:#FF7A45}'
+  +'.a8-tuile i{position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%;background:var(--or)}'
+  // les liens de section
+  +'.a8-liens{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:0 2px}'
+  +'.a8-liens::-webkit-scrollbar{display:none}'
+  +'.a8-liens button{flex-shrink:0;min-height:38px;padding:0 13px;border-radius:999px;border:1.5px solid var(--hair);background:transparent;color:var(--ink);font:700 13px "Inter",sans-serif;cursor:pointer}'
+  // reprise et pas convoqué
+  +'.a8-reprise{border-radius:18px;padding:16px;background:#1F5F5A;color:#fff;display:flex;flex-direction:column;gap:8px}'
+  +'.a8-reprise .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;opacity:.85}'
+  +'.a8-reprise b{font:900 26px/1 "Roboto Condensed",sans-serif}.a8-reprise span{font-size:14px;opacity:.9}'
+  +'.a8-reprise button{align-self:flex-start;min-height:42px;padding:0 14px;border-radius:12px;border:0;background:#fff;color:#1F5F5A;font:700 14px "Inter",sans-serif;cursor:pointer}'
+  +'.a8-nc{border-radius:18px;padding:16px;background:var(--ink);color:var(--bg);display:flex;flex-direction:column;gap:10px}'
+  +'.a8-nc .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#F2A07E}'
+  +'.a8-nc b{font:900 30px/.95 "Roboto Condensed",sans-serif}.a8-nc p{margin:0;font-size:14.5px;line-height:1.45;opacity:.9}'
+  +'.a8-nc .bt{display:flex;flex-wrap:wrap;gap:8px}.a8-nc button{min-height:44px;padding:0 14px;border-radius:12px;border:0;cursor:pointer;font:700 14px "Inter",sans-serif;background:var(--bg);color:var(--ink)}.a8-nc button.ln{background:transparent;color:var(--bg);box-shadow:inset 0 0 0 1.5px currentColor}'
+  // mode stade
+  +'.a8-stade{display:flex;flex-direction:column;gap:10px;padding:4px 2px 16px;border-bottom:2px solid #E2561F}'
+  +'.a8-stade h1{margin:0;font:900 96px/.8 "Roboto Condensed",sans-serif;color:#FF7A45}'
+  +'.a8-stade .l{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.a8-stade .l b{font:700 19px "Roboto Condensed",sans-serif}.a8-stade .l span{font-size:13px;color:var(--mute)}'
+  +'.a8-chrono{font:900 24px "Roboto Condensed",sans-serif}.a8-chrono em{font-style:normal;color:#FF7A45}'
+  +'.a8-stade .bt{display:flex;flex-wrap:wrap;gap:8px}.a8-stade button{min-height:46px;padding:0 16px;border-radius:12px;border:0;cursor:pointer;font:700 14px "Inter",sans-serif}'
+  +'.a8-stade .or{background:#E2561F;color:#14130F}.a8-stade .ln{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--hair)}.a8-stade .q{background:none;color:var(--mute);text-decoration:underline;padding:0 4px}'
+  // mouvement
+  +'@keyframes a8inG{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}'
+  +'@keyframes a8inD{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}'
+  +'.a7j.a8-g .a7j-hero,.a7j.a8-g .a8-stade{animation:a8inG .26s ease-out}.a7j.a8-d .a7j-hero,.a7j.a8-d .a8-stade{animation:a8inD .26s ease-out}'
+  +'.a7j-j{transition:transform .12s ease}.a7j-j:active{transform:scale(.92)}'
+  +'@keyframes a8pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}'
+  +'.a7j-3 button{transition:transform .1s ease}.a7j-3 button:active{transform:scale(.95)}'
+  +'.a7j-3 button.on{background:var(--green)!important;color:#fff!important}'
+  +'.a7j-3 button.on.non{background:var(--red)!important}.a7j-3 button.on.peut{background:var(--gold)!important}'
+  +'.a7j-3 button.flash{animation:a8pop .35s ease-out}'
+  // états vides
+  +'.empty-txt.a8-vide{border:1.5px dashed var(--hair);border-radius:14px;padding:14px 16px;text-align:left!important;color:var(--mute);font-size:14px;line-height:1.45}'
+  +'@media (prefers-reduced-motion:reduce){.a7j.a8-g .a7j-hero,.a7j.a8-d .a7j-hero,.a7j-3 button.flash{animation:none}}';
+  var s=document.createElement('style'); s.id='v180-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// ---------- les deux portes ----------
+var A8_CLUB=[
+  {s:'accueil', ic:'journal', l:'Actualités', d:'les nouvelles du club', f:true},
+  {s:'messages', ic:'bulle', l:'Messages', d:'écrire au staff'},
+  {s:'calannuel', ic:'calendrier', l:'Le calendrier', d:'toute la saison'},
+  {s:'saison', ic:'barres', l:'Classements', d:'général, domicile, extérieur'},
+  {s:'projetjeu', ic:'cerveau', l:'Notre jeu', d:'le projet de jeu'},
+  {s:'coach', ic:'palette', l:'Le plateau', d:'les situations du coach'},
+  {s:'videos', ic:'camera', l:'Vidéos', d:'celles du groupe'},
+  {s:'infosclub', ic:'document', l:'Docs du club', d:'règlement, contacts'}
+];
+var A8_MOI=[
+  {s:'macarte', ic:'carte', l:'Ma carte', d:'note, attributs, ce que ça dit', f:true},
+  {s:'mesmatchs', ic:'etoile', l:'Mes matchs', d:'mes notes, mes objectifs'},
+  {s:'tempsjeu', ic:'chrono', l:'Temps de jeu', d:'titulaire, entré, minutes'},
+  {s:'clips', ic:'clap', l:'Mes clips', d:'mes actions à revoir'},
+  {s:'sante', ic:'pansement', l:'Ma santé', d:'déclarer une gêne, ma reprise'},
+  {s:'formephysique', ic:'thermo', l:'Ma forme', d:'le détail, quand je veux'},
+  {s:'entrainement', ic:'coupe', l:'Points', d:'mes points d’entraînement'},
+  {s:'effectif', ic:'groupe', l:'L’effectif', d:'les joueurs du groupe'}
+];
+function a8Pastille(s){ try{ return !!(tuileActionEnAttente(s)||tuileEstNouvelle(s)); }catch(e){ return false; } }
+function a8PorteHtml(titre, L){
+  return '<div class="a8-porte"><h1>'+titre+'</h1><div class="a8-grille">'+L.map(function(t){
+    return '<button class="a8-tuile'+(t.f?' fonce':'')+'" onclick="jAller(\''+t.s+'\')">'+(a8Pastille(t.s)?'<i aria-label="nouveau"></i>':'')+ic(t.ic)+'<b>'+t.l+'</b><span>'+t.d+'</span></button>';
+  }).join('')+'</div></div>';
+}
+function a8CreerPortes(){
+  var w=document.querySelector('.wrap'); if(!w) return;
+  [['club','Le club',A8_CLUB],['moi','Moi',A8_MOI]].forEach(function(x){
+    if(!document.getElementById('scr-'+x[0])){ var d=document.createElement('div'); d.id='scr-'+x[0]; d.className='screen hidden'; w.appendChild(d); }
+    try{ RUB_INFO[x[0]]={s:x[0], l:x[1]}; ONGLET_DE[x[0]]='today'; }catch(e){}
+  });
+  try{ if(RUB_INFO.hub) RUB_INFO.hub.l='Ma semaine'; }catch(e){}
+}
+function a8RendrePorte(s){
+  var d=document.getElementById('scr-'+s); if(!d) return;
+  d.innerHTML=(s==='club')?a8PorteHtml('Le club', A8_CLUB):a8PorteHtml('Moi', A8_MOI);
+}
+function a8Entete(){
+  var h=document.querySelector('.jhdr'); if(!h) return;
+  if(!document.getElementById('a8-ret')){
+    var b=document.createElement('button'); b.id='a8-ret'; b.className='a8-ret'; b.type='button';
+    b.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Semaine';
+    b.setAttribute('aria-label','Revenir à ma semaine');
+    b.onclick=function(){ jAller('hub'); };
+    h.insertBefore(b, h.firstChild);
+  }
+  var logo=document.getElementById('jhdr-logo'); if(logo){ logo.onclick=function(){ jAller('club'); }; logo.title='Le club'; }
+  var moi=document.getElementById('jhdr-moi'); if(moi){ moi.onclick=function(){ jAller('moi'); }; moi.title='Moi'; }
+  // une pastille sur une porte si un de ses écrans attend quelque chose
+  [['jhdr-logo',A8_CLUB],['jhdr-moi',A8_MOI]].forEach(function(x){
+    var el=document.getElementById(x[0]); if(!el) return;
+    var id='a8pt-'+x[0], p=document.getElementById(id), on=x[1].some(function(t){ return a8Pastille(t.s); });
+    if(on && !p){ p=document.createElement('span'); p.id=id; p.className='a8-pt'; h.appendChild(p); }
+    if(p){ p.style.display=on?'block':'none'; var r=el.getBoundingClientRect(), rh=h.getBoundingClientRect(); p.style.left=(r.right-rh.left-9)+'px'; p.style.top=(r.top-rh.top-1)+'px'; }
+  });
+}
+
+// ---------- les situations du joueur ----------
+function a8MaBlessure(){
+  try{
+    var idx=(SAISON.JOUEURS||[]).findIndex(function(j){ return j.num===MON_NUM; });
+    return (SAISON.BLESSURES||[]).filter(function(b){ return b.joueurIdx===idx && b.statut!=='disponible'; })[0]||null;
+  }catch(e){ return null; }
+}
+function a8PasConvoque(p){
+  try{
+    if(!p) return false;
+    var c=(SAISON&&SAISON.CONVOS)||{};
+    if(c.masque) return false;
+    var nb=(c.a||[]).length+(c.b||[]).length+(c.u18||[]).length; if(!nb) return false;
+    if(c.adv && fexNormaliserNom(c.adv)!==fexNormaliserNom(p.c.adversaire||'') && !memeJoueur(c.adv, p.c.adversaire||'')) return false;
+    return jvSuisJeConvoque(p.c.adversaire||'')==='non';
+  }catch(e){ return false; }
+}
+function a8CoupEnvoi(p){
+  if(!p) return null;
+  var force=/[?&]stade=1/.test(location.search);
+  var auj=new Date(); auj.setHours(0,0,0,0);
+  if(p.d.getTime()!==auj.getTime() && !force) return null;
+  var m=/(\d{1,2})\s*h\s*(\d{2})?/i.exec(String(p.c.date||'')+' '+String(p.c.heure||''));
+  var t=new Date(force?Date.now()+5*3600000:p.d.getTime()); if(m && !force) t.setHours(+m[1], +(m[2]||0), 0, 0);
+  return t;
+}
+function a8StadeOff(){ try{ return sessionStorage.getItem('ast-stade-off')===new Date().toDateString(); }catch(e){ return false; } }
+function a8QuitterStade(){ try{ sessionStorage.setItem('ast-stade-off', new Date().toDateString()); }catch(e){} document.documentElement.classList.remove('stade'); renderHub(); }
+function a8Chrono(t){
+  var ms=t-Date.now();
+  if(ms<=0 && ms>-2*3600000) return '<em>Match en cours</em>';
+  if(ms<=-2*3600000) return 'Match terminé';
+  var h=Math.floor(ms/3600000), mn=Math.floor((ms%3600000)/60000);
+  return 'Coup d’envoi dans <em>'+(h?h+' h '+String(mn).padStart(2,'0'):mn+' min')+'</em>';
+}
+function a8Liens(L){ return '<div class="a8-liens">'+L.map(function(x){ return '<button onclick="jAller(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>'; }
+
+// ---------- la semaine (remplace la version v178) ----------
+A7J.flash='';
+function a7jSeancesHtml(){
+  var L=[]; try{ L=msSeances(); }catch(e){}
+  L=L.filter(function(sc){ return A7J_SEANCE_JOUR[sc.k]!=null || (typeof msSuisRetenu==='function' && msSuisRetenu(sc.k)); });
+  if(!L.length) return {html:'', manque:0};
+  var kAuj=(new Date().getDay()+6)%7, manque=0;
+  var h=L.map(function(sc){
+    var j=A7J_SEANCE_JOUR[sc.k];
+    if(j!=null && j<kAuj) return '';
+    var r=(typeof MS_REP!=='undefined'&&MS_REP[sc.k])||{};
+    if(!r.reponse) manque++;
+    var titre=(j===kAuj)?'Tu viens ce soir ?':'Tu viens '+(j!=null?A7J_JOURS[j]:(sc.lab||'').toLowerCase())+' ?';
+    var B=function(k,l,cl){ var on=r.reponse===k; return '<button class="'+(on?'on '+cl:'')+(A7J.flash===sc.k+'|'+k?' flash':'')+'" onclick="A7J.flash=\''+sc.k+'|'+k+'\';msRepondre(\''+sc.k+'\',\''+k+'\').then(function(){renderHub();setTimeout(function(){A7J.flash=\'\';},600)})">'+l+'</button>'; };
+    return '<div class="a7j-sc"><div class="t"><b>'+a7jE(titre)+'</b><span>'+a7jE((sc.lab||'')+(sc.h?' · '+sc.h:''))+'</span></div>'
+      +'<div class="a7j-3">'+B('dispo','J’y serai','oui')+B('peutetre','Pas sûr','peut')+B('indispo','Absent','non')+'</div></div>';
+  }).join('');
+  return {html:h, manque:manque};
+}
+function a7jRenderHub(){
+  var ct=document.getElementById('scr-hub'); if(!ct) return;
+  if(!A7J.msCharge && typeof msCharger==='function'){ A7J.msCharge=true; msCharger().then(function(){ if(ECRAN_ACTIF==='hub') renderHub(); }).catch(function(){}); }
+  var lundi=a7jLundi(), kAuj=(new Date().getDay()+6)%7;
+  if(A7J.jour==null) A7J.jour=kAuj;
+  var prevJour=(A7J.dernier==null)?A7J.jour:A7J.dernier; A7J.dernier=A7J.jour;
+  var p=null; try{ p=jvProchainMatch(); }catch(e){}
+  var kMatch=-1; if(p){ var dk=Math.round((p.d-lundi)/86400000); if(dk>=0&&dk<7) kMatch=dk; }
+  var jx=p?Math.round((p.d-new Date(new Date().setHours(0,0,0,0)))/86400000):null;
+  var bl=a8MaBlessure(), nc=a8PasConvoque(p), ke=a8CoupEnvoi(p);
+  var stade=!!ke && !a8StadeOff();
+  document.documentElement.classList.toggle('stade', stade);
+  var h='<div class="a7j'+(A7J.jour>prevJour?' a8-d':(A7J.jour<prevJour?' a8-g':''))+'">';
+  // les jours
+  h+='<nav class="a7j-jours" aria-label="Jours de la semaine">';
+  for(var k=0;k<7;k++){
+    var d=new Date(lundi); d.setDate(lundi.getDate()+k);
+    var entr=(k===1||k===3) && !bl;
+    h+='<button class="a7j-j'+(k===A7J.jour?' sel':'')+(k===kMatch?' match':'')+'" onclick="A7J.jour='+k+';renderHub()" aria-label="'+A7J_JOURS[k]+' '+d.getDate()+'"'+(k===kAuj?' aria-current="date"':'')+'>'
+      +'<span>'+A7J_NOMS[k]+'</span><b>'+d.getDate()+'</b>'+(k===kMatch?'<small>MATCH</small>':(entr?'<i></i>':'<i style="background:none"></i>'))+'</button>';
+  }
+  h+='</nav>';
+  // le jour : mode stade, ou le jour en grand
+  var sel=A7J.jour;
+  if(stade && sel===kAuj){
+    var hh=String(ke.getHours()).padStart(2,'0')+'h'+String(ke.getMinutes()).padStart(2,'0');
+    h+='<div class="a8-stade"><h1>JOUR J</h1><div class="l"><b>vs '+a7jE(p.c.adversaire||'')+'</b><span>'+hh+(p.c.lieu==='E'?' · extérieur':(p.c.lieu==='D'?' · domicile':''))+'</span></div>'
+      +'<div class="a8-chrono" id="a8-chrono">'+a8Chrono(ke)+'</div>'
+      +'<div class="bt"><button class="or" onclick="jAller(\'statslive\')">Suivre en direct</button><button class="ln" onclick="jAller(\'jourmatch\')">Jour de match</button><button class="q" onclick="a8QuitterStade()">Quitter le mode stade</button></div></div>';
+  } else {
+    var sous;
+    if(bl) sous='Ma reprise';
+    else if(sel===kMatch) sous='Jour de match';
+    else if(sel===1||sel===3) sous='Entraînement 19h30';
+    else if(sel===0) sous='Repos · on solde le match';
+    else sous='Pas de séance';
+    h+='<div class="a7j-hero"><div><h1>'+A7J_JOURS[sel]+'</h1><div class="s">'+a7jE(sous)+(sel===kAuj?'':' · '+(sel<kAuj?'passé':'à venir'))+'</div></div>'
+      +(p?'<div class="a7j-jx"><b>'+(jx===0?'J':'J-'+jx)+'</b><span>vs '+a7jE(p.c.adversaire||'')+'</span></div>':'')+'</div>';
+  }
+  // à toi de répondre (ou ma reprise)
+  var S=bl?{html:'',manque:0}:a7jSeancesHtml();
+  var aFaire=''; try{ aFaire=jxAFaire(); }catch(e){}
+  try{
+    var tq=document.createElement('div'); tq.innerHTML=aFaire;
+    tq.querySelectorAll('.au-todo').forEach(function(b){ if((b.getAttribute('onclick')||'').indexOf("'planning'")>=0) b.remove(); });
+    var reste=tq.querySelectorAll('.au-todo').length;
+    var cpt=tq.querySelector('.blk-h span:last-child'); if(cpt && /^\d+$/.test(cpt.textContent)) cpt.textContent=reste;
+    aFaire=reste?tq.innerHTML:'';
+  }catch(e){}
+  var f={vieux:false}, c={fait:true}; try{ f=jxFormeEtat(); c=jxChargeEtat(); }catch(e){}
+  if(f.c==='var(--red)') f.c='var(--gold)';      // pas encore donnée = à faire (ambre), pas une alerte
+  var formeIn='', chargeIn=''; try{ formeIn=auForme(); chargeIn=auCharge(); }catch(e){}
+  var nRep=S.manque+(f.vieux?1:0)+((c.fait||bl)?0:1);
+  try{ var tmp=document.createElement('div'); tmp.innerHTML=aFaire; nRep+=tmp.querySelectorAll('.au-todo').length; }catch(e){}
+  if(bl){
+    var depuis=bl.dateBlessure?(' · depuis le '+bl.dateBlessure):'';
+    var retour=bl.dateRepriseGroupe?('Reprise avec le groupe prévue le '+bl.dateRepriseGroupe):(bl.dateRepriseSeule?('Reprise seul prévue le '+bl.dateRepriseSeule):(bl.retourEstime?('Retour estimé : '+bl.retourEstime):'Le staff te dira quand reprendre.'));
+    h+='<div id="a7j-rep"></div><h2 class="a7j-h2">Ma reprise<em>'+a7jE((bl.zone||'')+depuis)+'</em></h2>'
+      +'<div class="a8-reprise"><span class="k">Mode reprise</span><b>'+a7jE(bl.zone||'Blessure en cours')+(bl.nature?' · '+a7jE(bl.nature):'')+'</b><span>'+a7jE(retour)+'</span><button onclick="jAller(\'sante\')">Ma santé</button></div>';
+    try{ h+=(typeof pjHubHtml==='function'?pjHubHtml():''); }catch(e){}
+    h+='<div class="jx-groupe">'+jxPliable('jx-forme','thermo','Comment ça va ?',f.t||'',f.c||'var(--mute)',formeIn,false)+'</div>';
+  } else {
+    h+='<div id="a7j-rep"></div><h2 class="a7j-h2">À toi de répondre<em>'+(nRep?nRep+' en attente':'tout est à jour')+'</em></h2>'
+      +S.html+aFaire
+      +'<div class="jx-groupe">'
+        +jxPliable('jx-forme','thermo','Ma forme',f.t||'',f.c||'var(--mute)',formeIn,false)
+        +jxPliable('jx-charge','coureur','Ressenti de séance',c.t||'',c.c||'var(--mute)',chargeIn,false)
+      +'</div>'
+      +a8Liens([['planning','Ma semaine d’entraînement'],['seances','Les séances'],['entrainement','Mes points']]);
+  }
+  // le match
+  h+='<h2 class="a7j-h2">Le match<em>'+(p?a7jE(p.d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'})):'')+'</em></h2>';
+  if(nc){
+    h+='<div class="a8-nc"><span class="k">Le groupe pour '+a7jE(p.c.adversaire||'')+'</span><b>Pas dans le groupe cette fois</b>'
+      +'<p>Le coach a fait ses choix pour ce match. Si tu veux en parler, écris-lui : c’est fait pour ça. La semaine prochaine se joue dès l’entraînement.</p>'
+      +'<div class="bt"><button onclick="jAller(\'messages\')">En parler au coach</button><button class="ln" onclick="jAller(\'convocations\')">Voir le groupe</button></div></div>';
+  }
+  try{ h+=(typeof mmjHub==='function'?mmjHub():''); }catch(e){}
+  if(!nc){ try{ h+=jvHtml(); }catch(e){} }
+  try{ h+=noDemandeHtml(); }catch(e){}
+  if(!bl){ try{ h+=(typeof pjHubHtml==='function'?pjHubHtml():''); }catch(e){} }
+  try{ h+=(typeof thHubRappel==='function'?thHubRappel():''); }catch(e){}
+  h+=a8Liens([['jourmatch','Jour de match'],['convocations','Convocations'],['statslive','Stats live'],['mesmatchs','Mes matchs']]);
+  // ta saison
+  h+='<h2 class="a7j-h2">Ta saison<em></em></h2>';
+  try{ h+=jxEnsuite(); }catch(e){}
+  try{ h+=auChiffres(); }catch(e){}
+  try{ h+=auActu(); }catch(e){}
+  h+='<div id="app-version-joueur" style="margin:22px 0 6px;font-size:11.5px;color:var(--mute);text-align:center;letter-spacing:.06em;line-height:1.6;opacity:.75">AST JOUEUR <b style="color:var(--or)">v180</b> · 21/10/2026<br><span style="opacity:.8">La semaine est le menu</span></div>';
+  h+='</div>';
+  ct.innerHTML=h;
+  try{ auPhotoPoser(); }catch(e){}
+  try{ jvBrancher(); }catch(e){}
+  ct.querySelectorAll('.jx-pl').forEach(function(dd){
+    dd.addEventListener('toggle', function(){ var g=dd.querySelector('summary .go'); if(g) g.textContent=dd.open?'Fermer':'Répondre'; });
+  });
+  a7jPastille(nRep);
+  try{ a8Entete(); }catch(e){}
+}
+setInterval(function(){
+  var c=document.getElementById('a8-chrono'); if(!c) return;
+  var p=null; try{ p=jvProchainMatch(); }catch(e){}
+  var t=a8CoupEnvoi(p); if(t) c.innerHTML=a8Chrono(t);
+}, 30000);
+
+// ---------- glisser d'un jour à l'autre ----------
+(function(){
+  var x0=null, y0=null;
+  document.addEventListener('touchstart', function(e){
+    if(!(e.target.closest && e.target.closest('#scr-hub .a7j'))){ x0=null; return; }
+    if(e.target.closest('button,a,input,select,textarea,details,summary')){ x0=null; return; }
+    x0=e.touches[0].clientX; y0=e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(x0===null) return;
+    var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
+    if(Math.abs(dx)<60 || Math.abs(dy)>45) return;
+    var j=(A7J.jour==null?0:A7J.jour)+(dx<0?1:-1);
+    if(j<0 || j>6) return;
+    A7J.jour=j; renderHub();
+  }, {passive:true});
+})();
+
+// ---------- les écrans vides disent ce qui va arriver ----------
+var A8_VIDES=[
+  [/vid[ée]o partag/i, 'Les vidéos du groupe arrivent ici après les matchs, quand le staff les partage.'],
+  [/s[ée]ance d[ée]taill/i, 'Le détail des séances (thème, situations) arrive ici quand le coach le publie, en général avant l’entraînement.'],
+  [/note enregistr/i, 'Tes notes de match apparaissent ici dès que le staff a noté le match, le lundi en général.'],
+  [/d[ée]claration envoy/i, 'Tes déclarations de gêne ou de blessure apparaîtront ici, avec la réponse du staff.'],
+  [/convocation (publi|en pr)/i, 'La convocation arrive ici dès que le coach la publie, en général le vendredi.'],
+  [/actualit/i, 'Les nouvelles du club arrivent ici : résultats, annonces, vie du club.'],
+  [/r[ée]sultat pour/i, 'Le classement se construit dès que les premiers résultats sont saisis.'],
+  [/planning d/i, 'Le planning du mois arrive ici dès que le staff le pose.'],
+  [/objectif d[ée]fini/i, 'Tes objectifs apparaissent ici après ton entretien avec le coach.'],
+  [/objectif collectif/i, 'Les objectifs de l’équipe apparaissent ici une fois votés par le groupe.'],
+  [/match jou/i, 'Tes matchs s’ajoutent ici au fil de la saison.'],
+  [/match (en pr|annonc)/i, 'Le prochain match apparaît ici dès qu’il est au calendrier.'],
+  [/joueur convoqu/i, 'Le groupe apparaît ici dès la convocation.'],
+  [/joueur (pour|dans)/i, 'L’effectif apparaît ici dès que le club l’a publié.'],
+  [/contact publi/i, 'Les contacts du club (staff, dirigeants) apparaîtront ici.'],
+  [/message pour/i, 'Écris au staff : ta question arrive directement au coach.']
+];
+function a8Vides(racine){
+  (racine||document).querySelectorAll('.empty-txt:not(.a8-vide)').forEach(function(el){
+    var t=el.textContent||'';
+    for(var i=0;i<A8_VIDES.length;i++){ if(A8_VIDES[i][0].test(t)){ el.textContent=A8_VIDES[i][1]; break; } }
+    el.classList.add('a8-vide');
+  });
+}
+
+window.addEventListener('load', function(){
+  a8CreerPortes();
+  try{ a8Entete(); }catch(e){}
+  // jAller : les portes se rendent, l'en-tête montre « ‹ Semaine » hors de l'accueil
+  if(typeof jAller==='function' && !jAller.__a8){
+    var base=jAller;
+    jAller=function(s){
+      if(s==='club'||s==='moi') a8RendrePorte(s);
+      var r=base.apply(this, arguments);
+      try{
+        document.body.classList.toggle('a8-ailleurs', ECRAN_ACTIF!=='hub');
+        if(ECRAN_ACTIF!=='hub'){ document.documentElement.classList.remove('stade'); }
+        a8Entete();
+        var on=document.getElementById('jhdr-onglet'); if(on && (ECRAN_ACTIF==='hub'||ECRAN_ACTIF==='club'||ECRAN_ACTIF==='moi')) on.textContent='AST Tarnos';
+        setTimeout(function(){ a8Vides(document.getElementById('scr-'+ECRAN_ACTIF)); }, 400);
+      }catch(e){}
+      return r;
+    };
+    jAller.__a8=true;
+  }
+  // jOnglet (anciens liens) ramène à la bonne porte
+  var obs=new MutationObserver(function(){ a8Vides(document.querySelector('.wrap')); });
+  var w=document.querySelector('.wrap'); if(w) obs.observe(w, {childList:true, subtree:true});
+  setTimeout(function(){ a8Vides(document); a8Entete(); }, 1500);
 });
 </script>
 
