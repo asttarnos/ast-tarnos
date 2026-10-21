@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v188';
+var APP_BUILD='v189';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v188</b> · 21/10/2026<br><span style="opacity:.8">Rangée par usage : l’équipe, le club, moi</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v189</b> · 21/10/2026<br><span style="opacity:.8">Rangée par usage : l’équipe, le club, moi</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9710,6 +9710,8 @@ function avjRendre(){
   if(AVJ.rayon==='adversaires' && AVJ.eq){ ct.innerHTML=h+avjFiche(AVJ.eq)+'</div>'; return; }
   if(AVJ.rayon==='adversaires' && !AVJ.adv && !AVJ.q){
     var E=avjEquipes();
+    var VA=T.filter(function(v){ return v._r==='adversaires'; });
+    h+=(VA.length?VA.map(avjCarte).join(''):'<div class="empty-txt a8-vide">Pas encore de vidéo d’adversaire.</div>');
     h+='<h2 class="a7j-h2">Les équipes<em>touche une équipe</em></h2><div class="avj-eqs">'+(E.length?E.map(function(e){ return '<button onclick="AVJ.eq='+avjE(JSON.stringify(e.nom))+';avjRendre()"><b>'+e.n+'</b><span>'+avjE(e.nom)+'</span><i>'+(e.n?'vidéo'+(e.n>1?'s':''):'pas encore de vidéo')+'</i></button>'; }).join(''):'')+'</div></div>';
     ct.innerHTML=h; return;
   }
@@ -9758,6 +9760,42 @@ window.addEventListener('load', function(){
 });
 // les onglets des écrans déjà affichés passent à trois
 function c7Tabs3(){ ['clips','videos'].forEach(function(s){ var ct=document.getElementById('scr-'+s); var b=ct&&ct.querySelector(':scope > .c7-tabs'); if(b){ b.remove(); c7Onglets(s); } }); }
+</script>
+
+<script>
+// ===== v189 : les vignettes d'abord (joueur) =====
+// Les rayons, puis tout de suite les vidéos. La recherche et les filtres se
+// déplient avec « Filtrer », au bout de la rangée des rayons.
+(function(){
+  var css='.avj-ray button.fil{min-width:90px;justify-content:center;align-items:center;border:1.5px dashed var(--hair);background:transparent}'
+    +'.avj-ray button.fil.actif{border-style:solid;border-color:var(--or);color:var(--or)}';
+  var s=document.createElement('style'); s.id='v189-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+window.addEventListener('load', function(){
+  if(typeof avjRendre!=='function' || avjRendre.__v189) return;
+  var base=avjRendre;
+  avjRendre=function(){
+    base.apply(this, arguments);
+    try{
+      var ct=document.getElementById('scr-analyse'); if(!ct) return;
+      var av=ct.querySelector('.avj'); if(!av) return;
+      // le titre et sa phrase cèdent la place aux vidéos
+      var sub=av.querySelector('.sub'); if(sub) sub.remove();
+      var h1=av.querySelector('h1'); if(h1) h1.style.fontSize='38px';
+      var ray=av.querySelector('.avj-ray'), fil=av.querySelector('.avj-fil');
+      var actif=!!(AVJ.adv||AVJ.phase||AVJ.joueur||AVJ.q);
+      if(ray && fil){
+        var b=document.createElement('button'); b.className='fil'+(actif?' actif':'');
+        b.innerHTML='<b style="font-size:16px">'+(AVJ.fil?'Fermer':'Filtrer')+'</b><span>'+(actif?'filtres actifs':'chercher')+'</span>';
+        b.onclick=function(){ AVJ.fil=!AVJ.fil; avjRendre(); };
+        ray.appendChild(b);
+        if(!AVJ.fil && !actif) fil.remove();
+      }
+    }catch(e){ console.error('v189', e); }
+  };
+  avjRendre.__v189=true;
+  try{ RENDER_MAP.analyse=[avjRendre]; }catch(e){}
+});
 </script>
 
 </body>

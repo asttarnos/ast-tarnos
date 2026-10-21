@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v188</b> · 21/10/2026<br>
-      <span style="opacity:.7">Analyse vidéo partagée avec les joueurs</span>
+      AST COACH <b style="color:var(--or)">v189</b> · 21/10/2026<br>
+      <span style="opacity:.7">Vidéos liées aux équipes, vivier sans oubli</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v188';
+var APP_BUILD='v189';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -41753,6 +41753,183 @@ window.addEventListener('load', function(){
   try{ c6Deplacer(); }catch(e){ console.error('v186', e); }
   try{ nav3RenderSide(); }catch(e){}
   try{ if(typeof tnRendre==='function') tnRendre(); }catch(e){}
+});
+</script>
+
+<script>
+// ===== v189 : vidéos liées à un adversaire en un geste, vignettes en premier, vivier sans oubli =====
+(function(){
+  var css=''
+  +'.av-hero2{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-bottom:12px;border-bottom:2px solid var(--gris)}'
+  +'.av-hero2 h1{margin:0;font:900 clamp(40px,5vw,60px)/.9 "Roboto Condensed",sans-serif;text-transform:uppercase;margin-right:auto}'
+  +'.av-hero2 .av-fil{flex:1 1 560px;justify-content:flex-end}'
+  +'.av-hero2 .av-fil input{flex:1;min-width:160px}'
+  +'.av-lier{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}'
+  +'.av-lier button{min-height:48px;padding:8px 12px;border-radius:12px;border:1.5px solid var(--line2);background:var(--carte);color:var(--gris);font:700 14.5px "Roboto Condensed",sans-serif;cursor:pointer;text-align:left}'
+  +'.av-lier button.on{background:var(--gris);color:var(--fond);border-color:var(--gris)}'
+  // le vivier
+  +'.vv2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}'
+  +'@media(max-width:1000px){.vv2{grid-template-columns:minmax(0,1fr)}}'
+  +'.vv2-a{position:sticky;top:10px;max-height:calc(100vh - 140px);overflow-y:auto;padding:14px;border-radius:16px;background:var(--carte);display:flex;flex-direction:column;gap:6px;font-family:"Roboto Condensed",sans-serif}'
+  +'@media(max-width:1000px){.vv2-a{position:static;max-height:none}}'
+  +'.vv2-a h3{margin:0;font:900 22px "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.vv2-a .k{margin-top:8px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between}'
+  +'.vv2-r{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;font-size:14px}'
+  +'.vv2-r .ck{width:20px;height:20px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900}'
+  +'.vv2-r b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}'
+  +'.vv2-r span{font-size:12px;color:var(--gris2);white-space:nowrap}'
+  +'.vv2-r button{border:0;background:none;color:var(--gris2);cursor:pointer;font:700 12px "Roboto Condensed",sans-serif;padding:3px 5px;text-decoration:underline}'
+  +'.vv2-r.ok .ck{background:var(--green);color:#fff}'
+  +'.vv2-r.att{background:color-mix(in srgb, var(--gold) 16%, transparent)}.vv2-r.att .ck{border:2px solid var(--gold)}'
+  +'.vv2-r.cote{opacity:.6}.vv2-r.cote .ck{background:var(--line2)}.vv2-r.cote b{text-decoration:line-through}';
+  var s=document.createElement('style'); s.id='v189-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+// ================================================================ vidéos
+// lier une vidéo à une équipe, d'un geste, depuis sa vignette
+function avLier(i){
+  var v=VIDEOS[i]; if(!v) return;
+  var E=avEquipes();
+  a9Ouvrir('<div class="hd"><div><h1>Lier à une équipe</h1><p class="sub">« '+avE(v.titre||'')+' » apparaîtra dans la fiche de l’équipe, dans son rapport et dans le dossier d’avant-match quand on la joue.</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +'<div class="av-lier">'+E.map(function(e){ return '<button class="'+(v.adv&&avMeme(v.adv,e.nom)?'on':'')+'" onclick="avLierA('+i+','+avE(JSON.stringify(e.nom))+')">'+avE(e.nom)+'</button>'; }).join('')+'</div>'
+    +'<div style="display:flex;gap:8px"><input class="fi" id="av-lier-n" placeholder="Une autre équipe (nom)" style="flex:1"><button class="a7-b or" onclick="avLierA('+i+',(document.getElementById(\'av-lier-n\').value||\'\').trim())">Lier</button></div>'
+    +(v.adv?'<button class="a7-b cl" style="align-self:flex-start" onclick="avLierA('+i+',\'\')">Ne plus lier à '+avE(v.adv)+'</button>':''));
+}
+function avLierA(i, nom){
+  var v=VIDEOS[i]; if(!v) return;
+  v.adv=nom||'';
+  if(nom){ if(!v.rayon || v.rayon==='inspiration'){ v.rayon='adversaires'; v.categorie='Adversaires'; } try{ trouverOuCreerAdversaire(nom); }catch(e){} }
+  try{ sauvegarder(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
+  a9Fermer(); notif(nom?'✓ Liée à '+nom:'✓ Plus liée à une équipe'); avRendre();
+}
+// la vignette : un bouton « Équipe » en plus
+var avCarteBase=avCarte;
+avCarte=function(v){
+  var h=avCarteBase(v);
+  if(v._rapport || v._i==null) return h;
+  return h.replace('<div class="av-act">','<div class="av-act"><button onclick="avLier('+v._i+')">'+(v._adv?'Équipe : '+avE(String(v._adv).split(' ')[0]):'Lier à une équipe')+'</button>');
+};
+// le formulaire : l'adversaire se renseigne quel que soit le rayon
+var avFormBase=avFormHtml;
+avFormHtml=function(){
+  var f=AV.f, h=avFormBase();
+  if(f.rayon==='adversaires'||f.rayon==='matchs') return h;
+  var champ='<input class="fi" list="av-advs" placeholder="Lier à un adversaire (facultatif)" value="'+avE(f.adv)+'" onchange="AV.f.adv=this.value.trim()"><datalist id="av-advs">'+avEquipes().map(function(e){ return '<option value="'+avE(e.nom)+'">'; }).join('')+'</datalist>';
+  var k=h.indexOf('<span class="fl">Phase de jeu</span>');
+  return k>=0?h.slice(0,k)+champ+h.slice(k):h;
+};
+// l'écran : titre et filtres sur une ligne, les rayons, puis tout de suite les vignettes
+avRendre=function(){
+  var ct=document.getElementById('av-ct'); if(!ct) return;
+  var T=avToutes();
+  var cpt=function(k){ return k==='tout'?T.length:T.filter(function(v){ return v._r===k; }).length; };
+  var fil='<div class="av-fil"><input class="fi" placeholder="Chercher…" value="'+avE(AV.q)+'" oninput="AV.q=this.value;clearTimeout(AV._t);AV._t=setTimeout(function(){avRendre();var i=document.querySelector(\'.av-hero2 input\');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},350)">'
+    +'<select class="fi" style="width:auto" onchange="AV.adv=this.value;AV.ouvertEq=\'\';avRendre()"><option value="">Adversaire</option>'+avEquipes().map(function(e){ return '<option'+(AV.adv&&avMeme(e.nom,AV.adv)?' selected':'')+'>'+avE(e.nom)+'</option>'; }).join('')+'</select>'
+    +'<select class="fi" style="width:auto" onchange="AV.phase=this.value;avRendre()"><option value="">Phase</option>'+AV_PHASES.map(function(p){ return '<option value="'+p[0]+'"'+(AV.phase===p[0]?' selected':'')+'>'+p[0]+' · '+p[1]+'</option>'; }).join('')+'</select>'
+    +'<select class="fi" style="width:auto" onchange="AV.joueur=this.value;avRendre()"><option value="">Joueur</option>'+(JOUEURS||[]).map(function(j){ return '<option value="'+j.num+'"'+(String(AV.joueur)===String(j.num)?' selected':'')+'>'+avE(j.nom)+'</option>'; }).join('')+'</select>'
+    +((AV.adv||AV.phase||AV.joueur||AV.q)?'<button class="a7-b cl" onclick="AV.adv=AV.phase=AV.joueur=AV.q=\'\';avRendre()">Effacer</button>':'')
+    +'<button class="btn" style="width:auto;margin:0;padding:10px 16px;white-space:nowrap" onclick="avNouvelle()">+ Ajouter</button></div>';
+  var h='<div class="av"><div class="av-hero2"><h1>Analyse vidéo</h1>'+fil+'</div>';
+  h+='<div class="av-ray">'+[{k:'tout', l:'Tout', d:'toutes les vidéos'}].concat(AV_RAYONS).map(function(r){ return '<button class="av-r'+(AV.rayon===r.k?' on':'')+'" onclick="AV.rayon=\''+r.k+'\';AV.ouvertEq=\'\';avRendre()"><b>'+cpt(r.k)+'</b><span>'+r.l+'</span><i>'+r.d+'</i></button>'; }).join('')+'</div>';
+  if(AV.f) h+=avFormHtml();
+  if(AV.rayon==='adversaires' && AV.ouvertEq){ ct.innerHTML=h+avFicheEquipe(AV.ouvertEq)+'</div>'; return; }
+  var F=avFiltrer(T);
+  if(AV.rayon==='adversaires' && !AV.adv && !AV.q && !AV.phase && !AV.joueur){
+    // les vignettes d'abord, les équipes ensuite
+    var E=avEquipes();
+    h+='<div class="av-g">'+(F.length?F.map(avCarte).join(''):'<div class="a7-vide">Pas encore de vidéo d’adversaire.</div>')+'</div>';
+    h+='<h2 class="a7-h2">Les équipes<em>touche une équipe pour sa fiche</em></h2><div class="av-g" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">'
+      +E.map(function(e){ return '<button class="av-r" onclick="AV.ouvertEq='+avE(JSON.stringify(e.nom))+';avRendre()"><b>'+e.n+'</b><span>'+avE(e.nom)+'</span><i>'+(e.n?'vidéo'+(e.n>1?'s':''):'aucune vidéo')+'</i></button>'; }).join('')+'</div></div>';
+    ct.innerHTML=h; return;
+  }
+  h+='<div class="av-g">'+(F.length?F.map(avCarte).join(''):'<div class="a7-vide">'+(T.length?'Aucune vidéo ne correspond.':'Pas encore de vidéo. Commence par le lien Veo de ton dernier match, ou une vidéo de ton prochain adversaire.')+'</div>')+'</div>';
+  h+='<div class="a7-band"><span>Les clips envoyés aux joueurs (moments précis, questions) se font depuis une vignette : <b>Faire un clip</b>.</span><button class="a7-b cl" onclick="goNav(\'videos\')">Mes clips ('+(CLIPS||[]).length+')</button></div>';
+  ct.innerHTML=h+'</div>';
+};
+
+// ================================================================ le vivier : personne d'oublié
+function vvPlaces(){
+  var V=vvData(), C=vvCases(), out={};
+  C.forEach(function(c){ (V.postes[c.cle]||[]).forEach(function(pl){ (out[pl.id]=out[pl.id]||[]).push(c.pos); }); });
+  return out;
+}
+function vv2Html(){
+  var V=vvData(), P=vvPlaces();
+  var tous=Object.keys(V.joueurs).map(function(id){ return V.joueurs[id]; });
+  // l'effectif qui n'est pas encore dans le vivier
+  var hors=(JOUEURS||[]).filter(function(j){ return !tous.some(function(p){ return p.num===j.num || (p.nom||'').toLowerCase()===String(j.nom).toLowerCase(); }); });
+  var cote=tous.filter(function(p){ return p.ecarte; }).sort(function(a,b){ return a.nom.localeCompare(b.nom); });
+  var actifs=tous.filter(function(p){ return !p.ecarte; });
+  var aPlacer=actifs.filter(function(p){ return !P[p.id]; }).sort(function(a,b){ return a.nom.localeCompare(b.nom); });
+  var places=actifs.filter(function(p){ return P[p.id]; }).sort(function(a,b){ return a.nom.localeCompare(b.nom); });
+  var ligne=function(p, cls, droite){ return '<div class="vv2-r '+cls+'"><span class="ck">'+(cls==='ok'?'✓':'')+'</span><b onclick="vvFiche(\''+p.id+'\')" title="Ouvrir sa fiche">'+vvEsc(p.nom)+'</b>'+droite+'</div>'; };
+  var h='<div class="vv2-a"><h3>Les joueurs</h3><span style="font-size:13px;color:var(--gris2)">Coché = placé sur le terrain. Surligné = pas encore placé : personne n’est oublié.</span>';
+  h+='<div class="k" style="color:var(--gold)"><span>À placer</span><span>'+(aPlacer.length+hors.length)+'</span></div>';
+  h+=aPlacer.map(function(p){ return ligne(p,'att','<span>'+vvEsc(vvCat(p.cat).k)+'</span><button onclick="vvChoisirPour(\''+p.id+'\')">placer</button><button onclick="vv2Cote(\''+p.id+'\',true)">de côté</button>'); }).join('');
+  h+=hors.map(function(j){ return '<div class="vv2-r att"><span class="ck"></span><b>'+vvEsc(j.nom)+'</b><span>pas au vivier</span><button onclick="vv2Ajouter('+j.num+')">ajouter</button></div>'; }).join('');
+  if(!aPlacer.length && !hors.length) h+='<span style="font-size:13px;color:var(--green);font-weight:700">Tout le monde est placé.</span>';
+  h+='<div class="k" style="color:var(--green)"><span>Placés</span><span>'+places.length+'</span></div>';
+  h+=places.map(function(p){ return ligne(p,'ok','<span>'+vvEsc(P[p.id].join(', '))+'</span><button onclick="vv2Cote(\''+p.id+'\',true)">de côté</button>'); }).join('');
+  h+='<div class="k" style="color:var(--gris2)"><span>Mis de côté</span><span>'+cote.length+'</span></div>';
+  h+=cote.length?cote.map(function(p){ return ligne(p,'cote','<button onclick="vv2Cote(\''+p.id+'\',false)">remettre</button>'); }).join(''):'<span style="font-size:13px;color:var(--gris2)">Les joueurs qu’on ne compte pas garder. Ils sortent du terrain et des comptes, sans être effacés.</span>';
+  return h+'</div>';
+}
+function vv2Ajouter(num){
+  var V=vvData(), j=(JOUEURS||[]).filter(function(x){ return x.num===num; })[0]; if(!j) return;
+  var id=vvId(); V.joueurs[id]={id:id, num:j.num, nom:j.nom, cat:'A', statut:'rot', potentiel:6, pied:'D', annee:'', obs:[], invit:[]};
+  stSauver(); vvRendre(); vvFiche(id);
+}
+function vv2Cote(id, on){
+  var V=vvData(), p=V.joueurs[id]; if(!p) return;
+  if(on){
+    var P=vvPlaces();
+    if(P[id] && !confirm('Mettre '+p.nom+' de côté ? Il sort du terrain ('+P[id].join(', ')+') mais reste dans le vivier, en grisé.')) return;
+    Object.keys(V.postes).forEach(function(cle){ V.postes[cle]=(V.postes[cle]||[]).filter(function(pl){ return pl.id!==id; }); });
+    p.ecarte=true;
+  } else p.ecarte=false;
+  stSauver(); vvRendre();
+}
+// « placer » depuis la liste : choisir le poste
+function vvChoisirPour(id){
+  var p=vvData().joueurs[id]; if(!p) return;
+  var C=vvCases();
+  var s=document.getElementById('vv-sheet'); if(s) s.remove();
+  s=document.createElement('div'); s.id='vv-sheet'; s.className='md-sheet';
+  s.onclick=function(e){ if(e.target===s) s.remove(); };
+  s.innerHTML='<div class="md-sc2"><div class="md-sh"><b>Placer '+vvEsc(p.nom)+'</b></div><div class="vv-dispo">'
+    +C.map(function(c){ return '<button onclick="document.getElementById(\'vv-sheet\').remove();vvPlacer(\''+c.cle+'\',\''+id+'\');vvRendre()"><b>'+vvEsc(c.l||c.pos)+'</b><i>'+vvEsc(c.pos)+'</i></button>'; }).join('')
+    +'</div><button class="btn" onclick="document.getElementById(\'vv-sheet\').remove()">Annuler</button></div>';
+  document.body.appendChild(s);
+}
+window.addEventListener('load', function(){
+  if(typeof vvRendre==='function' && !vvRendre.__v189){
+    var b=vvRendre;
+    vvRendre=function(){
+      var r=b.apply(this, arguments);
+      try{
+        var ct=document.getElementById('vv-ct'); if(!ct || !Object.keys(vvData().joueurs).length) return r;
+        var barre=ct.querySelector('.vv-barre');
+        var g=document.createElement('div'); g.className='vv2';
+        var gauche=document.createElement('div'); gauche.style.minWidth='0';
+        [].slice.call(ct.children).forEach(function(el){ if(el!==barre) gauche.appendChild(el); });
+        g.appendChild(gauche);
+        var a=document.createElement('div'); a.innerHTML=vv2Html(); g.appendChild(a.firstChild);
+        ct.appendChild(g);
+      }catch(e){ console.error('vv2', e); }
+      return r;
+    };
+    vvRendre.__v189=true;
+  }
+  // les joueurs mis de côté ne sont plus proposés pour un poste
+  if(typeof vvChoixRendre==='function' && !vvChoixRendre.__v189){
+    var bc=vvChoixRendre;
+    vvChoixRendre=function(){
+      var r=bc.apply(this, arguments);
+      try{ var V=vvData(); document.querySelectorAll('#vv-sheet .vv-dispo button[onclick*="vvPlacer"]').forEach(function(btn){ var m=/vvPlacer\('[^']*','([^']+)'\)/.exec(btn.getAttribute('onclick')||''); if(m && V.joueurs[m[1]] && V.joueurs[m[1]].ecarte) btn.remove(); }); }catch(e){}
+      return r;
+    };
+    vvChoixRendre.__v189=true;
+  }
 });
 </script>
 
