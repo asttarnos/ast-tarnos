@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v178</b> · 21/10/2026<br>
-      <span style="opacity:.7">La nouvelle mise en page</span>
+      AST COACH <b style="color:var(--or)">v179</b> · 21/10/2026<br>
+      <span style="opacity:.7">Accueil rééquilibré</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v178';
+var APP_BUILD='v179';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -39745,7 +39745,16 @@ function v177SousOnglets(s){
   +'.a7-pr{display:flex;flex-direction:column;gap:6px;min-width:240px;padding-bottom:6px}'
   +'.a7-pr div{display:flex;justify-content:space-between;font-size:13px;font-weight:600}'
   +'.a7-bar{display:flex;gap:3px;height:8px}.a7-bar span{border-radius:4px;background:var(--line2)}'
-  +'.a7-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}'
+  +'.a7-cols{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:20px;align-items:start}'
+  +'@media(max-width:1000px){.a7-cols{grid-template-columns:minmax(0,1fr)}}'
+  +'.a7-qui{display:flex;flex-direction:column;border-radius:16px;background:var(--carte);overflow:hidden}'
+  +'.a7-q{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--gris);cursor:pointer;text-align:left;font-family:"Roboto Condensed",sans-serif}'
+  +'.a7-q:last-child{border-bottom:0}.a7-q:hover{background:var(--voile)}'
+  +'.a7-q .av{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:var(--carte3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}'
+  +'.a7-q .tx{display:flex;flex-direction:column;gap:2px;min-width:0}.a7-q .tx b{font-size:15px;font-weight:700}'
+  +'.a7-q .tx span{font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.a7-q em{font-style:normal;font-weight:600}'
+  +'.a7-cx{align-self:flex-end;border:0;background:none;color:var(--gris2);cursor:pointer;font:500 13px "Roboto Condensed",sans-serif;padding:0 0 4px}.a7-cx b{color:var(--or);font-weight:700}'
   +'.a7-col{display:flex;flex-direction:column;gap:10px;min-width:0}'
   +'.a7-h2{margin:0;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline;gap:8px}'
   +'.a7-h2 em{font-style:normal;font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--gris2)}'
@@ -39764,7 +39773,7 @@ function v177SousOnglets(s){
   +'.a7-ligne .n{flex:1;font-weight:700}'
   +'.a7-tag{padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;background:var(--carte3);color:var(--gris)}'
   +'.a7-vide{padding:14px;border-radius:16px;background:var(--carte);font-size:14px;color:var(--gris2)}'
-  +'.a7-env{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}'
+  +'.a7-env{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}'
   +'.a7-e{padding:14px;border-radius:16px;background:var(--carte);display:flex;flex-direction:column;gap:6px;border:0;text-align:left;cursor:pointer;color:var(--gris);font-family:"Roboto Condensed",sans-serif;box-shadow:inset 0 0 0 1.5px var(--line2)}'
   +'.a7-e .q{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gris2)}'
   +'.a7-e b{font-size:16px;font-weight:700}.a7-e span{font-size:12.5px;color:var(--gris2)}'
@@ -39856,12 +39865,15 @@ function a7Envois(){
   try{
     var d=DOSSIER||{}, publie=!!d.publie, E=(typeof envData==='function')?envData():null;
     if(E && E.actif && typeof ENV_ETAPES!=='undefined'){
+      var vus=0, suiv=null;
       ENV_ETAPES.forEach(function(e){
         var t=null; try{ t=envQuand(d, e.k); }catch(x){}
-        var quand=t?t.toLocaleDateString('fr-FR',{weekday:'long'})+(e.k==='rituel'?' · 3 h avant':' · '+(t.getHours()<10?'0':'')+t.getHours()+'h'+(t.getMinutes()?String(t.getMinutes()).padStart(2,'0'):'')):'';
-        var passe=t && t.getTime()<=Date.now();
-        cartes.push({q:(quand||'dossier'), b:e.l, s:!publie?'dossier pas encore envoyé':(passe?'visible chez les joueurs':'programmé'), c:(publie&&passe)?'live':(publie?'prog':''), act:"goNav('studio')"});
+        if(publie && t && t.getTime()<=Date.now()) vus++;
+        else if(!suiv) suiv={e:e, t:t};
       });
+      var qd=function(x){ if(!x||!x.t) return ''; var t=x.t; return t.toLocaleDateString('fr-FR',{weekday:'long'})+(x.e.k==='rituel'?' · 3 h avant':' · '+t.getHours()+'h'+(t.getMinutes()?String(t.getMinutes()).padStart(2,'0'):'')); };
+      var dots=ENV_ETAPES.map(function(e,i){ return i<vus?'●':'○'; }).join(' ');
+      cartes.push({q:'Dossier '+(d.adv?'· '+d.adv:'')+' · '+dots, b:!publie?'Pas encore envoyé':(suiv?'Prochaine : '+suiv.e.l:'Tout est visible'), s:!publie?'4 étapes prêtes à partir':(suiv?qd(suiv):vus+' étapes sur 4 ouvertes'), c:publie?(suiv?'prog':'live'):'', act:"goNav('studio')"});
     } else {
       cartes.push({q:'Dossier d’avant-match', b:d.adv?('Le dossier '+d.adv):'Le dossier', s:publie?'envoyé · tout est visible':'pas encore envoyé', c:publie?'live':'', act:"goNav('studio')"});
     }
@@ -39898,35 +39910,42 @@ function a7Rendre(){
   var lieu=p?(p.c.lieu==='E'?'extérieur':(p.c.lieu==='D'?'domicile':'')):'';
   var ligne=p?(C.J===0?'Jour J':'J-'+C.J)+' · '+(C.adv||'')+' · '+[nav3DateLongue(p.d), lieu].filter(Boolean).join(' · '):'Pas de match au calendrier';
   var pct=D.total?Math.round(D.fait/D.total*100):0;
+  var cx=(typeof authConnecte==='function' && !authConnecte());
   h+='<div class="a7-hero"><div class="a7-hl"><h1>'+A7_JOURS[BV2.jour]+'</h1><div class="a7-hs"><b>'+a7E(sous)+'</b><span>'+a7E(ligne)+'</span></div></div>'
-    +'<div class="a7-pr"><div><span>La semaine du staff</span><span>'+D.fait+' / '+D.total+' validé</span></div>'
+    +'<div class="a7-pr">'+(cx?'<button class="a7-cx" onclick="ouvrirConnexion()" title="Tout fonctionne tant que la base est ouverte">Pas de compte coach · <b>Me connecter</b></button>':'')
+    +'<div><span>La semaine du staff</span><span>'+D.fait+' / '+D.total+' validé</span></div>'
     +'<div class="a7-bar">'+D.phases.map(function(ph){ return '<span style="flex:'+Math.max(1,ph.tot)+';background:linear-gradient(90deg,var(--gris) '+(ph.tot?Math.round(ph.fait/ph.tot*100):0)+'%,var(--line2) 0)"></span>'; }).join('')+'</div></div></div>';
-  // bandeau de connexion, s'il le faut
-  if(typeof authConnecte==='function' && !authConnecte()){
-    h+='<div class="a7-band"><span style="flex:1"><b>Pas de compte coach pour l’instant.</b> Tout fonctionne tant que la base est ouverte.</span><button class="a7-b cl" onclick="ouvrirConnexion()">Me connecter</button></div>';
-  }
-  // trois colonnes
+  // deux colonnes : à gauche le travail du staff, à droite les gens
   var todo=(BV2.jour===kAuj)?D.todo:parJour[BV2.jour];
-  var n=BV2.tous?todo.length:Math.min(4, todo.length);
+  var n=BV2.tous?todo.length:Math.min(5, todo.length);
   h+='<div class="a7-cols">';
-  h+='<div class="a7-col"><h2 class="a7-h2">'+(BV2.jour===kAuj?'À faire aujourd’hui':'À faire '+A7_JOURS[BV2.jour])+'<em>'+(todo.length?todo.length+' en tout':'')+'</em></h2>'
-    +(todo.length?todo.slice(0,n).map(function(t){ return bv2TacheHtml(t, C.adv); }).join('')
-      +(todo.length>4?'<button class="a7-b cl" style="align-self:flex-start" onclick="BV2.tous=!BV2.tous;renderSemaine()">'+(BV2.tous?'Ne garder que les 4 premières':'Voir les '+(todo.length-4)+' autres')+'</button>':'')
-      :'<div class="a7-vide">Rien d’attendu '+(BV2.jour===kAuj?'aujourd’hui':'ce jour-là')+'.</div>')
-    +'</div>';
-  h+='<div class="a7-col"><h2 class="a7-h2">Qui vient<em>réponses des joueurs</em></h2>'+a7SoirHtml();
-  var nNotes=0; try{ nNotes=(NR_NOTES||[]).filter(function(x){ return !x.traite; }).length; }catch(e){}
-  h+='<button class="a7-ligne" onclick="goNav(\'notes-staff\')"><span class="n">Notes du staff à lire</span><span class="a7-tag" style="background:var(--gris);color:var(--fond)">'+nNotes+'</span></button></div>';
-  var Q=[]; try{ Q=nav3AQuiParler(); }catch(e){}
-  h+='<div class="a7-col"><h2 class="a7-h2">À qui parler<em>blessure · charge · forme</em></h2>'
-    +(Q.length?Q.slice(0,6).map(function(q){
-      return '<button class="a7-ligne" onclick="jfOuvrirNom('+a7E(JSON.stringify(q.nom))+')"><span class="av">'+a7E(a7Init(q.nom))+'</span><span class="n">'+a7E(q.nom)+'</span>'
-        +q.R.slice(0,2).map(function(r){ return '<span class="a7-tag" style="box-shadow:inset 0 0 0 1.5px '+r.c+'">'+a7E(r.r)+'</span>'; }).join('')+'</button>';
-    }).join(''):'<div class="a7-vide">Aucun signal cette semaine.</div>')
-    +'</div>';
+  // gauche : à faire, puis ce qui part chez les joueurs
+  h+='<div class="a7-col">';
+  h+='<h2 class="a7-h2">'+(BV2.jour===kAuj?'À faire aujourd’hui':'À faire '+A7_JOURS[BV2.jour])+'<em>'+(todo.length?(todo.length>n?n+' sur '+todo.length:todo.length+' en tout'):'')+'</em></h2>';
+  try{
+    h+=(todo.length?todo.slice(0,n).map(function(t){ return bv2TacheHtml(t, C.adv); }).join('')
+      +(todo.length>5?'<button class="a7-b cl" style="align-self:flex-start" onclick="BV2.tous=!BV2.tous;renderSemaine()">'+(BV2.tous?'Ne garder que les 5 premières':'Voir les '+(todo.length-5)+' autres')+'</button>':'')
+      :'<div class="a7-vide">Rien d’attendu '+(BV2.jour===kAuj?'aujourd’hui':'ce jour-là')+'.</div>');
+  }catch(e){ h+='<div class="a7-vide">La liste n’a pas pu s’afficher.</div>'; }
+  h+='<h2 class="a7-h2" style="margin-top:10px">Ce qui s’ouvre chez les joueurs<em><a href="JOUEUR.html?vue=coach" target="ast_joueur" style="color:var(--gris);font-weight:700">Voir leur appli ›</a></em></h2>';
+  try{ h+='<div class="a7-env">'+a7Envois()+'</div>'; }catch(e){}
   h+='</div>';
-  // ce qui s'ouvre chez les joueurs
-  h+='<div style="display:flex;flex-direction:column;gap:10px"><h2 class="a7-h2">Ce qui s’ouvre chez les joueurs<em><a href="JOUEUR.html?vue=coach" target="ast_joueur" style="color:var(--gris);font-weight:700">Voir leur appli ›</a></em></h2><div class="a7-env">'+a7Envois()+'</div></div>';
+  // droite : qui vient, à qui parler, les notes
+  h+='<div class="a7-col a7-droite">';
+  h+='<h2 class="a7-h2">Qui vient<em>réponses des joueurs</em></h2>';
+  try{ h+=a7SoirHtml(); }catch(e){}
+  var Q=[]; try{ Q=nav3AQuiParler(); }catch(e){}
+  h+='<h2 class="a7-h2" style="margin-top:10px">À qui parler<em>'+(Q.length?Q.length+' joueur'+(Q.length>1?'s':''):'blessure · charge · forme')+'</em></h2>';
+  try{
+    h+=(Q.length?'<div class="a7-qui">'+Q.slice(0,6).map(function(q){
+      return '<button class="a7-q" onclick="jfOuvrirNom('+a7E(JSON.stringify(q.nom))+')"><span class="av">'+a7E(a7Init(q.nom))+'</span><span class="tx"><b>'+a7E(q.nom)+'</b>'
+        +'<span>'+q.R.slice(0,2).map(function(r){ return '<em style="color:'+r.c+'">'+a7E(r.r)+'</em>'; }).join(' · ')+'</span></span></button>';
+    }).join('')+'</div>':'<div class="a7-vide">Aucun signal cette semaine.</div>');
+  }catch(e){}
+  var nNotes=0; try{ nNotes=(NR_NOTES||[]).filter(function(x){ return !x.traite; }).length; }catch(e){}
+  h+='<button class="a7-ligne" onclick="goNav(\'notes-staff\')"><span class="n">Notes du staff à lire</span><span class="a7-tag" style="background:var(--gris);color:var(--fond)">'+nNotes+'</span></button>';
+  h+='</div>';
+  h+='</div>';
   h+='</div>';
   ct.classList.add('a7-on');
   ct.innerHTML=h;
