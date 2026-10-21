@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v185';
+var APP_BUILD='v187';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v185</b> · 21/10/2026<br><span style="opacity:.8">Les leaders, l’emploi, ton feu</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v187</b> · 21/10/2026<br><span style="opacity:.8">Rangée par usage : l’équipe, le club, moi</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9493,6 +9493,106 @@ window.addEventListener('load', function(){
     renderVideosJoueur.__v185=true;
     try{ RENDER_MAP.videos=[renderVideosJoueur]; }catch(e){}
   }
+});
+</script>
+
+<script>
+// ===== v187 : l'appli joueur rangée par usage =====
+//  · Le logo ouvre « L'équipe & le club » : L'équipe (ce qui sert à jouer) puis
+//    Le club (la vie autour).
+//  · L'avatar ouvre « Moi » : Ma progression puis Mon corps.
+//  · « Vidéo » réunit mes clips et les vidéos du groupe (deux onglets).
+//  · « La saison » réunit le calendrier et les classements (deux onglets).
+var C7_PORTES={
+  club:{titre:'L’équipe & le club', parts:[
+    {t:'L’équipe', d:'ce qui sert à jouer', L:[
+      {s:'projetjeu', ic:'cerveau', l:'Notre jeu', d:'le projet de jeu', f:true},
+      {s:'coach', ic:'palette', l:'Le plateau', d:'les situations du coach'},
+      {s:'clips', ic:'clap', l:'Vidéo', d:'mes clips, les vidéos du groupe', aussi:['videos']},
+      {s:'calannuel', ic:'calendrier', l:'La saison', d:'calendrier et classements', aussi:['saison']},
+      {s:'effectif', ic:'groupe', l:'L’effectif', d:'les joueurs du groupe'}
+    ]},
+    {t:'Le club', d:'la vie autour', L:[
+      {s:'messages', ic:'bulle', l:'Le vestiaire', d:'l’équipe, les bravos, le coach', f:true},
+      {s:'accueil', ic:'journal', l:'Actualités', d:'les nouvelles du club'},
+      {s:'emploi', ic:'main', l:'Emploi & stages', d:'le réseau du club pour le boulot'},
+      {s:'infosclub', ic:'document', l:'Docs du club', d:'règlement, contacts'}
+    ]}
+  ]},
+  moi:{titre:'Moi', parts:[
+    {t:'Ma progression', d:'ce que je construis', L:[
+      {s:'macarte', ic:'carte', l:'Ma carte', d:'note, attributs, ce que ça dit', f:true},
+      {s:'mesmatchs', ic:'etoile', l:'Mes matchs', d:'mes notes, mes objectifs'},
+      {s:'tempsjeu', ic:'chrono', l:'Temps de jeu', d:'titulaire, entré, minutes'},
+      {s:'entrainement', ic:'coupe', l:'Mes points', d:'les points d’entraînement'}
+    ]},
+    {t:'Mon corps', d:'pour durer', L:[
+      {s:'formephysique', ic:'thermo', l:'Ma forme', d:'ma forme, quand je veux', f:true},
+      {s:'sante', ic:'pansement', l:'Ma santé', d:'déclarer une gêne, ma reprise'}
+    ]}
+  ]}
+};
+var C7_ONGLETS={
+  clips:{g:'video', a:[['clips','Pour moi'],['videos','Le groupe']]},
+  videos:{g:'video', a:[['clips','Pour moi'],['videos','Le groupe']]},
+  calannuel:{g:'saison', a:[['calannuel','Calendrier'],['saison','Classements']]},
+  saison:{g:'saison', a:[['calannuel','Calendrier'],['saison','Classements']]}
+};
+(function(){
+  var css=''
+  +'.c7-part{display:flex;flex-direction:column;gap:8px;margin-top:6px}'
+  +'.c7-part h2{margin:10px 2px 0;font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline}'
+  +'.c7-part h2 em{font-style:normal;font:600 12px "Inter",sans-serif;letter-spacing:0;text-transform:none;color:var(--mute)}'
+  +'.c7-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:var(--surface);margin:0 0 12px}'
+  +'.c7-tabs button{min-height:42px;border:0;border-radius:11px;background:transparent;color:var(--mute);font:800 14.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.c7-tabs button.on{background:var(--ink);color:var(--bg)}';
+  var s=document.createElement('style'); s.id='v187-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+function c7Pastille(t){ try{ return [t.s].concat(t.aussi||[]).some(function(s){ return a8Pastille(s); }); }catch(e){ return false; } }
+function c7PorteHtml(k){
+  var P=C7_PORTES[k];
+  return '<div class="a8-porte"><h1>'+P.titre+'</h1>'+P.parts.map(function(p){
+    return '<div class="c7-part"><h2>'+p.t+'<em>'+p.d+'</em></h2><div class="a8-grille">'+p.L.map(function(t){
+      return '<button class="a8-tuile'+(t.f?' fonce':'')+'" onclick="jAller(\''+t.s+'\')">'+(c7Pastille(t)?'<i aria-label="nouveau"></i>':'')+ic(t.ic)+'<b>'+t.l+'</b><span>'+t.d+'</span></button>';
+    }).join('')+'</div></div>';
+  }).join('')+'</div>';
+}
+function c7Plat(k){ var L=[]; C7_PORTES[k].parts.forEach(function(p){ p.L.forEach(function(t){ L.push({s:t.s, ic:t.ic, l:t.l, d:t.d, f:t.f}); (t.aussi||[]).forEach(function(a){ L.push({s:a, ic:t.ic, l:t.l, d:t.d}); }); }); }); return L; }
+// les onglets en tête des écrans regroupés
+function c7Onglets(s){
+  var o=C7_ONGLETS[s]; if(!o) return;
+  var ct=document.getElementById('scr-'+s); if(!ct) return;
+  var bar=ct.querySelector(':scope > .c7-tabs');
+  if(bar && ct.firstElementChild===bar){ bar.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.s===s); }); return; }
+  if(bar) bar.remove();
+  bar=document.createElement('div'); bar.className='c7-tabs';
+  bar.innerHTML=o.a.map(function(x){ return '<button data-s="'+x[0]+'" class="'+(x[0]===s?'on':'')+'" onclick="jAller(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('');
+  ct.insertBefore(bar, ct.firstChild);
+}
+window.addEventListener('load', function(){
+  // les portes
+  try{ A8_CLUB=c7Plat('club'); A8_MOI=c7Plat('moi'); }catch(e){}
+  a8RendrePorte=function(s){ var d=document.getElementById('scr-'+s); if(d && C7_PORTES[s]) d.innerHTML=c7PorteHtml(s); };
+  try{ RUB_INFO.club={s:'club', l:'L’équipe & le club'}; }catch(e){}
+  try{ ['clips','videos'].forEach(function(s){ if(RUB_INFO[s]) RUB_INFO[s].l='Vidéo'; else RUB_INFO[s]={s:s, l:'Vidéo'}; });
+       ['calannuel','saison'].forEach(function(s){ if(RUB_INFO[s]) RUB_INFO[s].l='La saison'; else RUB_INFO[s]={s:s, l:'La saison'}; }); }catch(e){}
+  try{ var lg=document.getElementById('jhdr-logo'); if(lg) lg.title='L’équipe & le club'; }catch(e){}
+  // les onglets se reposent à chaque rendu de ces écrans
+  Object.keys(C7_ONGLETS).forEach(function(s){
+    var el=document.getElementById('scr-'+s); if(!el) return;
+    new MutationObserver(function(){ if(el.firstElementChild && !el.firstElementChild.classList.contains('c7-tabs')) c7Onglets(s); }).observe(el, {childList:true});
+    c7Onglets(s);
+  });
+
+  // le sous-titre de l'en-tête dit où l'on est : L'équipe, Le club, Moi
+  var C7_ZONE={}; ['club','moi'].forEach(function(k){ C7_PORTES[k].parts.forEach(function(p){ p.L.forEach(function(t){ [t.s].concat(t.aussi||[]).forEach(function(s){ C7_ZONE[s]=k==='moi'?'Moi':p.t; }); }); }); });
+  if(typeof jAller==='function' && !jAller.__v187){
+    var bj=jAller;
+    jAller=function(s){ var r=bj.apply(this, arguments); try{ var o=document.getElementById('jhdr-onglet'); if(o && C7_ZONE[s]) o.textContent=C7_ZONE[s]; }catch(e){} return r; };
+    jAller.__v187=true;
+  }
+  try{ RUB_INFO.club.l='Équipe & club'; }catch(e){}
+  try{ if(ECRAN_ACTIF==='club'||ECRAN_ACTIF==='moi') a8RendrePorte(ECRAN_ACTIF); }catch(e){}
 });
 </script>
 
