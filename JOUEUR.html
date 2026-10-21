@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v183';
+var APP_BUILD='v184';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v183</b> · 21/10/2026<br><span style="opacity:.8">Emploi &amp; stages, ton feu, le défi</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v184</b> · 21/10/2026<br><span style="opacity:.8">Les leaders, l’emploi, ton feu</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9299,6 +9299,184 @@ window.addEventListener('load', function(){
   try{ RENDER_MAP.emploi=[renderEmploiJoueur]; }catch(e){}
   try{ if(!A8_CLUB.some(function(t){ return t.s==='emploi'; })) A8_CLUB.splice(2, 0, {s:'emploi', ic:'main', l:'Emploi & stages', d:'le réseau du club pour le boulot'}); }catch(e){}
   try{ var v=document.getElementById('app-version-joueur'); if(v) v.innerHTML=v.innerHTML.replace('v182','v183'); }catch(e){}
+});
+</script>
+
+<script>
+// ===== v184 : le groupe des leaders (joueur) =====
+// Visible seulement des joueurs désignés leaders par le coach :
+//  · le mot du coach aux leaders ;
+//  · qui n'a pas répondu pour la séance, « je m'en occupe » ;
+//  · la météo du vestiaire, d'un geste ;
+//  · remonter un sujet au staff (thème, sous-thème, urgence, texte libre)
+//    et suivre la réponse.
+var L4_THEMES=[
+  {k:'tactique', l:'Tactique', s:['Animation offensive','Animation défensive','Transitions','Coups de pied arrêtés','Rôle ou poste d’un joueur','Plan de match']},
+  {k:'physique', l:'Physique', s:['Fatigue et charge','Douleurs et blessures','Échauffement','Récupération','Préparation physique']},
+  {k:'entrainement', l:'Entraînement', s:['Contenu des séances','Intensité','Horaires et organisation','Terrain et matériel']},
+  {k:'match', l:'Match', s:['Temps de jeu (en général)','Avant-match et causerie','Déplacements et logistique','Arbitrage']},
+  {k:'groupe', l:'Vie de groupe', s:['Ambiance','Tension ou conflit','Intégration des nouveaux','Comportement et discipline','Communication avec le staff']},
+  {k:'hors', l:'Hors terrain', s:['Situation d’un joueur (travail, perso)','Vie du club','Équipements et tenues','Événement d’équipe']},
+  {k:'autre', l:'Autre', s:[]}
+];
+var L4_URG=[['calme','Quand tu peux'],['semaine','Cette semaine'],['urgent','Urgent']];
+var L4_CONC=['Le groupe','Une ligne / un secteur','Un joueur','Moi'];
+var L4_METEO=[['soude','Soudé','var(--green)'],['normal','Normal','var(--gold)'],['tendu','Tendu','var(--red)']];
+(function(){
+  var css=''
+  +'.l4j{border-radius:18px;padding:14px 16px;background:#14130F;color:#F2EEE6;display:flex;flex-direction:column;gap:12px}'
+  +'.l4j .k{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#FF7A45}'
+  +'.l4j .mot{font-size:15px;line-height:1.45;padding:10px 12px;border-radius:12px;background:#1F1E1A}'
+  +'.l4j .mot b{color:#FF7A45}'
+  +'.l4j .ss{font-size:13px;color:#B8B1A4}'
+  +'.l4j .rel{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid rgba(242,238,230,.1)}'
+  +'.l4j .rel b{flex:1;font:700 15px "Roboto Condensed",sans-serif}'
+  +'.l4j .rel button{min-height:34px;padding:0 12px;border-radius:999px;border:0;background:#E2561F;color:#14130F;font:800 12.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.l4j .rel span{font-size:12.5px;color:#3DBA7E;font-weight:700}'
+  +'.l4j .met{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}'
+  +'.l4j .met button{min-height:44px;border-radius:12px;border:1.5px solid #3A372F;background:transparent;color:#F2EEE6;font:800 14px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.l4j .met button.on{border-color:transparent;color:#14130F}'
+  +'.l4j .gros{min-height:48px;border-radius:12px;border:0;background:#F2EEE6;color:#14130F;font:800 15px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.l4f{display:flex;flex-direction:column;gap:12px;padding-bottom:26px}'
+  +'.l4f h1{margin:4px 2px 0;font:900 50px/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.l4f .sub{margin:0 2px;font-size:14px;color:var(--mute);line-height:1.45}'
+  +'.l4f .bloc{background:var(--surface);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}'
+  +'.l4f .k{font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}'
+  +'.l4f .ch{display:flex;flex-wrap:wrap;gap:6px}'
+  +'.l4f .ch button{min-height:38px;padding:0 13px;border-radius:999px;border:1.5px solid var(--hair);background:transparent;color:var(--ink);font:700 13.5px "Inter",sans-serif;cursor:pointer}'
+  +'.l4f .ch button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}'
+  +'.l4f .ch button.urg.on{background:var(--red);border-color:var(--red);color:#fff}'
+  +'.l4f textarea{width:100%;box-sizing:border-box;min-height:110px;border:1.5px solid var(--hair);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px 12px;font:500 15px "Inter",sans-serif}'
+  +'.l4f .go{align-self:flex-start;min-height:46px;padding:0 18px;border-radius:12px;border:0;background:var(--or);color:#14130F;font:800 15px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.l4f .hist{background:var(--surface);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}'
+  +'.l4f .hist .h{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--mute)}'
+  +'.l4f .hist b{font:700 15px "Roboto Condensed",sans-serif}'
+  +'.l4f .hist p{margin:0;font-size:14.5px;line-height:1.45}'
+  +'.l4f .hist .rp{padding:8px 10px;border-radius:10px;background:var(--bg);font-size:14.5px}.l4f .hist .rp b{color:var(--or)}'
+  +'.l4f .st{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--bg)}';
+  var s=document.createElement('style'); s.id='v184-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var L4J={reg:null, t:0, en:false, relais:null, met:null, mesRem:null, f:{theme:'', sous:'', urg:'semaine', conc:'Le groupe'}};
+try{ JS_A_MOI.remontees='joueurNum'; JS_A_MOI.meteo_vestiaire='joueurNum'; }catch(e){}
+function l4jE(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function l4jDoc(d){ var f=d.fields||{}, o={id:(d.name||'').split('/').pop()}; Object.keys(f).forEach(function(k){ var v=f[k]; o[k]=v.stringValue!=null?v.stringValue:(v.integerValue!=null?+v.integerValue:(v.booleanValue!=null?v.booleanValue:null)); }); return o; }
+function l4jSem(){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+3-((d.getDay()+6)%7)); var an=d.getFullYear(), j1=new Date(an,0,4); j1.setDate(j1.getDate()+3-((j1.getDay()+6)%7)); var n=1+Math.round((d-j1)/604800000); return an+'-S'+(n<10?'0'+n:n); }
+function l4jSuisLeader(){ return String((L4J.reg||{}).nums||'').split(',').indexOf(String(MON_NUM))>=0; }
+function l4jChamps(o){ var f={}; Object.keys(o).forEach(function(k){ var v=o[k]; f[k]=typeof v==='number'?{integerValue:String(v)}:{stringValue:String(v==null?'':v)}; }); return {fields:f}; }
+
+async function l4jCharger(){
+  if(L4J.en) return; L4J.en=true;
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/reglages/leaders'); L4J.reg=r.ok?l4jDoc(await r.json()):{}; }catch(e){ L4J.reg=L4J.reg||{}; }
+  if(l4jSuisLeader()){
+    try{ var r2=await fbFetch(FIRESTORE_BASE+'/relais?pageSize=300'); L4J.relais=r2.ok?(((await r2.json()).documents)||[]).map(l4jDoc):[]; }catch(e){ L4J.relais=L4J.relais||[]; }
+    try{ var r3=await fbFetch(FIRESTORE_BASE+'/meteo_vestiaire/'+l4jSem()+'_'+MON_NUM); L4J.met=r3.ok?l4jDoc(await r3.json()):null; }catch(e){}
+  }
+  L4J.t=Date.now(); L4J.en=false;
+  try{ if(ECRAN_ACTIF==='hub') renderHub(); }catch(e){}
+}
+function l4jBlocHtml(){
+  var R=L4J.reg||{}, sem=l4jSem(), h='<div class="l4j"><span class="k">Toi, leader</span>';
+  if(R.mot && R.motSem===sem) h+='<div class="mot"><b>Le coach aux leaders :</b> '+l4jE(R.mot)+'</div>';
+  // qui n'a pas répondu
+  var sans=(R.sansSem===sem && R.sansListe)?R.sansListe.split(';').filter(Boolean).map(function(x){ var p=x.split('|'); return {num:p[0], nom:p.slice(1).join('|')}; }).filter(function(x){ return String(x.num)!==String(MON_NUM); }):[];
+  if(R.sansSem===sem && R.sansListe!=null){
+    var cle=function(n){ return sem+'_'+(R.sansQuand||'')+'_'+n; };
+    var pris=function(n){ return (L4J.relais||[]).filter(function(x){ return x.id===cle(n).replace(/[^\w-]/g,'_'); })[0]; };
+    h+='<span class="ss">Pas encore répondu pour la séance '+l4jE(R.sansQuand||'')+(R.sansSeance?' ('+l4jE(R.sansSeance)+')':'')+' · '+sans.length+' joueur'+(sans.length>1?'s':'')+'</span>';
+    var nVis=L4J.tout?sans.length:6;
+    h+=sans.slice(0,nVis).map(function(x){ var p=pris(x.num); return '<div class="rel"><b>'+l4jE(x.nom)+'</b>'+(p?'<span>'+(String(p.joueurNum)===String(MON_NUM)?'Tu t’en occupes':'Pris par '+l4jE(String(p.joueurNom||'').split(' ').pop()))+'</span>':'<button onclick="l4jRelais(\''+l4jE(x.num)+'\',\''+l4jE(cle(x.num))+'\')">Je m’en occupe</button>')+'</div>'; }).join('')
+      +(sans.length>nVis?'<button class="gros" style="background:transparent;color:#F2EEE6;box-shadow:inset 0 0 0 1.5px #3A372F;min-height:40px" onclick="L4J.tout=true;renderHub()">Voir les '+(sans.length-nVis)+' autres</button>':'')+(sans.length?'':'<span class="ss" style="color:#3DBA7E">Tout le monde a répondu.</span>');
+  }
+  // la météo
+  var m=(L4J.met&&L4J.met.sem===sem)?L4J.met.niveau:'';
+  h+='<span class="ss">Le vestiaire cette semaine, tu le sens comment ?</span><div class="met">'+L4_METEO.map(function(x){ return '<button class="'+(m===x[0]?'on':'')+'" style="'+(m===x[0]?'background:'+x[2]:'')+'" onclick="l4jMeteo(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>';
+  h+='<button class="gros" onclick="jAller(\'leaders\')">Remonter un sujet au staff</button></div>';
+  return h;
+}
+async function l4jRelais(num, cle){
+  var id=cle.replace(/[^\w-]/g,'_');
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/relais/'+encodeURIComponent(id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(l4jChamps({joueurNum:MON_NUM, joueurNom:MON_NOM||'', cible:+num, date:new Date().toISOString()}))});
+    if(!r.ok) throw new Error();
+    L4J.relais=(L4J.relais||[]).filter(function(x){ return x.id!==id; }); L4J.relais.push({id:id, joueurNum:MON_NUM, joueurNom:MON_NOM});
+    notif('✓ Les autres leaders savent que tu t’en occupes');
+  }catch(e){ notif('⚠ Pas enregistré : vérifie ta connexion'); }
+  renderHub();
+}
+async function l4jMeteo(niv){
+  var mot=prompt('Un mot pour le staff ? (facultatif, tu peux laisser vide)', (L4J.met&&L4J.met.mot)||'');
+  if(mot===null) return;
+  var o={joueurNum:MON_NUM, joueurNom:MON_NOM||'', sem:l4jSem(), niveau:niv, mot:String(mot).trim(), date:new Date().toISOString()};
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/meteo_vestiaire/'+l4jSem()+'_'+MON_NUM,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(l4jChamps(o))});
+    if(!r.ok) throw new Error(); L4J.met=o; notif('✓ Merci, le staff a ta météo');
+  }catch(e){ notif('⚠ Pas envoyée : vérifie ta connexion'); }
+  renderHub();
+}
+
+// ---------- l'écran « remonter un sujet » ----------
+async function l4jMesRem(){
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/remontees?pageSize=100'); L4J.mesRem=r.ok?(((await r.json()).documents)||[]).map(l4jDoc).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }):[]; }catch(e){ L4J.mesRem=L4J.mesRem||[]; }
+}
+function l4jEcran(){
+  var ct=document.getElementById('scr-leaders'); if(!ct) return;
+  var F=L4J.f, T=L4_THEMES.filter(function(x){ return x.k===F.theme; })[0];
+  var garde=(document.getElementById('l4j-txt')||{}).value;
+  var h='<div class="l4f"><h1>Remonter un sujet</h1><p class="sub">Terrain ou hors terrain : ce que tu sens, ce qui se dit, ce qui coince. Ça part au staff, avec ton nom, et tu verras la réponse ici.</p>';
+  h+='<div class="bloc"><span class="k">1 · Le thème</span><div class="ch">'+L4_THEMES.map(function(t){ return '<button class="'+(F.theme===t.k?'on':'')+'" onclick="L4J.f.theme=\''+t.k+'\';L4J.f.sous=\'\';l4jEcran()">'+t.l+'</button>'; }).join('')+'</div>';
+  if(T && T.s.length) h+='<span class="k">2 · Plus précisément</span><div class="ch">'+T.s.map(function(s){ return '<button class="'+(F.sous===s?'on':'')+'" onclick="L4J.f.sous='+l4jE(JSON.stringify(s))+';l4jEcran()">'+l4jE(s)+'</button>'; }).join('')+'</div>';
+  h+='<span class="k">'+(T&&T.s.length?'3':'2')+' · Ça concerne</span><div class="ch">'+L4_CONC.map(function(c){ return '<button class="'+(F.conc===c?'on':'')+'" onclick="L4J.f.conc=\''+c+'\';l4jEcran()">'+c+'</button>'; }).join('')+'</div>';
+  h+='<span class="k">C’est</span><div class="ch">'+L4_URG.map(function(u){ return '<button class="'+(u[0]==='urgent'?'urg ':'')+(F.urg===u[0]?'on':'')+'" onclick="L4J.f.urg=\''+u[0]+'\';l4jEcran()">'+u[1]+'</button>'; }).join('')+'</div>';
+  h+='<span class="k">Ton message</span><textarea id="l4j-txt" maxlength="1500" placeholder="Explique avec tes mots. Pas besoin d’être long : le staff reviendra vers toi si besoin."></textarea>'
+    +'<button class="go" onclick="l4jEnvoyer()">Envoyer au staff</button></div>';
+  var M=L4J.mesRem;
+  h+='<h2 class="a7j-h2">Tes sujets<em>'+(M&&M.length?M.length:'')+'</em></h2>';
+  var ST={recu:'Reçu', encours:'En cours', traite:'Traité'};
+  h+=M===null?'<div class="empty-txt a8-vide">Chargement…</div>':(M.length?M.map(function(r){
+    var th=L4_THEMES.filter(function(x){ return x.k===r.theme; })[0];
+    return '<div class="hist"><div class="h"><span>'+l4jE((th?th.l:r.theme)+(r.sous?' · '+r.sous:''))+'</span><span class="st">'+l4jE(ST[r.statut]||'Envoyé')+'</span></div><p>'+l4jE(r.texte)+'</p>'+(r.reponse?'<div class="rp"><b>Le staff :</b> '+l4jE(r.reponse)+'</div>':'')+'</div>';
+  }).join(''):'<div class="empty-txt a8-vide">Tes sujets et les réponses du staff apparaîtront ici.</div>');
+  ct.innerHTML=h+'</div>';
+  if(garde) document.getElementById('l4j-txt').value=garde;
+}
+async function l4jEnvoyer(){
+  var F=L4J.f, t=((document.getElementById('l4j-txt')||{}).value||'').trim();
+  if(!F.theme){ notif('⚠ Choisis un thème'); return; }
+  if(!t){ notif('⚠ Écris ton message'); return; }
+  var o={joueurNum:MON_NUM, joueurNom:MON_NOM||'', theme:F.theme, sous:F.sous||'', urgence:F.urg, concerne:F.conc, texte:t, date:new Date().toISOString(), statut:'recu'};
+  try{
+    var r=await fbFetch(FIRESTORE_BASE+'/remontees',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(l4jChamps(o))});
+    if(!r.ok) throw new Error();
+    (L4J.mesRem=L4J.mesRem||[]).unshift(o);
+    document.getElementById('l4j-txt').value='';
+    L4J.f={theme:'', sous:'', urg:'semaine', conc:'Le groupe'};
+    notif('✓ Envoyé au staff');
+  }catch(e){ notif('⚠ Pas envoyé : vérifie ta connexion'); }
+  l4jEcran();
+}
+async function renderLeadersJoueur(){ l4jEcran(); await l4jMesRem(); if(ECRAN_ACTIF==='leaders') l4jEcran(); }
+
+function l4jApresHub(){
+  var ct=document.getElementById('scr-hub'); if(!ct) return;
+  var a7=ct.querySelector('.a7j'); if(!a7) return;
+  if(!L4J.en && Date.now()-L4J.t>120000) l4jCharger();
+  if(!l4jSuisLeader() || a7.querySelector('.l4j')) return;
+  var match=[].slice.call(a7.querySelectorAll('h2.a7j-h2')).filter(function(x){ return /^Le match/.test(x.textContent||''); })[0];
+  var avant=a7.querySelector('.b2-defi')||a7.querySelector('.a9-video')||match; if(!avant) return;
+  var d=document.createElement('div'); d.innerHTML=l4jBlocHtml(); avant.parentNode.insertBefore(d.firstChild, avant);
+}
+window.addEventListener('load', function(){
+  var w=document.querySelector('.wrap');
+  if(w && !document.getElementById('scr-leaders')){ var d=document.createElement('div'); d.id='scr-leaders'; d.className='screen hidden'; w.appendChild(d); }
+  try{ RUB_INFO.leaders={s:'leaders', l:'Leaders'}; ONGLET_DE.leaders='today'; }catch(e){}
+  try{ RENDER_MAP.leaders=[renderLeadersJoueur]; }catch(e){}
+  if(typeof jxRenderHub==='function' && !jxRenderHub.__v184){
+    var b=jxRenderHub;
+    jxRenderHub=function(){ var r=b.apply(this, arguments); try{ l4jApresHub(); }catch(e){ console.error('l4j', e); } return r; };
+    jxRenderHub.__v184=true; try{ window.jxRenderHub=jxRenderHub; }catch(e){}
+  }
+  l4jCharger();
 });
 </script>
 

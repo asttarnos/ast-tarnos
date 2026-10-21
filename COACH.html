@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v183</b> · 21/10/2026<br>
-      <span style="opacity:.7">Réseau emploi, conseils au bord de touche</span>
+      AST COACH <b style="color:var(--or)">v184</b> · 21/10/2026<br>
+      <span style="opacity:.7">Le groupe des leaders</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v183';
+var APP_BUILD='v184';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -41187,6 +41187,206 @@ window.addEventListener('load', function(){
   if(typeof bdtRender==='function'){ try{ EXT.apres('bdtRender', function(){ c3Bouton(); }, 'conseiller'); }catch(e){} }
   setInterval(function(){ try{ if(typeof BDT!=='undefined' && BDT.ouvert) c3Bouton(); }catch(e){} }, 30000);
   setTimeout(c3Bouton, 1500);
+});
+</script>
+
+<script>
+// ===== v184 : le groupe des leaders (coach) =====
+//  · Le coach désigne 3 à 5 leaders et leur écrit un mot chaque semaine.
+//  · Les leaders voient qui n'a pas répondu pour la séance et relancent eux-mêmes.
+//  · Ils donnent la météo du vestiaire (soudé, normal, tendu).
+//  · Ils remontent des sujets au staff : thème, sous-thème, urgence, texte libre.
+//    Le staff répond et suit chaque sujet (reçu, en cours, traité).
+var L4_THEMES=[
+  {k:'tactique', l:'Tactique', s:['Animation offensive','Animation défensive','Transitions','Coups de pied arrêtés','Rôle ou poste d’un joueur','Plan de match']},
+  {k:'physique', l:'Physique', s:['Fatigue et charge','Douleurs et blessures','Échauffement','Récupération','Préparation physique']},
+  {k:'entrainement', l:'Entraînement', s:['Contenu des séances','Intensité','Horaires et organisation','Terrain et matériel']},
+  {k:'match', l:'Match', s:['Temps de jeu (en général)','Avant-match et causerie','Déplacements et logistique','Arbitrage']},
+  {k:'groupe', l:'Vie de groupe', s:['Ambiance','Tension ou conflit','Intégration des nouveaux','Comportement et discipline','Communication avec le staff']},
+  {k:'hors', l:'Hors terrain', s:['Situation d’un joueur (travail, perso)','Vie du club','Équipements et tenues','Événement d’équipe']},
+  {k:'autre', l:'Autre', s:[]}
+];
+var L4_URG={semaine:'À voir cette semaine', calme:'Quand tu peux', urgent:'Urgent'};
+var L4_METEO={soude:{l:'Soudé', c:'var(--green)'}, normal:{l:'Normal', c:'var(--gold)'}, tendu:{l:'Tendu', c:'var(--red)'}};
+(function(){
+  var css=''
+  +'.l4-card{padding:14px;border-radius:16px;background:var(--carte);display:flex;flex-direction:column;gap:10px}'
+  +'.l4-met{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;font-weight:700}.l4-met span{display:inline-flex;align-items:center;gap:6px}'
+  +'.l4-pt{width:10px;height:10px;border-radius:50%;display:inline-block}'
+  +'.l4-r{padding:12px 14px;border-radius:14px;background:var(--carte);display:flex;flex-direction:column;gap:6px}'
+  +'.l4-r.att{box-shadow:inset 0 0 0 2px var(--gold)}.l4-r.urg{box-shadow:inset 0 0 0 2px var(--red)}'
+  +'.l4-r .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.l4-r .h b{font-size:15px}.l4-r .h span{font-size:12px;color:var(--gris2)}'
+  +'.l4-tag{padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:var(--carte3)}'
+  +'.l4-r p{margin:0;font-size:15px;line-height:1.45;white-space:pre-wrap}'
+  +'.l4-st{display:flex;gap:6px;flex-wrap:wrap}.l4-st button{min-height:34px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line2);background:transparent;color:var(--gris);font:700 13px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.l4-st button.on{background:var(--gris);color:var(--fond);border-color:var(--gris)}'
+  +'.l4-chips{display:flex;flex-wrap:wrap;gap:6px}'
+  +'.l4-chips label{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--carte);cursor:pointer;font-size:14px}';
+  var s=document.createElement('style'); s.id='v184-css'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var L4={reg:null, rem:null, met:null, t:0, en:false, onglet:'sujets'};
+function l4E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function l4Doc(d){ var f=d.fields||{}, o={id:(d.name||'').split('/').pop()}; Object.keys(f).forEach(function(k){ var v=f[k]; o[k]=v.stringValue!=null?v.stringValue:(v.integerValue!=null?+v.integerValue:(v.booleanValue!=null?v.booleanValue:null)); }); return o; }
+function l4Sem(d){ d=d?new Date(d):new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+3-((d.getDay()+6)%7)); var an=d.getFullYear(), j1=new Date(an,0,4); j1.setDate(j1.getDate()+3-((j1.getDay()+6)%7)); var n=1+Math.round((d-j1)/604800000); return an+'-S'+(n<10?'0'+n:n); }
+function l4ThemeL(k){ var t=L4_THEMES.filter(function(x){ return x.k===k; })[0]; return t?t.l:k; }
+function l4Nums(){ return String((L4.reg||{}).nums||'').split(',').filter(Boolean).map(Number); }
+function l4Nom(n){ var j=(JOUEURS||[]).filter(function(x){ return +x.num===+n; })[0]; return j?j.nom:('n°'+n); }
+
+async function l4Charger(){
+  if(L4.en) return; L4.en=true;
+  try{ var r=await fbFetch(FIRESTORE_BASE+'/reglages/leaders'); L4.reg=r.ok?l4Doc(await r.json()):{}; }catch(e){ L4.reg=L4.reg||{}; }
+  try{ var r2=await fbFetch(FIRESTORE_BASE+'/remontees?pageSize=300'); L4.rem=r2.ok?(((await r2.json()).documents)||[]).map(l4Doc):[]; }catch(e){ L4.rem=L4.rem||[]; }
+  try{ var r3=await fbFetch(FIRESTORE_BASE+'/meteo_vestiaire?pageSize=300'); L4.met=r3.ok?(((await r3.json()).documents)||[]).map(l4Doc):[]; }catch(e){ L4.met=L4.met||[]; }
+  L4.rem.sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
+  L4.t=Date.now(); L4.en=false;
+  try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){}
+  l4Peindre();
+}
+function l4MeteoSem(){
+  var sem=l4Sem(), c={soude:0, normal:0, tendu:0}, mots=[];
+  (L4.met||[]).forEach(function(m){ if(m.sem===sem && c[m.niveau]!=null){ c[m.niveau]++; if(m.mot) mots.push({nom:m.joueurNom, mot:m.mot, niveau:m.niveau}); } });
+  return {c:c, mots:mots, n:c.soude+c.normal+c.tendu};
+}
+async function l4SauverReg(champs){
+  var f={}; Object.keys(champs).forEach(function(k){ f[k]={stringValue:String(champs[k]==null?'':champs[k])}; });
+  var q=Object.keys(champs).map(function(k){ return 'updateMask.fieldPaths='+k; }).join('&');
+  var r=await fbFetch(FIRESTORE_BASE+'/reglages/leaders?'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:f})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  L4.reg=Object.assign(L4.reg||{}, champs);
+}
+// la liste des sans-réponse de la prochaine séance, pour les leaders
+var L4_SANS_SIG='';
+function l4PublierSans(){
+  try{
+    var S=A7.soir, sc=a7Seance(); if(!S || !S.ok || !sc || !l4Nums().length) return;
+    var liste=S.sans.map(function(j){ return j.num+'|'+j.nom; }).join(';');
+    var sig=sc.k+'#'+liste; if(sig===L4_SANS_SIG) return; L4_SANS_SIG=sig;
+    l4SauverReg({sansListe:liste, sansSeance:(sc.lab||'')+(sc.h?' · '+sc.h:''), sansQuand:sc.quand||'', sansSem:l4Sem(), sansMaj:new Date().toISOString()}).catch(function(){ L4_SANS_SIG=''; });
+  }catch(e){}
+}
+
+// ---------- l'accueil ----------
+function l4CarteHtml(){
+  var N=l4Nums();
+  if(!L4.reg) return '<div class="a7-vide">Lecture…</div>';
+  if(!N.length) return '<div class="l4-card"><b>Pas encore de leaders</b><span style="font-size:13.5px;color:var(--gris2);line-height:1.4">Désigne 3 à 5 joueurs : ils relancent les retardataires, te donnent la météo du vestiaire et te remontent les sujets du groupe.</span><button class="a7-b cl" style="align-self:flex-start" onclick="l4Ouvrir(\'leaders\')">Choisir les leaders</button></div>';
+  var M=l4MeteoSem(), att=(L4.rem||[]).filter(function(r){ return r.statut!=='traite'; });
+  var urg=att.filter(function(r){ return r.urgence==='urgent'; }).length;
+  return '<div class="l4-card"><div class="l4-met">'+(M.n?Object.keys(L4_METEO).map(function(k){ return M.c[k]?'<span><i class="l4-pt" style="background:'+L4_METEO[k].c+'"></i>'+M.c[k]+' '+L4_METEO[k].l.toLowerCase()+'</span>':''; }).join(''):'<span style="color:var(--gris2);font-weight:500">Pas encore de météo cette semaine</span>')+'</div>'
+    +(att.length?'<button class="a7-ligne" onclick="l4Ouvrir(\'sujets\')" style="box-shadow:inset 0 0 0 2px '+(urg?'var(--red)':'var(--gold)')+'"><span class="n">'+att.length+' sujet'+(att.length>1?'s':'')+' remonté'+(att.length>1?'s':'')+(urg?' · '+urg+' urgent'+(urg>1?'s':''):'')+'</span><span class="a7-tag">Voir</span></button>':'<span style="font-size:13px;color:var(--gris2)">Aucun sujet en attente.</span>')
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="a7-b cl" onclick="l4Ouvrir(\'mot\')">'+((L4.reg.motSem===l4Sem() && L4.reg.mot)?'Modifier le mot':'Écrire le mot de la semaine')+'</button><button class="a7-b cl" onclick="l4Ouvrir(\'sujets\')">Tout voir</button></div></div>';
+}
+function l4ApresAccueil(){
+  var ct=document.getElementById('n3-semaine'); if(!ct) return;
+  var dr=ct.querySelector('.a7 .a7-droite'); if(!dr || dr.querySelector('#l4-acc')) return;
+  var z=document.createElement('div'); z.id='l4-acc'; z.className='a7-col';
+  var N=l4Nums();
+  z.innerHTML='<h2 class="a7-h2" style="margin-top:10px">Les leaders<em>'+(N.length?N.map(function(n){ return l4E(String(l4Nom(n)).split(' ').pop()); }).join(' · '):'')+'</em></h2>'+l4CarteHtml();
+  var v=dr.querySelector('#a9-vest'); if(v) dr.insertBefore(z, v); else dr.appendChild(z);
+  if(!L4.en && Date.now()-L4.t>90000) l4Charger();
+  l4PublierSans();
+}
+
+// ---------- le panneau ----------
+function l4PanHtml(){
+  var att=(L4.rem||[]).filter(function(r){ return r.statut!=='traite'; }).length;
+  var h='<div class="hd"><div><h1>Les leaders</h1><p class="sub">Ils relaient, ils te disent comment va le groupe, ils te remontent ce qui se dit. Ils ne voient jamais les notes, la forme ou les réponses des autres.</p></div><button class="a9-x" onclick="a9Fermer()">Fermer</button></div>'
+    +'<div class="a9-seg">'+[['sujets','Sujets remontés'+(att?' <i>'+att+'</i>':'')],['mot','Mot & météo'],['leaders','Les leaders']].map(function(o){ return '<button class="'+(L4.onglet===o[0]?'on':'')+'" onclick="L4.onglet=\''+o[0]+'\';l4Peindre()">'+o[1]+'</button>'; }).join('')+'</div>';
+  if(L4.onglet==='sujets'){
+    var R=L4.rem||[];
+    h+=R.length?R.map(function(r){
+      var st=r.statut||'recu';
+      return '<div class="l4-r'+(st!=='traite'?(r.urgence==='urgent'?' urg':' att'):'')+'"><div class="h"><b>'+l4E(r.joueurNom||'')+'</b><span class="l4-tag">'+l4E(l4ThemeL(r.theme))+(r.sous?' · '+l4E(r.sous):'')+'</span><span>'+l4E(L4_URG[r.urgence]||'')+' · '+l4E(a9Quand(r.date))+'</span></div>'
+        +(r.concerne?'<span style="font-size:13px;color:var(--gris2)">Concerne : '+l4E(r.concerne)+'</span>':'')
+        +'<p>'+l4E(r.texte)+'</p>'
+        +(r.reponse?'<div class="b2-sug"><b>Ta réponse :</b> '+l4E(r.reponse)+'</div>':'')
+        +'<div class="l4-st">'+[['recu','Reçu'],['encours','En cours'],['traite','Traité']].map(function(o){ return '<button class="'+(st===o[0]?'on':'')+'" onclick="l4Statut(\''+l4E(r.id)+'\',\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</div>'
+        +'<div class="rpz" style="display:flex;gap:6px"><input class="fi" id="l4-rp-'+l4E(r.id)+'" placeholder="Lui répondre (il est seul à lire)" style="flex:1"><button class="a7-b or" onclick="l4Repondre(\''+l4E(r.id)+'\')">Envoyer</button></div></div>';
+    }).join(''):'<div class="a7-vide">Aucun sujet remonté pour l’instant. Les leaders le font depuis leur semaine : thème, sous-thème, urgence, et leur texte.</div>';
+  } else if(L4.onglet==='mot'){
+    var cur=(L4.reg||{}).motSem===l4Sem()?(L4.reg.mot||''):'';
+    h+='<div class="a9-ec"><b>Le mot aux leaders, cette semaine</b><textarea id="l4-mot" maxlength="600" placeholder="Ce que tu attends d’eux cette semaine : l’état d’esprit, un joueur à épauler, le message à faire passer…">'+l4E(cur)+'</textarea>'
+      +'<div class="pied"><label><input type="checkbox" id="l4-mot-prev" checked> Les prévenir sur leur téléphone</label><button class="a7-b or" onclick="l4EnvoyerMot()">Envoyer aux leaders</button></div></div>';
+    var M=l4MeteoSem();
+    h+='<h2 class="a7-h2">Météo du vestiaire<em>semaine '+l4E(l4Sem().split('-S')[1])+'</em></h2>'
+      +'<div class="l4-card"><div class="l4-met">'+Object.keys(L4_METEO).map(function(k){ return '<span><i class="l4-pt" style="background:'+L4_METEO[k].c+'"></i>'+M.c[k]+' '+L4_METEO[k].l.toLowerCase()+'</span>'; }).join('')+'</div>'
+      +(M.mots.length?M.mots.map(function(m){ return '<div style="font-size:14.5px"><i class="l4-pt" style="background:'+L4_METEO[m.niveau].c+';margin-right:6px"></i><b>'+l4E(String(m.nom||'').split(' ').pop())+'</b> : '+l4E(m.mot)+'</div>'; }).join(''):'<span style="font-size:13px;color:var(--gris2)">'+(M.n?'Pas de commentaire.':'Aucun leader n’a encore donné sa météo cette semaine.')+'</span>')+'</div>';
+  } else {
+    var N=l4Nums();
+    h+='<p class="sub">3 à 5 joueurs, idéalement des profils différents : le capitaine, un ancien, un jeune écouté, un gardien. Ils sont prévenus quand tu les désignes.</p>'
+      +'<div class="l4-chips">'+(JOUEURS||[]).map(function(j){ return '<label><input type="checkbox" class="l4-j" value="'+j.num+'"'+(N.indexOf(+j.num)>=0?' checked':'')+'> '+l4E(j.nom)+'</label>'; }).join('')+'</div>'
+      +'<button class="a7-b or" style="align-self:flex-start" onclick="l4EnregistrerLeaders()">Enregistrer les leaders</button>';
+  }
+  return h;
+}
+function l4Peindre(){ var p=document.querySelector('#a9-ov .a9-pan'); if(p && p.dataset.l4) p.innerHTML=l4PanHtml(); }
+async function l4Ouvrir(onglet){
+  L4.onglet=onglet||'sujets';
+  a9Ouvrir(l4PanHtml());
+  var p=document.querySelector('#a9-ov .a9-pan'); if(p) p.dataset.l4='1';
+  if(!L4.reg || Date.now()-L4.t>30000) await l4Charger(); else l4Peindre();
+}
+async function l4EnregistrerLeaders(){
+  var avant=l4Nums();
+  var N=[].slice.call(document.querySelectorAll('.l4-j:checked')).map(function(i){ return +i.value; });
+  if(N.length>6 && !confirm(N.length+' leaders, c’est beaucoup : le rôle perd de sa valeur. Continuer ?')) return;
+  try{
+    await l4SauverReg({nums:N.join(',')});
+    var nouveaux=N.filter(function(n){ return avant.indexOf(n)<0; });
+    if(nouveaux.length) a9Notifier('Tu fais partie des leaders', 'Le coach compte sur toi pour relayer, prendre la température du groupe et lui remonter les sujets. Tout est dans ta semaine.', nouveaux.join(','));
+    notif('✓ '+N.length+' leaders enregistrés');
+  }catch(e){ notif('⚠ Pas enregistré : vérifie la connexion'); }
+  l4Peindre();
+}
+async function l4EnvoyerMot(){
+  var t=((document.getElementById('l4-mot')||{}).value||'').trim(); if(!t) return;
+  try{
+    await l4SauverReg({mot:t, motSem:l4Sem(), motDate:new Date().toISOString()});
+    if((document.getElementById('l4-mot-prev')||{}).checked && l4Nums().length) a9Notifier('Le mot du coach aux leaders', t.length>140?t.slice(0,137)+'…':t, l4Nums().join(','));
+    notif('✓ Mot envoyé aux leaders');
+  }catch(e){ notif('⚠ Pas envoyé : vérifie la connexion'); }
+}
+async function l4MajRem(id, champs){
+  var f={}; Object.keys(champs).forEach(function(k){ f[k]={stringValue:String(champs[k])}; });
+  var q=Object.keys(champs).map(function(k){ return 'updateMask.fieldPaths='+k; }).join('&');
+  var r=await fbFetch(FIRESTORE_BASE+'/remontees/'+id+'?'+q,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:f})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  var x=(L4.rem||[]).filter(function(z){ return z.id===id; })[0]; if(x) Object.assign(x, champs);
+}
+async function l4Statut(id, st){ try{ await l4MajRem(id,{statut:st}); }catch(e){ notif('⚠ Pas enregistré'); } l4Peindre(); }
+async function l4Repondre(id){
+  var i=document.getElementById('l4-rp-'+id); var t=(i&&i.value||'').trim(); if(!t) return;
+  var r=(L4.rem||[]).filter(function(z){ return z.id===id; })[0]||{};
+  try{
+    await l4MajRem(id,{reponse:t, dateReponse:new Date().toISOString(), statut:r.statut==='traite'?'traite':'encours'});
+    if(r.joueurNum!=null) a9Notifier('Le staff a répondu à ton sujet', t.length>140?t.slice(0,137)+'…':t, r.joueurNum);
+    notif('✓ Réponse envoyée');
+  }catch(e){ notif('⚠ Pas envoyée'); }
+  l4Peindre();
+}
+(function(){
+  try{
+    var ajout="    // ---- v184 : le groupe des leaders\n"
+      +"    match /remontees/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create: if estCoach() || signeParMoi();\n      allow update, delete: if estCoach();\n    }\n"
+      +"    match /meteo_vestiaire/{id} {\n      allow get: if getJ();\n      allow list: if listJ();\n      allow create, update: if estCoach() || signeParMoi();\n      allow delete: if estCoach();\n    }\n"
+      +"    match /relais/{id} {\n      allow read: if membre();\n      allow create, update: if estCoach() || signeParMoi();\n      allow delete: if estCoach();\n    }\n";
+    if(SEC_REGLES.indexOf('match /remontees/{id}')<0) SEC_REGLES=SEC_REGLES.replace('    match /stats_live/{id} {', ajout+'    match /stats_live/{id} {');
+  }catch(e){}
+})();
+window.addEventListener('load', function(){
+  if(typeof renderSemaine==='function' && !renderSemaine.__v184){
+    var b=renderSemaine;
+    renderSemaine=function(){ var r=b.apply(this, arguments); try{ l4ApresAccueil(); }catch(e){ console.error('l4', e); } return r; };
+    renderSemaine.__v184=true;
+  }
+  // quand les réponses de la séance arrivent, la liste des leaders suit
+  if(typeof a7ChargerSoir==='function' && !a7ChargerSoir.__v184){
+    var b2=a7ChargerSoir;
+    a7ChargerSoir=async function(){ var r=await b2.apply(this, arguments); try{ l4PublierSans(); }catch(e){} return r; };
+    a7ChargerSoir.__v184=true;
+  }
+  setTimeout(function(){ try{ if(document.getElementById('scr-semaine').classList.contains('on')) renderSemaine(); }catch(e){} }, 1700);
 });
 </script>
 
