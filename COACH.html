@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v186</b> · 21/10/2026<br>
-      <span style="opacity:.7">Club House allégé, les chiffres à leur place</span>
+      AST COACH <b style="color:var(--or)">v188</b> · 21/10/2026<br>
+      <span style="opacity:.7">Analyse vidéo partagée avec les joueurs</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v186';
+var APP_BUILD='v188';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -41535,7 +41535,7 @@ function avCarte(v){
   (v.principes||[]).forEach(function(p){ tags.push(p); });
   var noms=(v.joueurs||[]).map(function(n){ var j=(JOUEURS||[]).filter(function(x){ return String(x.num)===String(n); })[0]; return j?String(j.nom).split(' ').pop():null; }).filter(Boolean);
   return '<div class="av-c"><a class="av-th" href="'+avE(v.url)+'" target="_blank" rel="noopener">'+(yt?'<img src="https://img.youtube.com/vi/'+yt+'/mqdefault.jpg" alt="" loading="lazy">':'')+'<span class="src">'+src+'</span><span class="pl">▶</span></a>'
-    +'<div class="av-cb"><b>'+avE(v.titre||'Sans titre')+'</b><span class="m">'+avE([AV_RAYONS.filter(function(r){ return r.k===v._r; }).map(function(r){ return r.l; })[0], v.date].filter(Boolean).join(' · '))+(v._rapport?' · depuis le rapport':(v.partage===false?' · staff seulement':' · visible joueurs'))+'</span>'
+    +'<div class="av-cb"><b>'+avE(v.titre||'Sans titre')+'</b><span class="m">'+avE([AV_RAYONS.filter(function(r){ return r.k===v._r; }).map(function(r){ return r.l; })[0], v.date].filter(Boolean).join(' · '))+(v._rapport?' · depuis le rapport':'')+'</span>'
     +((tags.length||noms.length)?'<div class="av-tags">'+tags.map(function(t){ return '<span>'+avE(t)+'</span>'; }).join('')+noms.map(function(n){ return '<span style="background:var(--or);color:#fff">'+avE(n)+'</span>'; }).join('')+'</div>':'')
     +(v.notes?'<span class="m" style="color:var(--gris)">'+avE(v.notes)+'</span>':'')
     +'<div class="av-act">'+(v._adv?'<button onclick="AV.ouvertEq='+avE(JSON.stringify(v._adv))+';AV.rayon=\'adversaires\';avRendre()">Fiche '+avE(String(v._adv).split(' ')[0])+'</button>':'')
@@ -41565,7 +41565,7 @@ function avRendre(){
   var ct=document.getElementById('av-ct'); if(!ct) return;
   var T=avToutes();
   var cpt=function(k){ return k==='tout'?T.length:T.filter(function(v){ return v._r===k; }).length; };
-  var h='<div class="av"><div class="av-hero"><div><h1>Analyse vidéo</h1><p>Toutes les vidéos du staff au même endroit : nos matchs, les adversaires, nos séances, l’inspiration. Étiquette-les une fois, retrouve-les en deux touches, fais-en des clips pour les joueurs.</p></div>'
+  var h='<div class="av"><div class="av-hero"><div><h1>Analyse vidéo</h1><p>Toutes les vidéos au même endroit, les mêmes chez les joueurs : nos matchs, les adversaires, nos séances, l’inspiration. Étiquette-les une fois, retrouve-les en deux touches, fais-en des clips pour les joueurs.</p></div>'
     +'<button class="btn" style="width:auto;margin:0;padding:12px 18px" onclick="avNouvelle()">+ Ajouter une vidéo</button></div>';
   h+='<div class="av-ray">'+[{k:'tout', l:'Tout', d:'toutes les vidéos'}].concat(AV_RAYONS).map(function(r){ return '<button class="av-r'+(AV.rayon===r.k?' on':'')+'" onclick="AV.rayon=\''+r.k+'\';AV.ouvertEq=\'\';avRendre()"><b>'+cpt(r.k)+'</b><span>'+r.l+'</span><i>'+r.d+'</i></button>'; }).join('')+'</div>';
   if(AV.f) h+=avFormHtml();
@@ -41604,7 +41604,7 @@ function avFormHtml(){
     +(tous.length?'<span class="fl">Nos principes</span><div class="av-ph">'+tous.map(function(x){ var on=f.principes.indexOf(x.code)>=0; return '<span class="'+(on?'on':'')+'" style="--pc:'+x.phase.coul+'" title="'+avE(x.titre)+'" onclick="avBasc(\'principes\',\''+x.code+'\')"><b>'+x.code+'</b> '+avE(x.titre.length>28?x.titre.slice(0,27)+'…':x.titre)+'</span>'; }).join('')+'</div>':'')
     +'<span class="fl">Joueurs concernés <span style="font-weight:400;color:var(--gris2);text-transform:none;letter-spacing:0">(facultatif)</span></span><div class="av-ph" style="max-height:120px;overflow-y:auto">'+(JOUEURS||[]).map(function(j){ var on=f.joueurs.map(String).indexOf(String(j.num))>=0; return '<span class="'+(on?'on':'')+'" style="--pc:var(--or)" onclick="avBasc(\'joueurs\','+j.num+')">'+avE(String(j.nom).split(' ').pop())+'</span>'; }).join('')+'</div>'
     +'<textarea class="fi" rows="2" placeholder="Ce qu’il faut y voir (facultatif)" onchange="AV.f.notes=this.value">'+avE(f.notes)+'</textarea>'
-    +'<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="av-part"'+(partage?' checked':'')+' onchange="AV.f.partage=this.checked"> Visible par les joueurs dans leur appli (rubrique Vidéos)</label>'
+    +'<span style="font-size:13px;color:var(--gris2)">Les joueurs voient toutes les vidéos de l’analyse vidéo, comme toi.</span>'
     +'<div style="display:flex;gap:8px"><button class="a7-b or" onclick="avEnregistrer()">'+(AV.edit!=null?'Enregistrer':'Ajouter')+'</button><button class="a7-b cl" onclick="AV.f=null;AV.edit=null;avRendre()">Annuler</button></div></div>';
 }
 function avBasc(k, val){
@@ -41619,7 +41619,7 @@ function avEnregistrer(){
   var f=AV.f; if(!/^https?:\/\//i.test(f.url)){ notif('⚠ Colle un lien qui commence par http'); return; }
   if(f.rayon==='adversaires' && !f.adv){ notif('⚠ Dis de quelle équipe il s’agit'); return; }
   var r=AV_RAYONS.filter(function(x){ return x.k===f.rayon; })[0];
-  var partage=f.partage==null?(f.rayon==='matchs'||f.rayon==='seances'):!!f.partage;
+  var partage=true;
   var v={titre:f.titre||(f.adv?f.adv:'Vidéo')+(f.date?' · '+f.date:''), url:f.url, categorie:r.cat, date:f.date, notes:f.notes, rayon:f.rayon, adv:f.adv, phases:f.phases, principes:f.principes, joueurs:f.joueurs, partage:partage};
   if(AV.edit!=null && VIDEOS[AV.edit]) VIDEOS[AV.edit]=Object.assign({}, VIDEOS[AV.edit], v); else VIDEOS.unshift(v);
   if(v.adv){ try{ trouverOuCreerAdversaire(v.adv); }catch(e){} }

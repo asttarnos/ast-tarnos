@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v187';
+var APP_BUILD='v188';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v187</b> · 21/10/2026<br><span style="opacity:.8">Rangée par usage : l’équipe, le club, moi</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v188</b> · 21/10/2026<br><span style="opacity:.8">Rangée par usage : l’équipe, le club, moi</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9487,7 +9487,7 @@ window.addEventListener('load', function(){
     var b=renderVideosJoueur;
     renderVideosJoueur=async function(){
       var tout=(SAISON&&SAISON.VIDEOS)||[], garde=SAISON.VIDEOS;
-      try{ SAISON.VIDEOS=tout.filter(function(v){ return v && v.partage!==false; }); return await b.apply(this, arguments); }
+      try{ SAISON.VIDEOS=tout.filter(function(v){ return !!v; }); return await b.apply(this, arguments); }
       finally{ SAISON.VIDEOS=garde; }
     };
     renderVideosJoueur.__v185=true;
@@ -9594,6 +9594,170 @@ window.addEventListener('load', function(){
   try{ RUB_INFO.club.l='Équipe & club'; }catch(e){}
   try{ if(ECRAN_ACTIF==='club'||ECRAN_ACTIF==='moi') a8RendrePorte(ECRAN_ACTIF); }catch(e){}
 });
+</script>
+
+<script>
+// ===== v188 : l'analyse vidéo, aussi chez les joueurs =====
+// Les joueurs voient la même vidéothèque que le staff : les quatre rayons
+// (nos matchs, adversaires, nos séances, inspiration), les filtres (adversaire,
+// phase de jeu, joueur, recherche) et la fiche de chaque équipe adverse.
+// La tuile « Vidéo » ouvre trois onglets : Toutes les vidéos · Pour moi · Mes moments.
+var AVJ_RAYONS=[
+  {k:'matchs', l:'Nos matchs', d:'Veo, matchs entiers'},
+  {k:'adversaires', l:'Adversaires', d:'rangés par équipe'},
+  {k:'seances', l:'Nos séances', d:'exercices filmés'},
+  {k:'inspiration', l:'Inspiration', d:'clips pros, idées'}
+];
+var AVJ_PHASES=[['OFF','Avec le ballon','#d97706'],['DEF','Sans le ballon','#22a06b'],['TRP','Transition à la perte','#dc4444'],['TRR','Transition à la récup.','#4ea8de'],['CPA','Coups de pied arrêtés','#b285e8']];
+(function(){
+  var css=''
+  +'.avj{display:flex;flex-direction:column;gap:12px;padding-bottom:26px}'
+  +'.avj h1{margin:0 2px;font:900 50px/.84 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.avj .sub{margin:0 2px;font-size:14px;color:var(--mute);line-height:1.45}'
+  +'.avj-ray{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:0 2px}'
+  +'.avj-ray::-webkit-scrollbar{display:none}'
+  +'.avj-ray button{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:104px;padding:10px 12px;border-radius:14px;border:0;background:var(--surface);color:var(--ink);cursor:pointer;font-family:"Roboto Condensed",sans-serif;text-align:left}'
+  +'.avj-ray button b{font:900 24px/.9 "Roboto Condensed",sans-serif}.avj-ray button span{font:700 13.5px "Roboto Condensed",sans-serif}'
+  +'.avj-ray button.on{background:var(--ink);color:var(--bg)}'
+  +'.avj-fil{display:flex;flex-direction:column;gap:6px}'
+  +'.avj-fil input,.avj-fil select{width:100%;box-sizing:border-box;min-height:42px;border:1.5px solid var(--hair);border-radius:12px;background:var(--surface);color:var(--ink);padding:0 12px;font:500 14.5px "Inter",sans-serif}'
+  +'.avj-fil .l2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}'
+  +'.avj-c{border-radius:16px;background:var(--surface);overflow:hidden;display:flex;flex-direction:column}'
+  +'.avj-th{position:relative;aspect-ratio:16/9;background:#14130F;display:flex;align-items:center;justify-content:center;color:#F2EEE6;text-decoration:none}'
+  +'.avj-th img{width:100%;height:100%;object-fit:cover;display:block}'
+  +'.avj-th .pl{position:absolute;width:48px;height:48px;border-radius:50%;background:rgba(226,86,31,.92);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}'
+  +'.avj-th .src{position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.65);font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff}'
+  +'.avj-cb{padding:12px 14px;display:flex;flex-direction:column;gap:6px}'
+  +'.avj-cb b{font:800 17px/1.15 "Roboto Condensed",sans-serif}.avj-cb .m{font-size:12.5px;color:var(--mute)}'
+  +'.avj-cb .n{font-size:14px;line-height:1.4}'
+  +'.avj-tags{display:flex;flex-wrap:wrap;gap:4px}.avj-tags span{padding:2px 8px;border-radius:999px;font:700 11.5px "Inter",sans-serif;background:var(--bg)}'
+  +'.avj-tags span.moi{background:var(--or);color:#fff}'
+  +'.avj-cb .ac{display:flex;gap:6px;flex-wrap:wrap}'
+  +'.avj-cb .ac button{min-height:36px;padding:0 12px;border-radius:10px;border:1.5px solid var(--hair);background:transparent;color:var(--ink);font:700 13px "Inter",sans-serif;cursor:pointer}'
+  +'.avj-eq{border-radius:18px;padding:16px;background:var(--ink);color:var(--bg);display:flex;flex-direction:column;gap:10px}'
+  +'.avj-eq h2{margin:0;font:900 38px/.9 "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.avj-eq .ar{display:flex;flex-direction:column;gap:6px;font-size:14px}'
+  +'.avj-eq .ar span{padding:8px 10px;border-radius:10px;background:rgba(127,127,127,.22)}'
+  +'.avj-eq .res{font-size:15px;line-height:1.45;opacity:.9}'
+  +'.avj-eq button{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:12px;border:0;background:var(--bg);color:var(--ink);font:700 13.5px "Inter",sans-serif;cursor:pointer}'
+  +'.avj-eqs{display:grid;grid-template-columns:1fr 1fr;gap:8px}'
+  +'.avj-eqs button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:14px;border:0;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left}'
+  +'.c7-tabs{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}'
+  +'.avj-eqs b{font:900 26px/.9 "Roboto Condensed",sans-serif}.avj-eqs span{font:700 14px "Roboto Condensed",sans-serif}.avj-eqs i{font-style:normal;font-size:12px;color:var(--mute)}';
+  var s=document.createElement('style'); s.id='v188-joueur'; s.textContent=css; document.head.appendChild(s);
+})();
+
+var AVJ={rayon:'tout', adv:'', phase:'', joueur:'', q:'', eq:''};
+function avjE(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function avjMeme(a,b){ try{ return fexNomsCorrespondent(a||'', b||''); }catch(e){ return String(a||'').toLowerCase()===String(b||'').toLowerCase(); } }
+function avjRayonDe(v){
+  if(v.rayon) return v.rayon;
+  if(/^adversaire/i.test(v.categorie||'')) return 'adversaires';
+  if(/^entra/i.test(v.categorie||'')) return 'seances';
+  if(/veo\.co/i.test(v.url||'')) return 'matchs';
+  return 'inspiration';
+}
+function avjAdvDuTitre(t){ var a=((SAISON&&SAISON.ADVERSAIRES)||[]).filter(function(x){ return x.nom && String(t||'').toLowerCase().indexOf(String(x.nom).toLowerCase())>=0; })[0]; return a?a.nom:''; }
+function avjToutes(){
+  var L=((SAISON&&SAISON.VIDEOS)||[]).map(function(v){ var r=avjRayonDe(v); return Object.assign({}, v, {_r:r, _adv:v.adv||(r==='adversaires'?avjAdvDuTitre(v.titre):'')}); });
+  ((SAISON&&SAISON.ADVERSAIRES)||[]).forEach(function(a){
+    var r=a.rapport||{}, u=String(r.video||'').trim();
+    if(u && !L.some(function(v){ return v.url===u; })) L.push({titre:'Vidéo de '+a.nom, url:u, _r:'adversaires', _adv:a.nom, date:r.maj||''});
+    (a.fiches||[]).forEach(function(f){ var u2=String(f.video||'').trim(); if(u2 && !L.some(function(v){ return v.url===u2; })) L.push({titre:'Vidéo de '+a.nom, url:u2, _r:'adversaires', _adv:a.nom, date:f.date||''}); });
+  });
+  return L;
+}
+function avjYt(u){ var m=String(u||'').match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/); return m?m[1]:null; }
+function avjSource(u){ return /veo\.co/i.test(u)?'Veo':(avjYt(u)?'YouTube':(/vimeo/i.test(u)?'Vimeo':'Lien')); }
+function avjCarte(v){
+  var yt=avjYt(v.url), moi=(v.joueurs||[]).map(String).indexOf(String(MON_NUM))>=0;
+  var tags=[]; if(v._adv) tags.push(v._adv); (v.phases||[]).forEach(function(p){ tags.push(p); }); (v.principes||[]).forEach(function(p){ tags.push(p); });
+  var noms=(v.joueurs||[]).map(function(n){ var j=((SAISON&&SAISON.JOUEURS)||[]).filter(function(x){ return String(x.num)===String(n); })[0]; return j?{n:String(j.nom).split(' ').pop(), moi:String(n)===String(MON_NUM)}:null; }).filter(Boolean);
+  return '<div class="avj-c"><a class="avj-th" href="'+avjE(v.url)+'" target="_blank" rel="noopener">'+(yt?'<img src="https://img.youtube.com/vi/'+yt+'/mqdefault.jpg" alt="" loading="lazy">':'')+'<span class="src">'+avjSource(v.url)+'</span><span class="pl">▶</span></a>'
+    +'<div class="avj-cb"><b>'+avjE(v.titre||'Vidéo')+'</b><span class="m">'+avjE([AVJ_RAYONS.filter(function(r){ return r.k===v._r; }).map(function(r){ return r.l; })[0], v.date].filter(Boolean).join(' · '))+(moi?' · <b style="font-size:12.5px;color:var(--or)">tu es dedans</b>':'')+'</span>'
+    +((tags.length||noms.length)?'<div class="avj-tags">'+tags.map(function(t){ return '<span>'+avjE(t)+'</span>'; }).join('')+noms.map(function(x){ return '<span class="'+(x.moi?'moi':'')+'">'+avjE(x.n)+'</span>'; }).join('')+'</div>':'')
+    +(v.notes?'<span class="n">'+avjE(v.notes)+'</span>':'')
+    +'<div class="ac">'+(v._adv?'<button onclick="AVJ.eq='+avjE(JSON.stringify(v._adv))+';AVJ.rayon=\'adversaires\';avjRendre();window.scrollTo(0,0)">Fiche '+avjE(String(v._adv).split(' ')[0])+'</button>':'')
+    +'<button onclick="jAller(\'videos\')">Marquer un moment</button></div></div></div>';
+}
+function avjEquipes(){
+  var noms={};
+  avjToutes().forEach(function(v){ if(v._r==='adversaires' && v._adv) noms[v._adv]=(noms[v._adv]||0)+1; });
+  ((SAISON&&SAISON.CALENDRIER)||[]).forEach(function(c){ if(c.adversaire && !Object.keys(noms).some(function(n){ return avjMeme(n, c.adversaire); })) noms[c.adversaire]=0; });
+  return Object.keys(noms).sort(function(a,b){ return noms[b]-noms[a] || a.localeCompare(b); }).map(function(n){ return {nom:n, n:noms[n]}; });
+}
+function avjFiche(nom){
+  var L=avjToutes().filter(function(v){ return avjMeme(v._adv, nom); });
+  var a=((SAISON&&SAISON.ADVERSAIRES)||[]).filter(function(x){ return avjMeme(x.nom, nom); })[0]||{};
+  var r=a.rapport||{};
+  var cal=((SAISON&&SAISON.CALENDRIER)||[]).filter(function(c){ return avjMeme(c.adversaire, nom); });
+  var M=((SAISON&&SAISON.MATCHS)||[]).filter(function(m){ return avjMeme(m.adversaire, nom); });
+  var res=function(c){
+    var m=M.filter(function(x){ return x.date && c.date && String(c.date).indexOf(String(x.date).split(' - ')[0])>=0; })[0]||(cal.length===1?M[0]:null);
+    return m?('<b>'+(m.ast!=null?m.ast:'?')+' – '+(m.adv!=null?m.adv:'?')+'</b>'):'à venir';
+  };
+  return '<div class="avj-eq"><h2>'+avjE(nom)+'</h2><div class="ar">'+(cal.length?cal.map(function(c){ return '<span>'+(c.lieu==='D'?'À domicile':(c.lieu==='E'?'À l’extérieur':'Match'))+' · '+avjE(c.date||'')+' · '+res(c)+'</span>'; }).join(''):'<span>Pas au calendrier cette saison</span>')+'</div>'
+    +(r.diffuse && r.resume?'<span class="res">Le coach : « '+avjE(r.resume)+' »</span>':'')
+    +'<button onclick="AVJ.eq=\'\';avjRendre()">Toutes les équipes</button></div>'
+    +(L.length?L.map(avjCarte).join(''):'<div class="empty-txt a8-vide">Pas encore de vidéo de '+avjE(nom)+'. Elles arrivent ici dès que le staff les range.</div>');
+}
+function avjRendre(){
+  var ct=document.getElementById('scr-analyse'); if(!ct) return;
+  var T=avjToutes();
+  var cpt=function(k){ return k==='tout'?T.length:T.filter(function(v){ return v._r===k; }).length; };
+  var h='<div class="avj"><h1>Analyse vidéo</h1><p class="sub">Toutes les vidéos du groupe et du staff : nos matchs, nos adversaires, nos séances, et de quoi s’inspirer.</p>';
+  h+='<div class="avj-ray">'+[{k:'tout', l:'Tout'}].concat(AVJ_RAYONS).map(function(r){ return '<button class="'+(AVJ.rayon===r.k?'on':'')+'" onclick="AVJ.rayon=\''+r.k+'\';AVJ.eq=\'\';avjRendre()"><b>'+cpt(r.k)+'</b><span>'+r.l+'</span></button>'; }).join('')+'</div>';
+  if(AVJ.rayon==='adversaires' && AVJ.eq){ ct.innerHTML=h+avjFiche(AVJ.eq)+'</div>'; return; }
+  if(AVJ.rayon==='adversaires' && !AVJ.adv && !AVJ.q){
+    var E=avjEquipes();
+    h+='<h2 class="a7j-h2">Les équipes<em>touche une équipe</em></h2><div class="avj-eqs">'+(E.length?E.map(function(e){ return '<button onclick="AVJ.eq='+avjE(JSON.stringify(e.nom))+';avjRendre()"><b>'+e.n+'</b><span>'+avjE(e.nom)+'</span><i>'+(e.n?'vidéo'+(e.n>1?'s':''):'pas encore de vidéo')+'</i></button>'; }).join(''):'')+'</div></div>';
+    ct.innerHTML=h; return;
+  }
+  h+='<div class="avj-fil"><input placeholder="Chercher : titre, adversaire…" value="'+avjE(AVJ.q)+'" oninput="AVJ.q=this.value;clearTimeout(AVJ._t);AVJ._t=setTimeout(function(){avjRendre();var i=document.querySelector(\'.avj-fil input\');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},400)">'
+    +'<div class="l2"><select onchange="AVJ.adv=this.value;avjRendre()"><option value="">Adversaire</option>'+avjEquipes().map(function(e){ return '<option'+(AVJ.adv&&avjMeme(e.nom,AVJ.adv)?' selected':'')+'>'+avjE(e.nom)+'</option>'; }).join('')+'</select>'
+    +'<select onchange="AVJ.phase=this.value;avjRendre()"><option value="">Phase</option>'+AVJ_PHASES.map(function(p){ return '<option value="'+p[0]+'"'+(AVJ.phase===p[0]?' selected':'')+'>'+p[0]+' · '+p[1]+'</option>'; }).join('')+'</select>'
+    +'<select onchange="AVJ.joueur=this.value;avjRendre()"><option value="">Joueur</option><option value="'+avjE(MON_NUM)+'"'+(String(AVJ.joueur)===String(MON_NUM)?' selected':'')+'>Moi</option>'+((SAISON&&SAISON.JOUEURS)||[]).filter(function(j){ return String(j.num)!==String(MON_NUM); }).map(function(j){ return '<option value="'+j.num+'"'+(String(AVJ.joueur)===String(j.num)?' selected':'')+'>'+avjE(j.nom)+'</option>'; }).join('')+'</select></div></div>';
+  var F=T.filter(function(v){
+    if(AVJ.rayon!=='tout' && v._r!==AVJ.rayon) return false;
+    if(AVJ.adv && !avjMeme(v._adv, AVJ.adv)) return false;
+    if(AVJ.phase && (v.phases||[]).indexOf(AVJ.phase)<0 && !(v.principes||[]).some(function(c){ return String(c).indexOf(AVJ.phase)===0; })) return false;
+    if(AVJ.joueur && (v.joueurs||[]).map(String).indexOf(String(AVJ.joueur))<0) return false;
+    if(AVJ.q){ var t=(v.titre+' '+(v.notes||'')+' '+(v._adv||'')).toLowerCase(); if(t.indexOf(AVJ.q.toLowerCase())<0) return false; }
+    return true;
+  });
+  h+=F.length?F.map(avjCarte).join(''):'<div class="empty-txt a8-vide">'+(T.length?'Aucune vidéo ne correspond.':'Les vidéos arrivent ici dès que le staff les range : nos matchs, nos adversaires, nos séances.')+'</div>';
+  ct.innerHTML=h+'</div>';
+}
+
+window.addEventListener('load', function(){
+  // l'écran
+  var w=document.querySelector('.wrap');
+  if(w && !document.getElementById('scr-analyse')){ var d=document.createElement('div'); d.id='scr-analyse'; d.className='screen hidden'; w.appendChild(d); }
+  try{ RUB_INFO.analyse={s:'analyse', l:'Vidéo'}; ONGLET_DE.analyse='today'; }catch(e){}
+  try{ RENDER_MAP.analyse=[avjRendre]; }catch(e){}
+  // toutes les vidéos visibles, comme chez le coach
+  try{ if(renderVideosJoueur.__v185){ /* le filtre « staff seulement » ne sert plus */ } }catch(e){}
+  // la tuile « Vidéo » ouvre l'analyse ; trois onglets
+  try{
+    C7_PORTES.club.parts[0].L.forEach(function(t){ if(t.s==='clips'){ t.s='analyse'; t.d='toutes les vidéos, mes clips, mes moments'; t.aussi=['clips','videos']; } });
+    A8_CLUB=c7Plat('club');
+    var tabs=[['analyse','Toutes'],['clips','Pour moi'],['videos','Mes moments']];
+    C7_ONGLETS.analyse={g:'video', a:tabs}; C7_ONGLETS.clips={g:'video', a:tabs}; C7_ONGLETS.videos={g:'video', a:tabs};
+  }catch(e){ console.error('v188', e); }
+  try{ c7Tabs3(); }catch(e){}
+  if(typeof jAller==='function' && !jAller.__v188){
+    var bj=jAller;
+    jAller=function(s){ var r=bj.apply(this, arguments); try{ var o=document.getElementById('jhdr-onglet'); if(o && (s==='analyse'||s==='clips'||s==='videos')) o.textContent='L’équipe'; }catch(e){} return r; };
+    jAller.__v188=true;
+  }
+  ['clips','videos'].forEach(function(s){ try{ if(RUB_INFO[s]) RUB_INFO[s].l='Vidéo'; }catch(e){} });
+  // l'onglet de l'écran d'analyse
+  var el=document.getElementById('scr-analyse');
+  if(el) new MutationObserver(function(){ if(el.firstElementChild && !el.firstElementChild.classList.contains('c7-tabs')) c7Onglets('analyse'); }).observe(el, {childList:true});
+  try{ if(ECRAN_ACTIF==='club') a8RendrePorte('club'); }catch(e){}
+});
+// les onglets des écrans déjà affichés passent à trois
+function c7Tabs3(){ ['clips','videos'].forEach(function(s){ var ct=document.getElementById('scr-'+s); var b=ct&&ct.querySelector(':scope > .c7-tabs'); if(b){ b.remove(); c7Onglets(s); } }); }
 </script>
 
 </body>
