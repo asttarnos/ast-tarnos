@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v185</b> · 21/10/2026<br>
-      <span style="opacity:.7">Le coin des coachs, l’analyse vidéo</span>
+      AST COACH <b style="color:var(--or)">v186</b> · 21/10/2026<br>
+      <span style="opacity:.7">Club House allégé, les chiffres à leur place</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v185';
+var APP_BUILD='v186';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -41701,6 +41701,58 @@ window.addEventListener('load', function(){
     };
     stEnFaceHtml.__v185=true;
   }
+});
+</script>
+
+<script>
+// ===== v186 : le Club House redevient la maison du club =====
+// Les chiffres sportifs quittent le Club House :
+//  · la saison de l'équipe (toutes les stats, classement, bilan) → Le coin des coachs ;
+//  · les chiffres de chacun (temps de jeu, comparer, points, corrections) → Les joueurs.
+// Le Club House garde le directeur sportif, la communication, le social, l'administration.
+function c6Deplacer(){
+  [typeof NAV3_POLES!=='undefined'?NAV3_POLES:null, typeof POLES!=='undefined'?POLES:null].forEach(function(L){
+    if(!L) return;
+    var club=L.filter(function(p){ return p.id==='clubhouse'; })[0];
+    var fond=L.filter(function(p){ return p.id==='fond'; })[0];
+    var jou=L.filter(function(p){ return p.id==='joueurs'; })[0];
+    if(!club || !fond || !jou) return;
+    var prendre=function(s, defaut){
+      var i=club.screens.findIndex(function(x){ return x.s===s; });
+      var sc=i>=0?club.screens.splice(i,1)[0]:null;
+      // déjà ailleurs (deuxième passage) : on ne le duplique pas
+      if(!sc && (fond.screens.some(function(x){ return x.s===s; }) || jou.screens.some(function(x){ return x.s===s; }))) return null;
+      return Object.assign({}, sc||defaut);
+    };
+    // la saison de l'équipe
+    var saison=[
+      prendre('stats', {s:'stats', ic:'chiffres', l:'Toutes les stats'}),
+      prendre('classement', {s:'classement', ic:'barres', l:'Classement'}),
+      prendre('bilan', {s:'bilan', ic:'coupe', l:'Bilan & constats'})
+    ].filter(Boolean);
+    saison.forEach(function(sc, i){ delete sc.g; if(i===0) sc.g='La saison en chiffres'; if(sc.s==='stats') sc.l='Toutes les stats'; });
+    if(saison.length && !fond.screens.some(function(x){ return x.s===saison[0].s; })) fond.screens=fond.screens.concat(saison);
+    // les chiffres de chacun
+    var chacun=[
+      prendre('rotation', {s:'rotation', ic:'chrono', l:'Temps de jeu'}),
+      prendre('recap', {s:'recap', ic:'hausse', l:'Comparer le groupe'}),
+      prendre('points', {s:'points', ic:'etoile', l:'Points d’entraînement'}),
+      prendre('correction-buts', {s:'correction-buts', ic:'pansement', l:'Corriger des stats'})
+    ].filter(function(sc){ return sc && (document.getElementById('scr-'+sc.s) || (typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[sc.s])); });
+    chacun.forEach(function(sc, i){ delete sc.g; if(i===0) sc.g='Les chiffres de chacun'; });
+    if(chacun.length && !jou.screens.some(function(x){ return x.s===chacun[0].s; })){
+      jou.screens=jou.screens.concat(chacun);
+    }
+    // le directeur sportif reste en tête du Club House
+    if(club.screens[0] && !club.screens[0].g) club.screens[0].g='Directeur sportif';
+  });
+  try{ ECRANS_INFO.stats={ic:'chiffres', l:'Toutes les stats'}; }catch(e){}
+  try{ var t=document.querySelector('#scr-stats .ph-title'); if(t) t.innerHTML='<svg class="ico" aria-hidden="true"><use href="#i-chiffres"/></svg>Toutes les stats'; }catch(e){}
+}
+window.addEventListener('load', function(){
+  try{ c6Deplacer(); }catch(e){ console.error('v186', e); }
+  try{ nav3RenderSide(); }catch(e){}
+  try{ if(typeof tnRendre==='function') tnRendre(); }catch(e){}
 });
 </script>
 
