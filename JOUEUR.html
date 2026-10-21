@@ -9509,8 +9509,8 @@ var C7_PORTES={
       {s:'projetjeu', ic:'cerveau', l:'Notre jeu', d:'le projet de jeu', f:true},
       {s:'coach', ic:'palette', l:'Le plateau', d:'les situations du coach'},
       {s:'clips', ic:'clap', l:'Vidéo', d:'mes clips, les vidéos du groupe', aussi:['videos']},
-      {s:'calannuel', ic:'calendrier', l:'La saison', d:'calendrier et classements', aussi:['saison']},
-      {s:'effectif', ic:'groupe', l:'L’effectif', d:'les joueurs du groupe'}
+      {s:'saison', ic:'coupe', l:'Classements & résultats', d:'général, domicile, extérieur, nos matchs', aussi:['calannuel']},
+      {s:'effectif', ic:'barres', l:'Les stats', d:'buteurs, passeurs, temps de jeu, présences'}
     ]},
     {t:'Le club', d:'la vie autour', L:[
       {s:'messages', ic:'bulle', l:'Le vestiaire', d:'l’équipe, les bravos, le coach', f:true},
@@ -9535,8 +9535,8 @@ var C7_PORTES={
 var C7_ONGLETS={
   clips:{g:'video', a:[['clips','Pour moi'],['videos','Le groupe']]},
   videos:{g:'video', a:[['clips','Pour moi'],['videos','Le groupe']]},
-  calannuel:{g:'saison', a:[['calannuel','Calendrier'],['saison','Classements']]},
-  saison:{g:'saison', a:[['calannuel','Calendrier'],['saison','Classements']]}
+  calannuel:{g:'saison', a:[['saison','Classements'],['calannuel','Calendrier']]},
+  saison:{g:'saison', a:[['saison','Classements'],['calannuel','Calendrier']]}
 };
 (function(){
   var css=''
@@ -9575,7 +9575,7 @@ window.addEventListener('load', function(){
   a8RendrePorte=function(s){ var d=document.getElementById('scr-'+s); if(d && C7_PORTES[s]) d.innerHTML=c7PorteHtml(s); };
   try{ RUB_INFO.club={s:'club', l:'L’équipe & le club'}; }catch(e){}
   try{ ['clips','videos'].forEach(function(s){ if(RUB_INFO[s]) RUB_INFO[s].l='Vidéo'; else RUB_INFO[s]={s:s, l:'Vidéo'}; });
-       ['calannuel','saison'].forEach(function(s){ if(RUB_INFO[s]) RUB_INFO[s].l='La saison'; else RUB_INFO[s]={s:s, l:'La saison'}; }); }catch(e){}
+       ['calannuel','saison'].forEach(function(s){ if(RUB_INFO[s]) RUB_INFO[s].l='Classements'; else RUB_INFO[s]={s:s, l:'Classements'}; }); }catch(e){}
   try{ var lg=document.getElementById('jhdr-logo'); if(lg) lg.title='L’équipe & le club'; }catch(e){}
   // les onglets se reposent à chaque rendu de ces écrans
   Object.keys(C7_ONGLETS).forEach(function(s){
