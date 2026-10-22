@@ -36,26 +36,27 @@ self.addEventListener('notificationclick', function(event){
   }));
 });
 
-const CACHE_NAME = 'ast-tarnos-v200';
+const CACHE_NAME = 'ast-tarnos-v201';
 const URLS_TO_CACHE = [
   './',
   './index.html',
   './COACH.html',
   './JOUEUR.html',
+  './MATCH.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-512-maskable.png'
+  './assets/plateau-coach-4222.html', './assets/plateau-coach-4231.html', './assets/plateau-coach-352.html', './assets/plateau-coach-433.html',
+  './assets/plateau-joueur-4222.html', './assets/plateau-joueur-4231.html', './assets/plateau-joueur-352.html', './assets/plateau-joueur-433.html',
+  './assets/terrain-1.webp', './assets/terrain-2.webp',
+  './assets/terrain-p1.jpg', './assets/terrain-p2.jpg', './assets/terrain-p3.jpg', './assets/terrain-p4.jpg', './assets/terrain-p5.jpg', './assets/terrain-p6.jpg', './assets/terrain-p7.jpg'
 ];
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      // cache:'reload' : on ne reprend jamais une vieille copie du navigateur à l'installation
-      return cache.addAll(URLS_TO_CACHE.map(function(u){ return new Request(u, {cache:'reload'}); })).catch(function() {
-        // Si un des fichiers n'existe pas (ex: coach.html absent côté joueurs), on continue quand même
-        return Promise.resolve();
-      });
+      // un fichier à la fois : s'il en manque un, les autres sont quand même gardés
+      return Promise.all(URLS_TO_CACHE.map(function(u){
+        return fetch(new Request(u, {cache:'reload'})).then(function(r){ if(r && r.status===200) return cache.put(u, r); }).catch(function(){});
+      }));
     })
   );
   self.skipWaiting();
@@ -72,34 +73,48 @@ self.addEventListener('activate', function(event) {
   self.clients.claim();
 });
 
+// la « signature » d'une version : ce que le serveur dit de son fichier
+function swSignature(r){ if(!r) return ''; var h=r.headers; return (h.get('etag')||'')+'|'+(h.get('last-modified')||'')+'|'+(h.get('content-length')||''); }
+function swPrevenir(page){
+  self.clients.matchAll({type:'window'}).then(function(L){ L.forEach(function(c){ c.postMessage({type:'maj-dispo', page:page}); }); });
+}
+
 self.addEventListener('fetch', function(event) {
+  var url=event.request.url;
   // Les données Firestore (convocations, planning, stats...) ne doivent jamais
   // venir du cache : elles doivent toujours être fraîches, pour le coach comme pour les joueurs.
-  if (event.request.url.indexOf('firestore.googleapis.com') !== -1) {
+  if (url.indexOf('firestore.googleapis.com') !== -1) return;
+  if (event.request.method !== 'GET') return;
+  // Les pages (COACH, JOUEUR, MATCH…) : la version en mémoire s'ouvre tout de suite,
+  // et on vérifie en même temps s'il y en a une nouvelle. Si oui, elle est rangée
+  // pour la prochaine ouverture et la page affiche « Nouvelle version prête ».
+  if (event.request.mode === 'navigate' || /\.html(\?|$)/.test(url)) {
+    var cle=url.split('#')[0].split('?')[0];
+    var page=(cle.split('/').pop()||'');
+    event.respondWith(caches.open(CACHE_NAME).then(function(cache){
+      return cache.match(cle).then(function(cached){
+        var reseau=fetch(new Request(cle, { cache: 'no-store', credentials: 'same-origin' })).then(function(response){
+          if (response && response.status === 200) {
+            var neuf=swSignature(response), ancien=swSignature(cached);
+            cache.put(cle, response.clone());
+            if (cached && neuf!==ancien && (event.request.mode === 'navigate')) {
+              // on laisse la page finir de s'ouvrir avant de prévenir
+              setTimeout(function(){ swPrevenir(page); }, 6000); setTimeout(function(){ swPrevenir(page); }, 20000);
+            }
+          }
+          return response;
+        });
+        if (cached) { event.waitUntil(reseau.catch(function(){})); return cached; }
+        return reseau.catch(function(){ return caches.match(cle, { ignoreSearch: true }); });
+      });
+    }));
     return;
   }
-  // Les pages HTML (COACH.html, JOUEUR.html...) : réseau en priorité pour voir
-  // les mises à jour immédiatement. Le cache ne sert que si le réseau est indisponible (hors-ligne).
-  if (event.request.mode === 'navigate' || event.request.url.endsWith('.html')) {
-    event.respondWith(
-      // On repart de l'adresse seule : certains navigateurs refusent de recopier une requête de navigation
-      fetch(new Request(event.request.url, { cache: 'no-store', credentials: 'same-origin' })).then(function(response) {
-        if (response && response.status === 200) {
-          var responseClone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, responseClone); });
-        }
-        return response;
-      }).catch(function() {
-        return caches.match(event.request, { ignoreSearch: true });
-      })
-    );
-    return;
-  }
-  // Le reste (icônes, manifest...) : cache d'abord, mise à jour en arrière-plan.
+  // Le reste (plateaux, photos de terrain, icônes, manifest...) : cache d'abord, mise à jour en arrière-plan.
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       var networkFetch = fetch(event.request).then(function(response) {
-        if (response && response.status === 200) {
+        if (response && response.status === 200 && url.indexOf(self.location.origin)===0) {
           var responseClone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(event.request, responseClone);
@@ -109,7 +124,8 @@ self.addEventListener('fetch', function(event) {
       }).catch(function() {
         return cached;
       });
-      return cached || networkFetch;
+      if (cached) { event.waitUntil(networkFetch.catch(function(){})); return cached; }
+      return networkFetch;
     })
   );
 });
