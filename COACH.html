@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v192</b> · 22/10/2026<br>
-      <span style="opacity:.7">Les moments vidéo du dossier · les finisseurs</span>
+      AST COACH <b style="color:var(--or)">v193</b> · 22/10/2026<br>
+      <span style="opacity:.7">Le dossier vidéo : 9 situations en vignettes</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v192';
+var APP_BUILD='v193';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -42370,26 +42370,109 @@ function d2Css(){
   +'.d2-fin span{display:block;font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#ff7a45;margin-bottom:2px}';
   var s=document.createElement('style'); s.id='d2-css'; s.textContent=css; document.head.appendChild(s);
 }
-// les diapos « À voir » : opts.moi = le joueur (il ne voit que les siennes) ; opts.tous = l'aperçu du coach
-function d2PagesVideo(d, opts){
-  opts=opts||{}; var P=[], n=0;
-  (d.videos||[]).forEach(function(v){
-    if(!v || !v.url) return;
-    var pour=d2Pour(v);
-    if(pour && !opts.tous && !d2Meme(pour, opts.moi)) return;
-    var sec=d2Sec(v.minute), L=d2Lien(v.url, sec), src=d2Source(v.url);
-    var k='video'+String.fromCharCode(65+(n++)); if(n>26) return;
-    var th=v.vignetteUrl?'<div class="d2-th"><img src="'+d2E(v.vignetteUrl)+'" alt=""><i>▶</i></div>':'';
-    P.push({k:k, duree:16000, html:'<div class="mm-h"><span>À voir'+(pour?' · rien que pour toi':'')+'</span><b>'+d2E(v.titre||'La vidéo')+'</b></div>'
-      +'<div class="d2-v">'
-      +(pour && opts.tous?'<span class="d2-pour">Seulement pour '+d2E(pour)+'</span>':'')
-      +(sec?'<div class="d2-tc"><b>'+d2Hms(sec)+'</b><span>le moment à regarder</span></div>':'')
-      +th
-      +(String(v.note||'').trim()?'<div class="d1-bk"><span style="color:#ff7a45">Ce que tu regardes</span><p>'+d2E(v.note)+'</p></div>':'')
-      +'<button class="d2-go" data-u="'+d2E(L.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(sec&&L.ok?'Voir à '+d2Hms(sec):'Ouvrir la vidéo')+'</button>'
-      +(sec&&!L.ok?'<div class="d2-aide">La vidéo '+d2E(src)+' s’ouvre au début : avance le curseur jusqu’à <b>'+d2Hms(sec)+'</b>.</div>':'')
-      +'</div>'});
+// les thèmes d'une situation : une couleur chacun, pour lire le dossier vidéo d'un coup d'œil
+var D2_THEMES=[['ballon','Eux · avec ballon','#ff7a45'],['sans','Eux · sans ballon','#3dba7e'],['trans','Eux · transitions','#6aa7ff'],['cpa','Eux · CPA','#c08bff'],['refaire','Nous · à refaire','#f0a830'],['corriger','Nous · à corriger','#ff6b5b'],['autre','À voir','#b8b1a4']];
+function d2Theme(k){ return D2_THEMES.filter(function(t){ return t[0]===k; })[0]||D2_THEMES[D2_THEMES.length-1]; }
+// la vignette : YouTube la donne ; pour Veo, c'est la capture déposée par le coach
+function d2VigAttr(v){
+  if(v.vignetteUrl) return ' style="background-image:url(\''+d2E(v.vignetteUrl)+'\')"';
+  if(v.apercuId) return ' data-d2ap="'+d2E(v.apercuId)+'"';
+  return '';
+}
+function d2Poser(el, src){ el.style.backgroundImage='url("'+src+'")'; el.classList.add('img'); }
+function d2Hydrater(racine){
+  [].forEach.call((racine||document).querySelectorAll('[data-d2ap]:not([data-d2ok])'), function(el){
+    el.setAttribute('data-d2ok','1'); var id=el.getAttribute('data-d2ap');
+    try{ if(typeof FICH_APERCU!=='undefined' && FICH_APERCU[id]){ d2Poser(el, FICH_APERCU[id]); return; } }catch(e){}
+    try{ var c=localStorage.getItem('ast_ap_'+id); if(c){ d2Poser(el, c); return; } }catch(e){}
+    if(typeof fbFetch!=='function' || typeof FIRESTORE_BASE==='undefined') return;
+    fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+      var d=j&&j.fields&&j.fields.data&&j.fields.data.stringValue; if(!d) return;
+      try{ localStorage.setItem('ast_ap_'+id, d); }catch(e){}
+      try{ if(typeof FICH_APERCU!=='undefined') FICH_APERCU[id]=d; }catch(e){}
+      [].forEach.call(document.querySelectorAll('[data-d2ap="'+id+'"]'), function(x){ d2Poser(x, d); });
+    }).catch(function(){});
   });
+}
+try{ new MutationObserver(function(){ if(d2Hydrater._t) return; d2Hydrater._t=setTimeout(function(){ d2Hydrater._t=0; d2Hydrater(); }, 80); }).observe(document.documentElement, {childList:true, subtree:true}); }catch(e){}
+function d2Css2(){
+  if(document.getElementById('d2-css2')) return;
+  var css=''
+  +'.d2-im{position:relative;aspect-ratio:16/9;border-radius:9px;background:#2a2722 center/cover no-repeat;overflow:hidden;box-shadow:inset 0 0 0 2px var(--c,#b8b1a4)}'
+  +'.d2-im:not(.img):not([style*="background-image"])::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--c,#b8b1a4);font-size:18px;opacity:.7}'
+  +'.d2-im b{position:absolute;top:3px;left:3px;min-width:18px;height:18px;padding:0 4px;border-radius:6px;background:var(--c,#b8b1a4);color:#14130f;font:900 11px/18px "Roboto Condensed",sans-serif;text-align:center;z-index:1}'
+  +'.d2-im i{position:absolute;bottom:3px;right:3px;padding:1px 5px;border-radius:5px;background:rgba(0,0,0,.75);color:#fff;font:800 10.5px "Roboto Condensed",sans-serif;font-style:normal;z-index:1}'
+  +'.d2-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 6px;margin-top:2px}'
+  +'.d2-t{display:flex;flex-direction:column;gap:3px;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:#f2eee6;min-width:0;border-radius:10px}'
+  +'.d2-t span{font:700 10.5px/1.15 "Roboto Condensed",sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.8}'
+  +'.d2-t.on .d2-im{box-shadow:inset 0 0 0 3px #fff, 0 0 0 2px var(--c,#b8b1a4)}.d2-t.on span{opacity:1}'
+  +'.d2-d{margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.08);display:flex;flex-direction:column;gap:7px;border-left:4px solid var(--c,#ff7a45)}'
+  +'.d2-d .k{display:flex;justify-content:space-between;gap:8px;font:800 10.5px "Roboto Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--c,#ff7a45)}'
+  +'.d2-d h4{margin:0;font:900 19px/1.1 "Anton","Roboto Condensed",sans-serif;text-transform:uppercase;color:#fff}'
+  +'.d2-d p{margin:0;font:600 13.5px/1.35 "Roboto Condensed",sans-serif;color:#e8e2d6;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.d2-d .d2-go{padding:11px;font-size:15px;background:var(--c,#ff7a45)}'
+  +'.d2-leg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px;font:700 10px "Roboto Condensed",sans-serif;color:#b8b1a4;text-transform:uppercase;letter-spacing:.06em}'
+  +'.d2-leg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}'
+  +'.d2-th[data-d2ap],.d2-th.img{background:#26241f center/cover no-repeat}';
+  var s=document.createElement('style'); s.id='d2-css2'; s.textContent=css; document.head.appendChild(s);
+}
+// une situation du dossier vidéo, détaillée sous la grille
+function d2Panneau(o){
+  var c=d2Theme(o.th);
+  return '<div class="d2-d" style="--c:'+c[2]+'"><div class="k"><span>Situation '+d2E(o.n)+' · '+d2E(c[1])+'</span><span>'+(o.tc?d2E(o.tc):'')+'</span></div>'
+    +'<h4>'+d2E(o.titre||'La vidéo')+'</h4>'
+    +(String(o.note||'').trim()?'<p>'+d2E(o.note)+'</p>':'')
+    +'<button class="d2-go" data-u="'+d2E(o.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(o.tc&&o.ok?'Voir à '+d2E(o.tc):'Ouvrir la vidéo')+'</button>'
+    +(o.tc&&!o.ok?'<div class="d2-aide">La vidéo s’ouvre au début : avance jusqu’à <b>'+d2E(o.tc)+'</b>.</div>':'')+'</div>';
+}
+function d2Choisir(b){
+  var pg=b.closest('.mm-page')||b.closest('#stu-ecran')||document;
+  [].forEach.call(pg.querySelectorAll('.d2-t'), function(x){ x.classList.toggle('on', x===b); });
+  var z=pg.querySelector('.d2-dz'); if(z) z.innerHTML=d2Panneau(b.dataset);
+  try{ if(typeof MMS!=='undefined') MMS.t0=Date.now(); }catch(e){}
+}
+function d2Infos(v, n){
+  var sec=d2Sec(v.minute), L=d2Lien(v.url, sec);
+  return {n:n, titre:v.titre||'', note:v.note||'', u:L.u, ok:L.ok?'1':'', tc:sec?d2Hms(sec):'', th:v.theme||'autre'};
+}
+// la page « Le dossier vidéo » : jusqu'à 9 situations, vignettes en grille, le détail dessous
+function d2PageGrille(L, k, debut, total){
+  var I=L.map(function(v,i){ return d2Infos(v, debut+i+1); });
+  var themes=[]; I.forEach(function(o){ if(themes.indexOf(o.th)<0) themes.push(o.th); });
+  var pages=Math.ceil(total/9);
+  return {k:k, duree:45000, ids:L.map(function(v){ return v.id; }), html:'<div class="mm-h"><span>Le dossier vidéo'+(pages>1?' · '+(debut/9+1)+'/'+pages:'')+'</span><b>'+(L.length>1?L.length+' situations à voir':'La situation à voir')+'</b></div>'
+    +'<div class="d2-g">'+L.map(function(v,i){ var o=I[i], c=d2Theme(o.th);
+      return '<button class="d2-t'+(i===0?' on':'')+'" style="--c:'+c[2]+'"'+Object.keys(o).map(function(x){ return ' data-'+x+'="'+d2E(o[x])+'"'; }).join('')+' onclick="event.stopPropagation();d2Choisir(this)">'
+        +'<div class="d2-im"'+d2VigAttr(v)+'><b>'+o.n+'</b>'+(o.tc?'<i>'+o.tc+'</i>':'')+'</div><span>'+d2E(o.titre||'Vidéo')+'</span></button>'; }).join('')+'</div>'
+    +'<div class="d2-dz">'+d2Panneau(I[0])+'</div>'
+    +(themes.length>1?'<div class="d2-leg">'+themes.map(function(t){ var c=d2Theme(t); return '<span><i style="background:'+c[2]+'"></i>'+d2E(c[1])+'</span>'; }).join('')+'</div>':'')};
+}
+// une seule situation : sa propre diapo
+function d2PageUne(v, k, opts){
+  var pour=d2Pour(v), sec=d2Sec(v.minute), L=d2Lien(v.url, sec), src=d2Source(v.url), c=d2Theme(v.theme||'autre');
+  var th=(v.vignetteUrl||v.apercuId)?'<div class="d2-th d2-im" style="--c:'+c[2]+';box-shadow:none'+(v.vignetteUrl?';background-image:url(\''+d2E(v.vignetteUrl)+'\')':'')+'"'+(v.vignetteUrl?'':' data-d2ap="'+d2E(v.apercuId)+'"')+'></div>':'';
+  return {k:k, duree:16000, ids:[v.id], html:'<div class="mm-h"><span>À voir'+(pour?' · rien que pour toi':'')+'</span><b>'+d2E(v.titre||'La vidéo')+'</b></div>'
+    +'<div class="d2-v">'
+    +(pour && opts.tous?'<span class="d2-pour">Seulement pour '+d2E(pour)+'</span>':'')
+    +(sec?'<div class="d2-tc"><b>'+d2Hms(sec)+'</b><span>le moment à regarder</span></div>':'')
+    +th
+    +(String(v.note||'').trim()?'<div class="d1-bk"><span style="color:#ff7a45">Ce que tu regardes</span><p>'+d2E(v.note)+'</p></div>':'')
+    +'<button class="d2-go" data-u="'+d2E(L.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(sec&&L.ok?'Voir à '+d2Hms(sec):'Ouvrir la vidéo')+'</button>'
+    +(sec&&!L.ok?'<div class="d2-aide">La vidéo '+d2E(src)+' s’ouvre au début : avance le curseur jusqu’à <b>'+d2Hms(sec)+'</b>.</div>':'')
+    +'</div>'};
+}
+// les diapos vidéo : opts.moi = le joueur (il ne voit que les siennes) ; opts.tous = l'aperçu du coach
+//  · 2 situations ou plus pour le groupe → « Le dossier vidéo » (9 par page)
+//  · une seule, ou une situation réservée à un joueur → sa propre diapo
+function d2PagesVideo(d, opts){
+  opts=opts||{}; d2Css2();
+  var V=(d.videos||[]).filter(function(v){ return v && v.url; });
+  var G=V.filter(function(v){ return !d2Pour(v); });
+  var M=V.filter(function(v){ var p=d2Pour(v); return p && (opts.tous || d2Meme(p, opts.moi)); });
+  var P=[], n=0, lettre=function(){ return String.fromCharCode(65+(n++)); };
+  if(G.length>=2){ for(var i=0;i<G.length;i+=9) P.push(d2PageGrille(G.slice(i,i+9), 'dvid'+String.fromCharCode(65+i/9), i, G.length)); }
+  else if(G.length===1) P.push(d2PageUne(G[0], 'video'+lettre(), opts));
+  M.forEach(function(v){ if(n<26) P.push(d2PageUne(v, 'video'+lettre(), opts)); });
   return P;
 }
 function d2Inserer(P, extra){
@@ -42414,7 +42497,7 @@ function d2Finisseurs(P, banc, moi){
 //    diapo « À voir » avec un bouton qui ouvre la vidéo au bon endroit (YouTube, Vimeo,
 //    et tout lien qui porte déjà un moment, comme « Copier le lien » de Veo avec le moment
 //    coché). Sinon, le moment est affiché en gros et le joueur avance lui-même.
-d2Css();
+d2Css(); d2Css2();
 (function(){
   var css=''
   +'.d2-z{gap:10px}'
@@ -42431,11 +42514,17 @@ d2Css();
   +'.d2-f label{display:flex;flex-direction:column;gap:4px}'
   +'.d2-f textarea{min-height:60px;resize:vertical}'
   +'.d2-h{font:600 12.5px/1.4 "Roboto Condensed",sans-serif;color:var(--gris2)}'
-  +'.d2-h.ok{color:var(--green)}';
+  +'.d2-h.ok{color:var(--green)}'
+  +'#stu-ecran .d2-t,#stu-ecran .d2-go{pointer-events:auto}'
+  +'.d2-r{grid-template-columns:64px minmax(0,1fr) auto}.d2-r .d2-im b{font-size:10px}'
+  +'.d2-cap{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}'
+  +'.d2-ths{display:flex;flex-wrap:wrap;gap:6px}'
+  +'.d2-thb{border:2px solid var(--c);background:transparent;color:var(--texte,inherit);border-radius:20px;padding:5px 11px;font:800 12.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.d2-thb.on{background:var(--c);color:#14130f}';
   var s=document.createElement('style'); s.id='v192-css'; s.textContent=css; document.head.appendChild(s);
 })();
 var D2={f:null, edit:null};
-function d2Vide(){ return {url:'', minute:'', titre:'', note:'', pour:''}; }
+function d2Vide(){ return {url:'', minute:'', titre:'', note:'', pour:'', theme:'autre', vig:null}; }
 function d2Liste(){ if(!DOSSIER.videos) DOSSIER.videos=[]; return DOSSIER.videos; }
 function d2Noms(){
   var vus={}, L=[];
@@ -42445,34 +42534,40 @@ function d2Noms(){
   try{ (JOUEURS||[]).forEach(function(j){ aj(j.nom||((j.prenom||'')+' '+(j.nomFamille||'')).trim()); }); }catch(e){}
   return L;
 }
-function d2Cle(id){ var n=0, k=''; d2Liste().some(function(v){ if(!v || !v.url) return false; var c='video'+String.fromCharCode(65+n++); if(v.id===id){ k=c; return true; } return false; }); return k; }
+function d2Cle(id){ var P=d2PagesVideo(DOSSIER, {tous:true}), p=P.filter(function(x){ return (x.ids||[]).indexOf(id)>=0; })[0]; return p?p.k:''; }
 function d2Aide(f){
   f=f||D2.f||d2Vide(); var u=f.url||''; if(!u) return '';
   var p=d2Param(u), sec=d2Sec(f.minute), L=d2Lien(u, sec), src=d2Source(u);
   if(p) return '<span class="d2-h ok">✓ Ce lien porte un moment ('+d2Hms(p.sec)+') : le bouton du joueur ouvrira la vidéo à '+(sec?d2Hms(sec):d2Hms(p.sec))+'.</span>';
   if(sec && L.ok) return '<span class="d2-h ok">✓ '+src+' : la vidéo s’ouvrira directement à '+d2Hms(sec)+'.</span>';
-  if(src==='Veo') return '<span class="d2-h">Veo : si tu vois « Copier le lien » avec la case du moment, colle ce lien-là : l’appli saura l’ouvrir au bon endroit. Sinon, pas de souci : le joueur verra le moment en gros et avancera lui-même.</span>';
+  if(src==='Veo') return '<span class="d2-h">Veo : colle le lien copié avec le moment, l’appli l’ouvrira pile au bon endroit. Pense à la capture d’écran : ce sera la vignette.</span>';
   return sec?'<span class="d2-h">Ce site ne permet pas d’ouvrir au bon moment : le joueur verra '+d2Hms(sec)+' en gros et avancera lui-même.</span>':'';
 }
 function d2Html(){
   var V=d2Liste().filter(function(v){ return v && v.url; }), f=D2.f;
   var biblio=(typeof VIDEOS!=='undefined' && VIDEOS||[]).filter(function(v){ return v && v.url; });
-  var h='<div class="stu-c d2-z" id="d2-zone"><h3>Les moments vidéo <small>Une action précise à faire voir ? Le lien, la minute, ce qu’il faut regarder. Chaque moment devient une diapo « À voir » dans les stories.</small></h3>';
-  if(V.length) h+='<div class="d2-l">'+V.map(function(v){
-    var sec=d2Sec(v.minute), on=D2.edit===v.id;
-    return '<div class="d2-r'+(on?' on':'')+'" data-id="'+stA(v.id)+'" onclick="d2Modifier(this.dataset.id)"><span class="tc">'+(sec?d2Hms(sec):'▶')+'</span>'
-      +'<span style="min-width:0"><div class="t">'+stE(v.titre||'Vidéo')+'</div><div class="s">'+stE(d2Source(v.url))+' · '+(d2Pour(v)?'pour '+stE(d2Pour(v)):'tout le groupe')+'</div></span>'
-      +'<button title="Retirer" aria-label="Retirer" data-id="'+stA(v.id)+'" onclick="event.stopPropagation();d2Retirer(this.dataset.id)">✕</button></div>';
+  var nG=V.filter(function(v){ return !d2Pour(v); }).length, n=0;
+  var h='<div class="stu-c d2-z" id="d2-zone"><h3>Le dossier vidéo <small>Chaque situation : le lien pile au bon moment, une capture pour la vignette, ce qu’il faut regarder. Dès 2 situations, elles se rangent sur une page « Le dossier vidéo » : 9 vignettes, le détail en dessous.</small></h3>';
+  if(V.length) h+='<div class="stu-l">'+(nG?nG+' situation'+(nG>1?'s':'')+' pour le groupe'+(nG>9?' · '+Math.ceil(nG/9)+' pages':(nG>=2?' · '+(9-nG)+' place'+(9-nG>1?'s':'')+' sur la page':'')):'')+(V.length>nG?(nG?' · ':'')+(V.length-nG)+' perso':'')+'</div>';
+  if(V.length) h+='<div class="d2-l">'+V.map(function(v, idx){
+    var sec=d2Sec(v.minute), on=D2.edit===v.id, c=d2Theme(v.theme||'autre'), num=d2Pour(v)?'👤':String(++n);
+    return '<div class="d2-r'+(on?' on':'')+'" data-id="'+stA(v.id)+'" onclick="d2Modifier(this.dataset.id)" style="--c:'+c[2]+'"><div class="d2-im" style="width:64px'+(v.vignetteUrl?';background-image:url(\''+stA(v.vignetteUrl)+'\')':'')+'"'+(!v.vignetteUrl&&v.apercuId?' data-d2ap="'+stA(v.apercuId)+'"':'')+'><b>'+num+'</b>'+(sec?'<i>'+d2Hms(sec)+'</i>':'')+'</div>'
+      +'<span style="min-width:0"><div class="t">'+stE(v.titre||'Vidéo')+'</div><div class="s"><span style="color:'+c[2]+';font-weight:800">'+stE(c[1])+'</span> · '+stE(d2Source(v.url))+' · '+(d2Pour(v)?'pour '+stE(d2Pour(v)):'tout le groupe')+(!v.vignetteUrl&&!v.apercuId?' · <span style="color:var(--or)">sans vignette</span>':'')+'</div></span>'
+      +'<span style="display:flex;gap:0">'+(idx>0?'<button title="Monter" aria-label="Monter" data-id="'+stA(v.id)+'" onclick="event.stopPropagation();d2Bouger(this.dataset.id,-1)">↑</button>':'')+(idx<V.length-1?'<button title="Descendre" aria-label="Descendre" data-id="'+stA(v.id)+'" onclick="event.stopPropagation();d2Bouger(this.dataset.id,1)">↓</button>':'')
+      +'<button title="Retirer" aria-label="Retirer" data-id="'+stA(v.id)+'" onclick="event.stopPropagation();d2Retirer(this.dataset.id)">✕</button></span></div>';
   }).join('')+'</div>';
   if(!f){
-    h+='<div class="stu-btns" style="margin:0"><button class="stu-b" onclick="d2Nouveau()">+ Ajouter un moment vidéo</button></div>';
+    h+='<div class="stu-btns" style="margin:0"><button class="stu-b" onclick="d2Nouveau()">+ Ajouter une situation vidéo</button></div>';
   } else {
-    var noms=d2Noms();
+    var noms=d2Noms(), ex=(D2.edit && d2Liste().filter(function(x){ return x.id===D2.edit; })[0])||{};
     h+='<div class="d2-f">'
       +(biblio.length?'<label class="w"><span class="stu-l">Prendre une vidéo de l’Analyse vidéo (facultatif)</span><select class="fi" onchange="d2Biblio(this.value)"><option value="">— ou colle un lien juste en dessous —</option>'+biblio.map(function(v,i){ return '<option value="'+i+'">'+stE((v.titre||'Vidéo')+(v.adv?' · '+v.adv:''))+'</option>'; }).join('')+'</select></label>':'')
       +'<label><span class="stu-l">Le lien de la vidéo</span><input class="fi" id="d2-url" placeholder="Colle le lien (Veo, YouTube…)" value="'+stA(f.url)+'" oninput="d2Champ(\'url\',this.value)"></label>'
       +'<label><span class="stu-l">Le moment</span><input class="fi" id="d2-min" placeholder="ex. 34:12" value="'+stA(f.minute)+'" oninput="d2Champ(\'minute\',this.value)"></label>'
       +'<div class="w" id="d2-aide">'+d2Aide(f)+'</div>'
+      +'<div class="w d2-cap"><div class="d2-im" id="d2-cap-ap" style="width:120px;--c:'+d2Theme(f.theme)[2]+(f.vig?';background-image:url(\''+f.vig+'\')':(ex.vignetteUrl?';background-image:url(\''+stA(ex.vignetteUrl)+'\')':''))+'"'+(!f.vig&&!ex.vignetteUrl&&ex.apercuId?' data-d2ap="'+stA(ex.apercuId)+'"':'')+'></div>'
+        +'<label style="flex:1"><span class="stu-l">La vignette · une capture d’écran du moment</span><input class="fi" type="file" accept="image/*" onchange="d2Capture(this)"><span class="d2-h">Sur Veo, fais une capture pile à la bonne image : c’est elle que verront les joueurs dans la grille. YouTube : pas besoin, la vignette vient toute seule.</span></label></div>'
+      +'<label class="w"><span class="stu-l">Le thème</span><div class="d2-ths">'+D2_THEMES.map(function(t){ return '<button type="button" class="d2-thb'+((f.theme||'autre')===t[0]?' on':'')+'" style="--c:'+t[2]+'" onclick="d2Champ(\'theme\',\''+t[0]+'\');d2Rafraichir()">'+stE(t[1])+'</button>'; }).join('')+'</div></label>'
       +'<label class="w"><span class="stu-l">Le titre que verra le joueur</span><input class="fi" placeholder="ex. Leur relance côté gauche" value="'+stA(f.titre)+'" oninput="d2Champ(\'titre\',this.value)"></label>'
       +'<label class="w"><span class="stu-l">Ce qu’il faut regarder</span><textarea class="fi" placeholder="ex. Regarde leur 6 : il décroche entre les centraux, c’est lui qu’on presse." oninput="d2Champ(\'note\',this.value)">'+stE(f.note)+'</textarea></label>'
       +'<label class="w"><span class="stu-l">Pour qui ?</span><select class="fi" onchange="d2Champ(\'pour\',this.value)"><option value="">Tout le groupe</option>'+noms.map(function(n){ return '<option'+(d2Meme(n,f.pour)?' selected':'')+'>'+stE(n)+'</option>'; }).join('')+'</select></label>'
@@ -42487,7 +42582,7 @@ function d2Rafraichir(){ var z=document.getElementById('d2-zone'); if(z) z.outer
 function d2Nouveau(){ D2.f=d2Vide(); D2.edit=null; d2Rafraichir(); setTimeout(function(){ var e=document.getElementById('d2-url'); if(e) e.focus(); }, 30); }
 function d2Modifier(id){
   var v=d2Liste().filter(function(x){ return x.id===id; })[0]; if(!v) return;
-  D2.edit=id; D2.f={url:v.url||'', minute:v.minute||'', titre:v.titre||'', note:v.note||'', pour:v.pour||''};
+  D2.edit=id; D2.f={url:v.url||'', minute:v.minute||'', titre:v.titre||'', note:v.note||'', pour:v.pour||'', theme:v.theme||'autre', vig:null};
   d2Rafraichir(); var k=d2Cle(id); if(k){ ST.page=k; try{ stTelephone(); }catch(e){} }
 }
 function d2Champ(k, v){
@@ -42517,16 +42612,22 @@ function d2Valider(){
   var L=d2Liste(), id;
   if(D2.edit){
     var v=L.filter(function(x){ return x.id===D2.edit; })[0];
-    if(v){ v.url=url; v.titre=titre; v.minute=String(f.minute||'').trim(); v.note=String(f.note||'').trim(); v.pour=String(f.pour||'').trim(); v.source=src; if(!v.apercuId) v.vignetteUrl=vig; id=v.id; }
+    if(v){ v.url=url; v.titre=titre; v.minute=String(f.minute||'').trim(); v.note=String(f.note||'').trim(); v.pour=String(f.pour||'').trim(); v.theme=f.theme||'autre'; v.source=src; if(!v.apercuId) v.vignetteUrl=vig; id=v.id; }
   } else {
     id=(typeof dmId==='function')?dmId():('v'+Date.now());
-    L.push({id:id, titre:titre, url:url, source:src, minute:String(f.minute||'').trim(), note:String(f.note||'').trim(), pour:String(f.pour||'').trim(), vignetteUrl:vig, apercuId:''});
+    L.push({id:id, titre:titre, url:url, source:src, minute:String(f.minute||'').trim(), note:String(f.note||'').trim(), pour:String(f.pour||'').trim(), theme:f.theme||'autre', vignetteUrl:vig, apercuId:''});
+  }
+  if(f.vig){
+    var vv=L.filter(function(x){ return x.id===id; })[0], apId=(typeof fichId==='function')?fichId():('ap'+Date.now());
+    try{ if(typeof FICH_APERCU!=='undefined') FICH_APERCU[apId]=f.vig; }catch(e){}
+    if(vv){ vv.apercuId=apId; vv.vignetteUrl=''; }
+    if(typeof fichDeposerApercu==='function') fichDeposerApercu(apId, f.vig).then(function(ok){ if(!ok) notif('⚠ La vignette est gardée ici, mais n’a pas pu partir dans le cloud'); });
   }
   D2.f=null; D2.edit=null;
   try{ stuSauver(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
   var k=d2Cle(id); if(k) ST.page=k;
   d2Rerendre();
-  notif('✓ Moment vidéo ajouté au dossier');
+  notif('✓ Situation ajoutée au dossier vidéo');
 }
 function d2Retirer(id){
   var v=d2Liste().filter(function(x){ return x.id===id; })[0]; if(!v) return;
@@ -42535,6 +42636,19 @@ function d2Retirer(id){
   if(D2.edit===id){ D2.edit=null; D2.f=null; }
   try{ stuSauver(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
   d2Rerendre();
+}
+function d2Bouger(id, sens){
+  var L=d2Liste(), i=L.findIndex(function(x){ return x.id===id; }), j=i+sens;
+  if(i<0 || j<0 || j>=L.length) return;
+  var t=L[i]; L[i]=L[j]; L[j]=t;
+  try{ stuSauver(); }catch(e){ try{ sauvegardeAuto(); }catch(x){} }
+  var k=d2Cle(id); if(k) ST.page=k; d2Rerendre();
+}
+function d2Capture(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return;
+  var lire=(typeof fichLireCouverture==='function')?fichLireCouverture(f):new Promise(function(ok, ko){ var r=new FileReader(); r.onload=function(){ ok(r.result); }; r.onerror=ko; r.readAsDataURL(f); });
+  lire.then(function(v){ D2.f=D2.f||d2Vide(); D2.f.vig=v; var a=document.getElementById('d2-cap-ap'); if(a){ a.removeAttribute('data-d2ap'); a.style.backgroundImage='url("'+v+'")'; } })
+    .catch(function(){ notif('⚠ Choisis une image (une capture d’écran)'); });
 }
 function d2Rerendre(){
   var m=document.getElementById('main'), y=m?m.scrollTop:0;
@@ -42588,8 +42702,8 @@ window.addEventListener('load', function(){
       var r=bt.apply(this, arguments);
       try{
         var ec=document.getElementById('stu-ecran'), pos=document.getElementById('stu-pos');
-        var m=/k-(video[A-Z])/.exec((ec&&ec.className)||'');
-        if(m && pos) pos.textContent=pos.textContent.replace(/^[^·]+/, 'Moment vidéo ');
+        var m=/k-(video|dvid)[A-Z]/.exec((ec&&ec.className)||'');
+        if(m && pos) pos.textContent=pos.textContent.replace(/^[^·]+/, (m[1]==='dvid'?'Le dossier vidéo ':'Situation vidéo '));
       }catch(e){}
       return r;
     };

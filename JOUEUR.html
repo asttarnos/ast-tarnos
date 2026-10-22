@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v192';
+var APP_BUILD='v193';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v192</b> · 22/10/2026<br><span style="opacity:.8">Les moments vidéo du dossier</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v193</b> · 22/10/2026<br><span style="opacity:.8">Le dossier vidéo en vignettes</span>';
 }
 
 window.addEventListener('load', function(){
@@ -10001,26 +10001,109 @@ function d2Css(){
   +'.d2-fin span{display:block;font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#ff7a45;margin-bottom:2px}';
   var s=document.createElement('style'); s.id='d2-css'; s.textContent=css; document.head.appendChild(s);
 }
-// les diapos « À voir » : opts.moi = le joueur (il ne voit que les siennes) ; opts.tous = l'aperçu du coach
-function d2PagesVideo(d, opts){
-  opts=opts||{}; var P=[], n=0;
-  (d.videos||[]).forEach(function(v){
-    if(!v || !v.url) return;
-    var pour=d2Pour(v);
-    if(pour && !opts.tous && !d2Meme(pour, opts.moi)) return;
-    var sec=d2Sec(v.minute), L=d2Lien(v.url, sec), src=d2Source(v.url);
-    var k='video'+String.fromCharCode(65+(n++)); if(n>26) return;
-    var th=v.vignetteUrl?'<div class="d2-th"><img src="'+d2E(v.vignetteUrl)+'" alt=""><i>▶</i></div>':'';
-    P.push({k:k, duree:16000, html:'<div class="mm-h"><span>À voir'+(pour?' · rien que pour toi':'')+'</span><b>'+d2E(v.titre||'La vidéo')+'</b></div>'
-      +'<div class="d2-v">'
-      +(pour && opts.tous?'<span class="d2-pour">Seulement pour '+d2E(pour)+'</span>':'')
-      +(sec?'<div class="d2-tc"><b>'+d2Hms(sec)+'</b><span>le moment à regarder</span></div>':'')
-      +th
-      +(String(v.note||'').trim()?'<div class="d1-bk"><span style="color:#ff7a45">Ce que tu regardes</span><p>'+d2E(v.note)+'</p></div>':'')
-      +'<button class="d2-go" data-u="'+d2E(L.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(sec&&L.ok?'Voir à '+d2Hms(sec):'Ouvrir la vidéo')+'</button>'
-      +(sec&&!L.ok?'<div class="d2-aide">La vidéo '+d2E(src)+' s’ouvre au début : avance le curseur jusqu’à <b>'+d2Hms(sec)+'</b>.</div>':'')
-      +'</div>'});
+// les thèmes d'une situation : une couleur chacun, pour lire le dossier vidéo d'un coup d'œil
+var D2_THEMES=[['ballon','Eux · avec ballon','#ff7a45'],['sans','Eux · sans ballon','#3dba7e'],['trans','Eux · transitions','#6aa7ff'],['cpa','Eux · CPA','#c08bff'],['refaire','Nous · à refaire','#f0a830'],['corriger','Nous · à corriger','#ff6b5b'],['autre','À voir','#b8b1a4']];
+function d2Theme(k){ return D2_THEMES.filter(function(t){ return t[0]===k; })[0]||D2_THEMES[D2_THEMES.length-1]; }
+// la vignette : YouTube la donne ; pour Veo, c'est la capture déposée par le coach
+function d2VigAttr(v){
+  if(v.vignetteUrl) return ' style="background-image:url(\''+d2E(v.vignetteUrl)+'\')"';
+  if(v.apercuId) return ' data-d2ap="'+d2E(v.apercuId)+'"';
+  return '';
+}
+function d2Poser(el, src){ el.style.backgroundImage='url("'+src+'")'; el.classList.add('img'); }
+function d2Hydrater(racine){
+  [].forEach.call((racine||document).querySelectorAll('[data-d2ap]:not([data-d2ok])'), function(el){
+    el.setAttribute('data-d2ok','1'); var id=el.getAttribute('data-d2ap');
+    try{ if(typeof FICH_APERCU!=='undefined' && FICH_APERCU[id]){ d2Poser(el, FICH_APERCU[id]); return; } }catch(e){}
+    try{ var c=localStorage.getItem('ast_ap_'+id); if(c){ d2Poser(el, c); return; } }catch(e){}
+    if(typeof fbFetch!=='function' || typeof FIRESTORE_BASE==='undefined') return;
+    fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+      var d=j&&j.fields&&j.fields.data&&j.fields.data.stringValue; if(!d) return;
+      try{ localStorage.setItem('ast_ap_'+id, d); }catch(e){}
+      try{ if(typeof FICH_APERCU!=='undefined') FICH_APERCU[id]=d; }catch(e){}
+      [].forEach.call(document.querySelectorAll('[data-d2ap="'+id+'"]'), function(x){ d2Poser(x, d); });
+    }).catch(function(){});
   });
+}
+try{ new MutationObserver(function(){ if(d2Hydrater._t) return; d2Hydrater._t=setTimeout(function(){ d2Hydrater._t=0; d2Hydrater(); }, 80); }).observe(document.documentElement, {childList:true, subtree:true}); }catch(e){}
+function d2Css2(){
+  if(document.getElementById('d2-css2')) return;
+  var css=''
+  +'.d2-im{position:relative;aspect-ratio:16/9;border-radius:9px;background:#2a2722 center/cover no-repeat;overflow:hidden;box-shadow:inset 0 0 0 2px var(--c,#b8b1a4)}'
+  +'.d2-im:not(.img):not([style*="background-image"])::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--c,#b8b1a4);font-size:18px;opacity:.7}'
+  +'.d2-im b{position:absolute;top:3px;left:3px;min-width:18px;height:18px;padding:0 4px;border-radius:6px;background:var(--c,#b8b1a4);color:#14130f;font:900 11px/18px "Roboto Condensed",sans-serif;text-align:center;z-index:1}'
+  +'.d2-im i{position:absolute;bottom:3px;right:3px;padding:1px 5px;border-radius:5px;background:rgba(0,0,0,.75);color:#fff;font:800 10.5px "Roboto Condensed",sans-serif;font-style:normal;z-index:1}'
+  +'.d2-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 6px;margin-top:2px}'
+  +'.d2-t{display:flex;flex-direction:column;gap:3px;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:#f2eee6;min-width:0;border-radius:10px}'
+  +'.d2-t span{font:700 10.5px/1.15 "Roboto Condensed",sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.8}'
+  +'.d2-t.on .d2-im{box-shadow:inset 0 0 0 3px #fff, 0 0 0 2px var(--c,#b8b1a4)}.d2-t.on span{opacity:1}'
+  +'.d2-d{margin-top:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.08);display:flex;flex-direction:column;gap:7px;border-left:4px solid var(--c,#ff7a45)}'
+  +'.d2-d .k{display:flex;justify-content:space-between;gap:8px;font:800 10.5px "Roboto Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--c,#ff7a45)}'
+  +'.d2-d h4{margin:0;font:900 19px/1.1 "Anton","Roboto Condensed",sans-serif;text-transform:uppercase;color:#fff}'
+  +'.d2-d p{margin:0;font:600 13.5px/1.35 "Roboto Condensed",sans-serif;color:#e8e2d6;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.d2-d .d2-go{padding:11px;font-size:15px;background:var(--c,#ff7a45)}'
+  +'.d2-leg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px;font:700 10px "Roboto Condensed",sans-serif;color:#b8b1a4;text-transform:uppercase;letter-spacing:.06em}'
+  +'.d2-leg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}'
+  +'.d2-th[data-d2ap],.d2-th.img{background:#26241f center/cover no-repeat}';
+  var s=document.createElement('style'); s.id='d2-css2'; s.textContent=css; document.head.appendChild(s);
+}
+// une situation du dossier vidéo, détaillée sous la grille
+function d2Panneau(o){
+  var c=d2Theme(o.th);
+  return '<div class="d2-d" style="--c:'+c[2]+'"><div class="k"><span>Situation '+d2E(o.n)+' · '+d2E(c[1])+'</span><span>'+(o.tc?d2E(o.tc):'')+'</span></div>'
+    +'<h4>'+d2E(o.titre||'La vidéo')+'</h4>'
+    +(String(o.note||'').trim()?'<p>'+d2E(o.note)+'</p>':'')
+    +'<button class="d2-go" data-u="'+d2E(o.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(o.tc&&o.ok?'Voir à '+d2E(o.tc):'Ouvrir la vidéo')+'</button>'
+    +(o.tc&&!o.ok?'<div class="d2-aide">La vidéo s’ouvre au début : avance jusqu’à <b>'+d2E(o.tc)+'</b>.</div>':'')+'</div>';
+}
+function d2Choisir(b){
+  var pg=b.closest('.mm-page')||b.closest('#stu-ecran')||document;
+  [].forEach.call(pg.querySelectorAll('.d2-t'), function(x){ x.classList.toggle('on', x===b); });
+  var z=pg.querySelector('.d2-dz'); if(z) z.innerHTML=d2Panneau(b.dataset);
+  try{ if(typeof MMS!=='undefined') MMS.t0=Date.now(); }catch(e){}
+}
+function d2Infos(v, n){
+  var sec=d2Sec(v.minute), L=d2Lien(v.url, sec);
+  return {n:n, titre:v.titre||'', note:v.note||'', u:L.u, ok:L.ok?'1':'', tc:sec?d2Hms(sec):'', th:v.theme||'autre'};
+}
+// la page « Le dossier vidéo » : jusqu'à 9 situations, vignettes en grille, le détail dessous
+function d2PageGrille(L, k, debut, total){
+  var I=L.map(function(v,i){ return d2Infos(v, debut+i+1); });
+  var themes=[]; I.forEach(function(o){ if(themes.indexOf(o.th)<0) themes.push(o.th); });
+  var pages=Math.ceil(total/9);
+  return {k:k, duree:45000, ids:L.map(function(v){ return v.id; }), html:'<div class="mm-h"><span>Le dossier vidéo'+(pages>1?' · '+(debut/9+1)+'/'+pages:'')+'</span><b>'+(L.length>1?L.length+' situations à voir':'La situation à voir')+'</b></div>'
+    +'<div class="d2-g">'+L.map(function(v,i){ var o=I[i], c=d2Theme(o.th);
+      return '<button class="d2-t'+(i===0?' on':'')+'" style="--c:'+c[2]+'"'+Object.keys(o).map(function(x){ return ' data-'+x+'="'+d2E(o[x])+'"'; }).join('')+' onclick="event.stopPropagation();d2Choisir(this)">'
+        +'<div class="d2-im"'+d2VigAttr(v)+'><b>'+o.n+'</b>'+(o.tc?'<i>'+o.tc+'</i>':'')+'</div><span>'+d2E(o.titre||'Vidéo')+'</span></button>'; }).join('')+'</div>'
+    +'<div class="d2-dz">'+d2Panneau(I[0])+'</div>'
+    +(themes.length>1?'<div class="d2-leg">'+themes.map(function(t){ var c=d2Theme(t); return '<span><i style="background:'+c[2]+'"></i>'+d2E(c[1])+'</span>'; }).join('')+'</div>':'')};
+}
+// une seule situation : sa propre diapo
+function d2PageUne(v, k, opts){
+  var pour=d2Pour(v), sec=d2Sec(v.minute), L=d2Lien(v.url, sec), src=d2Source(v.url), c=d2Theme(v.theme||'autre');
+  var th=(v.vignetteUrl||v.apercuId)?'<div class="d2-th d2-im" style="--c:'+c[2]+';box-shadow:none'+(v.vignetteUrl?';background-image:url(\''+d2E(v.vignetteUrl)+'\')':'')+'"'+(v.vignetteUrl?'':' data-d2ap="'+d2E(v.apercuId)+'"')+'></div>':'';
+  return {k:k, duree:16000, ids:[v.id], html:'<div class="mm-h"><span>À voir'+(pour?' · rien que pour toi':'')+'</span><b>'+d2E(v.titre||'La vidéo')+'</b></div>'
+    +'<div class="d2-v">'
+    +(pour && opts.tous?'<span class="d2-pour">Seulement pour '+d2E(pour)+'</span>':'')
+    +(sec?'<div class="d2-tc"><b>'+d2Hms(sec)+'</b><span>le moment à regarder</span></div>':'')
+    +th
+    +(String(v.note||'').trim()?'<div class="d1-bk"><span style="color:#ff7a45">Ce que tu regardes</span><p>'+d2E(v.note)+'</p></div>':'')
+    +'<button class="d2-go" data-u="'+d2E(L.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(sec&&L.ok?'Voir à '+d2Hms(sec):'Ouvrir la vidéo')+'</button>'
+    +(sec&&!L.ok?'<div class="d2-aide">La vidéo '+d2E(src)+' s’ouvre au début : avance le curseur jusqu’à <b>'+d2Hms(sec)+'</b>.</div>':'')
+    +'</div>'};
+}
+// les diapos vidéo : opts.moi = le joueur (il ne voit que les siennes) ; opts.tous = l'aperçu du coach
+//  · 2 situations ou plus pour le groupe → « Le dossier vidéo » (9 par page)
+//  · une seule, ou une situation réservée à un joueur → sa propre diapo
+function d2PagesVideo(d, opts){
+  opts=opts||{}; d2Css2();
+  var V=(d.videos||[]).filter(function(v){ return v && v.url; });
+  var G=V.filter(function(v){ return !d2Pour(v); });
+  var M=V.filter(function(v){ var p=d2Pour(v); return p && (opts.tous || d2Meme(p, opts.moi)); });
+  var P=[], n=0, lettre=function(){ return String.fromCharCode(65+(n++)); };
+  if(G.length>=2){ for(var i=0;i<G.length;i+=9) P.push(d2PageGrille(G.slice(i,i+9), 'dvid'+String.fromCharCode(65+i/9), i, G.length)); }
+  else if(G.length===1) P.push(d2PageUne(G[0], 'video'+lettre(), opts));
+  M.forEach(function(v){ if(n<26) P.push(d2PageUne(v, 'video'+lettre(), opts)); });
   return P;
 }
 function d2Inserer(P, extra){
@@ -10042,7 +10125,8 @@ function d2Finisseurs(P, banc, moi){
 // Chaque vidéo du dossier devient une diapo « À voir » : le moment en gros, ce qu'il faut
 // regarder, un bouton qui ouvre au bon endroit quand c'est possible. Une vidéo réservée à
 // un joueur n'apparaît que chez lui. Les remplaçants s'appellent « les finisseurs ».
-d2Css();
+d2Css(); d2Css2();
+(function(){ var st=document.createElement('style'); st.textContent='.d2-blk{background:#14130f;color:#f2eee6;border-radius:18px;padding:16px 14px;margin:12px 0}.d2-blk .mm-h b{font-size:28px}'; document.head.appendChild(st); })();
 function d2BancJ(d){
   try{ var c=(d && d.compoIdx!=null)?((SAISON.COMPOSITIONS||[])[d.compoIdx]||null):null;
     return (c && c.slots)?c.slots.filter(function(x){ return x.bench && x.nom; }).map(function(x){ return x.nom; }):[]; }catch(e){ return []; }
@@ -10079,8 +10163,24 @@ window.addEventListener('load', function(){
     renderDossierMatchHtml=function(){
       var d=DOSSIER_MATCH, tous=d&&d.videos;
       if(!tous) return br.apply(this, arguments);
-      try{ d.videos=tous.filter(function(v){ var p=d2Pour(v); return !p || d2Meme(p, d2Moi()); }); return br.apply(this, arguments); }
+      var h;
+      try{ d.videos=tous.filter(function(v){ var p=d2Pour(v); return !p || d2Meme(p, d2Moi()); }); h=br.apply(this, arguments); }
       finally{ d.videos=tous; }
+      // 2 situations ou plus : le bloc « À regarder » devient le dossier vidéo en grille
+      try{
+        var G=tous.filter(function(v){ return v && v.url && !d2Pour(v); });
+        var k=h.lastIndexOf('À regarder</span>');
+        if(G.length>=2 && k>=0){
+          var deb=h.lastIndexOf('<div class="blk">', k);
+          if(deb>=0){
+            var pages=[]; for(var i=0;i<G.length;i+=9) pages.push(d2PageGrille(G.slice(i,i+9), 'dvid', i, G.length));
+            var M=tous.filter(function(v){ return v && v.url && d2Pour(v) && d2Meme(d2Pour(v), d2Moi()); });
+            h=h.slice(0,deb)+pages.map(function(p){ return '<div class="d2-blk mm-page">'+p.html+'</div>'; }).join('')
+              +M.map(function(v){ return '<div class="d2-blk mm-page">'+d2PageUne(v,'video',{}).html+'</div>'; }).join('');
+          }
+        }
+      }catch(e){ console.error('v192 bloc vidéo', e); }
+      return h;
     };
     renderDossierMatchHtml.__v192=true;
   }
