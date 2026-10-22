@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v193';
+var APP_BUILD='v194';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v193</b> · 22/10/2026<br><span style="opacity:.8">Le dossier vidéo en vignettes</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v194</b> · 22/10/2026<br><span style="opacity:.8">Les images du dossier vidéo en grand</span>';
 }
 
 window.addEventListener('load', function(){
@@ -10044,7 +10044,16 @@ function d2Css2(){
   +'.d2-d .d2-go{padding:11px;font-size:15px;background:var(--c,#ff7a45)}'
   +'.d2-leg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px;font:700 10px "Roboto Condensed",sans-serif;color:#b8b1a4;text-transform:uppercase;letter-spacing:.06em}'
   +'.d2-leg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}'
-  +'.d2-th[data-d2ap],.d2-th.img{background:#26241f center/cover no-repeat}';
+  +'.d2-th[data-d2ap],.d2-th.img{background:#26241f center/cover no-repeat}'
+  +'button.d2-th{display:block;width:100%;border:0;padding:0;cursor:zoom-in}'
+  +'.d2-zoom{align-self:flex-start;border:1px solid rgba(255,255,255,.25);background:transparent;color:#f2eee6;border-radius:10px;padding:6px 11px;font:800 12.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'#d2-lb{position:fixed;inset:0;z-index:100000;background:#0b0b0d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;box-sizing:border-box;color:#f2eee6;font-family:"Roboto Condensed",sans-serif}'
+  +'#d2-lb img{max-width:100%;max-height:68vh;object-fit:contain;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6)}'
+  +'#d2-lb .x{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer}'
+  +'#d2-lb h4{margin:0;font:900 22px/1.1 "Anton","Roboto Condensed",sans-serif;text-transform:uppercase;text-align:center}'
+  +'#d2-lb p{margin:0;max-width:640px;font:600 15px/1.4 "Roboto Condensed",sans-serif;text-align:center;color:#d9d3c7;white-space:pre-line}'
+  +'#d2-lb .d2-go{max-width:420px}'
+  +'#d2-lb .ch{font:700 13px "Roboto Condensed",sans-serif;opacity:.6}';
   var s=document.createElement('style'); s.id='d2-css2'; s.textContent=css; document.head.appendChild(s);
 }
 // une situation du dossier vidéo, détaillée sous la grille
@@ -10053,10 +10062,12 @@ function d2Panneau(o){
   return '<div class="d2-d" style="--c:'+c[2]+'"><div class="k"><span>Situation '+d2E(o.n)+' · '+d2E(c[1])+'</span><span>'+(o.tc?d2E(o.tc):'')+'</span></div>'
     +'<h4>'+d2E(o.titre||'La vidéo')+'</h4>'
     +(String(o.note||'').trim()?'<p>'+d2E(o.note)+'</p>':'')
+    +(o.img?'<button class="d2-zoom"'+Object.keys(o).map(function(x){ return ' data-'+x+'="'+d2E(o[x])+'"'; }).join('')+' onclick="event.stopPropagation();d2Agrandir(this.dataset)">🔍 Voir l’image en grand</button>':'')
     +'<button class="d2-go" data-u="'+d2E(o.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(o.tc&&o.ok?'Voir à '+d2E(o.tc):'Ouvrir la vidéo')+'</button>'
     +(o.tc&&!o.ok?'<div class="d2-aide">La vidéo s’ouvre au début : avance jusqu’à <b>'+d2E(o.tc)+'</b>.</div>':'')+'</div>';
 }
 function d2Choisir(b){
+  if(b.classList.contains('on') && b.dataset.img){ d2Agrandir(b.dataset); return; }
   var pg=b.closest('.mm-page')||b.closest('#stu-ecran')||document;
   [].forEach.call(pg.querySelectorAll('.d2-t'), function(x){ x.classList.toggle('on', x===b); });
   var z=pg.querySelector('.d2-dz'); if(z) z.innerHTML=d2Panneau(b.dataset);
@@ -10064,7 +10075,7 @@ function d2Choisir(b){
 }
 function d2Infos(v, n){
   var sec=d2Sec(v.minute), L=d2Lien(v.url, sec);
-  return {n:n, titre:v.titre||'', note:v.note||'', u:L.u, ok:L.ok?'1':'', tc:sec?d2Hms(sec):'', th:v.theme||'autre'};
+  return {n:n, titre:v.titre||'', note:v.note||'', u:L.u, ok:L.ok?'1':'', tc:sec?d2Hms(sec):'', th:v.theme||'autre', img:v.vignetteUrl?'url:'+v.vignetteUrl:(v.apercuId?'ap:'+v.apercuId:'')};
 }
 // la page « Le dossier vidéo » : jusqu'à 9 situations, vignettes en grille, le détail dessous
 function d2PageGrille(L, k, debut, total){
@@ -10081,7 +10092,8 @@ function d2PageGrille(L, k, debut, total){
 // une seule situation : sa propre diapo
 function d2PageUne(v, k, opts){
   var pour=d2Pour(v), sec=d2Sec(v.minute), L=d2Lien(v.url, sec), src=d2Source(v.url), c=d2Theme(v.theme||'autre');
-  var th=(v.vignetteUrl||v.apercuId)?'<div class="d2-th d2-im" style="--c:'+c[2]+';box-shadow:none'+(v.vignetteUrl?';background-image:url(\''+d2E(v.vignetteUrl)+'\')':'')+'"'+(v.vignetteUrl?'':' data-d2ap="'+d2E(v.apercuId)+'"')+'></div>':'';
+  var oi=d2Infos(v, 1);
+  var th=(v.vignetteUrl||v.apercuId)?'<button class="d2-th d2-im"'+Object.keys(oi).map(function(x){ return ' data-'+x+'="'+d2E(oi[x])+'"'; }).join('')+' onclick="event.stopPropagation();d2Agrandir(this.dataset)" style="--c:'+c[2]+';box-shadow:none'+(v.vignetteUrl?';background-image:url(\''+d2E(v.vignetteUrl)+'\')':'')+'"'+(v.vignetteUrl?'':' data-d2ap="'+d2E(v.apercuId)+'"')+'><i style="position:absolute;bottom:6px;right:8px;font-style:normal;font-size:12px;background:rgba(0,0,0,.7);padding:2px 7px;border-radius:6px;color:#fff">🔍 agrandir</i></button>':'';
   return {k:k, duree:16000, ids:[v.id], html:'<div class="mm-h"><span>À voir'+(pour?' · rien que pour toi':'')+'</span><b>'+d2E(v.titre||'La vidéo')+'</b></div>'
     +'<div class="d2-v">'
     +(pour && opts.tous?'<span class="d2-pour">Seulement pour '+d2E(pour)+'</span>':'')
@@ -10091,6 +10103,36 @@ function d2PageUne(v, k, opts){
     +'<button class="d2-go" data-u="'+d2E(L.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(sec&&L.ok?'Voir à '+d2Hms(sec):'Ouvrir la vidéo')+'</button>'
     +(sec&&!L.ok?'<div class="d2-aide">La vidéo '+d2E(src)+' s’ouvre au début : avance le curseur jusqu’à <b>'+d2Hms(sec)+'</b>.</div>':'')
     +'</div>'};
+}
+// l'image (avec les dessins du coach) en grand, par-dessus tout
+function d2Src(img, cb){
+  img=String(img||''); if(!img) return cb('');
+  if(img.indexOf('url:')===0) return cb(img.slice(4));
+  var id=img.slice(3);
+  try{ if(typeof FICH_APERCU!=='undefined' && FICH_APERCU[id]) return cb(FICH_APERCU[id]); }catch(e){}
+  try{ var c=localStorage.getItem('ast_ap_'+id); if(c) return cb(c); }catch(e){}
+  if(typeof fbFetch!=='function' || typeof FIRESTORE_BASE==='undefined') return cb('');
+  fbFetch(FIRESTORE_BASE+'/saison/apercu_'+id).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+    var d=j&&j.fields&&j.fields.data&&j.fields.data.stringValue||''; if(d) try{ localStorage.setItem('ast_ap_'+id, d); }catch(e){} cb(d);
+  }).catch(function(){ cb(''); });
+}
+function d2Agrandir(o){
+  d2Css(); d2Css2(); d2FermerImage();
+  try{ if(typeof MMS!=='undefined') MMS.pause=true; }catch(e){}
+  var z=document.createElement('div'); z.id='d2-lb';
+  z.innerHTML='<button class="x" aria-label="Fermer" onclick="d2FermerImage()">✕</button><div class="ch">Chargement de l’image…</div>'
+    +'<h4>'+d2E(o.titre||'')+'</h4>'+(String(o.note||'').trim()?'<p>'+d2E(o.note)+'</p>':'')
+    +'<button class="d2-go" data-u="'+d2E(o.u)+'" onclick="window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(o.tc&&o.ok?'Voir à '+d2E(o.tc):'Ouvrir la vidéo')+'</button>';
+  z.addEventListener('click', function(e){ if(e.target===z) d2FermerImage(); });
+  document.body.appendChild(z);
+  d2Src(o.img, function(src){ var ch=z.querySelector('.ch'); if(!ch) return; if(src){ var im=document.createElement('img'); im.src=src; im.alt=''; ch.replaceWith(im); } else ch.textContent='Image indisponible'; });
+  d2FermerImage._k=function(e){ if(e.key==='Escape'){ e.stopPropagation(); d2FermerImage(); } };
+  document.addEventListener('keydown', d2FermerImage._k, true);
+}
+function d2FermerImage(){
+  var z=document.getElementById('d2-lb'); if(!z) return;
+  z.remove(); try{ if(typeof MMS!=='undefined'){ MMS.pause=false; MMS.t0=Date.now(); } }catch(e){}
+  if(d2FermerImage._k) document.removeEventListener('keydown', d2FermerImage._k, true);
 }
 // les diapos vidéo : opts.moi = le joueur (il ne voit que les siennes) ; opts.tous = l'aperçu du coach
 //  · 2 situations ou plus pour le groupe → « Le dossier vidéo » (9 par page)
