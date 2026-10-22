@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v199</b> · 22/10/2026<br>
-      <span style="opacity:.7">L’analyse live côté coach</span>
+      AST COACH <b style="color:var(--or)">v200</b> · 23/10/2026<br>
+      <span style="opacity:.7">Le rangement sans doublon</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v199';
+var APP_BUILD='v200';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -44205,6 +44205,130 @@ window.addEventListener('load', function(){
   }catch(e){}
 });
 function alRetourBdt(){ AL_UI.depuisBdt=false; var b=document.getElementById('bdt'); if(b) b.style.display=''; try{ bdtRender(); }catch(e){} }
+
+</script>
+<script>
+// ===== v200 : le rangement sans doublon =====
+// Rien n'est enlevé. Chaque chose a UNE place dans le menu, rangée par moment :
+//   La semaine
+//     · Cette semaine
+//     · Après le match : score et notes · notes du staff · découpe Veo
+//     · Entraînements : la séance · la charge
+//     · Avant le match : dossier · rapports adversaires · convocations · compositions
+//                        · coups de pied arrêtés · plateau tactique
+//     · Le jour J : feuille de match · analyse live
+// Les doublons :
+//   · « Jour J » et « Le jour J » n'étaient qu'un seul moment → un seul onglet ;
+//   · l'onglet « Vidéos » des exercices doublait l'Analyse vidéo → il y mène ;
+//   · les vidéos de l'ancien écran « situations » doublaient le dossier vidéo → elles y mènent ;
+//   · les trois boutons de présentation du dossier → un seul « ▶ Présenter le dossier » ;
+//   · la barre du bas disait encore « Fond de jeu » → « Coin des coachs ».
+var D10_SEMAINE=[
+  ['semaine', '', 'Cette semaine', 'liste'],
+  ['matchs', 'Après le match', 'Score et notes du match', 'ballon'],
+  ['notes-staff', '', 'Notes du staff', 'memo'],
+  ['decoupe', '', 'Découpe Veo', 'clap'],
+  ['seances', 'Entraînements', 'La séance', 'halteres'],
+  ['charge', '', 'Charge d’entraînement', 'hausse'],
+  ['studio', 'Avant le match', 'Dossier d’avant-match', 'megaphone'],
+  ['adversaires', '', 'Rapports adversaires', 'loupe'],
+  ['convos', '', 'Convocations', 'liste'],
+  ['compos', '', 'Compositions', 'cible'],
+  ['cpa', '', 'Coups de pied arrêtés', 'fanion'],
+  ['plateau', '', 'Plateau tactique', 'cerveau'],
+  ['feuille-match', 'Le jour J', 'Feuille de match', 'document'],
+  ['live', '', 'Analyse live', 'chiffres']
+];
+function d10Ranger(L){
+  if(!L) return;
+  var p=L.filter(function(x){ return x.id==='semaine'; })[0]; if(!p || p.__v200) return;
+  var ancien={}; (p.screens||[]).forEach(function(s){ ancien[s.s]=s; });
+  var neuf=D10_SEMAINE.filter(function(d){ return document.getElementById('scr-'+d[0]); }).map(function(d){
+    var o=Object.assign({}, ancien[d[0]]||{}); o.s=d[0]; o.l=d[2]; o.ic=o.ic||d[3];
+    if(d[1]) o.g=d[1]; else delete o.g;
+    return o;
+  });
+  // tout ce qui était dans « La semaine » et que la liste ne connaît pas reste, à la fin
+  (p.screens||[]).forEach(function(s){ if(!neuf.some(function(n){ return n.s===s.s; })){ var o=Object.assign({}, s); delete o.g; neuf.push(o); } });
+  // un écran ne doit apparaître qu'une fois dans tout le menu
+  var ici={}; neuf.forEach(function(s){ ici[s.s]=1; });
+  L.forEach(function(q){ if(q!==p && q.screens) q.screens=q.screens.filter(function(s){ return !ici[s.s]; }); });
+  p.screens=neuf; p.__v200=true;
+}
+function d10Installer(){
+  [typeof NAV3_POLES!=='undefined'?NAV3_POLES:null, typeof POLES!=='undefined'?POLES:null].forEach(d10Ranger);
+  try{ ['adversaires','convos','cpa'].forEach(function(s){ if(typeof ECRANS_INFO!=='undefined' && !ECRANS_INFO[s]) ECRANS_INFO[s]={l:{adversaires:'Rapports adversaires',convos:'Convocations',cpa:'Coups de pied arrêtés'}[s]}; }); }catch(e){}
+  try{ if(typeof RG_AIDE!=='undefined'){
+    if(!RG_AIDE.adversaires) RG_AIDE.adversaires='<b>Avant le match</b> · Tout ce que tu sais d’eux : système, forces, failles, joueurs à tenir.';
+    if(!RG_AIDE.convos) RG_AIDE.convos='<b>Mardi-jeudi</b> · Qui est indisponible, qui s’entraîne, qui est convoqué.';
+    if(!RG_AIDE.cpa) RG_AIDE.cpa='<b>Avant le match</b> · Qui tire, qui va où, sur chaque coup de pied arrêté.';
+    RG_AIDE['avant-match']='<b>Situations du plateau</b> · Les situations tactiques du dossier (les vidéos sont dans le dossier vidéo, étape 3).';
+  } }catch(e){}
+  // l'onglet « Vidéos » des exercices : les vidéos vivent dans l'Analyse vidéo
+  var bv=document.querySelector('#scr-constructeur .rub-b[data-r="videos"]');
+  if(bv && !bv.__v200){ bv.__v200=true; bv.style.display='none'; }
+  // la barre du bas
+  [].forEach.call(document.querySelectorAll('button, a'), function(b){
+    if(b.children.length<=2 && /^\s*Fond de jeu\s*$/.test((b.textContent||''))){ [].forEach.call(b.childNodes, function(n){ if(n.nodeType===3 && /Fond de jeu/.test(n.nodeValue)) n.nodeValue=n.nodeValue.replace('Fond de jeu','Coin des coachs'); else if(n.nodeType===1 && /^\s*Fond de jeu\s*$/.test(n.textContent)) n.textContent='Coin des coachs'; }); }
+  });
+  try{ tnRendre(); }catch(e){}
+  try{ if(typeof hbRendre==='function') hbRendre(); }catch(e){}
+}
+window.addEventListener('load', function(){
+  setTimeout(d10Installer, 0);
+  // l'onglet « Vidéos » des exercices mène à l'Analyse vidéo
+  if(typeof goRubrique==='function' && !goRubrique.__v200){
+    var bg=goRubrique;
+    goRubrique=function(s, r){ if(r==='videos' && (s==='constructeur' || !s)){ return goNav('analyse'); } return bg.apply(this, arguments); };
+    goRubrique.__v200=true;
+  }
+  // l'ancien écran des situations : les vidéos se gèrent dans le dossier vidéo (étape 3)
+  try{ EXT.apres('rendreEcran', function(s){
+    if(s==='avant-match') d10SituationsVideos();
+    if(s==='constructeur'){ var b=document.querySelector('#scr-constructeur .rub-b[data-r="videos"]'); if(b) b.style.display='none'; }
+  }, 'rangement'); }catch(e){}
+  if(typeof renderAvantMatch==='function' && !renderAvantMatch.__v200){
+    var ba=renderAvantMatch;
+    renderAvantMatch=function(){ var r=ba.apply(this, arguments); try{ d10SituationsVideos(); }catch(e){} return r; };
+    renderAvantMatch.__v200=true;
+  }
+  // dans le dossier : un seul bouton de présentation, qui ouvre le même menu que 📋 en haut
+  if(typeof stRendre==='function' && !stRendre.__v200){
+    var bs=stRendre;
+    stRendre=function(){
+      var r=bs.apply(this, arguments);
+      try{
+        var z=document.querySelector('#stu-ct .d7-bb');
+        if(z && !z.querySelector('.d10-pres')){
+          z.innerHTML='';
+          var b=document.createElement('button'); b.className='pl d10-pres'; b.textContent='▶ Présenter le dossier';
+          b.onclick=function(){ d7Menu(b); };
+          z.appendChild(b);
+        }
+        // l'étape 3 : la carte des situations ne parle plus des vidéos (elles sont au-dessus)
+        [].forEach.call(document.querySelectorAll('#stu-ct .stu-c .stu-l'), function(e){ if(/^Situations et vidéos du dossier$/.test(e.textContent)) e.textContent='Les situations du plateau tactique'; });
+        [].forEach.call(document.querySelectorAll('#stu-ct button'), function(b){ if(/^Gérer les situations/.test(b.textContent)) b.textContent='Gérer les situations du plateau'; });
+      }catch(e){}
+      return r;
+    };
+    stRendre.__v200=true;
+  }
+});
+function d10SituationsVideos(){
+  var ec=document.getElementById('scr-avant-match'); if(!ec) return;
+  var blocs=ec.querySelectorAll('.blk, .card, section, div');
+  var cible=null;
+  [].some.call(ec.querySelectorAll('.bt, h2, h3'), function(t){ if(/Ce qu.ils doivent regarder/i.test(t.textContent||'')){ cible=t.closest('.blk')||t.parentNode.parentNode; return true; } return false; });
+  if(!cible || cible.__v200) return;
+  cible.__v200=true;
+  var n=((typeof DOSSIER!=='undefined' && DOSSIER && DOSSIER.videos)||[]).length;
+  [].forEach.call(cible.children, function(c, i){ if(i>0) c.style.display='none'; });
+  var info=document.createElement('div');
+  info.style.cssText='padding:12px 15px 15px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 14px "Roboto Condensed",sans-serif';
+  info.innerHTML='<span style="flex:1;min-width:220px">Les vidéos ont maintenant une seule place : <b>le dossier vidéo</b>, à l’étape 3 du dossier d’avant-match (lien au bon moment, capture dessinée, QR code). '+(n?'<b>'+n+' vidéo'+(n>1?'s':'')+'</b> dans le dossier.':'')+'</span>'
+    +'<button class="stu-b pl" onclick="goNav(\'studio\');setTimeout(function(){ try{ stAller(3); var z=document.getElementById(\'d2-zone\'); if(z) z.scrollIntoView({block:\'start\'}); }catch(e){} },120)">Ouvrir le dossier vidéo ›</button>';
+  cible.appendChild(info);
+}
 
 </script>
 </body></html>
