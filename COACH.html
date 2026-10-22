@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v195</b> · 22/10/2026<br>
-      <span style="opacity:.7">Afficher le dossier vidéo : vestiaire, causerie, écran</span>
+      AST COACH <b style="color:var(--or)">v196</b> · 22/10/2026<br>
+      <span style="opacity:.7">12 outils de dessin sur les captures</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v195';
+var APP_BUILD='v196';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -42764,7 +42764,8 @@ window.addEventListener('load', function(){
 // ===== Dessiner sur la capture : flèches, courses, cercles, zones, crayon, texte =====
 // La capture d'origine est gardée à part (pour pouvoir redessiner), les dessins sont
 // gardés en coordonnées 0..1, et l'image finale (capture + dessins) est la vignette.
-var D2_OUTILS=[['fleche','➜','Flèche'],['course','⇢','Course'],['cercle','◯','Cercle'],['zone','▭','Zone'],['crayon','✎','Crayon'],['texte','T','Texte']];
+var D2_OUTILS=[['fleche','➜','Flèche'],['course','⇢','Course'],['courbe','⤻','Courbe'],['ligne','╱','Ligne'],['cercle','◯','Cercle'],['zone','▭','Zone'],['libre','⬠','Zone libre'],['hach','▨','Hachurée'],['plot','❻','Plot'],['proj','◉','Projecteur'],['crayon','✎','Crayon'],['texte','T','Texte']];
+var D2_AIDES={fleche:'Glisse du départ à l’arrivée : une passe, le trajet du ballon.',course:'Glisse du départ à l’arrivée : l’appel d’un joueur.',courbe:'Glisse du départ à l’arrivée : la flèche se courbe. Pour la courber de l’autre côté, trace-la dans l’autre sens.',ligne:'Glisse d’un point à l’autre : une ligne défensive, relier deux joueurs.',cercle:'Glisse en diagonale autour du joueur.',zone:'Glisse en diagonale d’un coin à l’autre.',libre:'Touche chaque coin de la zone, un par un. Retouche le premier point (ou « Fermer la zone ») pour finir.',hach:'Comme la zone libre, mais hachurée : la zone interdite, à fermer. Touche chaque coin, puis retouche le premier.',plot:'Écris le numéro (ou laisse vide : 1, 2, 3…), puis touche le joueur.',proj:'Glisse du centre du joueur vers l’extérieur : tout s’assombrit sauf lui.',crayon:'Dessine librement.',texte:'Écris ton texte dans la case, puis touche l’image.'};
 var D2_COULEURS=['#ff7a45','#ff3b30','#ffd60a','#34c759','#4aa3ff','#ffffff'];
 var DD={outil:'fleche', coul:'#ff7a45', formes:[], img:null, cours:null, texte:''};
 function d2LireGrand(f){
@@ -42784,7 +42785,17 @@ d2Capture=function(inp){
 };
 function d2TraceFormes(x, W, H, F){
   var lw=Math.max(2, W*0.006);
+  // les projecteurs d'abord : l'image s'assombrit, les dessins restent bien visibles par-dessus
+  var PJ=F.filter(function(s){ return s.t==='proj' && s.p.length>1; });
+  if(PJ.length){
+    x.save(); x.fillStyle='rgba(0,0,0,.58)'; x.beginPath(); x.rect(0,0,W,H);
+    PJ.forEach(function(s){ var cx=s.p[0][0]*W, cy=s.p[0][1]*H, r=Math.max(8, Math.hypot((s.p[1][0]-s.p[0][0])*W, (s.p[1][1]-s.p[0][1])*H)); x.moveTo(cx+r, cy); x.arc(cx, cy, r, 0, Math.PI*2, true); });
+    x.fill('evenodd');
+    PJ.forEach(function(s){ var cx=s.p[0][0]*W, cy=s.p[0][1]*H, r=Math.max(8, Math.hypot((s.p[1][0]-s.p[0][0])*W, (s.p[1][1]-s.p[0][1])*H)); x.beginPath(); x.arc(cx, cy, r, 0, Math.PI*2); x.strokeStyle=s.c; x.lineWidth=lw*.7; x.shadowColor='rgba(0,0,0,.5)'; x.shadowBlur=lw; x.stroke(); });
+    x.restore();
+  }
   F.forEach(function(s){
+    if(s.t==='proj') return;
     x.save(); x.strokeStyle=s.c; x.fillStyle=s.c; x.lineWidth=lw; x.lineCap='round'; x.lineJoin='round';
     x.shadowColor='rgba(0,0,0,.55)'; x.shadowBlur=lw*1.5;
     var a=[s.p[0][0]*W, s.p[0][1]*H], b=s.p.length>1?[s.p[s.p.length-1][0]*W, s.p[s.p.length-1][1]*H]:a;
@@ -42798,6 +42809,31 @@ function d2TraceFormes(x, W, H, F){
     } else if(s.t==='zone'){
       x.globalAlpha=.28; x.fillRect(Math.min(a[0],b[0]), Math.min(a[1],b[1]), Math.abs(b[0]-a[0]), Math.abs(b[1]-a[1])); x.globalAlpha=1;
       x.setLineDash([lw*2, lw*1.4]); x.strokeRect(Math.min(a[0],b[0]), Math.min(a[1],b[1]), Math.abs(b[0]-a[0]), Math.abs(b[1]-a[1]));
+    } else if(s.t==='courbe'){
+      var mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2, dx=b[0]-a[0], dy=b[1]-a[1];
+      var cx=mx+dy*0.35, cy=my-dx*0.35;
+      x.beginPath(); x.moveTo(a[0],a[1]); x.quadraticCurveTo(cx, cy, b[0], b[1]); x.stroke();
+      var an=Math.atan2(b[1]-cy, b[0]-cx), L2=lw*5;
+      x.beginPath(); x.moveTo(b[0],b[1]); x.lineTo(b[0]-L2*Math.cos(an-0.45), b[1]-L2*Math.sin(an-0.45)); x.lineTo(b[0]-L2*Math.cos(an+0.45), b[1]-L2*Math.sin(an+0.45)); x.closePath(); x.fill();
+    } else if(s.t==='ligne'){
+      x.beginPath(); x.moveTo(a[0],a[1]); x.lineTo(b[0],b[1]); x.stroke();
+    } else if(s.t==='libre' || s.t==='hach'){
+      var Q=s.p.map(function(q){ return [q[0]*W, q[1]*H]; }), ferme=!s.ouvert;
+      var chemin=function(){ x.beginPath(); Q.forEach(function(q,i){ if(i) x.lineTo(q[0],q[1]); else x.moveTo(q[0],q[1]); }); if(ferme) x.closePath(); };
+      if(ferme && Q.length>2){
+        x.save(); chemin(); x.globalAlpha=s.t==='hach'?.16:.28; x.fill(); x.globalAlpha=1;
+        if(s.t==='hach'){ x.clip(); x.shadowBlur=0; x.lineWidth=lw*.55; var pas=lw*3.2; for(var k=-H;k<W;k+=pas){ x.beginPath(); x.moveTo(k,0); x.lineTo(k+H,H); x.stroke(); } }
+        x.restore();
+      }
+      x.setLineDash([lw*2, lw*1.4]); chemin(); x.stroke(); x.setLineDash([]);
+      if(s.ouvert){ Q.forEach(function(q,i){ x.beginPath(); x.arc(q[0],q[1], i===0?lw*1.8:lw*1.1, 0, Math.PI*2); x.fill(); }); }
+    } else if(s.t==='plot'){
+      var rr=Math.max(10, W*0.017), py=a[1]-rr*1.5;
+      x.beginPath(); x.arc(a[0], py, rr, 0, Math.PI*2); x.fill();
+      x.shadowBlur=0; x.lineWidth=Math.max(1.5, rr*.14); x.strokeStyle='rgba(0,0,0,.55)'; x.stroke();
+      x.beginPath(); x.moveTo(a[0], py+rr); x.lineTo(a[0], a[1]-rr*.15); x.strokeStyle=s.c; x.lineWidth=Math.max(1.5, rr*.16); x.stroke();
+      var clair=(s.c!=='#ff3b30');
+      x.fillStyle=clair?'#14130f':'#ffffff'; x.font='900 '+(rr*1.2)+'px "Roboto Condensed", Arial, sans-serif'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(String(s.txt||''), a[0], py+rr*.06);
     } else if(s.t==='crayon'){
       x.beginPath(); s.p.forEach(function(q,i){ var X=q[0]*W, Y=q[1]*H; if(i) x.lineTo(X,Y); else x.moveTo(X,Y); }); x.stroke();
     } else if(s.t==='texte'){
@@ -42825,13 +42861,14 @@ function d2EdOuvrir(){
   var o=document.getElementById('d2-ed'); if(o) o.remove();
   o=document.createElement('div'); o.id='d2-ed';
   o.innerHTML='<div class="bar"><b>Dessine sur la capture</b><span class="sp"></span>'
-    +'<button class="b" onclick="d2EdAnnuler()">↶ Annuler</button><button class="b" onclick="DD.formes=[];d2EdRendu()">Tout effacer</button>'
+    +'<button class="b" onclick="d2EdAnnuler()">↶ Annuler</button><button class="b" onclick="DD.formes=[];DD.cours=null;d2EdBoutonZone();d2EdRendu()">Tout effacer</button>'
     +'<button class="b" onclick="document.getElementById(\'d2-ed\').remove()">Fermer</button><button class="b pl" onclick="d2EdValider()">✓ Valider l’image</button></div>'
     +'<div class="outils">'+D2_OUTILS.map(function(t){ return '<button class="o'+(DD.outil===t[0]?' on':'')+'" data-o="'+t[0]+'" onclick="d2EdOutil(this.dataset.o)"><i>'+t[1]+'</i>'+t[2]+'</button>'; }).join('')
     +'<span class="sep"></span>'+D2_COULEURS.map(function(c){ return '<button class="c'+(DD.coul===c?' on':'')+'" style="background:'+c+'" data-c="'+c+'" aria-label="Couleur" onclick="d2EdCoul(this.dataset.c)"></button>'; }).join('')
-    +'<input id="d2-ed-t" class="fi" placeholder="Ton texte, puis touche l’image" value="'+stA(DD.texte)+'" oninput="DD.texte=this.value" style="'+(DD.outil==='texte'?'':'display:none')+'"></div>'
+    +'<input id="d2-ed-t" class="fi" placeholder="'+(DD.outil==='plot'?'Numéro (vide = 1, 2, 3…)':'Ton texte, puis touche l’image')+'" value="'+stA(DD.outil==='plot'?(DD.num||''):DD.texte)+'" oninput="if(DD.outil===\'plot\') DD.num=this.value; else DD.texte=this.value" style="'+(DD.outil==='texte'||DD.outil==='plot'?'':'display:none')+'">'
+    +'<button class="b pl" id="d2-ed-ferme" style="display:none" onclick="d2EdFermerZone()">✓ Fermer la zone</button></div>'
     +'<div class="zone"><canvas id="d2-ed-c"></canvas></div>'
-    +'<div class="aide">Glisse sur l’image pour tracer. Flèche = passe ou déplacement du ballon · Course = l’appel d’un joueur · Cercle = le joueur clé · Zone = l’espace à attaquer ou à fermer.</div>';
+    +'<div class="aide" id="d2-ed-aide">'+stE(D2_AIDES[DD.outil]||'')+'</div>';
   document.body.appendChild(o);
   var c=document.getElementById('d2-ed-c'), zone=o.querySelector('.zone');
   var W=DD.img.width, H=DD.img.height, e=Math.min(1, (zone.clientWidth-8)/W, (zone.clientHeight-8)/H);
@@ -42839,11 +42876,26 @@ function d2EdOuvrir(){
   var pos=function(ev){ var r=c.getBoundingClientRect(); return [Math.min(1,Math.max(0,(ev.clientX-r.left)/r.width)), Math.min(1,Math.max(0,(ev.clientY-r.top)/r.height))]; };
   c.addEventListener('pointerdown', function(ev){
     ev.preventDefault(); var p=pos(ev);
+    if(DD.outil==='libre' || DD.outil==='hach'){
+      var z=DD.cours && DD.cours.ouvert ? DD.cours : null;
+      if(!z){ DD.cours={t:DD.outil, c:DD.coul, p:[p], ouvert:true}; }
+      else {
+        var p0=z.p[0];
+        if(z.p.length>2 && Math.abs(p[0]-p0[0])<0.03 && Math.abs(p[1]-p0[1])<0.05){ d2EdFermerZone(); return; }
+        z.p.push(p);
+      }
+      d2EdBoutonZone(); d2EdRendu(); return;
+    }
+    if(DD.outil==='plot'){
+      var nb=String(DD.num||'').trim();
+      if(!nb){ var deja=DD.formes.filter(function(f){ return f.t==='plot' && /^\d+$/.test(f.txt); }).map(function(f){ return +f.txt; }); nb=String(deja.length?Math.max.apply(null, deja)+1:1); }
+      DD.formes.push({t:'plot', c:DD.coul, p:[p], txt:nb.slice(0,3)}); DD.num=''; var ti2=document.getElementById('d2-ed-t'); if(ti2) ti2.value=''; d2EdRendu(); return;
+    }
     if(DD.outil==='texte'){ var t=String(DD.texte||'').trim(); if(!t){ notif('Écris ton texte dans la case, puis touche l’image'); var ti=document.getElementById('d2-ed-t'); if(ti) ti.focus(); return; } DD.formes.push({t:'texte', c:DD.coul, p:[p], txt:t}); d2EdRendu(); return; }
     c.setPointerCapture(ev.pointerId); DD.cours={t:DD.outil, c:DD.coul, p:[p, p]}; d2EdRendu();
   });
-  c.addEventListener('pointermove', function(ev){ if(!DD.cours) return; var p=pos(ev); if(DD.cours.t==='crayon') DD.cours.p.push(p); else DD.cours.p[1]=p; d2EdRendu(); });
-  var fin=function(){ if(!DD.cours) return; var s=DD.cours, a=s.p[0], b=s.p[s.p.length-1]; DD.cours=null;
+  c.addEventListener('pointermove', function(ev){ if(!DD.cours) return; var p=pos(ev); if(DD.cours.ouvert){ DD.survol=p; d2EdRendu(); return; } if(DD.cours.t==='crayon') DD.cours.p.push(p); else DD.cours.p[1]=p; d2EdRendu(); });
+  var fin=function(){ if(!DD.cours || DD.cours.ouvert) return; var s=DD.cours, a=s.p[0], b=s.p[s.p.length-1]; DD.cours=null;
     if(s.t==='crayon' ? s.p.length>2 : (Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1])>0.015)){ if(s.t==='crayon') s.p=s.p.filter(function(q,i){ return i%2===0 || i===s.p.length-1; }).map(function(q){ return [Math.round(q[0]*1000)/1000, Math.round(q[1]*1000)/1000]; }); DD.formes.push(s); }
     d2EdRendu(); };
   c.addEventListener('pointerup', fin); c.addEventListener('pointercancel', fin);
@@ -42852,13 +42904,29 @@ function d2EdOuvrir(){
 function d2EdRendu(){
   var c=document.getElementById('d2-ed-c'); if(!c || !DD.img) return;
   var x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(DD.img,0,0,c.width,c.height);
-  d2TraceFormes(x, c.width, c.height, DD.formes.concat(DD.cours?[DD.cours]:[]));
+  var enCours=DD.cours;
+  if(enCours && enCours.ouvert && DD.survol){ enCours=JSON.parse(JSON.stringify(enCours)); enCours.p.push(DD.survol); }
+  d2TraceFormes(x, c.width, c.height, DD.formes.concat(enCours?[enCours]:[]));
 }
-function d2EdOutil(o){ DD.outil=o; [].forEach.call(document.querySelectorAll('#d2-ed .o'), function(b){ b.classList.toggle('on', b.dataset.o===o); }); var t=document.getElementById('d2-ed-t'); if(t){ t.style.display=o==='texte'?'':'none'; if(o==='texte') t.focus(); } }
+function d2EdBoutonZone(){ var b=document.getElementById('d2-ed-ferme'); if(b) b.style.display=(DD.cours && DD.cours.ouvert && DD.cours.p.length>2)?'':'none'; }
+function d2EdFermerZone(){
+  var z=DD.cours; if(!z || !z.ouvert) return;
+  DD.cours=null; DD.survol=null;
+  if(z.p.length>2){ delete z.ouvert; z.p=z.p.map(function(q){ return [Math.round(q[0]*1000)/1000, Math.round(q[1]*1000)/1000]; }); DD.formes.push(z); }
+  d2EdBoutonZone(); d2EdRendu();
+}
+function d2EdOutil(o){
+  if(DD.cours && DD.cours.ouvert) d2EdFermerZone();
+  DD.outil=o; [].forEach.call(document.querySelectorAll('#d2-ed .o'), function(b){ b.classList.toggle('on', b.dataset.o===o); });
+  var t=document.getElementById('d2-ed-t');
+  if(t){ var vis=(o==='texte'||o==='plot'); t.style.display=vis?'':'none'; t.placeholder=o==='plot'?'Numéro (vide = 1, 2, 3…)':'Ton texte, puis touche l’image'; t.value=o==='plot'?(DD.num||''):(DD.texte||''); if(vis) t.focus(); }
+  var a=document.getElementById('d2-ed-aide'); if(a) a.textContent=D2_AIDES[o]||'';
+}
 function d2EdCoul(c){ DD.coul=c; [].forEach.call(document.querySelectorAll('#d2-ed .c'), function(b){ b.classList.toggle('on', b.dataset.c===c); }); }
-function d2EdAnnuler(){ DD.formes.pop(); d2EdRendu(); }
+function d2EdAnnuler(){ if(DD.cours && DD.cours.ouvert){ DD.cours.p.pop(); if(!DD.cours.p.length) DD.cours=null; d2EdBoutonZone(); d2EdRendu(); return; } DD.formes.pop(); d2EdRendu(); }
 function d2EdValider(){
   var f=D2.f; if(!f || !DD.img) return;
+  if(DD.cours && DD.cours.ouvert) d2EdFermerZone();
   var c=document.createElement('canvas'); c.width=DD.img.width; c.height=DD.img.height;
   var x=c.getContext('2d'); x.drawImage(DD.img,0,0); d2TraceFormes(x, c.width, c.height, DD.formes);
   f.vig=c.toDataURL('image/jpeg',.78); f.dessin=JSON.parse(JSON.stringify(DD.formes)); f.dessinChange=true;
