@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v189</b> · 21/10/2026<br>
-      <span style="opacity:.7">Vidéos liées aux équipes, vivier sans oubli</span>
+      AST COACH <b style="color:var(--or)">v190</b> · 22/10/2026<br>
+      <span style="opacity:.7">Retour dans tous les sous-dossiers</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v189';
+var APP_BUILD='v190';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -41929,6 +41929,123 @@ window.addEventListener('load', function(){
       return r;
     };
     vvChoixRendre.__v189=true;
+  }
+});
+</script>
+
+<script>
+// ===== v190 : le bouton Retour remonte aussi dans les sous-dossiers =====
+// Avant : « ‹ Retour » ramenait à l'écran précédent, même quand on était entré
+// dans un sous-dossier du même écran (une fiche joueur, une page du dossier
+// d'avant-match, une rubrique, la fiche d'une équipe…). On croyait ne pas
+// pouvoir revenir. Maintenant chaque entrée dans un sous-dossier est retenue :
+// Retour (le bouton, la touche Échap ou le retour du téléphone) remonte d'un cran,
+// et quand il n'y a plus de sous-dossier, revient à l'écran précédent.
+var SV={pile:[], avant:null, retourEnCours:false};
+function svEcran(){ var e=document.querySelector('.scr.on'); return e?e.id.replace(/^scr-/,''):''; }
+// ce qui fait qu'on est « ailleurs » dans un écran : ses titres visibles et sa rubrique
+function svSig(s){
+  var e=document.getElementById('scr-'+s); if(!e) return '';
+  var vis=function(x){ return x.offsetParent!==null; };
+  var t=[].slice.call(e.querySelectorAll('.ph-title, h1, h2, .md-sh b, .rub-p.on .bh .bt')).filter(vis).slice(0,3).map(function(x){ return (x.textContent||'').trim().slice(0,40); }).join('|');
+  var rub=(typeof RUBRIQUE_ACTIVE!=='undefined' && RUBRIQUE_ACTIVE[s])||'';
+  var k=''; try{ if(SV_ETATS[s] && SV_ETATS[s].cle) k=SV_ETATS[s].cle(); }catch(e){}
+  return rub+'#'+k+'#'+t;
+}
+// les écrans qui savent se remettre dans un état précis (plus fiable qu'une copie)
+var SV_ETATS={
+  studio:{cle:function(){ return ST.etape+'/'+ST.page; }, get:function(){ return {etape:ST.etape, page:ST.page}; }, set:function(o){ ST.etape=o.etape; ST.page=o.page; stRendre(); }},
+  programmes:{cle:function(){ return PG.vue; }, get:function(){ return {vue:PG.vue, nouveau:PG.nouveau?JSON.parse(JSON.stringify(PG.nouveau)):null}; }, set:function(o){ PG.vue=o.vue; PG.nouveau=o.nouveau; pgRendre(); }},
+  effectif:{cle:function(){ var s=document.getElementById('fiche-sel'); return s?s.value:''; }, get:function(){ var s=document.getElementById('fiche-sel'); return {sel:s?s.value:'', onglet:(typeof JF_ONGLET!=='undefined'?JF_ONGLET:'')}; }, set:function(o){ var s=document.getElementById('fiche-sel'); if(s) s.value=o.sel; try{ if(o.onglet) JF_ONGLET=o.onglet; }catch(e){} renderFicheCoach(); }},
+  analyse:{cle:function(){ return AV.rayon+'/'+AV.ouvertEq+'/'+(AV.f?'form':''); }, get:function(){ return {rayon:AV.rayon, eq:AV.ouvertEq, adv:AV.adv, phase:AV.phase, joueur:AV.joueur, q:AV.q, f:AV.f?JSON.parse(JSON.stringify(AV.f)):null, edit:AV.edit}; }, set:function(o){ AV.rayon=o.rayon; AV.ouvertEq=o.eq; AV.adv=o.adv; AV.phase=o.phase; AV.joueur=o.joueur; AV.q=o.q; AV.f=o.f; AV.edit=o.edit; avRendre(); }},
+  vivier:{cle:function(){ return VV.vue; }, get:function(){ return {vue:VV.vue, horizon:VV.horizon}; }, set:function(o){ VV.vue=o.vue; VV.horizon=o.horizon; vvRendre(); }}
+};
+function svCapture(){
+  var s=svEcran(); if(!s) return null;
+  var e=document.getElementById('scr-'+s), m=document.getElementById('main');
+  var d=SV_ETATS[s], etat=null; try{ if(d) etat=d.get(); }catch(x){ etat=null; }
+  return {scr:s, sig:svSig(s), rub:(typeof RUBRIQUE_ACTIVE!=='undefined' && RUBRIQUE_ACTIVE[s])||'', etat:etat, html:etat?null:(e?e.innerHTML:''), scroll:m?m.scrollTop:0};
+}
+function svRestaurer(x){
+  var e=document.getElementById('scr-'+x.scr), m=document.getElementById('main');
+  var d=SV_ETATS[x.scr];
+  try{
+    if(d && x.etat) d.set(x.etat);
+    else {
+      var rubNow=(typeof RUBRIQUE_ACTIVE!=='undefined' && RUBRIQUE_ACTIVE[x.scr])||'';
+      if(x.rub && x.rub!==rubNow) goRubrique(x.scr, x.rub);
+      else if(e && x.html!=null) e.innerHTML=x.html;
+    }
+  }catch(err){ console.error('retour', err); if(e && x.html!=null) e.innerHTML=x.html; }
+  if(m) setTimeout(function(){ m.scrollTop=x.scroll||0; }, 30);
+  try{ tnRendre(); }catch(err){}
+}
+// on note l'état juste avant chaque geste dans l'écran, on compare juste après
+document.addEventListener('pointerdown', function(ev){
+  var t=ev.target; if(!t || !t.closest) return;
+  if(!t.closest('#main') || t.closest('#hb') || t.closest('.tn-ret, .tn-ib')) return;
+  if(t.closest('input, textarea, select, [contenteditable]')) return;
+  SV.avant=svCapture();
+}, true);
+document.addEventListener('click', function(ev){
+  var av=SV.avant; SV.avant=null; if(!av) return;
+  setTimeout(function(){
+    if(svEcran()!==av.scr) return;            // on a changé d'écran : l'historique des écrans s'en charge
+    var apres=svSig(av.scr);
+    if(!apres || apres===av.sig) return;
+    var dernier=SV.pile[SV.pile.length-1];
+    if(dernier && dernier.scr===av.scr && dernier.sig===av.sig) return;
+    SV.pile.push(av); if(SV.pile.length>40) SV.pile.shift();
+    try{ history.pushState({ast:1, sv:1}, ''); }catch(e){}
+    try{ tnRendre(); }catch(e){}
+  }, 380);
+}, true);
+// un écran ouvert « à neuf » (pas par Retour) repart sans sous-dossiers
+try{
+  EXT.avant('goNav', function(x){
+    var s=(typeof x==='string')?x:'';
+    if(s && !SV.retourEnCours && !(typeof NAV_SANS_HISTO!=='undefined' && NAV_SANS_HISTO)){
+      var cible=(typeof RUBRIQUE_DE!=='undefined' && RUBRIQUE_DE[s])||s;
+      SV.pile=SV.pile.filter(function(e){ return e.scr!==cible; });
+    }
+    return null;
+  }, 'sous-dossiers');
+}catch(e){}
+// Retour : les couches d'abord, puis le sous-dossier, puis l'écran précédent
+(function(){
+  if(typeof navRetour!=='function' || navRetour.__v190) return;
+  var base=navRetour;
+  navRetour=function(){
+    // les panneaux ouverts par-dessus se ferment en premier (fiche du vivier, vestiaire, conseils…)
+    var couche=document.querySelector('#c3-pan, #a9-ov, #vv-fiche, #vv-sheet, .md-sheet');
+    if(couche){ if(couche.id==='a9-ov' && typeof a9Fermer==='function') a9Fermer(); else if(couche.id==='vv-fiche' && typeof vvFermerFiche==='function' && VV.fiche) vvFermerFiche(VV.fiche.id); else couche.remove(); return; }
+    try{ if(typeof navFermerCouche==='function' && navFermerCouche()) return; }catch(e){}
+    var s=svEcran(), top=SV.pile[SV.pile.length-1];
+    if(top && top.scr===s){
+      SV.pile.pop(); SV.retourEnCours=true;
+      try{ svRestaurer(top); } finally { SV.retourEnCours=false; }
+      return;
+    }
+    SV.retourEnCours=true;
+    try{ return base.apply(this, arguments); } finally { SV.retourEnCours=false; }
+  };
+  navRetour.__v190=true;
+})();
+// le bouton Retour de la barre est toujours là quand on est dans un sous-dossier, même sur l'accueil
+window.addEventListener('load', function(){
+  if(typeof tnRendre==='function' && !tnRendre.__v190){
+    var b=tnRendre;
+    tnRendre=function(){
+      var r=b.apply(this, arguments);
+      try{
+        var s=svEcran(), n=SV.pile.filter(function(e){ return e.scr===s; }).length;
+        var z=document.querySelector('#topnav .tn-r1x');
+        if(z && n && !z.querySelector('.tn-ret')){ var bt=document.createElement('button'); bt.className='tn-ret'; bt.textContent='‹ Retour'; bt.onclick=navRetour; z.insertBefore(bt, z.firstChild); }
+        var ret=z&&z.querySelector('.tn-ret'); if(ret && n) ret.title='Revenir au niveau précédent de cet écran';
+      }catch(e){}
+      return r;
+    };
+    tnRendre.__v190=true;
   }
 });
 </script>
