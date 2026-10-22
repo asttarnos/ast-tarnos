@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v190</b> · 22/10/2026<br>
-      <span style="opacity:.7">Retour dans tous les sous-dossiers</span>
+      AST COACH <b style="color:var(--or)">v191</b> · 22/10/2026<br>
+      <span style="opacity:.7">Dossier d’avant-match plus riche</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v190';
+var APP_BUILD='v191';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -42046,6 +42046,250 @@ window.addEventListener('load', function(){
       return r;
     };
     tnRendre.__v190=true;
+  }
+});
+</script>
+
+<script>
+// ---- commun coach / joueur : les diapos de l'adversaire, les titres modifiables, la mission lisible ----
+var D1_STYLE=[['bloc','Leur bloc','Bas','Haut'],['jeu','Leur jeu','Court','Long'],['zone','Ils attaquent','Par l’axe','Par les côtés'],['pressing','Sans ballon','Attentistes','Pressing haut'],['transitions','Transitions','Lentes','Rapides']];
+var D1_SIGNES={danger:['★','Danger','#ff6b5b'],attention:['⚠','Attention','#f0a830'],fort:['＋','Point fort','#3dba7e'],faible:['−','Point faible','#6aa7ff'],monte:['↑','Il monte','#ff7a45'],decroche:['↓','Il décroche','#c08bff'],permute:['⇄','Ils permutent','#4fc3f7']};
+var D1_NOMS={style:'Leur style',jeu:'Leur jeu',forces:'Forces et failles',surveiller:'À surveiller',cles:'Comment on les bat',cpaAdv:'Leurs CPA',contexte:'Le contexte'};
+function d1E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function d1T(t){ return String(t==null?'':t).trim(); }
+function d1L(L){ return (L||[]).map(d1T).filter(Boolean); }
+function d1Css(){
+  if(document.getElementById('d1-css')) return;
+  var css=''
+  +'.d1-bl{display:flex;flex-direction:column;gap:10px;margin-top:6px}'
+  +'.d1-sl{display:grid;grid-template-columns:96px 1fr;gap:4px 10px;align-items:center;font:700 12.5px "Roboto Condensed",sans-serif;color:#f2eee6}'
+  +'.d1-sl .tr{position:relative;height:10px;border-radius:5px;background:rgba(255,255,255,.12)}'
+  +'.d1-sl .tr i{position:absolute;top:-3px;width:16px;height:16px;border-radius:50%;background:#ff7a45;box-shadow:0 0 0 3px rgba(255,122,69,.25)}'
+  +'.d1-sl .bs{grid-column:2;display:flex;justify-content:space-between;font-size:11px;color:#b8b1a4;font-weight:600}'
+  +'.d1-bk{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);display:flex;flex-direction:column;gap:4px}'
+  +'.d1-bk span{font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase}'
+  +'.d1-bk p{margin:0;font:600 15px/1.35 "Roboto Condensed",sans-serif;color:#f2eee6;white-space:pre-line}'
+  +'.d1-li{display:flex;gap:8px;align-items:flex-start;font:600 15px/1.3 "Roboto Condensed",sans-serif;color:#f2eee6;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}'
+  +'.d1-li b{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#14130f}'
+  +'.d1-ph{font:900 26px/1.05 "Anton","Roboto Condensed",sans-serif;text-transform:uppercase;color:#ff7a45}'
+  +'.d1-forme{display:flex;gap:5px}.d1-forme i{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font:900 13px "Roboto Condensed",sans-serif;font-style:normal;color:#14130f}'
+  +'.mm-big.d1-m2{font-size:clamp(22px,6vw,30px)!important;line-height:1.15!important;align-items:flex-start}'
+  +'.mm-big.d1-m3{font-size:clamp(17px,4.6vw,22px)!important;line-height:1.25!important;align-items:flex-start;text-transform:none}';
+  var s=document.createElement('style'); s.id='d1-css'; s.textContent=css; document.head.appendChild(s);
+}
+function d1Tete(sur, titre){ return '<div class="mm-h"><span>'+d1E(sur)+'</span><b>'+d1E(titre)+'</b></div>'; }
+// les diapos tirées du rapport adversaire
+function d1PagesAdv(d, r){
+  var P=[]; if(!r) return P;
+  var adv=d.adv||'Eux';
+  // leur style
+  var st=r.style||{}, aStyle=D1_STYLE.some(function(s){ return st[s[0]]!=null; });
+  if(aStyle || d1T(r.resume) || d1T(r.systeme)){
+    P.push({k:'style', html:d1Tete('Leur style de jeu', adv)
+      +'<div class="d1-bl">'+(d1T(r.systeme)?'<div class="d1-bk"><span style="color:#ff7a45">Système</span><p>'+d1E(r.systeme)+(d1T(r.systemeDef)&&r.systemeDef!==r.systeme?' avec le ballon · '+d1E(r.systemeDef)+' sans':'')+'</p></div>':'')
+      +(d1T(r.resume)?'<div class="d1-bk"><span style="color:#ff7a45">Leur match en une phrase</span><p>'+d1E(r.resume)+'</p></div>':'')
+      +D1_STYLE.filter(function(s){ return st[s[0]]!=null; }).map(function(s){ var v=+st[s[0]]; return '<div class="d1-sl"><span>'+d1E(s[1])+'</span><div class="tr"><i style="left:calc('+(v*25)+'% - 8px)"></i></div><div class="bs"><span>'+d1E(s[2])+'</span><span>'+d1E(s[3])+'</span></div></div>'; }).join('')
+      +'</div>'});
+  }
+  // leur jeu, phase par phase
+  var J=[['jeuBallon','Avec le ballon','#ff7a45'],['jeuSans','Sans le ballon','#3dba7e'],['transitions','Les transitions','#6aa7ff'],['gardien','Leur gardien','#c08bff']].filter(function(x){ return d1T(r[x[0]]); });
+  if(J.length) P.push({k:'jeu', html:d1Tete('Leur jeu', 'Phase par phase')+'<div class="d1-bl">'+J.map(function(x){ return '<div class="d1-bk"><span style="color:'+x[2]+'">'+x[1]+'</span><p>'+d1E(r[x[0]])+'</p></div>'; }).join('')+'</div>'});
+  // forces et failles
+  var Fo=d1L(r.forces), Fa=d1L(r.failles);
+  if(Fo.length||Fa.length) P.push({k:'forces', html:d1Tete('Forces et failles', adv)+'<div class="d1-bl">'
+    +(Fo.length?'<div class="d1-bk"><span style="color:#ff6b5b">Ce qui les rend dangereux</span>'+Fo.map(function(t){ return '<div class="d1-li"><b style="background:#ff6b5b">!</b>'+d1E(t)+'</div>'; }).join('')+'</div>':'')
+    +(Fa.length?'<div class="d1-bk"><span style="color:#3dba7e">Là où on les fait mal</span>'+Fa.map(function(t){ return '<div class="d1-li"><b style="background:#3dba7e">✓</b>'+d1E(t)+'</div>'; }).join('')+'</div>':'')+'</div>'});
+  // les joueurs à surveiller
+  var M=(r.terrain||[]).filter(function(p){ return p && (p.sg || d1T(p.t)); });
+  if(M.length) P.push({k:'surveiller', html:d1Tete('À surveiller', 'Leurs joueurs clés')+'<div class="d1-bl">'+M.slice(0,8).map(function(p){ var s=D1_SIGNES[p.sg]||['•','','#b8b1a4']; return '<div class="d1-li"><b style="background:'+s[2]+'">'+s[0]+'</b><span><strong>'+d1E(p.pos)+'</strong>'+(s[1]?' · '+d1E(s[1]):'')+(d1T(p.t)?' — '+d1E(p.t):'')+'</span></div>'; }).join('')+'</div>'});
+  // comment on les bat
+  var C=d1L(r.cles);
+  if(C.length) P.push({k:'cles', fond:'or', html:'<div class="mm-h noir"><span>Comment on les bat</span></div><div class="d1-bl">'+C.map(function(t,i){ return '<div class="d1-ph" style="color:#14130f">'+(i+1)+'. '+d1E(t)+'</div>'; }).join('')+'</div>'});
+  // leurs coups de pied arrêtés
+  if(d1T(r.cpa)) P.push({k:'cpaAdv', html:d1Tete('Leurs coups de pied arrêtés', 'Attention')+'<div class="d1-bl"><div class="d1-bk"><span style="color:#c08bff">Ce qu’ils font</span><p>'+d1E(r.cpa)+'</p></div></div>'});
+  // le contexte
+  var fo=(r.forme||[]).filter(Boolean), coul={V:'#3dba7e',N:'#f0a830',D:'#ff6b5b'};
+  if(d1T(r.contexte) || d1T(r.classement) || fo.length) P.push({k:'contexte', html:d1Tete('Le contexte', 'Où ils en sont')+'<div class="d1-bl">'
+    +(d1T(r.classement)?'<div class="d1-bk"><span style="color:#ff7a45">Classement</span><p>'+d1E(r.classement)+'</p></div>':'')
+    +(fo.length?'<div class="d1-bk"><span style="color:#ff7a45">Leurs 5 derniers matchs</span><div class="d1-forme">'+fo.map(function(x){ return '<i style="background:'+(coul[x]||'#b8b1a4')+'">'+d1E(x)+'</i>'; }).join('')+'</div></div>':'')
+    +(d1T(r.contexte)?'<div class="d1-bk"><span style="color:#ff7a45">Ce qu’il faut savoir</span><p>'+d1E(r.contexte)+'</p></div>':'')+'</div>'});
+  return P;
+}
+// les titres modifiés par le coach
+function d1AppliquerTitres(P, titres){
+  if(!titres) return P;
+  P.forEach(function(p){
+    var t=titres[p.k]; if(!t || (!d1T(t.s) && !d1T(t.b))) return;
+    if(/<div class="mm-h[^"]*">/.test(p.html)){
+      p.html=p.html.replace(/(<div class="mm-h[^"]*">)<span>([\s\S]*?)<\/span>(<b>([\s\S]*?)<\/b>)?/, function(all, open, s, bb, b){
+        var ns=d1T(t.s)?d1E(t.s):s, nb=d1T(t.b)?d1E(t.b):(b||'');
+        return open+'<span>'+ns+'</span>'+(nb?'<b>'+nb+'</b>':'');
+      });
+    } else if(p.k==='cover' && d1T(t.s)){
+      p.html=p.html.replace(/(<div class="mm-k">)[\s\S]*?(<\/div>)/, '$1'+d1E(t.s)+'$2');
+    }
+  });
+  return P;
+}
+// la mission : retours à la ligne gardés, taille qui s'adapte à la longueur
+function d1Mission(P){
+  P.forEach(function(p){
+    if(p.k!=='mission') return;
+    p.html=p.html.replace(/<div class="mm-big or">([\s\S]*?)<\/div>/, function(all, txt){
+      var brut=txt.replace(/<br>/g,'\n'), n=brut.length;
+      var cls=n>160?' d1-m3':(n>70?' d1-m2':'');
+      return '<div class="mm-big or'+cls+'">'+txt.replace(/\n/g,'<br>')+'</div>';
+    });
+  });
+  return P;
+}
+function d1Inserer(P, extra){
+  if(!extra.length) return P;
+  var i=P.findIndex(function(p){ return p.k==='ff'; }); if(i<0) i=P.findIndex(function(p){ return p.k==='id'; });
+  P.splice(i<0?1:i+1, 0, ...extra); return P;
+}
+// ===== v191 : le dossier d'avant-match plus riche =====
+//  · Les missions s'écrivent sur plusieurs lignes, sans limite, et la diapo s'adapte.
+//  · Les remplaçants ont aussi leur mission (« ton rôle quand tu entres »).
+//  · Chaque diapo peut être renommée (petit titre et grand titre).
+//  · L'adversaire : le rapport gagne « leur jeu phase par phase », « leur gardien »,
+//    « le contexte » ; et les stories montrent tout le rapport en diapos :
+//    style, jeu, forces et failles, joueurs à surveiller, comment on les bat,
+//    leurs CPA, le contexte.
+(function(){
+  var css=''
+  +'.d1-mis{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:start}'
+  +'@media(max-width:700px){.d1-mis{grid-template-columns:minmax(0,1fr)}}'
+  +'.d1-mis textarea{width:100%;box-sizing:border-box;min-height:44px;resize:vertical;line-height:1.4;overflow:hidden}'
+  +'.d1-sec{margin:12px 0 4px;font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--gris2);display:flex;justify-content:space-between}'
+  +'.d1-tit{margin-top:10px;padding:12px;border-radius:14px;background:var(--carte);display:flex;flex-direction:column;gap:6px;font-family:"Roboto Condensed",sans-serif}'
+  +'.d1-tit b{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris2)}'
+  +'.d1-tit .l{display:flex;gap:6px}.d1-tit input{flex:1;min-width:0}'
+  +'.d1-tit button{align-self:flex-start;border:0;background:none;color:var(--gris2);text-decoration:underline;cursor:pointer;font:700 12.5px "Roboto Condensed",sans-serif;padding:0}'
+  +'.d1-rap{margin-top:14px;padding:14px;border-radius:14px;background:var(--voile,rgba(127,127,127,.06));display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}'
+  +'@media(max-width:900px){.d1-rap{grid-template-columns:minmax(0,1fr)}}'
+  +'.d1-rap h4{grid-column:1/-1;margin:0;font:900 18px "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.d1-rap label{display:flex;flex-direction:column;gap:4px}.d1-rap textarea{min-height:70px;resize:vertical}';
+  var s=document.createElement('style'); s.id='v191-css'; s.textContent=css; document.head.appendChild(s);
+  d1Css();
+})();
+function d1Grandir(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
+function d1Banc(){
+  var c=(DOSSIER && DOSSIER.compoIdx!=null)?(COMPOSITIONS||[])[DOSSIER.compoIdx]:null;
+  return (c && c.slots)?c.slots.filter(function(x){ return x.bench && x.nom; }):[];
+}
+function d1SetMission(nom, v){
+  DOSSIER.missions=DOSSIER.missions||{}; DOSSIER.missionsAuto=DOSSIER.missionsAuto||{};
+  DOSSIER.missions[nom]=v; delete DOSSIER.missionsAuto[nom];
+  ST.missionNom=nom; stuSauver();
+  clearTimeout(d1SetMission._t); d1SetMission._t=setTimeout(function(){ try{ stMaj('mission'); }catch(e){ try{ stTelephone(); }catch(x){} } }, 250);
+}
+// les missions : titulaires puis remplaçants, en zones de texte qui grandissent
+msnHtml=function(){
+  var T=msnTitus(), B=d1Banc(); if(!T.length && !B.length) return '';
+  var M=DOSSIER.missions||{}, A=DOSSIER.missionsAuto||{};
+  var ligne=function(t, banc){
+    var src=A[t.nom]==='plateau'?'proposée · ta consigne au plateau':(A[t.nom]==='rapport'?'proposée · le rapport adversaire':'');
+    return '<div class="d1-mis"><div style="padding-top:8px"><div class="stu-v" style="font-size:14px">'+stE(t.nom)+'</div><div class="stu-l" style="font-size:10.5px">'+stE(banc?'Remplaçant':(t.pos||''))+(src?' · <span style="color:var(--green)">'+stE(src)+'</span>':'')+'</div></div>'
+      +'<textarea class="fi" rows="2" data-n="'+stA(t.nom)+'" aria-label="Mission de '+stA(t.nom)+'" placeholder="'+(banc?'Ton rôle quand tu entres : ex. vers la 60e, couloir droit, tu presses leur latéral fatigué':'Pas de mission particulière')+'" oninput="d1Grandir(this);d1SetMission(this.dataset.n,this.value)" onfocus="ST.missionNom=this.dataset.n;try{stMaj(\'mission\')}catch(e){}">'+stE(M[t.nom]||'')+'</textarea></div>';
+  };
+  return '<div class="stu-c"><h3>Les missions <small>Chacun reçoit la sienne dans ses stories, titulaires comme remplaçants. Écris autant que tu veux : la diapo s’adapte.</small></h3>'
+    +(T.length?'<div class="d1-sec"><span>Les titulaires</span><span>'+T.length+'</span></div>'+T.map(function(t){ return ligne(t,false); }).join(''):'')
+    +(B.length?'<div class="d1-sec"><span>Les remplaçants · leur rôle en entrant</span><span>'+B.length+'</span></div>'+B.map(function(t){ return ligne(t,true); }).join(''):'')
+    +'</div>';
+};
+// le titre des diapos
+function d1Titres(){ var M=mmData(DOSSIER); if(!M.titres) M.titres={}; return M.titres; }
+function d1SetTitre(k, champ, v){ var T=d1Titres(); T[k]=T[k]||{s:'',b:''}; T[k][champ]=v; stuSauver(); clearTimeout(d1SetTitre._t); d1SetTitre._t=setTimeout(function(){ try{ stTelephone(); }catch(e){} }, 300); }
+function d1ResetTitre(k){ var T=d1Titres(); delete T[k]; stuSauver(); stTelephone(); }
+function d1Rapport(d){ try{ return d && d.adv ? rapLire(d.adv) : null; }catch(e){ return null; } }
+
+window.addEventListener('load', function(){
+  // les stories (aperçu et envoi) : les diapos du rapport, les titres, la mission lisible
+  if(typeof mmPages==='function' && !mmPages.__v191){
+    var bm=mmPages;
+    mmPages=function(d, opts){
+      var P=bm.apply(this, arguments);
+      try{
+        var r=d1Rapport(d); if(r && typeof rapARempli==='function' && !rapARempli(r)) r=null;
+        d1Inserer(P, d1PagesAdv(d, r));
+        d1Mission(P);
+        d1AppliquerTitres(P, (mmData(d)||{}).titres);
+      }catch(e){ console.error('v191 diapos', e); }
+      return P;
+    };
+    mmPages.__v191=true;
+  }
+  // l'aperçu du téléphone : la mission du joueur choisi (remplaçants compris), les titres
+  if(typeof stPagesDossier==='function' && !stPagesDossier.__v191){
+    var bp=stPagesDossier;
+    stPagesDossier=function(){
+      var P=bp.apply(this, arguments);
+      try{
+        var M=DOSSIER.missions||{}, n=ST.missionNom;
+        if(n && d1T(M[n])){
+          var page={k:'mission', html:'<div class="mm-h"><span>Ta mission</span><b>'+mmEsc(n)+'</b></div><div class="mm-big or">'+mmEsc(M[n])+'</div>'};
+          var i=P.findIndex(function(p){ return p.k==='mission'; });
+          if(i>=0) P[i]=page; else { var iR=P.findIndex(function(p){ return p.k==='rituel'; }); P.splice(iR<0?P.length:iR, 0, page); }
+        }
+        d1Mission(P); d1AppliquerTitres(P, d1Titres());
+      }catch(e){ console.error('v191 aperçu', e); }
+      return P;
+    };
+    stPagesDossier.__v191=true;
+  }
+  // sous le téléphone : renommer la diapo affichée
+  if(typeof stTelephone==='function' && !stTelephone.__v191){
+    var bt=stTelephone;
+    stTelephone=function(){
+      var r=bt.apply(this, arguments);
+      try{
+        var ec=document.getElementById('stu-ecran'); if(!ec) return r;
+        var m=/k-([A-Za-z]+)/.exec(ec.className||''); var k=m?m[1]:''; if(!k) return r;
+        var pos=document.getElementById('stu-pos'); if(pos && D1_NOMS[k]){ pos.textContent=pos.textContent.replace(/^[^·]+/, D1_NOMS[k]+' '); }
+        var z=document.getElementById('d1-tit');
+        if(!z){ z=document.createElement('div'); z.id='d1-tit'; z.className='d1-tit'; var ref=pos?pos.parentNode:ec.parentNode; ref.parentNode.insertBefore(z, ref.nextSibling); }
+        var actif=document.activeElement && z.contains(document.activeElement);
+        if(actif && z.dataset.k===k) return r;
+        var T=d1Titres()[k]||{s:'',b:''};
+        z.dataset.k=k;
+        z.innerHTML='<b>Le titre de cette diapo</b>'
+          +'<div class="l"><input class="fi" placeholder="Petit titre (laisse vide = celui d’origine)" value="'+stA(T.s||'')+'" oninput="d1SetTitre(\''+k+'\',\'s\',this.value)">'
+          +(k==='cover'?'':'<input class="fi" placeholder="Grand titre" value="'+stA(T.b||'')+'" oninput="d1SetTitre(\''+k+'\',\'b\',this.value)">')+'</div>'
+          +((T.s||T.b)?'<button onclick="d1ResetTitre(\''+k+'\')">Remettre le titre d’origine</button>':'');
+      }catch(e){ console.error('v191 titres', e); }
+      return r;
+    };
+    stTelephone.__v191=true;
+  }
+  // le rapport adversaire : leur jeu phase par phase, leur gardien, le contexte
+  if(typeof rapRender==='function' && !rapRender.__v191){
+    var br=rapRender;
+    rapRender=function(nom){
+      var r0=br.apply(this, arguments);
+      try{
+        var ct=document.getElementById('rap-ct'); if(!ct || !nom) return r0;
+        var g=ct.querySelector('.rap-g'); if(!g || ct.querySelector('.d1-rap')) return r0;
+        var r=rapLire(nom);
+        var champ=function(k, l, ph){ return '<label><span class="fl">'+l+'</span><textarea class="fi" placeholder="'+stA(ph)+'" onchange="rapChamp(\''+k+'\',this.value)">'+stE(r[k]||'')+'</textarea></label>'; };
+        var z=document.createElement('div'); z.className='d1-rap';
+        z.innerHTML='<h4>④ Leur jeu, phase par phase <span class="rap-aide" style="text-transform:none">chaque bloc rempli devient une diapo du dossier</span></h4>'
+          +champ('jeuBallon','⚽ Avec le ballon','Comment ils construisent : relance courte ou longue, côté fort, joueur-relais, combinaisons qui reviennent…')
+          +champ('jeuSans','🛡 Sans le ballon','Où ils pressent, hauteur du bloc, qui déclenche, ce qu’ils laissent…')
+          +champ('transitions','🔁 Les transitions','À la perte : ils contre-pressent ou ils reculent ? À la récupération : qui part, par où ?')
+          +champ('gardien','🧤 Leur gardien','Sorties aériennes, jeu au pied, côté faible, comment il relance…')
+          +'<label style="grid-column:1/-1"><span class="fl">📌 Le contexte</span><textarea class="fi" placeholder="Dynamique, absents et suspendus, terrain (synthétique, petit, lourd), enjeu, ambiance, leur coach…" onchange="rapChamp(\'contexte\',this.value)">'+stE(r.contexte||'')+'</textarea></label>';
+        g.parentNode.insertBefore(z, g.nextSibling);
+      }catch(e){ console.error('v191 rapport', e); }
+      return r0;
+    };
+    rapRender.__v191=true;
+  }
+  // un rapport n'est « rempli » que s'il a du contenu : les nouveaux champs comptent aussi
+  if(typeof rapARempli==='function' && !rapARempli.__v191){
+    var ba=rapARempli;
+    rapARempli=function(r){ return ba.apply(this, arguments) || !!(r && (d1T(r.jeuBallon)||d1T(r.jeuSans)||d1T(r.transitions)||d1T(r.gardien)||d1T(r.contexte))); };
+    rapARempli.__v191=true;
   }
 });
 </script>
