@@ -7201,7 +7201,7 @@ function renderDossierMatchHtml(){
         +'<span class="bc">'+esc(compo.formation||'')+'</span></div><div class="blk-body">'
         +(jeJoue?'<div class="dmj-moi"><b>Tu es dedans</b>Tu apparais en vert sur le terrain.</div>':'')
         +'<div class="dmj-terrain">'+dmjTerrainCompo(titus)+'</div>'
-        +(banc.length?'<div class="dmj-banc"><span>Sur le banc</span>'
+        +(banc.length?'<div class="dmj-banc"><span>Les finisseurs</span>'
           +banc.map(function(x){ return esc((x.num?x.num+'. ':'')+(x.nom||x.pos)); }).join(' \u00b7 ')+'</div>':'')
         +'</div></div>';
     }
@@ -7898,7 +7898,7 @@ if('serviceWorker' in navigator){
 </script>
 <script>
 // ===== v168 (joueur) : mise à jour en un tap · dossier dévoilé dans la semaine · mission · quiz =====
-var APP_BUILD='v191';
+var APP_BUILD='v192';
 
 // ---------- 1. Nouvelle version disponible ----------
 var MAJ_VUE=false;
@@ -9176,7 +9176,7 @@ function b2ApresHub(){
   }
   if(!VIEJ.en && Date.now()-VIEJ.t>120000) b2VieLire();
   var v=document.getElementById('app-version-joueur');
-  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v191</b> · 21/10/2026<br><span style="opacity:.8">Rangée par usage : l’équipe, le club, moi</span>';
+  if(v) v.innerHTML='AST JOUEUR <b style="color:var(--or)">v192</b> · 22/10/2026<br><span style="opacity:.8">Les moments vidéo du dossier</span>';
 }
 
 window.addEventListener('load', function(){
@@ -9925,5 +9925,167 @@ window.addEventListener('load', function(){
 });
 </script>
 
+<script>
+// ---- v192 commun coach / joueur : les moments vidéo du dossier, les finisseurs ----
+// Une vidéo du dossier devient une diapo : le moment précis, ce qu'il faut regarder,
+// et un bouton qui ouvre la vidéo au bon endroit quand le site le permet.
+function d2E(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+// « 34:12 », « 34'12 », « 34m12 », « 1:02:30 », « 34 » (minutes), « 95s » → secondes
+function d2Sec(txt){
+  txt=String(txt==null?'':txt).trim().toLowerCase(); if(!txt) return 0;
+  var m=txt.match(/^(\d+):(\d{1,2}):(\d{1,2})$/); if(m) return (+m[1])*3600+(+m[2])*60+(+m[3]);
+  m=txt.match(/^(\d+)\s*[:'’m]\s*(\d{1,2})/); if(m) return (+m[1])*60+(+m[2]);
+  m=txt.match(/^(\d+)\s*(s|sec)$/); if(m) return +m[1];
+  m=txt.match(/^(\d+)\s*(min|'|’|e|è|ème|eme)?$/); if(m) return (+m[1])*60;
+  m=txt.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/); if(m && (m[1]||m[2]||m[3])) return (+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0);
+  return 0;
+}
+function d2Hms(s){ s=Math.max(0, Math.round(+s||0)); var m=Math.floor(s/60), x=s%60; return m+':'+(x<10?'0':'')+x; }
+// un lien qui contient déjà un moment (ex. « Copier le lien » de Veo avec le moment coché) :
+// on repère le paramètre pour pouvoir le changer
+var D2_PARAMS=['t','time','start','timestamp','seek','at','startTime','start_time','position'];
+function d2Param(url){
+  url=String(url||'');
+  var lire=function(chaine, ou){
+    var out=null;
+    chaine.replace(/([A-Za-z_]+)=([^&#]*)/g, function(all, k, v){
+      if(out || D2_PARAMS.indexOf(k)<0) return all;
+      var vv=decodeURIComponent(v).trim(), s=null;
+      if(/^\d+(\.\d+)?$/.test(vv)) s=Math.round(+vv);
+      else if(/^\d+(\.\d+)?s$/.test(vv)) s=Math.round(parseFloat(vv));
+      else if(/^(\d+h)?(\d+m)?(\d+s)?$/.test(vv) && vv) s=d2Sec(vv);
+      else if(/^\d+:\d{1,2}(:\d{1,2})?$/.test(vv)) s=d2Sec(vv);
+      if(s!=null) out={nom:k, ou:ou, sec:s, brut:vv};
+      return all;
+    });
+    return out;
+  };
+  var q=url.split('#')[0].split('?')[1]||'', h=url.split('#')[1]||'';
+  return lire(q,'q') || lire(h,'h');
+}
+function d2Yt(u){ return /youtube\.com|youtu\.be/i.test(u||''); }
+function d2Vimeo(u){ return /vimeo\.com/i.test(u||''); }
+function d2Source(u){ return /veo\.co|app\.veo/i.test(u||'')?'Veo':(d2Yt(u)?'YouTube':(d2Vimeo(u)?'Vimeo':'Vidéo')); }
+// le lien qui démarre au bon moment ; ok=false quand on ne sait pas le faire pour ce site
+function d2Lien(url, sec){
+  url=String(url||''); sec=Math.round(+sec||0);
+  if(!url) return {u:'', ok:false};
+  if(!sec) return {u:url, ok:true};
+  var p=d2Param(url);
+  if(p){
+    var val=/s$/.test(p.brut)&&!/[hm]/.test(p.brut)?sec+'s':(/[hm]/.test(p.brut)?(Math.floor(sec/60)+'m'+(sec%60)+'s'):(/:/.test(p.brut)?d2Hms(sec):String(sec)));
+    var re=new RegExp('([?&#])'+p.nom+'=[^&#]*');
+    return {u:url.replace(re, '$1'+p.nom+'='+val), ok:true};
+  }
+  if(d2Yt(url)){ var base=url.replace(/([?&])t=[^&#]*&?/,'$1').replace(/[?&]$/,''); return {u:base+(base.indexOf('?')<0?'?':'&')+'t='+sec+'s', ok:true}; }
+  if(d2Vimeo(url)){ return {u:url.split('#')[0]+'#t='+sec+'s', ok:true}; }
+  return {u:url, ok:false};
+}
+function d2Pour(v){ return String((v&&v.pour)||'').trim(); }
+function d2Meme(a, b){ a=String(a||'').trim().toLowerCase(); b=String(b||'').trim().toLowerCase(); return !!a && a===b; }
+function d2Css(){
+  if(document.getElementById('d2-css')) return;
+  var css=''
+  +'.d2-v{display:flex;flex-direction:column;gap:12px;margin-top:4px}'
+  +'.d2-tc{display:flex;align-items:baseline;gap:10px}'
+  +'.d2-tc b{font:900 54px/1 "Anton","Roboto Condensed",sans-serif;color:#ff7a45;letter-spacing:.02em}'
+  +'.d2-tc span{font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#b8b1a4}'
+  +'.d2-th{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:#26241f}'
+  +'.d2-th img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}'
+  +'.d2-th i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:40px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6)}'
+  +'.d2-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 14px;border:0;border-radius:14px;background:#ff7a45;color:#14130f;font:900 17px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'
+  +'.d2-aide{font:600 13px/1.35 "Roboto Condensed",sans-serif;color:#d9d3c7;background:rgba(255,255,255,.07);border-radius:10px;padding:9px 11px}'
+  +'.d2-aide b{color:#ff7a45}'
+  +'.d2-pour{align-self:flex-start;font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#14130f;background:#f0a830;border-radius:20px;padding:4px 10px}'
+  +'.d2-fin{margin-top:10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.08);font:600 13.5px/1.35 "Roboto Condensed",sans-serif;color:#f2eee6}'
+  +'.d2-fin span{display:block;font:800 11px "Roboto Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#ff7a45;margin-bottom:2px}';
+  var s=document.createElement('style'); s.id='d2-css'; s.textContent=css; document.head.appendChild(s);
+}
+// les diapos « À voir » : opts.moi = le joueur (il ne voit que les siennes) ; opts.tous = l'aperçu du coach
+function d2PagesVideo(d, opts){
+  opts=opts||{}; var P=[], n=0;
+  (d.videos||[]).forEach(function(v){
+    if(!v || !v.url) return;
+    var pour=d2Pour(v);
+    if(pour && !opts.tous && !d2Meme(pour, opts.moi)) return;
+    var sec=d2Sec(v.minute), L=d2Lien(v.url, sec), src=d2Source(v.url);
+    var k='video'+String.fromCharCode(65+(n++)); if(n>26) return;
+    var th=v.vignetteUrl?'<div class="d2-th"><img src="'+d2E(v.vignetteUrl)+'" alt=""><i>▶</i></div>':'';
+    P.push({k:k, duree:16000, html:'<div class="mm-h"><span>À voir'+(pour?' · rien que pour toi':'')+'</span><b>'+d2E(v.titre||'La vidéo')+'</b></div>'
+      +'<div class="d2-v">'
+      +(pour && opts.tous?'<span class="d2-pour">Seulement pour '+d2E(pour)+'</span>':'')
+      +(sec?'<div class="d2-tc"><b>'+d2Hms(sec)+'</b><span>le moment à regarder</span></div>':'')
+      +th
+      +(String(v.note||'').trim()?'<div class="d1-bk"><span style="color:#ff7a45">Ce que tu regardes</span><p>'+d2E(v.note)+'</p></div>':'')
+      +'<button class="d2-go" data-u="'+d2E(L.u)+'" onclick="event.stopPropagation();window.open(this.dataset.u,\'_blank\',\'noopener\')">▶ '+(sec&&L.ok?'Voir à '+d2Hms(sec):'Ouvrir la vidéo')+'</button>'
+      +(sec&&!L.ok?'<div class="d2-aide">La vidéo '+d2E(src)+' s’ouvre au début : avance le curseur jusqu’à <b>'+d2Hms(sec)+'</b>.</div>':'')
+      +'</div>'});
+  });
+  return P;
+}
+function d2Inserer(P, extra){
+  if(!extra.length) return P;
+  var i=-1; ['consignes','mission','rituel'].some(function(k){ i=P.findIndex(function(p){ return p.k===k; }); return i>=0; });
+  P.splice(i<0?P.length:i, 0, ...extra); return P;
+}
+// les finisseurs : sous le onze, et « Ta mission de finisseur »
+function d2Finisseurs(P, banc, moi){
+  banc=(banc||[]).filter(Boolean);
+  P.forEach(function(p){
+    if(p.k==='compo' && banc.length && p.html.indexOf('d2-fin')<0) p.html+='<div class="d2-fin"><span>Les finisseurs</span>'+banc.map(d2E).join(' · ')+'</div>';
+    if(p.k==='mission' && moi && banc.some(function(b){ return d2Meme(b, moi); })) p.html=p.html.replace('<span>Ta mission</span>', '<span>Ta mission de finisseur</span>');
+  });
+  return P;
+}
+
+// ===== v192 : les moments vidéo du dossier et les finisseurs (joueur) =====
+// Chaque vidéo du dossier devient une diapo « À voir » : le moment en gros, ce qu'il faut
+// regarder, un bouton qui ouvre au bon endroit quand c'est possible. Une vidéo réservée à
+// un joueur n'apparaît que chez lui. Les remplaçants s'appellent « les finisseurs ».
+d2Css();
+function d2BancJ(d){
+  try{ var c=(d && d.compoIdx!=null)?((SAISON.COMPOSITIONS||[])[d.compoIdx]||null):null;
+    return (c && c.slots)?c.slots.filter(function(x){ return x.bench && x.nom; }).map(function(x){ return x.nom; }):[]; }catch(e){ return []; }
+}
+function d2Moi(){ return (typeof MON_NOM!=='undefined' && MON_NOM)||''; }
+window.addEventListener('load', function(){
+  if(typeof mmPages==='function' && !mmPages.__v192){
+    var bm=mmPages;
+    mmPages=function(d, opts){
+      var P=bm.apply(this, arguments);
+      try{
+        var moi=(opts&&opts.moi)||d2Moi();
+        var V=d2PagesVideo(d, {moi:moi});
+        d1AppliquerTitres(V, (d && d.moments && d.moments.titres)||null);
+        d2Inserer(P, V);
+        d2Finisseurs(P, d2BancJ(d), moi);
+      }catch(e){ console.error('v192 diapos', e); }
+      return P;
+    };
+    mmPages.__v192=true;
+  }
+  // le bloc « À regarder » du jour de match : même lien au bon moment, et rien que les siennes
+  if(typeof dmjOuvrirVideo==='function' && !dmjOuvrirVideo.__v192){
+    dmjOuvrirVideo=function(id){
+      var v=((DOSSIER_MATCH&&DOSSIER_MATCH.videos)||[]).filter(function(x){ return x.id===id; })[0]; if(!v) return;
+      var sec=d2Sec(v.minute), L=d2Lien(v.url, sec);
+      if(sec && !L.ok) try{ notifJ('Avance la vidéo jusqu’à '+d2Hms(sec)); }catch(e){}
+      window.open(L.u, '_blank', 'noopener');
+    };
+    dmjOuvrirVideo.__v192=true;
+  }
+  if(typeof renderDossierMatchHtml==='function' && !renderDossierMatchHtml.__v192){
+    var br=renderDossierMatchHtml;
+    renderDossierMatchHtml=function(){
+      var d=DOSSIER_MATCH, tous=d&&d.videos;
+      if(!tous) return br.apply(this, arguments);
+      try{ d.videos=tous.filter(function(v){ var p=d2Pour(v); return !p || d2Meme(p, d2Moi()); }); return br.apply(this, arguments); }
+      finally{ d.videos=tous; }
+    };
+    renderDossierMatchHtml.__v192=true;
+  }
+});
+
+</script>
 </body>
 </html>
