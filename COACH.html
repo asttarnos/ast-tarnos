@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v196</b> · 22/10/2026<br>
-      <span style="opacity:.7">12 outils de dessin sur les captures</span>
+      AST COACH <b style="color:var(--or)">v197</b> · 22/10/2026<br>
+      <span style="opacity:.7">Le dossier d’avant-match visible à tout moment</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v196';
+var APP_BUILD='v197';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -43283,6 +43283,147 @@ function d5Ouvrir2(){
   };
   d2Html.__v195=true;
 })();
+
+</script>
+<script>
+// ===== v197 : le dossier d'avant-match accessible à tout moment =====
+// Plus besoin de finir les 4 étapes pour le voir :
+//   · « ▶ Dossier » dans la barre du haut, depuis n'importe quel écran : les stories
+//     telles que les joueurs les verront, en l'état (même à moitié rempli) ;
+//   · « ▦ Tout le dossier » : toutes les diapos d'un coup d'œil, on touche une diapo
+//     pour aller la modifier directement ;
+//   · dans le dossier, on peut sauter à n'importe quelle étape, dans l'ordre qu'on veut.
+var D7_ETAPE={cover:1,id:1,ff:1,style:1,jeu:1,forces:1,surveiller:1,cles:1,cpaAdv:1,contexte:1,compo:2,mission:2,plan:3,consignes:3,rituel:4,quiz:4};
+function d7EtapeDe(k){ if(/^(video|dvid)/.test(k)) return 3; return D7_ETAPE[k]||1; }
+function d7NomDe(k){
+  var N={cover:'Couverture',id:'Leur identité',ff:'Face-à-face',compo:'Le onze',plan:'Le plan en 3 temps',consignes:'Tes 3 messages',mission:'Sa mission',rituel:'Le rituel',quiz:'Le quiz'};
+  if(/^dvid/.test(k)) return 'Le dossier vidéo'; if(/^video/.test(k)) return 'Situation vidéo';
+  return N[k]||(typeof D1_NOMS!=='undefined'&&D1_NOMS[k])||k;
+}
+function d7Pages(){
+  try{ if(typeof DOSSIER==='undefined' || !DOSSIER) DOSSIER=dmVide(); }catch(e){}
+  try{ if(typeof stAuto==='function') stAuto(); }catch(e){}
+  try{ return stPagesDossier()||[]; }catch(e){ console.error('dossier', e); return []; }
+}
+// les stories, en plein écran, comme chez les joueurs
+function d7Voir(depart){
+  var P=d7Pages();
+  if(!P.length){ notif('Le dossier est encore vide : ouvre-le pour commencer'); return; }
+  var orig=mmPages;
+  try{ mmPages=function(){ return P; }; mmOuvrir(DOSSIER, {}); }
+  finally{ mmPages=orig; }
+  if(depart){ var i=P.findIndex(function(p){ return p.k===depart; }); if(i>0) mmAller(i); }
+  // un bandeau discret : c'est l'aperçu du coach, rien n'est envoyé
+  var o=document.getElementById('mm-story');
+  if(o && !o.querySelector('.d7-ban')){
+    var b=document.createElement('div'); b.className='d7-ban';
+    b.innerHTML='<span>Aperçu coach · tel que les joueurs le verront</span><button onclick="event.stopPropagation();mmFermer();d7Ensemble()">▦ Tout voir</button>';
+    o.appendChild(b);
+  }
+}
+// toutes les diapos d'un coup
+function d7Ensemble(){
+  var P=d7Pages();
+  if(!P.length){ notif('Le dossier est encore vide : ouvre-le pour commencer'); return; }
+  var o=document.getElementById('d7-ov'); if(o) o.remove();
+  o=document.createElement('div'); o.id='d7-ov';
+  var E=null; try{ E=stEtat(); }catch(e){}
+  var d=DOSSIER||{};
+  o.innerHTML='<div class="d7-h"><div><span class="k">Dossier d’avant-match'+(E?' · prêt à '+E.pret+' %':'')+'</span><b>AST Tarnos vs '+stE(d.adv||'?')+'</b><small>'+P.length+' diapos · touche une diapo pour la modifier</small></div>'
+    +'<div class="d7-bt"><button class="pl" onclick="d7Fermer();d7Voir()">▶ Voir en stories</button><button onclick="d7Fermer();d7Ouvrir(0)">✎ Ouvrir le dossier</button><button onclick="d7Fermer()">✕ Fermer</button></div></div>'
+    +'<div class="d7-g">'+P.map(function(p, i){
+      var et=d7EtapeDe(p.k);
+      return '<button class="d7-c" data-k="'+stA(p.k)+'" onclick="d7Fermer();d7Ouvrir(\''+p.k+'\')">'
+        +'<div class="d7-tel"><div class="stu-ecran f-'+(p.fond||'nuit')+' k-'+p.k+'" style="transform:scale(.42)">'
+        +'<div class="mm-bars">'+P.map(function(x,k){ return '<i><b style="width:'+(k<i?'100%':(k===i?'45%':'0'))+'"></b></i>'; }).join('')+'</div>'
+        +'<div class="mm-page in">'+p.html+'</div></div></div>'
+        +'<span class="n">'+(i+1)+'. '+stE(d7NomDe(p.k))+'</span><span class="e">Étape '+et+'</span></button>';
+    }).join('')+'</div>';
+  document.body.appendChild(o);
+  d7Fermer._k=function(e){ if(e.key==='Escape') d7Fermer(); };
+  document.addEventListener('keydown', d7Fermer._k);
+}
+function d7Fermer(){ var o=document.getElementById('d7-ov'); if(o) o.remove(); if(d7Fermer._k) document.removeEventListener('keydown', d7Fermer._k); }
+// ouvrir le dossier, directement sur une diapo (et son étape)
+function d7Ouvrir(k){
+  try{ goNav('studio'); }catch(e){}
+  setTimeout(function(){
+    try{
+      if(k){ ST.etape=d7EtapeDe(k); ST.page=k; }
+      else if(!ST.etape){ ST.etape=1; }
+      stRendre();
+    }catch(e){ console.error(e); }
+  }, 60);
+}
+(function(){
+  var css=''
+  +'.d7-ban{position:absolute;left:50%;top:26px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;padding:6px 8px 6px 14px;border-radius:30px;background:rgba(0,0,0,.72);color:#fff;font:700 12.5px "Roboto Condensed",sans-serif;z-index:5;white-space:nowrap}'
+  +'.d7-ban button{border:0;border-radius:20px;padding:6px 12px;background:#ff7a45;color:#14130f;font:800 12.5px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'#d7-ov{position:fixed;inset:0;z-index:100003;background:var(--bg,#f4efe6);overflow:auto;padding:18px 20px 40px;font-family:"Roboto Condensed",sans-serif}'
+  +'.d7-h{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;margin-bottom:16px;padding:14px 18px;border-radius:14px;background:#141210;color:#fff}'
+  +'.d7-h .k{display:block;font:800 11.5px "Roboto Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#f4a06b}'
+  +'.d7-h b{display:block;font:400 26px/1.05 "Anton",sans-serif;text-transform:uppercase}'
+  +'.d7-h small{display:block;font:600 13px "Roboto Condensed",sans-serif;color:#cfc8ba;margin-top:3px}'
+  +'.d7-bt{display:flex;flex-wrap:wrap;gap:8px}'
+  +'.d7-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px 14px}'
+  +'.d7-c{display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;cursor:pointer;padding:6px;border-radius:14px;color:inherit}'
+  +'.d7-c:hover{background:var(--voile,rgba(127,127,127,.08))}'
+  +'.d7-tel{position:relative;width:158px;height:311px;border-radius:18px;overflow:hidden;background:#0b0a09;box-shadow:0 8px 20px rgba(20,18,16,.25);border:4px solid #0b0a09}'
+  +'.d7-tel .stu-ecran{pointer-events:none}'
+  +'.d7-c .n{font:800 13px "Roboto Condensed",sans-serif;text-align:center}'
+  +'.d7-c .e{font:700 11px "Roboto Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--gris2,#888)}'
+  +'.d7-hb{border-color:var(--or,#ff7a45)!important}'
+  +'@media(max-width:1700px){.d7-hb .hb-t{display:none}}'
+  +'.d7-bt button{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:10px;padding:9px 14px;font:800 13.5px "Roboto Condensed",sans-serif;cursor:pointer}.d7-bt button.pl{background:#ff7a45;border-color:#ff7a45;color:#14130f}'
+  +'.stu-band .d7-bb{display:flex;gap:8px;flex-wrap:wrap}'
+  +'.stu-band .d7-bb button{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:10px;padding:8px 12px;font:800 13px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.stu-band .d7-bb button.pl{background:#ff7a45;border-color:#ff7a45;color:#14130f}';
+  var s=document.createElement('style'); s.id='v197-css'; s.textContent=css; document.head.appendChild(s);
+})();
+window.addEventListener('load', function(){
+  // le bouton « ▶ Dossier » dans la barre du haut, sur tous les écrans
+  var hb=document.getElementById('hb');
+  var poser=function(){
+    var h=document.getElementById('hb'); if(!h || h.querySelector('.d7-hb')) return;
+    var ref=h.querySelector('.hb-b.ligne'); if(!ref) return;
+    var b=document.createElement('button'); b.className='hb-b ligne d7-hb'; b.title='Voir le dossier d’avant-match, tel quel, à tout moment';
+    b.innerHTML='📋<span class="hb-t">Dossier</span>'; b.onclick=function(){ d7Menu(b); };
+    h.insertBefore(b, ref);
+  };
+  poser();
+  try{ new MutationObserver(function(){ poser(); }).observe(hb||document.body, {childList:true, subtree:!hb}); }catch(e){}
+  // dans le dossier : les deux boutons dans le bandeau du haut
+  if(typeof stRendre==='function' && !stRendre.__v197){
+    var br=stRendre;
+    stRendre=function(){
+      var r=br.apply(this, arguments);
+      try{
+        var band=document.querySelector('#stu-ct .stu-band');
+        if(band && !band.querySelector('.d7-bb')){
+          var z=document.createElement('div'); z.className='d7-bb';
+          z.innerHTML='<button class="pl" onclick="d7Voir(ST.page)">▶ Voir comme un joueur</button><button onclick="d7Ensemble()">▦ Tout le dossier</button>';
+          var pret=band.querySelector('.stu-pret'); band.insertBefore(z, pret||null);
+        }
+      }catch(e){}
+      return r;
+    };
+    stRendre.__v197=true;
+  }
+});
+// le petit menu du bouton « Dossier »
+function d7Menu(btn){
+  var m=document.getElementById('d7-menu'); if(m){ m.remove(); return; }
+  m=document.createElement('div'); m.id='d7-menu';
+  var r=btn.getBoundingClientRect();
+  m.style.cssText='position:fixed;top:'+(r.bottom+6)+'px;left:'+Math.max(8, Math.min(window.innerWidth-250, r.left-60))+'px;z-index:100004;width:240px;background:var(--carte,#fff);color:var(--texte,#14130f);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.25);padding:6px;display:flex;flex-direction:column;font-family:"Roboto Condensed",sans-serif';
+  var it=function(ic, t, s, f){ return '<button onclick="document.getElementById(\'d7-menu\').remove();'+f+'" style="display:flex;gap:10px;align-items:center;text-align:left;border:0;background:none;padding:9px 10px;border-radius:10px;cursor:pointer;color:inherit"><span style="font-size:18px">'+ic+'</span><span><b style="display:block;font:800 14px \'Roboto Condensed\',sans-serif">'+t+'</b><small style="font:600 12px \'Roboto Condensed\',sans-serif;opacity:.65">'+s+'</small></span></button>'; };
+  m.innerHTML=it('▶','Voir en stories','Tel que les joueurs le verront','d7Voir()')
+    +it('▦','Tout le dossier','Toutes les diapos d’un coup','d7Ensemble()')
+    +it('✎','Ouvrir le dossier','Pour le compléter','d7Ouvrir(0)')
+    +(typeof d5Ouvrir==='function'?it('🖼','Le dossier vidéo','Mur, une, fiches, écran','d7Ouvrir(\'plan\');setTimeout(function(){ try{ d5Ouvrir(); }catch(e){} },400)'):'');
+  document.body.appendChild(m);
+  setTimeout(function(){ document.addEventListener('click', function f(e){ if(!m.contains(e.target) && e.target!==btn){ m.remove(); document.removeEventListener('click', f); } }); }, 0);
+}
 
 </script>
 </body></html>
