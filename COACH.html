@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v197</b> · 22/10/2026<br>
-      <span style="opacity:.7">Le dossier d’avant-match visible à tout moment</span>
+      AST COACH <b style="color:var(--or)">v198</b> · 22/10/2026<br>
+      <span style="opacity:.7">Le dossier d’avant-match complet</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v197';
+var APP_BUILD='v198';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -43424,6 +43424,352 @@ function d7Menu(btn){
   document.body.appendChild(m);
   setTimeout(function(){ document.addEventListener('click', function f(e){ if(!m.contains(e.target) && e.target!==btn){ m.remove(); document.removeEventListener('click', f); } }); }, 0);
 }
+
+</script>
+<script>
+// ===== v198 : le dossier d'avant-match complet, en présentation =====
+// La base d'avant (l'affiche, l'adversaire, notre équipe, notre plan, les situations
+// du plateau avec les consignes individuelles, les CPA, les objectifs, à vérifier,
+// « pour tout le monde ») enrichie de tout ce qui est venu depuis :
+//   · l'adversaire en détail (style, jeu phase par phase, forces et failles, joueurs
+//     à surveiller, comment on les bat, CPA et contexte) ;
+//   · les missions de chacun, avec la photo du joueur — titulaires et finisseurs ;
+//   · le match en 3 temps ;
+//   · nos principes (possession / défense, ceux de la feuille de match) ;
+//   · le mur vidéo : 9 vignettes dessinées par page, avec les QR codes.
+// Tout se modifie dans la présentation (✏️ Modifier) et repart dans l'appli.
+// Les consignes individuelles du dossier et de la feuille de match ne font plus qu'une.
+
+function d8E(t){ return (typeof dpEsc==='function')?dpEsc(t):d2E(t); }
+function d8Adr(){ return [].slice.call(arguments).map(encodeURIComponent).join(':'); }
+function d8Compo(){ try{ return (DOSSIER.compoIdx!=null)?(COMPOSITIONS||[])[DOSSIER.compoIdx]:null; }catch(e){ return null; } }
+function d8Photo(s){
+  try{
+    var i=-1;
+    if(s.num!=null && s.num!=='') i=JOUEURS.findIndex(function(j){ return String(j.num)===String(s.num); });
+    if(i<0 && s.nom) i=JOUEURS.findIndex(function(j){ return (j.nom||'').toLowerCase()===String(s.nom).toLowerCase(); });
+    return (i>=0 && typeof PHOTOS!=='undefined' && PHOTOS[i])||'';
+  }catch(e){ return ''; }
+}
+// ---- une seule consigne individuelle : dossier ↔ feuille de match ----
+function d8FmSlot(nom){
+  try{
+    if(FEUILLE_MATCH.compoIdx==null) return -1;
+    var c=COMPOSITIONS[FEUILLE_MATCH.compoIdx]; if(!c || !c.slots) return -1;
+    return c.slots.findIndex(function(s){ return s.nom && s.nom.toLowerCase()===String(nom).toLowerCase(); });
+  }catch(e){ return -1; }
+}
+function d8FmLire(nom){ var i=d8FmSlot(nom); if(i<0) return ''; try{ return ((FEUILLE_MATCH.consignesIndiv||{})[i]||[]).join('\n'); }catch(e){ return ''; } }
+function d8FmEcrire(nom, v){
+  var i=d8FmSlot(nom); if(i<0) return;
+  try{
+    if(!FEUILLE_MATCH.consignesIndiv) FEUILLE_MATCH.consignesIndiv={};
+    var L=String(v||'').split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+    if(L.length) FEUILLE_MATCH.consignesIndiv[i]=L; else delete FEUILLE_MATCH.consignesIndiv[i];
+    if(!DOSSIER.missionsFm) DOSSIER.missionsFm={}; DOSSIER.missionsFm[nom]=L.join('\n');
+  }catch(e){}
+}
+function d8Consigne(nom){ var M=DOSSIER.missions||{}; return String(M[nom]||'').trim()||d8FmLire(nom); }
+// la feuille de match → le dossier (sans écraser une mission plus longue écrite dans le dossier)
+function d8DepuisFm(){
+  try{
+    if(FEUILLE_MATCH.compoIdx==null) return;
+    var c=COMPOSITIONS[FEUILLE_MATCH.compoIdx]; if(!c || !c.slots) return;
+    DOSSIER.missions=DOSSIER.missions||{}; DOSSIER.missionsFm=DOSSIER.missionsFm||{};
+    c.slots.forEach(function(s, i){
+      if(!s.nom) return;
+      var fm=((FEUILLE_MATCH.consignesIndiv||{})[i]||[]).join('\n'), cur=String(DOSSIER.missions[s.nom]||'');
+      if(fm===String(DOSSIER.missionsFm[s.nom]||'')) return;
+      if(!cur.trim() || cur===String(DOSSIER.missionsFm[s.nom]||'')){ if(fm) DOSSIER.missions[s.nom]=fm; else delete DOSSIER.missions[s.nom]; }
+      DOSSIER.missionsFm[s.nom]=fm;
+    });
+  }catch(e){}
+}
+
+// ---- les pages ajoutées à la présentation ----
+function d8Rap(){ try{ var r=DOSSIER.adv?rapLire(DOSSIER.adv):null; return r; }catch(e){ return null; } }
+function d8Bloc(lab, coul, adr, val, vide, lignes){
+  return '<div class="d8-b" style="--c:'+coul+'"><div class="d8-bl">'+lab+'</div><div class="d8-bv'+(String(val||'').trim()?'':' vide')+'" data-ed="'+adr+'"'+(lignes?' data-lignes="1"':'')+' data-vide="'+d8E(vide)+'">'
+    +(lignes?String(val||'').split('\n').filter(function(l){ return l.trim(); }).map(function(l){ return '<div>'+d8E(l)+'</div>'; }).join(''):d8E(val||''))+'</div></div>';
+}
+function d8PagesAdv(){
+  var r=d8Rap(); if(!r) return [];
+  var P=[], adv=DOSSIER.adv||'Eux', st=r.style||{};
+  var L=function(k){ return (r[k]||[]).map(function(x){ return String(x||'').trim(); }).filter(Boolean).join('\n'); };
+  // leur style
+  P.push(dpPage('d8-style','🧭 Leur style · '+d8E(adv),
+    '<div class="d8-duo"><div class="d8-col">'+d8Bloc('Système','#f97316',d8Adr('r','systeme'),r.systeme,'Leur système')
+      +d8Bloc('Leur match en une phrase','#f97316',d8Adr('r','resume'),r.resume,'Leur match en une phrase')+'</div>'
+    +'<div class="d8-col d8-sls">'+D1_STYLE.map(function(s){ var v=st[s[0]]; return '<div class="d8-sl"><b>'+d8E(s[1])+'</b><div class="d8-tr">'+(v!=null?'<i style="left:calc('+(v*25)+'% - 1.3vw)"></i>':'')+'</div><span>'+d8E(s[2])+'</span><span>'+d8E(s[3])+'</span></div>'; }).join('')+'</div></div>',
+    (r.systeme||r.resume||Object.keys(st).length)?'':'pg-vide'));
+  // leur jeu, phase par phase
+  P.push(dpPage('d8-jeu','⚽ Leur jeu, phase par phase',
+    '<div class="quatre">'+[['jeuBallon','Avec le ballon','#f97316'],['jeuSans','Sans le ballon','#3dba7e'],['transitions','Les transitions','#6aa7ff'],['gardien','Leur gardien','#c08bff']].map(function(x){
+      return '<div class="quart" style="border-top-color:'+x[2]+'"><div class="q-l" style="color:'+x[2]+'">'+x[1]+'</div><div class="q-v d8-pt" data-ed="'+d8Adr('r',x[0])+'" data-vide="'+x[1]+'">'+d8E(r[x[0]]||'')+'</div></div>'; }).join('')+'</div>',
+    (r.jeuBallon||r.jeuSans||r.transitions||r.gardien)?'':'pg-vide'));
+  // forces et failles
+  P.push(dpPage('d8-ff','⚖️ Forces et failles',
+    '<div class="d8-duo">'+d8Bloc('Ce qui les rend dangereux','#ef4444',d8Adr('rl','forces'),L('forces'),'Une force par ligne',true)
+      +d8Bloc('Là où on leur fait mal','#22c55e',d8Adr('rl','failles'),L('failles'),'Une faille par ligne',true)+'</div>',
+    (L('forces')||L('failles'))?'':'pg-vide'));
+  // à surveiller
+  var M=(r.terrain||[]).filter(function(p){ return p && (p.sg || String(p.t||'').trim()); });
+  if(M.length) P.push(dpPage('d8-surv','👁 Leurs joueurs à surveiller',
+    '<div class="d8-surv">'+M.slice(0,8).map(function(p){ var s=D1_SIGNES[p.sg]||['•','','#8b949e']; return '<div class="d8-sv" style="--c:'+s[2]+'"><b>'+s[0]+'</b><div><span>'+d8E(p.pos||'')+(s[1]?' · '+d8E(s[1]):'')+'</span><p>'+d8E(p.t||'')+'</p></div></div>'; }).join('')+'</div>'));
+  // comment on les bat
+  P.push(dpPage('d8-cles','🔑 Comment on les bat',
+    '<div class="d8-cles" data-ed="'+d8Adr('rl','cles')+'" data-lignes="1" data-vide="Une clé par ligne">'+L('cles').split('\n').filter(Boolean).map(function(t){ return '<div>'+d8E(t)+'</div>'; }).join('')+'</div>',
+    'd8-or'+(L('cles')?'':' pg-vide')));
+  // leurs CPA et le contexte
+  P.push(dpPage('d8-ctx','📌 Leurs CPA et le contexte',
+    '<div class="d8-duo">'+d8Bloc('Leurs coups de pied arrêtés','#c08bff',d8Adr('r','cpa'),r.cpa,'Ce qu’ils font sur CPA')
+      +'<div class="d8-col">'+d8Bloc('Classement','#f97316',d8Adr('r','classement'),r.classement,'Leur classement')+d8Bloc('Ce qu’il faut savoir','#f97316',d8Adr('r','contexte'),r.contexte,'Absents, terrain, enjeu…')+'</div></div>',
+    (r.cpa||r.contexte||r.classement)?'':'pg-vide'));
+  return P;
+}
+function d8PagesMissions(){
+  var c=d8Compo(); if(!c || !c.slots) return [];
+  var T=c.slots.filter(function(s){ return !s.bench && s.nom; }), B=c.slots.filter(function(s){ return s.bench && s.nom; });
+  var carte=function(s, banc){
+    var ph=d8Photo(s), v=d8Consigne(s.nom);
+    return '<div class="d8-m'+(banc?' fin':'')+'"><div class="d8-ph">'+(ph?'<img src="'+ph+'" alt="">':'<span>'+d8E(String(s.num||'').trim()||(s.nom||'?').charAt(0))+'</span>')+'</div>'
+      +'<div class="d8-mt"><b>'+d8E(s.nom)+'</b><span>'+(banc?'Finisseur':d8E(s.pos||''))+(s.num?' · n°'+d8E(s.num):'')+'</span>'
+      +'<div class="d8-mv'+(v?'':' vide')+(v.length>150?' l2':(v.length>90?' l1':''))+'" data-ed="'+d8Adr('m',s.nom)+'" data-lignes="1" data-vide="Sa mission">'+v.split('\n').filter(function(l){ return l.trim(); }).map(function(l){ return '<div>'+d8E(l)+'</div>'; }).join('')+'</div></div></div>';
+  };
+  var P=[];
+  var aT=T.some(function(s){ return d8Consigne(s.nom); }), aB=B.some(function(s){ return d8Consigne(s.nom); });
+  P.push(dpPage('d8-mis','🎯 La mission de chacun', '<div class="d8-ms">'+T.map(function(s){ return carte(s,false); }).join('')+'</div>', aT?'':'pg-vide'));
+  if(B.length) P.push(dpPage('d8-fin','🔥 Les finisseurs · leur rôle en entrant', '<div class="d8-ms fin">'+B.map(function(s){ return carte(s,true); }).join('')+'</div>', aB?'':'pg-vide'));
+  return P;
+}
+function d8Page3temps(){
+  var M=mmData(DOSSIER), ph=M.phases||[];
+  var plein=ph.some(function(p){ return String(p.mot||p.txt||'').trim(); });
+  return [dpPage('d8-3t','⏱ Le match en 3 temps',
+    '<div class="d8-3">'+ph.map(function(p, i){
+      return '<div class="d8-t"><div class="d8-tl">'+d8E(p.t||'')+' · '+d8E(p.l||'')+'</div>'
+        +'<div class="d8-tm'+(String(p.mot||'').trim()?'':' vide')+'" data-ed="'+d8Adr('ph',i,'mot')+'" data-vide="Le mot">'+d8E(p.mot||'')+'</div>'
+        +'<div class="d8-tx'+(String(p.txt||'').trim()?'':' vide')+'" data-ed="'+d8Adr('ph',i,'txt')+'" data-vide="Le détail">'+d8E(p.txt||'')+'</div></div>';
+    }).join('')+'</div>', plein?'':'pg-vide')];
+}
+function d8PagePrincipes(){
+  var F=(typeof FEUILLE_MATCH!=='undefined' && FEUILLE_MATCH)||{};
+  var plein=String(F.consignesOff||'').trim()||String(F.consignesDef||'').trim();
+  return [dpPage('d8-pr','🧱 Nos principes',
+    '<div class="d8-duo">'+d8Bloc('✅ Avec le ballon','#22c55e',d8Adr('fo'),F.consignesOff,'Une consigne par ligne',true)
+      +d8Bloc('🛡 Sans le ballon','#60a5fa',d8Adr('fd'),F.consignesDef,'Une consigne par ligne',true)+'</div>', plein?'':'pg-vide')];
+}
+// le mur vidéo : 9 vignettes par page, images dessinées, QR codes
+function d8PagesMur(srcs){
+  var V=((DOSSIER.videos)||[]).filter(function(v){ return v && v.url && !d2Pour(v); });
+  if(!V.length) return [];
+  var P=[], pages=Math.ceil(V.length/9);
+  for(var g=0; g<V.length; g+=9){
+    var G=V.slice(g, g+9);
+    P.push(dpPage('d8-mur'+(g/9), '🎬 Le dossier vidéo'+(pages>1?' · '+(g/9+1)+'/'+pages:''),
+      '<div class="d8-mur n'+Math.min(G.length,9)+'">'+G.map(function(v, i){
+        var o=d2Infos(v, g+i+1), th=d2Theme(o.th), src=srcs[v.id]||'', qr=(typeof d5Qr==='function')?d5Qr(o.u):'';
+        return '<div class="d8-v" style="--c:'+th[2]+'"><a class="d8-vi" href="'+d8E(o.u)+'" target="_blank" rel="noopener" style="'+(src?'background-image:url(\''+src+'\')':'')+'"><b>'+o.n+'</b>'+(o.tc?'<i>'+d8E(o.tc)+'</i>':'')+(src?'':'<em>▶</em>')+'</a>'
+          +'<div class="d8-vt"><div><span>'+d8E(th[1])+'</span><h4 data-ed="'+d8Adr('v',v.id,'t')+'">'+d8E(v.titre||'')+'</h4>'
+          +'<p class="'+(String(v.note||'').trim()?'':'vide')+'" data-ed="'+d8Adr('v',v.id,'n')+'" data-vide="Ce qu’il faut y voir">'+d8E(v.note||'')+'</p></div>'
+          +(qr?'<div class="d8-qr">'+qr+'</div>':'')+'</div></div>';
+      }).join('')+'</div>', 'd8-murpg'));
+  }
+  return P;
+}
+function d8Css(){
+  return '<style>'
+  +'.d8-duo{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2.4vw;min-height:0}'
+  +'.d8-col{display:flex;flex-direction:column;gap:2vh;min-height:0}'
+  +'.d8-b{background:#11161d;border:1px solid #232a33;border-top:5px solid var(--c);border-radius:14px;padding:2.2vh 1.8vw;display:flex;flex-direction:column;gap:1vh;flex:1;min-height:0;overflow:auto}'
+  +'.d8-bl{font-size:clamp(11px,1.15vw,16px);font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--c)}'
+  +'.d8-bv{font-size:clamp(17px,2.2vw,32px);font-weight:700;color:#fff;line-height:1.3}.d8-bv>div{padding:.6vh 0;border-bottom:1px solid #232a33}.d8-bv>div:last-child{border:0}'
+  +'.d8-sls{justify-content:center;gap:3.4vh}'
+  +'.d8-sl{display:grid;grid-template-columns:12vw 1fr;grid-template-rows:auto auto;gap:.6vh 1.4vw;align-items:center}'
+  +'.d8-sl b{grid-row:1/3;font-size:clamp(14px,1.6vw,22px);color:#fff}'
+  +'.d8-tr{position:relative;height:1vw;min-height:8px;border-radius:1vw;background:#232a33;grid-column:2}'
+  +'.d8-tr i{position:absolute;top:50%;transform:translateY(-50%);width:2.6vw;height:2.6vw;min-width:18px;min-height:18px;border-radius:50%;background:#f97316;box-shadow:0 0 0 .5vw rgba(249,115,22,.25)}'
+  +'.d8-sl span{grid-column:2;font-size:clamp(11px,1.1vw,15px);color:#8b949e;display:inline}.d8-sl span+span{text-align:right;margin-top:-2.2vh}'
+  +'.d8-pt{font-size:clamp(16px,2vw,30px)!important}'
+  +'.d8-surv{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1.6vh 2vw;align-content:start}'
+  +'.d8-sv{display:flex;gap:1.2vw;align-items:center;background:#11161d;border:1px solid #232a33;border-left:5px solid var(--c);border-radius:12px;padding:1.8vh 1.4vw}'
+  +'.d8-sv b{flex-shrink:0;width:3.6vw;height:3.6vw;min-width:30px;min-height:30px;border-radius:50%;background:var(--c);color:#07090c;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,1.8vw,26px)}'
+  +'.d8-sv span{font-size:clamp(11px,1.15vw,16px);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--c)}.d8-sv p{margin:.4vh 0 0;font-size:clamp(16px,1.9vw,28px);font-weight:700;color:#fff}'
+  +'.pg.d8-or{background:#f97316}.pg.d8-or .pg-t{color:#170c02}.pg.d8-or .pg-t:after{background:#170c02}'
+  +'.d8-cles{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3vh;counter-reset:k}'
+  +'.d8-cles>div{font-family:Anton,sans-serif;font-size:clamp(28px,4.6vw,70px);line-height:1.05;text-transform:uppercase;color:#170c02;counter-increment:k}'
+  +'.d8-cles>div:before{content:counter(k)". ";color:#fff}'
+  +'.d8-ms{flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:1.6vh 1.2vw;min-height:0}'
+  +'.d8-ms.fin{grid-template-columns:repeat(3,1fr)}'
+  +'.d8-m{display:flex;gap:1vw;background:#11161d;border:1px solid #232a33;border-top:4px solid #f97316;border-radius:12px;padding:1.4vh 1vw;min-height:0;overflow:hidden}'
+  +'.d8-m.fin{border-top-color:#eab308}'
+  +'.d8-ph{flex-shrink:0;width:5.4vw;height:5.4vw;min-width:44px;min-height:44px;border-radius:50%;overflow:hidden;background:#232a33;display:flex;align-items:center;justify-content:center;border:3px solid #f97316}'
+  +'.d8-m.fin .d8-ph{border-color:#eab308}'
+  +'.d8-ph img{width:100%;height:100%;object-fit:cover}.d8-ph span{font-family:Anton,sans-serif;font-size:clamp(18px,2vw,30px);color:#8b949e}'
+  +'.d8-mt{min-width:0;display:flex;flex-direction:column;gap:.3vh}'
+  +'.d8-mt b{font-size:clamp(13px,1.35vw,20px);color:#fff;text-transform:uppercase;letter-spacing:.02em}'
+  +'.d8-mt span{font-size:clamp(10px,.95vw,13px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8b949e}'
+  +'.d8-mv{font-size:clamp(12px,1.25vw,18px);font-weight:600;color:#e6edf3;line-height:1.3}.d8-mv>div{padding:.2vh 0}.d8-mv.l1{font-size:clamp(11px,1.05vw,15px)}.d8-mv.l2{font-size:clamp(10px,.9vw,13px);line-height:1.25}'
+  +'.d8-3{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:2vw;min-height:0}'
+  +'.d8-t{background:#11161d;border:1px solid #232a33;border-top:5px solid #f97316;border-radius:14px;padding:2.6vh 1.8vw;display:flex;flex-direction:column;gap:1.6vh}'
+  +'.d8-tl{font-size:clamp(11px,1.15vw,16px);font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#f97316}'
+  +'.d8-tm{font-family:Anton,sans-serif;font-size:clamp(24px,3.4vw,52px);line-height:1.05;text-transform:uppercase;color:#fff}'
+  +'.d8-tx{font-size:clamp(15px,1.8vw,26px);font-weight:600;color:#c2c8d0;line-height:1.35}'
+  +'.d8-mur{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:1.4vh 1vw;min-height:0}'
+  +'.d8-mur.n1,.d8-mur.n2{grid-template-rows:1fr}.d8-mur.n1{grid-template-columns:1fr}.d8-mur.n2{grid-template-columns:1fr 1fr}'
+  +'.d8-mur.n3,.d8-mur.n4,.d8-mur.n5,.d8-mur.n6{grid-template-rows:1fr 1fr}.d8-mur.n4{grid-template-columns:1fr 1fr}'
+  +'.d8-v{display:flex;flex-direction:column;background:#11161d;border:1px solid #232a33;border-top:4px solid var(--c);border-radius:12px;overflow:hidden;min-height:0}'
+  +'.d8-vi{position:relative;flex:1;min-height:0;background:#0d1117 center/contain no-repeat;display:block;text-decoration:none}'
+  +'.d8-vi b{position:absolute;top:0;left:0;background:var(--c);color:#07090c;font-family:Anton,sans-serif;font-size:clamp(14px,1.6vw,24px);padding:.3vh .7vw;border-bottom-right-radius:8px}'
+  +'.d8-vi i{position:absolute;right:.5vw;bottom:.6vh;background:rgba(0,0,0,.8);color:#fff;font-style:normal;font-weight:800;font-size:clamp(11px,1vw,15px);padding:.2vh .5vw;border-radius:6px}'
+  +'.d8-vi em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--c);font-style:normal;font-size:3vw}'
+  +'.d8-vt{display:flex;gap:.8vw;align-items:flex-end;padding:.9vh .8vw}.d8-vt>div:first-child{flex:1;min-width:0}'
+  +'.d8-vt span{font-size:clamp(9px,.85vw,12px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}'
+  +'.d8-vt h4{margin:.2vh 0;font-family:Anton,sans-serif;font-weight:400;font-size:clamp(13px,1.35vw,20px);line-height:1.05;text-transform:uppercase;color:#fff}'
+  +'.d8-vt p{margin:0;font-size:clamp(10px,.95vw,14px);color:#c2c8d0;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.d8-qr{flex-shrink:0;width:6.2vh;height:6.2vh;min-width:44px;min-height:44px;background:#fff;padding:3px;border-radius:5px;line-height:0}.d8-qr svg{width:100%;height:100%}'
+  +'body.ed .d8-vt p{-webkit-line-clamp:unset}'
+  +'</style>';
+}
+// on ajoute les pages au bon endroit dans la présentation
+function d8Inserer(html, apres, pages){
+  if(!pages.length) return html;
+  var re=new RegExp('(<section class="pg[^"]*" data-cle="'+apres+'">)');
+  var m=re.exec(html); if(!m) return html;
+  var deb=m.index, fin=html.indexOf('</section>', deb); if(fin<0) return html;
+  fin+='</section>'.length;
+  return html.slice(0,fin)+pages.join('')+html.slice(fin);
+}
+function d8Enrichir(html, srcs, causerie){
+  try{
+    var P;
+    P=d8PagesAdv(); html=d8Inserer(html, 'adv', P);
+    var aAdv=P.length?P[P.length-1].match(/data-cle="([^"]+)"/)[1]:'adv';
+    P=d8PagesMissions(); html=d8Inserer(html, 'grp', P);
+    if(causerie){ html=d8Inserer(html, 'plan', d8PagePrincipes()); }
+    else { html=d8Inserer(html, 'plan', d8Page3temps()); html=d8Inserer(html, 'd8-3t', d8PagePrincipes()); }
+    // le mur vidéo remplace l'ancienne page « À regarder »
+    var mur=d8PagesMur(srcs);
+    if(mur.length){
+      var k=html.indexOf('data-cle="videos"');
+      if(k>=0){ var d=html.lastIndexOf('<section', k), f=html.indexOf('</section>', k)+10; html=html.slice(0,d)+html.slice(f); }
+      // le mur vidéo juste avant « Pour tout le monde », qui reste la dernière page à l'écran
+      var kc=html.indexOf('data-cle="collectif"');
+      if(kc>=0){ var dc=html.lastIndexOf('<section', kc); html=html.slice(0,dc)+mur.join('')+html.slice(dc); }
+      else html=html.replace('</div><div class="barre">', mur.join('')+'</div><div class="barre">');
+    }
+    html=html.replace('</head>', d8Css()+'</head>');
+  }catch(e){ console.error('dossier complet', e); }
+  return html;
+}
+// on charge les images dessinées, puis on construit
+function d8Voir(){
+  var V=((DOSSIER&&DOSSIER.videos)||[]).filter(function(v){ return v && v.url && !d2Pour(v); }), srcs={}, reste=V.length;
+  var go=function(){
+    D8_SRCS=srcs; D8_ACTIF=true;
+    try{ (D8_MODE==='causerie' && typeof genererCauserie==='function')?genererCauserie():genererDossierPresentation(); }
+    catch(e){ console.error(e); notif('⚠ Le dossier n’a pas pu être construit : '+(e&&e.message?e.message:'erreur')); }
+    finally { D8_ACTIF=false; D8_MODE=''; }
+  };
+  if(!reste) return go();
+  V.forEach(function(v){ d2Src(d2Infos(v,1).img, function(s){ if(s) srcs[v.id]=s; if(--reste===0) go(); }); });
+}
+var D8_ACTIF=false, D8_SRCS={}, D8_MODE='';
+function d8Causerie(){ D8_MODE='causerie'; d8Voir(); }
+window.addEventListener('load', function(){
+  // la présentation passe par docOuvrir : on y glisse les pages en plus
+  if(typeof docOuvrir==='function' && !docOuvrir.__v198){
+    var bo=docOuvrir;
+    docOuvrir=function(html, quoi){
+      if(typeof html==='string' && html.indexOf('<div class="pres" id="pres">')>=0 && /^(Avant-match|Causerie)/.test(quoi||'')){
+        try{ d8DepuisFm(); }catch(e){}
+        html=d8Enrichir(html, D8_SRCS||{}, /^Causerie/.test(quoi||''));
+      }
+      return bo.call(this, html, quoi);
+    };
+    docOuvrir.__v198=true;
+  }
+  // « Voir le dossier » (et le bouton du dossier) : les images vidéo sont chargées avant
+  if(typeof voirLeDossier==='function' && !voirLeDossier.__v198){
+    var bv=voirLeDossier;
+    voirLeDossier=function(){ if(D8_ACTIF) return bv.apply(this, arguments); return d8Voir(); };
+    voirLeDossier.__v198=true;
+  }
+  // les corrections faites dans la présentation : les nouvelles adresses
+  if(typeof dossierEditsAppliquer==='function' && !dossierEditsAppliquer.__v198){
+    var be=dossierEditsAppliquer;
+    dossierEditsAppliquer=function(edits){
+      if(!edits || typeof edits!=='object') return be.apply(this, arguments);
+      var reste={}, n=0, part=function(a,i){ try{ return decodeURIComponent(a[i]||''); }catch(e){ return a[i]||''; } };
+      var r=null; try{ r=DOSSIER.adv?trouverOuCreerAdversaire(DOSSIER.adv):null; if(r && !r.rapport) r.rapport=rapVide(); }catch(e){ r=null; }
+      Object.keys(edits).forEach(function(adr){
+        var v=String(edits[adr]==null?'':edits[adr]), a=adr.split(':'), t=a[0];
+        if(t==='m'){ var nom=part(a,1); DOSSIER.missions=DOSSIER.missions||{}; if(v.trim()) DOSSIER.missions[nom]=v; else delete DOSSIER.missions[nom]; if(DOSSIER.missionsAuto) delete DOSSIER.missionsAuto[nom]; d8FmEcrire(nom, v); n++; }
+        else if(t==='r' && r){ r.rapport[part(a,1)]=v; n++; }
+        else if(t==='rl' && r){ r.rapport[part(a,1)]=v.split('\n').map(function(l){ return l.trim(); }).filter(Boolean); n++; }
+        else if(t==='ph'){ var M=mmData(DOSSIER), i=+part(a,1), k=part(a,2); if(M.phases && M.phases[i]){ M.phases[i][k]=v; n++; } }
+        else if(t==='fo' || t==='fd'){ try{ FEUILLE_MATCH[t==='fo'?'consignesOff':'consignesDef']=v; n++; }catch(e){} }
+        else reste[adr]=edits[adr];
+      });
+      if(r && n){ try{ r.rapport.maj=new Date().toLocaleDateString('fr-FR'); }catch(e){} }
+      var m=0;
+      if(Object.keys(reste).length) m=be.call(this, reste)||0;
+      else if(n){ try{ sauvegardeAuto(); }catch(e){} notif('✓ '+n+' correction'+(n>1?'s':'')+' reprise'+(n>1?'s':'')+' du dossier'); }
+      return n+m;
+    };
+    dossierEditsAppliquer.__v198=true;
+  }
+  // la mission écrite dans le dossier part aussi sur la feuille de match
+  if(typeof d1SetMission==='function' && !d1SetMission.__v198){
+    var bm=d1SetMission;
+    d1SetMission=function(nom, v){ var r=bm.apply(this, arguments); try{ d8FmEcrire(nom, v); }catch(e){} return r; };
+    d1SetMission.__v198=true;
+  }
+  // la feuille de match → le dossier
+  if(typeof collecterFeuilleMatch==='function' && !collecterFeuilleMatch.__v198){
+    var bc=collecterFeuilleMatch;
+    collecterFeuilleMatch=function(){ var r=bc.apply(this, arguments); try{ d8DepuisFm(); }catch(e){} return r; };
+    collecterFeuilleMatch.__v198=true;
+  }
+  // les missions du dossier montrent aussi ce qui a été écrit sur la feuille de match
+  if(typeof msnHtml==='function' && !msnHtml.__v198){
+    var bh=msnHtml;
+    msnHtml=function(){ try{ d8DepuisFm(); }catch(e){} return bh.apply(this, arguments); };
+    msnHtml.__v198=true;
+  }
+  // l'accès : dans le menu « Dossier », dans le bandeau du dossier, dans « Tout le dossier »
+  if(typeof d7Menu==='function' && !d7Menu.__v198){
+    var bdm=d7Menu;
+    d7Menu=function(btn){
+      bdm.apply(this, arguments);
+      var m=document.getElementById('d7-menu'); if(!m) return;
+      var b=document.createElement('button');
+      b.setAttribute('style','display:flex;gap:10px;align-items:center;text-align:left;border:0;background:rgba(249,115,22,.1);padding:9px 10px;border-radius:10px;cursor:pointer;color:inherit');
+      b.innerHTML='<span style="font-size:18px">🖥</span><span><b style="display:block;font:800 14px \'Roboto Condensed\',sans-serif">Le dossier complet</b><small style="font:600 12px \'Roboto Condensed\',sans-serif;opacity:.65">Présentation, plein écran, modifiable</small></span>';
+      b.onclick=function(){ m.remove(); voirLeDossier(); };
+      m.insertBefore(b, m.firstChild);
+      var c=document.createElement('button'); c.setAttribute('style', b.getAttribute('style').replace('background:rgba(249,115,22,.1)','background:none'));
+      c.innerHTML='<span style="font-size:18px">🎙</span><span><b style="display:block;font:800 14px \'Roboto Condensed\',sans-serif">La causerie</b><small style="font:600 12px \'Roboto Condensed\',sans-serif;opacity:.65">La version courte, qui se dévoile au clic</small></span>';
+      c.onclick=function(){ m.remove(); d8Causerie(); };
+      m.insertBefore(c, b.nextSibling);
+    };
+    d7Menu.__v198=true;
+  }
+  if(typeof stRendre==='function' && !stRendre.__v198){
+    var bs=stRendre;
+    stRendre=function(){
+      var r=bs.apply(this, arguments);
+      try{ var z=document.querySelector('#stu-ct .d7-bb'); if(z && !z.querySelector('.d8-b2')){ var b=document.createElement('button'); b.className='d8-b2'; b.textContent='🖥 Le dossier complet'; b.onclick=function(){ voirLeDossier(); }; z.insertBefore(b, z.firstChild); } }catch(e){}
+      return r;
+    };
+    stRendre.__v198=true;
+  }
+  if(typeof d7Ensemble==='function' && !d7Ensemble.__v198){
+    var bd=d7Ensemble;
+    d7Ensemble=function(){ var r=bd.apply(this, arguments); try{ var z=document.querySelector('#d7-ov .d7-bt'); if(z && !z.querySelector('.d8-b3')){ var b=document.createElement('button'); b.className='d8-b3 pl'; b.textContent='🖥 Le dossier complet'; b.onclick=function(){ d7Fermer(); voirLeDossier(); }; z.insertBefore(b, z.firstChild); } }catch(e){} return r; };
+    d7Ensemble.__v198=true;
+  }
+});
 
 </script>
 </body></html>
