@@ -11573,8 +11573,8 @@ cdRedessinerTout();
     <div id="etat-sauvegarde" style="margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-align:center;color:var(--gris2)"></div>
     <div id="app-version" title="Version de l'appli chargée dans ce navigateur"
          style="margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--gris2);text-align:center;letter-spacing:.06em;line-height:1.5">
-      AST COACH <b style="color:var(--or)">v198</b> · 22/10/2026<br>
-      <span style="opacity:.7">Le dossier d’avant-match complet</span>
+      AST COACH <b style="color:var(--or)">v199</b> · 22/10/2026<br>
+      <span style="opacity:.7">L’analyse live côté coach</span>
     </div>
   </div>
 </div>
@@ -38252,7 +38252,7 @@ window.addEventListener('load', function(){
 </script>
 <script>
 // ===== v168 : mise à jour en un tap · Studio : missions, quiz, envois dans la semaine =====
-var APP_BUILD='v198';
+var APP_BUILD='v199';
 
 // ---------------------------------------------------------------------
 // 1. « Nouvelle version disponible » : l'appli compare sa version à celle en ligne
@@ -43770,6 +43770,441 @@ window.addEventListener('load', function(){
     d7Ensemble.__v198=true;
   }
 });
+
+</script>
+<script>
+// ===== v199 : l'analyse live, côté coach =====
+// Au bord du terrain, sur le téléphone ou la tablette du coach (ou d'un adjoint) :
+//   · le terrain découpé comme sur le plateau tactique : 5 couloirs × 4 bandes ;
+//     on touche « À nous » / « À eux » puis la zone du ballon → la possession en %
+//     et le temps passé dans chaque zone se calculent tout seuls ;
+//   · les faits rapides (tir, tir cadré, but, corner, faute, récupération, perte,
+//     hors-jeu) pour nous et pour eux, posés dans la zone du ballon ;
+//   · les stats live joueur par joueur (comme côté joueur), comptées par le coach ;
+//   · un point toutes les 3 ou 5 minutes (au choix) : ce qui s'est passé sur la
+//     période, le ressenti, une note ;
+//   · le bilan : cartes de chaleur, possession par période, faits, points.
+// Le chrono suit celui du mode Bord de touche quand il tourne.
+var AL_COUL={nous:'#ff7a45', eux:'#4aa3ff'};
+var AL_COULOIRS=['Couloir gauche','Demi-espace gauche','Axe','Demi-espace droit','Couloir droit'];
+var AL_BANDES=['Finition','Création','Construction','Relance'];   // de haut (leur but) en bas (notre but)
+var AL_FAITS=[['tir','Tir','🦶'],['cadre','Tir cadré','🎯'],['but','But','⚽'],['corner','Corner','🚩'],['faute','Faute','✋'],['recup','Récupération','🛡'],['perte','Perte','⚠️'],['hj','Hors-jeu','🚫']];
+var AL_TYPES=[['passesReussies','Passe réussie','✅'],['passesRatees','Passe ratée','❌'],['frappesCadrees','Frappe cadrée','🎯'],['frappesNonCadrees','Frappe non cadrée','🚫'],['ballonsRecuperes','Ballon récupéré','🛡'],['ballonsPerdus','Ballon perdu','⚠️'],['duelsGagnes','Duel aérien gagné','🥊'],['duelsPerdus','Duel aérien perdu','🥊']];
+var AL=null, AL_UI={onglet:'terrain', vue:'nous', joueur:null, lecture:false, t:0, tick:0, archive:null};
+var AL_CLE='ast_analyse_live';
+function alE(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function alMatchCle(){ try{ return (CONVOS.date||'')+'|'+(CONVOS.adv||''); }catch(e){ return '|'; } }
+function alNouveau(){
+  var z=function(){ var a=[]; for(var i=0;i<20;i++) a.push(0); return a; };
+  return {cle:alMatchCle(), adv:(typeof CONVOS!=='undefined'&&CONVOS.adv)||'Adversaire', date:(typeof CONVOS!=='undefined'&&CONVOS.date)||'', cree:Date.now(),
+    chrono:{base:0, actif:false, depuis:0}, mt:1, pas:5, prochain:5,
+    etat:{eq:null, z:null, t:0}, temps:{nous:z(), eux:z()}, seq:[], ev:[], points:[], joueurs:{}, fini:false};
+}
+function alLire(){ try{ var s=localStorage.getItem(AL_CLE); return s?JSON.parse(s):null; }catch(e){ return null; } }
+function alSauver(vite){
+  if(!AL || AL_UI.lecture) return;
+  try{ localStorage.setItem(AL_CLE, JSON.stringify(AL)); }catch(e){}
+  clearTimeout(alSauver._t);
+  alSauver._t=setTimeout(alCloud, vite?300:15000);
+}
+function alDocId(cle){ return ('live_'+String(cle||'')).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,140); }
+function alCloud(){
+  if(!AL || typeof fbFetch!=='function') return;
+  try{
+    fbFetch(FIRESTORE_BASE+'/analyses_live/'+alDocId(AL.cle), {method:'PATCH', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{cle:{stringValue:AL.cle}, adv:{stringValue:AL.adv}, maj:{stringValue:new Date().toISOString()}, data:{stringValue:JSON.stringify(AL)}}})}).catch(function(){});
+  }catch(e){}
+}
+// ---- le temps ----
+function alBdt(){ try{ return typeof BDT!=='undefined' && BDT.ouvert && typeof bdtChronoSecondes==='function'; }catch(e){ return false; } }
+function alT(){
+  if(!AL) return 0;
+  if(alBdt()){ var s=bdtChronoSecondes(); if(s>0 || (BDT.chronoActif)) return s; }
+  var c=AL.chrono; return c.base+(c.actif?(Date.now()-c.depuis)/1000:0);
+}
+function alTourne(){ if(alBdt() && (BDT.chronoActif || bdtChronoSecondes()>0)) return !!BDT.chronoActif; return !!(AL && AL.chrono.actif); }
+function alFmt(s){ s=Math.max(0, Math.floor(s)); var m=Math.floor(s/60), x=s%60; return m+':'+(x<10?'0':'')+x; }
+function alChrono(){
+  if(!AL) return;
+  if(alBdt() && (BDT.chronoActif || bdtChronoSecondes()>0)){ try{ bdtChrono(); }catch(e){} alRendre(); return; }
+  var c=AL.chrono;
+  if(c.actif){ alCompter(); c.base+= (Date.now()-c.depuis)/1000; c.actif=false; }
+  else { c.actif=true; c.depuis=Date.now(); AL.etat.t=alT(); }
+  alSauver(true); alRendre();
+}
+// on ferme la séquence en cours : le temps va à l'équipe et à la zone
+function alCompter(){
+  var e=AL.etat, t=alT();
+  if(e.eq && e.z!=null && t>e.t){ AL.temps[e.eq][e.z]+= (t-e.t); }
+  e.t=t;
+}
+function alPoser(eq, z){
+  if(AL_UI.lecture || !AL) return;
+  if(!alTourne()){ notif('Lance le chrono pour compter la possession'); }
+  alCompter();
+  if(eq!==undefined) AL.etat.eq=eq;
+  if(z!==undefined) AL.etat.z=z;
+  if(AL.etat.eq && AL.etat.z==null) AL.etat.z=12;
+  AL.seq.push({t:Math.round(alT()), eq:AL.etat.eq, z:AL.etat.z});
+  if(AL.seq.length>4000) AL.seq.splice(0, AL.seq.length-4000);
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+  alSauver(); alRendre();
+}
+function alFait(eq, k){
+  if(AL_UI.lecture || !AL) return;
+  AL.ev.push({t:Math.round(alT()), eq:eq, k:k, z:AL.etat.z});
+  if(k==='recup'){ alPoser(eq, AL.etat.z==null?undefined:AL.etat.z); }
+  else if(k==='perte'){ alPoser(eq==='nous'?'eux':'nous', AL.etat.z==null?undefined:AL.etat.z); }
+  else { alSauver(); alRendre(); }
+  try{ if(navigator.vibrate) navigator.vibrate(25); }catch(e){}
+  notif((eq==='nous'?'Nous':'Eux')+' · '+AL_FAITS.filter(function(f){ return f[0]===k; })[0][1]+' ('+alFmt(alT())+')');
+}
+function alAnnuler(){
+  if(!AL || AL_UI.lecture) return;
+  var dE=AL.ev[AL.ev.length-1], dS=AL.seq[AL.seq.length-1];
+  if(dE && (!dS || dE.t>=dS.t)){ AL.ev.pop(); notif('Dernier fait retiré'); }
+  else if(dS){ AL.seq.pop(); var p=AL.seq[AL.seq.length-1]; alCompter(); AL.etat.eq=p?p.eq:null; AL.etat.z=p?p.z:null; notif('Dernier toucher retiré'); }
+  alSauver(); alRendre();
+}
+// ---- les chiffres ----
+function alPoss(de, a){
+  // possession sur [de, a] (en secondes) d'après la séquence
+  var S=AL.seq.slice(), n=0, e=0, cur=AL.etat, tNow=alT();
+  for(var i=0;i<S.length;i++){
+    var s=S[i], fin=(i+1<S.length)?S[i+1].t:tNow;
+    var x=Math.max(de, s.t), y=Math.min(a, fin); if(y<=x) continue;
+    if(s.eq==='nous') n+=y-x; else if(s.eq==='eux') e+=y-x;
+  }
+  var tot=n+e; return {nous:tot?Math.round(n/tot*100):0, eux:tot?100-Math.round(n/tot*100):0, n:n, e:e, tot:tot};
+}
+function alPossTotale(){ var n=AL.temps.nous.reduce(function(a,b){ return a+b; },0), e=AL.temps.eux.reduce(function(a,b){ return a+b; },0);
+  var en=AL.etat, extra=(en.eq && en.z!=null && alTourne())?Math.max(0, alT()-en.t):0; if(en.eq==='nous') n+=extra; else if(en.eq==='eux') e+=extra;
+  var t=n+e; return {nous:t?Math.round(n/t*100):50, eux:t?100-Math.round(n/t*100):50, n:n, e:e}; }
+function alTempsZones(eq){
+  var T=AL.temps[eq].slice(), en=AL.etat;
+  if(en.eq===eq && en.z!=null && alTourne()) T[en.z]+=Math.max(0, alT()-en.t);
+  return T;
+}
+function alCompteFaits(de, a){
+  var o={nous:{}, eux:{}}; AL_FAITS.forEach(function(f){ o.nous[f[0]]=0; o.eux[f[0]]=0; });
+  AL.ev.forEach(function(x){ if(x.t>=de && x.t<a && o[x.eq]) o[x.eq][x.k]=(o[x.eq][x.k]||0)+1; });
+  o.nous.tirs=o.nous.tir+o.nous.cadre+o.nous.but; o.eux.tirs=o.eux.tir+o.eux.cadre+o.eux.but;
+  return o;
+}
+function alZoneMax(de, a, eq){
+  var Z=[]; for(var i=0;i<20;i++) Z.push(0);
+  var S=AL.seq, tNow=alT();
+  for(var i2=0;i2<S.length;i2++){ var s=S[i2], fin=(i2+1<S.length)?S[i2+1].t:tNow; var x=Math.max(de,s.t), y=Math.min(a,fin); if(y>x && s.eq===eq && s.z!=null) Z[s.z]+=y-x; }
+  var m=0; Z.forEach(function(v,i){ if(v>Z[m]) m=i; }); return Z[m]>0?m:null;
+}
+function alNomZone(z){ if(z==null) return '—'; return AL_BANDES[Math.floor(z/5)]+' · '+AL_COULOIRS[z%5].toLowerCase(); }
+// ---- le point régulier ----
+function alVerifierPoint(){
+  if(!AL || AL_UI.lecture || AL.fini) return;
+  var min=alT()/60;
+  if(min>=AL.prochain && !document.getElementById('al-point')){
+    alOuvrirPoint(AL.prochain);
+  }
+}
+function alOuvrirPoint(minute){
+  var de=Math.max(0,(minute-AL.pas)*60), a=minute*60;
+  var P=alPoss(de, a), F=alCompteFaits(de, a), zN=alZoneMax(de, a, 'nous'), zE=alZoneMax(de, a, 'eux');
+  AL_UI.point={min:minute, de:de, a:a, poss:P.nous, zN:zN, zE:zE, f:F, ressenti:'', note:''};
+  try{ if(navigator.vibrate) navigator.vibrate([80,60,80]); }catch(e){}
+  var o=document.createElement('div'); o.id='al-point';
+  o.innerHTML='<div class="al-pc"><div class="al-ph"><span>Le point · '+Math.round(de/60)+'′ → '+minute+'′</span><b>'+(P.tot?P.nous+' % de possession':'Pas de possession comptée')+'</b></div>'
+    +'<div class="al-pg">'
+      +'<div><i>Tirs</i><b><span class="n">'+F.nous.tirs+'</span> – <span class="e">'+F.eux.tirs+'</span></b></div>'
+      +'<div><i>Récupérations</i><b><span class="n">'+F.nous.recup+'</span> – <span class="e">'+F.eux.recup+'</span></b></div>'
+      +'<div><i>Pertes</i><b><span class="n">'+F.nous.perte+'</span> – <span class="e">'+F.eux.perte+'</span></b></div>'
+      +'<div><i>Corners</i><b><span class="n">'+F.nous.corner+'</span> – <span class="e">'+F.eux.corner+'</span></b></div>'
+    +'</div>'
+    +'<div class="al-pz"><span class="n">On joue surtout : '+alE(alNomZone(zN))+'</span><span class="e">Eux surtout : '+alE(alNomZone(zE))+'</span></div>'
+    +'<div class="al-pr">'+[['domine','💪 On domine'],['equilibre','⚖️ Équilibré'],['subit','😬 On subit']].map(function(r){ return '<button data-r="'+r[0]+'" onclick="AL_UI.point.ressenti=this.dataset.r;[].forEach.call(this.parentNode.children,function(b){b.classList.remove(\'on\')});this.classList.add(\'on\')">'+r[1]+'</button>'; }).join('')+'</div>'
+    +'<input class="fi" placeholder="Une note (facultatif) : ex. leur 6 libre, on doit monter le bloc" oninput="AL_UI.point.note=this.value">'
+    +'<div class="al-pb"><button class="al-b pl" onclick="alValiderPoint()">✓ Garder ce point</button><button class="al-b" onclick="alPasserPoint()">Plus tard</button></div></div>';
+  document.body.appendChild(o);
+}
+function alValiderPoint(){
+  var p=AL_UI.point; if(!p) return;
+  AL.points.push({min:p.min, de:Math.round(p.de/60), poss:p.poss, zN:p.zN, zE:p.zE, tirs:[p.f.nous.tirs,p.f.eux.tirs], recup:[p.f.nous.recup,p.f.eux.recup], pertes:[p.f.nous.perte,p.f.eux.perte], ressenti:p.ressenti, note:String(p.note||'').trim()});
+  AL.prochain=p.min+AL.pas; AL_UI.point=null;
+  var o=document.getElementById('al-point'); if(o) o.remove();
+  alSauver(true); alRendre();
+}
+function alPasserPoint(){ AL.prochain=(AL_UI.point?AL_UI.point.min:AL.prochain)+AL.pas; AL_UI.point=null; var o=document.getElementById('al-point'); if(o) o.remove(); alSauver(); alRendre(); }
+function alPas(v){ AL.pas=+v; var m=Math.floor(alT()/60); AL.prochain=(Math.floor(m/AL.pas)+1)*AL.pas; alSauver(); alRendre(); }
+function alMiTemps(){
+  if(!AL) return;
+  alCompter();
+  if(AL.mt===1){ AL.mt=2; AL.ev.push({t:Math.round(alT()), eq:'', k:'mt', z:null}); if(!alBdt() && AL.chrono.actif){ AL.chrono.base+=(Date.now()-AL.chrono.depuis)/1000; AL.chrono.actif=false; } AL_UI.onglet='bilan'; notif('Mi-temps : le bilan de la 1re période'); }
+  else { AL.fini=true; if(!alBdt() && AL.chrono.actif){ AL.chrono.base+=(Date.now()-AL.chrono.depuis)/1000; AL.chrono.actif=false; } alArchiver(); AL_UI.onglet='bilan'; notif('Fin du match : l’analyse est rangée'); }
+  alSauver(true); alRendre();
+}
+function alArchiver(){
+  try{ var A=JSON.parse(localStorage.getItem('ast_analyse_live_archive')||'[]'); A=A.filter(function(x){ return x.cle!==AL.cle; }); A.unshift(AL); localStorage.setItem('ast_analyse_live_archive', JSON.stringify(A.slice(0,30))); }catch(e){}
+  alCloud();
+}
+// ---- les stats joueur, côté coach (rangées avec celles des joueurs) ----
+function alJoueursDispo(){
+  var L=[];
+  try{
+    if(alBdt()){ Object.keys(BDT.surTerrain||{}).forEach(function(i){ var j=JOUEURS[i]; if(j) L.push({num:j.num, nom:j.nom}); }); }
+  }catch(e){}
+  if(!L.length){
+    try{ var c=(typeof DOSSIER!=='undefined' && DOSSIER && DOSSIER.compoIdx!=null)?COMPOSITIONS[DOSSIER.compoIdx]:null;
+      if(c && c.slots) c.slots.forEach(function(s){ if(s.nom) L.push({num:s.num, nom:s.nom, banc:!!s.bench}); }); }catch(e){}
+  }
+  if(!L.length){ try{ ((CONVOS&&CONVOS.a)||[]).forEach(function(n){ var j=JOUEURS.filter(function(x){ return x.nom===n; })[0]; L.push({num:j?j.num:'', nom:n}); }); }catch(e){} }
+  return L;
+}
+function alStat(k, d){
+  var j=AL_UI.joueur; if(!j || AL_UI.lecture) return;
+  var id=String(j.num||j.nom); AL.joueurs[id]=AL.joueurs[id]||{num:j.num, nom:j.nom, c:{}};
+  var c=AL.joueurs[id].c; c[k]=Math.max(0,(c[k]||0)+d);
+  try{ if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
+  alSauver(); alRendre(); alStatCloud(AL.joueurs[id]);
+}
+function alStatCloud(o){
+  clearTimeout(alStatCloud._t); alStatCloud._t=setTimeout(function(){
+    try{
+      var mk=AL.cle, id=(mk+'_'+(o.num||o.nom)+'_coach').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,140);
+      var f={matchKey:{stringValue:mk}, joueurNum:{integerValue:String(parseInt(o.num)||0)}, joueurNom:{stringValue:o.nom}, saisiPar:{stringValue:'Coach'}, dateMaj:{stringValue:new Date().toISOString()}};
+      AL_TYPES.forEach(function(t){ f[t[0]]={integerValue:String(o.c[t[0]]||0)}; });
+      fbFetch(FIRESTORE_BASE+'/stats_live/'+id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:f})}).catch(function(){});
+    }catch(e){}
+  }, 1500);
+}
+// ---- suivre l'analyse sur un autre appareil (lecture) ----
+function alSuivre(){
+  AL_UI.lecture=true;
+  var go=function(){
+    if(!AL_UI.lecture) return;
+    fbFetch(FIRESTORE_BASE+'/analyses_live/'+alDocId(alMatchCle())).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+      var s=j&&j.fields&&j.fields.data&&j.fields.data.stringValue; if(s){ try{ AL=JSON.parse(s); }catch(e){} }
+      alRendre(); clearTimeout(alSuivre._t); alSuivre._t=setTimeout(go, 10000);
+    }).catch(function(){ clearTimeout(alSuivre._t); alSuivre._t=setTimeout(go, 15000); });
+  };
+  go(); notif('Tu suis l’analyse de l’autre appareil (mise à jour toutes les 10 s)');
+}
+function alArreterSuivi(){ AL_UI.lecture=false; clearTimeout(alSuivre._t); AL=alLire(); alRendre(); }
+// ---- démarrer ----
+function alDemarrer(){
+  var ex=alLire();
+  if(ex && !ex.fini && ex.cle===alMatchCle()){ AL=ex; }
+  else if(ex && !ex.fini && (ex.seq.length || ex.ev.length) && !confirm('Une analyse est en cours ('+ex.adv+'). La remplacer par une nouvelle pour '+(CONVOS.adv||'ce match')+' ?')){ AL=ex; }
+  else { if(ex && (ex.seq.length||ex.ev.length) && !ex.fini){ AL=ex; alArchiver(); } AL=alNouveau(); }
+  alSauver(); alRendre();
+}
+function alNouvelle(){ if(AL && (AL.seq.length||AL.ev.length) && !confirm('Recommencer une analyse à zéro ? (l’actuelle est rangée dans les analyses précédentes)')) return; if(AL) alArchiver(); AL=alNouveau(); AL_UI.onglet='terrain'; alSauver(true); alRendre(); }
+// ---- le rendu ----
+function alHeat(T, coul){
+  var tot=T.reduce(function(a,b){ return a+b; },0), max=Math.max.apply(null, T)||1;
+  return T.map(function(v){ return {p:tot?Math.round(v/tot*100):0, a:max?v/max:0}; });
+}
+function alTerrainHtml(mode, petit){
+  var Tn=alTempsZones('nous'), Te=alTempsZones('eux'), H, coul;
+  if(mode==='eux'){ H=alHeat(Te); coul=AL_COUL.eux; } else if(mode==='nous'){ H=alHeat(Tn); coul=AL_COUL.nous; }
+  var cells='';
+  for(var z=0; z<20; z++){
+    var on=(!petit && AL.etat.z===z && AL.etat.eq), bg='', txt='';
+    if(mode==='dom'){ var n=Tn[z], e=Te[z], t=n+e; var r=t?n/t:0.5; bg=t?(r>=0.5?'rgba(255,122,69,'+(0.15+0.6*(r-0.5)*2)+')':'rgba(74,163,255,'+(0.15+0.6*(0.5-r)*2)+')'):''; txt=t?Math.round(r*100)+'%':''; }
+    else { var h=H[z]; bg=h.a?(coul+Math.round(30+h.a*170).toString(16).padStart(2,'0')):''; txt=h.p?h.p+'%':''; }
+    cells+='<button class="al-z'+(on?' on '+AL.etat.eq:'')+'" style="'+(bg?'background:'+bg:'')+'"'+(petit?' disabled':' onclick="alPoser(undefined,'+z+')"')+'><span>'+txt+'</span></button>';
+  }
+  return '<div class="al-terrain'+(petit?' petit':'')+'"><div class="al-lignes"><i class="m"></i><i class="c"></i><i class="s1"></i><i class="s2"></i></div><div class="al-grille">'+cells+'</div>'
+    +(petit?'':'<div class="al-bl">'+AL_BANDES.map(function(b){ return '<span>'+b+'</span>'; }).join('')+'</div>')+'</div>';
+}
+function alRendre(){
+  var ct=document.getElementById('al-ct'); if(!ct) return;
+  if(!AL){ alDemarrer(); return; }
+  var P=alPossTotale(), t=alT(), F=alCompteFaits(0, 1e9);
+  var h='<div class="al-top"><div class="al-ch"><b id="al-chrono">'+alFmt(t)+'</b><span>'+(AL.mt===1?'1re période':(AL.fini?'Terminé':'2e période'))+(alBdt()?' · chrono du bord de touche':'')+'</span></div>'
+    +(AL_UI.lecture?'<span class="al-lec">👁 Lecture · autre appareil <button onclick="alArreterSuivi()">Arrêter</button></span>'
+      :'<div class="al-cb"><button class="al-b '+(alTourne()?'':'pl')+'" onclick="alChrono()">'+(alTourne()?'⏸ Pause':'▶ Lancer')+'</button><button class="al-b" onclick="alMiTemps()">'+(AL.mt===1?'Mi-temps':'Fin du match')+'</button><button class="al-b" onclick="alAnnuler()" title="Annuler le dernier toucher">↶</button></div>')
+    +'<div class="al-pt">Un point toutes les <select class="fi" onchange="alPas(this.value)"'+(AL_UI.lecture?' disabled':'')+'>'+[3,5].map(function(v){ return '<option value="'+v+'"'+(AL.pas===v?' selected':'')+'>'+v+' min</option>'; }).join('')+'</select><small>prochain à '+AL.prochain+'′</small></div></div>'
+    +'<div class="al-poss"><div style="width:'+P.nous+'%"><b>'+P.nous+'%</b> Nous</div><div style="width:'+P.eux+'%">'+alE(AL.adv)+' <b>'+P.eux+'%</b></div></div>'
+    +'<div class="al-tabs">'+[['terrain','⚽ Terrain'],['joueurs','👤 Joueurs'],['points','⏱ Points ('+AL.points.length+')'],['bilan','📊 Bilan']].map(function(o){ return '<button class="'+(AL_UI.onglet===o[0]?'on':'')+'" onclick="AL_UI.onglet=\''+o[0]+'\';alRendre()">'+o[1]+'</button>'; }).join('')+'</div>';
+  if(AL_UI.onglet==='terrain'){
+    h+='<div class="al-eq"><button class="nous'+(AL.etat.eq==='nous'?' on':'')+'" onclick="alPoser(\'nous\')">⚽ À NOUS</button><button class="arr'+(!AL.etat.eq?' on':'')+'" onclick="alPoser(null,null)">⏹ Arrêté</button><button class="eux'+(AL.etat.eq==='eux'?' on':'')+'" onclick="alPoser(\'eux\')">À EUX</button></div>'
+      +'<div class="al-tz"><div class="al-cl">'+AL_COULOIRS.map(function(c){ return '<span>'+c.replace('Demi-espace','½ esp.').replace('Couloir','Coul.')+'</span>'; }).join('')+'</div>'
+      +'<div class="al-sens">↑ On attaque vers le haut · '+alE(AL.adv)+'</div>'
+      +alTerrainHtml(AL_UI.vue==='live'?'nous':AL_UI.vue)+'</div>'
+      +'<div class="al-vues">Couleurs : '+[['nous','Notre possession'],['eux','La leur'],['dom','Qui domine où']].map(function(v){ return '<button class="'+(AL_UI.vue===v[0]?'on':'')+'" onclick="AL_UI.vue=\''+v[0]+'\';alRendre()">'+v[1]+'</button>'; }).join('')+'</div>'
+      +'<div class="al-faits">'+['nous','eux'].map(function(eq){ return '<div class="al-fr '+eq+'"><b>'+(eq==='nous'?'Nous':alE(AL.adv))+'</b>'+AL_FAITS.map(function(f){ return '<button onclick="alFait(\''+eq+'\',\''+f[0]+'\')"><i>'+f[2]+'</i>'+f[1]+'<em>'+(F[eq][f[0]]||0)+'</em></button>'; }).join('')+'</div>'; }).join('')+'</div>';
+  } else if(AL_UI.onglet==='joueurs'){
+    var J=alJoueursDispo(), sel=AL_UI.joueur;
+    h+='<div class="al-js">'+(J.length?J.map(function(j){ var id=String(j.num||j.nom), c=(AL.joueurs[id]||{c:{}}).c, n=Object.keys(c).reduce(function(a,k){ return a+(c[k]||0); },0); return '<button class="'+(sel&&String(sel.num||sel.nom)===id?'on':'')+(j.banc?' banc':'')+'" data-n="'+alE(j.nom)+'" data-u="'+alE(j.num)+'" onclick="AL_UI.joueur={nom:this.dataset.n,num:this.dataset.u};alRendre()">'+(j.num?'<i>'+alE(j.num)+'</i>':'')+alE(j.nom)+(n?'<em>'+n+'</em>':'')+'</button>'; }).join(''):'<p class="al-vide">Pose la compo (ou ouvre le bord de touche) pour avoir la liste des joueurs.</p>')+'</div>';
+    if(sel){
+      var c=(AL.joueurs[String(sel.num||sel.nom)]||{c:{}}).c;
+      h+='<div class="al-jh"><b>'+alE(sel.nom)+'</b><span>Touche pour compter · appui sur − pour corriger</span></div><div class="al-st">'
+        +AL_TYPES.map(function(t){ return '<div class="al-s"><button class="p" onclick="alStat(\''+t[0]+'\',1)"><i>'+t[2]+'</i>'+t[1]+'<b>'+(c[t[0]]||0)+'</b></button><button class="m" onclick="alStat(\''+t[0]+'\',-1)">−</button></div>'; }).join('')+'</div>'
+        +'<p class="al-vide">Ces chiffres rejoignent les stats live des joueurs (Après le match → Saisir le résultat).</p>';
+    }
+  } else if(AL_UI.onglet==='points'){
+    h+=AL.points.length?'<div class="al-pts">'+AL.points.slice().reverse().map(function(p){
+      var R={domine:'💪 On domine',equilibre:'⚖️ Équilibré',subit:'😬 On subit'}[p.ressenti]||'';
+      return '<div class="al-pi"><div class="h"><b>'+p.de+'′ → '+p.min+'′</b><span>'+R+'</span></div>'
+        +'<div class="b"><div class="al-mini"><i style="width:'+p.poss+'%"></i></div><span>'+p.poss+' % de possession</span></div>'
+        +'<div class="g">Tirs <b>'+p.tirs[0]+'–'+p.tirs[1]+'</b> · Récup. <b>'+p.recup[0]+'–'+p.recup[1]+'</b> · Pertes <b>'+p.pertes[0]+'–'+p.pertes[1]+'</b></div>'
+        +'<div class="g">Nous : '+alE(alNomZone(p.zN))+' · Eux : '+alE(alNomZone(p.zE))+'</div>'
+        +(p.note?'<div class="n">📝 '+alE(p.note)+'</div>':'')+'</div>';
+    }).join('')+'</div>':'<p class="al-vide">Le premier point arrive à la '+AL.prochain+'e minute. Tu peux aussi le faire maintenant.</p>';
+    if(!AL_UI.lecture) h+='<div class="al-cb" style="margin-top:10px"><button class="al-b pl" onclick="alOuvrirPoint(Math.max(1,Math.ceil(alT()/60)))">⏱ Faire le point maintenant</button></div>';
+  } else {
+    h+=alBilanHtml();
+  }
+  if(!AL_UI.lecture) h+='<div class="al-pied"><button class="al-b" onclick="alSuivre()">👁 Suivre l’analyse d’un autre appareil</button><button class="al-b" onclick="alNouvelle()">↺ Nouvelle analyse</button><button class="al-b" onclick="alArchives()">📁 Analyses précédentes</button></div>';
+  ct.innerHTML=h;
+  clearInterval(AL_UI.tick);
+  AL_UI.tick=setInterval(function(){
+    var c=document.getElementById('al-chrono'); if(!c){ clearInterval(AL_UI.tick); return; }
+    c.textContent=alFmt(alT()); alVerifierPoint();
+    if(AL_UI.onglet==='terrain' && alTourne() && (Date.now()-(AL_UI.t||0))>5000){ AL_UI.t=Date.now(); var x=document.querySelector('#al-ct .al-poss'); if(x){ var P2=alPossTotale(); x.innerHTML='<div style="width:'+P2.nous+'%"><b>'+P2.nous+'%</b> Nous</div><div style="width:'+P2.eux+'%">'+alE(AL.adv)+' <b>'+P2.eux+'%</b></div>'; } }
+  }, 1000);
+}
+function alBilanHtml(){
+  var t=alT(), dur=Math.max(5, Math.ceil(t/60)), pas=AL.pas||5, F=alCompteFaits(0,1e9), P=alPossTotale();
+  var mt=(AL.ev.filter(function(e){ return e.k==='mt'; })[0]||{}).t;
+  var F1=mt!=null?alCompteFaits(0, mt):null, F2=mt!=null?alCompteFaits(mt, 1e9):null;
+  var bars=''; for(var m=0; m<dur; m+=pas){ var p=alPoss(m*60, (m+pas)*60); bars+='<div class="al-bar" title="'+m+'′–'+(m+pas)+'′"><i style="height:'+(p.tot?p.nous:0)+'%"></i><span>'+(p.tot?p.nous:'')+'</span><small>'+(m+pas)+'′</small></div>'; }
+  var ligne=function(lab, k){ return '<tr><td class="n">'+(F.nous[k]||0)+'</td><th>'+lab+'</th><td class="e">'+(F.eux[k]||0)+'</td></tr>'; };
+  return '<div class="al-bil">'
+    +'<div class="al-bc"><h4>Où on a eu le ballon</h4>'+alTerrainHtml('nous', true)+'</div>'
+    +'<div class="al-bc"><h4>Où ils ont eu le ballon</h4>'+alTerrainHtml('eux', true)+'</div>'
+    +'<div class="al-bc"><h4>Qui domine où</h4>'+alTerrainHtml('dom', true)+'</div>'
+    +'<div class="al-bc large"><h4>Notre possession, toutes les '+pas+' minutes</h4><div class="al-bars">'+bars+'</div></div>'
+    +'<div class="al-bc"><h4>Les faits · '+P.nous+' % – '+P.eux+' %</h4><table class="al-tb"><tr><td class="n">Nous</td><th></th><td class="e">'+alE(AL.adv)+'</td></tr>'
+      +ligne('Tirs','tirs')+ligne('Tirs cadrés','cadre')+ligne('Buts','but')+ligne('Corners','corner')+ligne('Fautes','faute')+ligne('Récupérations','recup')+ligne('Pertes','perte')+ligne('Hors-jeu','hj')+'</table>'
+      +(F1?'<div class="al-mt">1re période : tirs '+F1.nous.tirs+'–'+F1.eux.tirs+' · 2e période : tirs '+F2.nous.tirs+'–'+F2.eux.tirs+'</div>':'')+'</div>'
+    +'<div class="al-bc"><h4>Les zones qui comptent</h4>'+alTop('nous')+alTop('eux')+'</div>'
+    +'</div>';
+}
+function alTop(eq){
+  var T=alTempsZones(eq), tot=T.reduce(function(a,b){ return a+b; },0); if(!tot) return '';
+  var idx=T.map(function(v,i){ return i; }).sort(function(a,b){ return T[b]-T[a]; }).slice(0,3);
+  return '<div class="al-top3 '+eq+'"><b>'+(eq==='nous'?'Nous':alE(AL.adv))+'</b>'+idx.map(function(i){ return '<span>'+alE(alNomZone(i))+' · '+Math.round(T[i]/tot*100)+' %</span>'; }).join('')+'</div>';
+}
+function alArchives(){
+  var A=[]; try{ A=JSON.parse(localStorage.getItem('ast_analyse_live_archive')||'[]'); }catch(e){}
+  var o=document.createElement('div'); o.id='al-arch';
+  o.innerHTML='<div class="al-pc"><div class="al-ph"><span>Analyses précédentes</span><b>'+A.length+' match'+(A.length>1?'s':'')+'</b></div>'
+    +(A.length?A.map(function(a,i){ var n=a.temps.nous.reduce(function(x,y){ return x+y; },0), e=a.temps.eux.reduce(function(x,y){ return x+y; },0); return '<button class="al-ai" onclick="alVoirArchive('+i+')"><b>'+alE(a.adv)+'</b><span>'+alE(a.date||new Date(a.cree).toLocaleDateString('fr-FR'))+' · '+((n+e)?Math.round(n/(n+e)*100):0)+' % de possession · '+(a.points||[]).length+' points</span></button>'; }).join(''):'<p class="al-vide">Rien encore : l’analyse est rangée ici à la fin du match.</p>')
+    +'<div class="al-pb"><button class="al-b" onclick="this.closest(\'#al-arch\').remove()">Fermer</button></div></div>';
+  document.body.appendChild(o);
+}
+function alVoirArchive(i){
+  var A=[]; try{ A=JSON.parse(localStorage.getItem('ast_analyse_live_archive')||'[]'); }catch(e){}
+  if(!A[i]) return; var o=document.getElementById('al-arch'); if(o) o.remove();
+  AL_UI.sauve=AL; AL=A[i]; AL_UI.lecture=true; AL_UI.onglet='bilan'; alRendre();
+  var ct=document.getElementById('al-ct'); if(ct){ var b=document.createElement('div'); b.className='al-lec'; b.innerHTML='📁 Analyse rangée · '+alE(AL.adv)+' <button onclick="AL=AL_UI.sauve;AL_UI.lecture=false;alRendre()">Revenir au match en cours</button>'; ct.insertBefore(b, ct.firstChild); }
+}
+// ---- le style ----
+(function(){
+  var css=''
+  +'#al-ct{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:12px;font-family:"Roboto Condensed",sans-serif;padding-bottom:30px}'
+  +'.al-top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;background:#141210;color:#fff;border-radius:14px;padding:12px 16px}'
+  +'.al-ch b{font:400 40px/1 "Anton",sans-serif;letter-spacing:.02em}.al-ch span{display:block;font:700 12px "Roboto Condensed",sans-serif;color:#f4a06b;letter-spacing:.1em;text-transform:uppercase}'
+  +'.al-cb{display:flex;gap:8px;flex-wrap:wrap}'
+  +'.al-b{border:1px solid var(--line,rgba(127,127,127,.3));background:var(--carte,#fff);color:inherit;border-radius:10px;padding:9px 14px;font:800 14px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.al-top .al-b{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}'
+  +'.al-b.pl,.al-top .al-b.pl{background:#ff7a45;border-color:#ff7a45;color:#14130f}'
+  +'.al-pt{display:flex;align-items:center;gap:6px;font:700 13px "Roboto Condensed",sans-serif;color:#cfc8ba}.al-pt select{width:auto;padding:4px 8px}.al-pt small{opacity:.7}'
+  +'.al-lec{display:flex;gap:8px;align-items:center;background:#4aa3ff22;color:inherit;border-radius:10px;padding:8px 12px;font:700 13px "Roboto Condensed",sans-serif}.al-lec button{border:0;border-radius:8px;padding:5px 10px;background:#4aa3ff;color:#06121f;font-weight:800;cursor:pointer}'
+  +'.al-poss{display:flex;height:34px;border-radius:10px;overflow:hidden;font:700 13px "Roboto Condensed",sans-serif}'
+  +'.al-poss div{display:flex;align-items:center;gap:6px;padding:0 10px;white-space:nowrap;overflow:hidden;transition:width .6s}.al-poss div:first-child{background:#ff7a45;color:#14130f}.al-poss div:last-child{background:#4aa3ff;color:#06121f;justify-content:flex-end}'
+  +'.al-tabs{display:flex;gap:6px;overflow-x:auto}.al-tabs button{flex:1;min-width:max-content;border:0;border-radius:10px;padding:10px 12px;background:var(--voile,rgba(127,127,127,.1));color:inherit;font:800 14px "Roboto Condensed",sans-serif;cursor:pointer}.al-tabs button.on{background:#141210;color:#fff}'
+  +'.al-eq{display:grid;grid-template-columns:1fr auto 1fr;gap:8px}'
+  +'.al-eq button{border:3px solid transparent;border-radius:14px;padding:16px 10px;font:900 20px "Roboto Condensed",sans-serif;cursor:pointer;letter-spacing:.04em}'
+  +'.al-eq .nous{background:#ff7a4533;color:#c2410c}.al-eq .eux{background:#4aa3ff33;color:#1d5fa8}.al-eq .arr{background:var(--voile,rgba(127,127,127,.12));color:inherit;font-size:14px}'
+  +'.al-eq .nous.on{background:#ff7a45;color:#14130f;border-color:#14130f}.al-eq .eux.on{background:#4aa3ff;color:#06121f;border-color:#06121f}.al-eq .arr.on{border-color:currentColor}'
+  +'.al-tz{display:flex;flex-direction:column;gap:4px}'
+  +'.al-cl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding-right:74px;font:700 10.5px "Roboto Condensed",sans-serif;text-align:center;color:var(--gris2,#888);text-transform:uppercase;letter-spacing:.04em}'
+  +'.al-sens{font:700 12px "Roboto Condensed",sans-serif;color:var(--gris2,#888);text-align:center;padding-right:74px}'
+  +'.al-terrain{position:relative;display:grid;grid-template-columns:1fr 70px;gap:4px}'
+  +'.al-terrain.petit{grid-template-columns:1fr}'
+  +'.al-lignes{position:absolute;left:0;top:0;bottom:0;right:74px;border:2px solid rgba(255,255,255,.75);border-radius:10px;pointer-events:none;z-index:2}'
+  +'.al-terrain.petit .al-lignes{right:0}'
+  +'.al-lignes .m{position:absolute;left:0;right:0;top:50%;border-top:2px solid rgba(255,255,255,.65)}'
+  +'.al-lignes .c{position:absolute;left:50%;top:50%;width:18%;aspect-ratio:1;border:2px solid rgba(255,255,255,.65);border-radius:50%;transform:translate(-50%,-50%)}'
+  +'.al-lignes .s1,.al-lignes .s2{position:absolute;left:25%;right:25%;height:12%;border:2px solid rgba(255,255,255,.65)}.al-lignes .s1{top:0;border-top:0}.al-lignes .s2{bottom:0;border-bottom:0}'
+  +'.al-grille{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(4,1fr);gap:0;aspect-ratio:5/5.2;max-height:58vh;background:repeating-linear-gradient(90deg,#2f7a3e 0 20%,#2a7038 20% 40%);border-radius:10px;overflow:hidden}'
+  +'.al-terrain.petit .al-grille{aspect-ratio:5/5.6;max-height:none}'
+  +'.al-z{border:1px dashed rgba(255,255,255,.28);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:background .3s}'
+  +'.al-z span{font:900 15px "Roboto Condensed",sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}'
+  +'.al-terrain.petit .al-z span{font-size:11px}'
+  +'.al-z.on{outline:4px solid #fff;outline-offset:-4px;z-index:3}.al-z.on.nous{box-shadow:inset 0 0 0 999px rgba(255,122,69,.55)}.al-z.on.eux{box-shadow:inset 0 0 0 999px rgba(74,163,255,.55)}'
+  +'.al-z:active{filter:brightness(1.3)}'
+  +'.al-bl{display:grid;grid-template-rows:repeat(4,1fr);font:800 11px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--gris2,#888)}.al-bl span{display:flex;align-items:center}'
+  +'.al-vues{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font:700 12.5px "Roboto Condensed",sans-serif;color:var(--gris2,#888)}.al-vues button{border:1px solid var(--line,rgba(127,127,127,.3));background:none;color:inherit;border-radius:20px;padding:5px 10px;font:700 12.5px "Roboto Condensed",sans-serif;cursor:pointer}.al-vues button.on{background:#141210;color:#fff}'
+  +'.al-faits{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:640px){.al-faits{grid-template-columns:1fr}}'
+  +'.al-fr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px;border-radius:14px}.al-fr>b{grid-column:1/-1;font:900 14px "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.al-fr.nous{background:#ff7a4518}.al-fr.eux{background:#4aa3ff18}.al-fr.nous>b{color:#c2410c}.al-fr.eux>b{color:#1d5fa8}'
+  +'.al-fr button{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;border-radius:10px;padding:9px 4px;background:var(--carte,#fff);color:inherit;font:700 11.5px "Roboto Condensed",sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}'
+  +'.al-fr button i{font-style:normal;font-size:18px}.al-fr button em{position:absolute;top:3px;right:5px;font-style:normal;font-weight:900;font-size:12px;opacity:.75}'
+  +'.al-js{display:flex;flex-wrap:wrap;gap:6px}.al-js button{display:flex;align-items:center;gap:6px;border:1px solid var(--line,rgba(127,127,127,.3));background:var(--carte,#fff);color:inherit;border-radius:20px;padding:7px 12px;font:700 14px "Roboto Condensed",sans-serif;cursor:pointer}'
+  +'.al-js button.banc{opacity:.7;border-style:dashed}.al-js button i{font-style:normal;font-weight:900;color:#ff7a45}.al-js button em{font-style:normal;font-size:11px;background:#ff7a45;color:#14130f;border-radius:10px;padding:1px 6px}.al-js button.on{background:#141210;color:#fff}'
+  +'.al-jh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.al-jh b{font:900 22px "Roboto Condensed",sans-serif;text-transform:uppercase}.al-jh span{font:600 12.5px "Roboto Condensed",sans-serif;color:var(--gris2,#888)}'
+  +'.al-st{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}@media(min-width:700px){.al-st{grid-template-columns:repeat(4,1fr)}}'
+  +'.al-s{display:flex;gap:4px}.al-s .p{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;border-radius:12px;padding:12px 6px;background:var(--carte,#fff);color:inherit;font:700 13px "Roboto Condensed",sans-serif;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1)}'
+  +'.al-s .p i{font-style:normal;font-size:20px}.al-s .p b{font:900 22px "Roboto Condensed",sans-serif;color:#ff7a45}.al-s .m{width:34px;border:0;border-radius:10px;background:var(--voile,rgba(127,127,127,.12));color:inherit;font-size:18px;cursor:pointer}'
+  +'.al-vide{font:600 13px "Roboto Condensed",sans-serif;color:var(--gris2,#888)}'
+  +'.al-pts{display:flex;flex-direction:column;gap:8px}.al-pi{background:var(--carte,#fff);border-radius:12px;padding:10px 12px;border-left:4px solid #ff7a45;display:flex;flex-direction:column;gap:5px}'
+  +'.al-pi .h{display:flex;justify-content:space-between;font:800 14px "Roboto Condensed",sans-serif}.al-pi .b{display:flex;align-items:center;gap:8px;font:700 13px "Roboto Condensed",sans-serif}.al-mini{flex:1;height:8px;border-radius:4px;background:#4aa3ff;overflow:hidden}.al-mini i{display:block;height:100%;background:#ff7a45}'
+  +'.al-pi .g{font:600 12.5px "Roboto Condensed",sans-serif;color:var(--gris2,#777)}.al-pi .n{font:600 13.5px "Roboto Condensed",sans-serif}'
+  +'.al-bil{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}@media(max-width:760px){.al-bil{grid-template-columns:minmax(0,1fr)}}'
+  +'.al-bc{background:var(--carte,#fff);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.al-bc.large{grid-column:1/-1}.al-bc h4{margin:0;font:900 14px "Roboto Condensed",sans-serif;text-transform:uppercase}'
+  +'.al-bars{display:flex;gap:4px;align-items:flex-end;height:150px;padding-top:14px}.al-bar{flex:1;position:relative;height:100%;background:#4aa3ff33;border-radius:6px 6px 0 0;display:flex;align-items:flex-end}'
+  +'.al-bar i{display:block;width:100%;background:#ff7a45;border-radius:6px 6px 0 0}.al-bar span{position:absolute;top:-15px;left:0;right:0;text-align:center;font:800 11px "Roboto Condensed",sans-serif}.al-bar small{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font:700 10px "Roboto Condensed",sans-serif;color:var(--gris2,#888)}'
+  +'.al-bc.large{padding-bottom:26px}'
+  +'.al-tb{width:100%;border-collapse:collapse;font:700 14px "Roboto Condensed",sans-serif}.al-tb th{font-weight:600;color:var(--gris2,#777);text-align:center;padding:4px}.al-tb td{width:28%;padding:4px;font-weight:900}.al-tb td.n{color:#c2410c;text-align:left}.al-tb td.e{color:#1d5fa8;text-align:right}'
+  +'.al-mt{font:600 12.5px "Roboto Condensed",sans-serif;color:var(--gris2,#777)}'
+  +'.al-top3{display:flex;flex-direction:column;gap:3px;font:600 13px "Roboto Condensed",sans-serif;margin-bottom:6px}.al-top3 b{font-weight:900}.al-top3.nous b{color:#c2410c}.al-top3.eux b{color:#1d5fa8}'
+  +'.al-pied{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}'
+  +'#al-point,#al-arch{position:fixed;inset:0;z-index:100005;background:rgba(10,10,12,.55);display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto}'
+  +'.al-pc{width:100%;max-width:520px;background:var(--bg,#f6f1e7);color:var(--texte,#14130f);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:"Roboto Condensed",sans-serif}'
+  +'.al-ph span{display:block;font:800 12px "Roboto Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#ff7a45}.al-ph b{font:400 28px/1.05 "Anton",sans-serif;text-transform:uppercase}'
+  +'.al-pg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.al-pg div{background:var(--carte,#fff);border-radius:10px;padding:8px 10px}.al-pg i{display:block;font-style:normal;font:700 11px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--gris2,#888)}.al-pg b{font:900 20px "Roboto Condensed",sans-serif}'
+  +'.al-pg .n,.al-pz .n{color:#c2410c}.al-pg .e,.al-pz .e{color:#1d5fa8}.al-pz{display:flex;flex-direction:column;gap:2px;font:700 13px "Roboto Condensed",sans-serif}'
+  +'.al-pr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.al-pr button{border:2px solid var(--line,rgba(127,127,127,.3));background:var(--carte,#fff);color:inherit;border-radius:10px;padding:9px 4px;font:800 13px "Roboto Condensed",sans-serif;cursor:pointer}.al-pr button.on{border-color:#ff7a45;background:#ff7a4522}'
+  +'.al-pb{display:flex;gap:8px;flex-wrap:wrap}'
+  +'.al-ai{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:0;border-radius:10px;padding:10px 12px;background:var(--carte,#fff);color:inherit;cursor:pointer}.al-ai b{font:900 15px "Roboto Condensed",sans-serif}.al-ai span{font:600 12.5px "Roboto Condensed",sans-serif;color:var(--gris2,#777)}'
+  +'.al-bdt-b{background:#ff7a45!important;color:#14130f!important;border-color:#ff7a45!important}';
+  var s=document.createElement('style'); s.id='v199-css'; s.textContent=css; document.head.appendChild(s);
+})();
+// ---- l'écran, sa place dans « La semaine » (le jour J), le bouton dans le bord de touche ----
+function alOuvrir(){
+  try{ if(typeof BDT!=='undefined' && BDT.ouvert){ var b=document.getElementById('bdt'); if(b){ b.style.display='none'; AL_UI.depuisBdt=true; } } }catch(e){}
+  goNav('live');
+}
+window.addEventListener('load', function(){
+  if(!document.getElementById('scr-live')){
+    var ref=document.getElementById('scr-feuille-match')||document.querySelector('.scr');
+    var d=document.createElement('div'); d.className='scr'; d.id='scr-live';
+    d.innerHTML='<div class="al-retour-bdt" id="al-rb" style="display:none;margin-bottom:8px"><button class="al-b pl" onclick="alRetourBdt()">‹ Revenir au bord de touche</button></div><div id="al-ct"></div>';
+    if(ref && ref.parentNode) ref.parentNode.insertBefore(d, ref.nextSibling);
+  }
+  [typeof NAV3_POLES!=='undefined'?NAV3_POLES:null, typeof POLES!=='undefined'?POLES:null].forEach(function(L){
+    if(!L) return; var p=L.filter(function(x){ return x.id==='semaine'; })[0]; if(!p || p.screens.some(function(s){ return s.s==='live'; })) return;
+    var i=p.screens.findIndex(function(s){ return s.s==='feuille-match'; });
+    p.screens.splice(i<0?p.screens.length:i+1, 0, {s:'live', ic:'chiffres', l:'Analyse live', g:'Le jour J'});
+  });
+  try{ ECRANS_INFO.live={ic:'chiffres', l:'Analyse live'}; }catch(e){}
+  try{ RG_AIDE.live='<b>Pendant le match</b> · La possession par zone, les faits et les stats de chacun, avec un point toutes les 3 ou 5 minutes.'; }catch(e){}
+  try{ EXT.apres('rendreEcran', function(s){ if(s==='live'){ var rb=document.getElementById('al-rb'); if(rb) rb.style.display=AL_UI.depuisBdt?'':'none'; alRendre(); } }, 'analyse live'); }catch(e){}
+  // le bouton « 📊 Analyse live » dans le bord de touche
+  try{ EXT.apres('bdtRender', function(){
+    var bas=document.querySelector('#bdt .bdt-bas'); if(!bas || bas.querySelector('.al-bdt-b')) return;
+    var b=document.createElement('button'); b.className='bdt-annuler al-bdt-b'; b.type='button'; b.innerHTML='📊 Analyse live'; b.onclick=alOuvrir;
+    bas.insertBefore(b, bas.firstChild);
+  }, 'analyse live'); }catch(e){}
+  // les règles : l'analyse se lit par le staff, s'écrit par le coach
+  try{
+    if(typeof SEC_REGLES==='string' && SEC_REGLES.indexOf('analyses_live')<0)
+      SEC_REGLES=SEC_REGLES.replace('    match /stats_live/{id} {', "    // ---- v199 : l'analyse live du coach\n    match /analyses_live/{id} {\n      allow read: if membre();\n      allow write: if estCoach();\n    }\n    match /stats_live/{id} {");
+  }catch(e){}
+});
+function alRetourBdt(){ AL_UI.depuisBdt=false; var b=document.getElementById('bdt'); if(b) b.style.display=''; try{ bdtRender(); }catch(e){} }
 
 </script>
 </body></html>
