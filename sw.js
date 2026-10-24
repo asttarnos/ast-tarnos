@@ -36,7 +36,7 @@ self.addEventListener('notificationclick', function(event){
   }));
 });
 
-const CACHE_NAME = 'ast-tarnos-v204';
+const CACHE_NAME = 'ast-tarnos-v205';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -44,10 +44,10 @@ const URLS_TO_CACHE = [
   './JOUEUR.html',
   './MATCH.html',
   './manifest.json',
-  './assets/plateau-coach-4222.html', './assets/plateau-coach-4231.html', './assets/plateau-coach-352.html', './assets/plateau-coach-433.html',
-  './assets/plateau-joueur-4222.html', './assets/plateau-joueur-4231.html', './assets/plateau-joueur-352.html', './assets/plateau-joueur-433.html',
-  './assets/terrain-1.webp', './assets/terrain-2.webp',
-  './assets/terrain-p1.jpg', './assets/terrain-p2.jpg', './assets/terrain-p3.jpg', './assets/terrain-p4.jpg', './assets/terrain-p5.jpg', './assets/terrain-p6.jpg', './assets/terrain-p7.jpg'
+  './plateau-coach-4222.html', './plateau-coach-4231.html', './plateau-coach-352.html', './plateau-coach-433.html',
+  './plateau-joueur-4222.html', './plateau-joueur-4231.html', './plateau-joueur-352.html', './plateau-joueur-433.html',
+  './terrain-1.webp', './terrain-2.webp',
+  './terrain-p1.jpg', './terrain-p2.jpg', './terrain-p3.jpg', './terrain-p4.jpg', './terrain-p5.jpg', './terrain-p6.jpg', './terrain-p7.jpg'
 ];
 
 self.addEventListener('install', function(event) {
@@ -89,24 +89,19 @@ self.addEventListener('fetch', function(event) {
   // et on vérifie en même temps s'il y en a une nouvelle. Si oui, elle est rangée
   // pour la prochaine ouverture et la page affiche « Nouvelle version prête ».
   if (event.request.mode === 'navigate' || /\.html(\?|$)/.test(url)) {
+    // Les pages : toujours la dernière version mise en ligne. Si le réseau ne répond pas
+    // en 3 secondes (bord du terrain), on ouvre la copie gardée sur le téléphone.
     var cle=url.split('#')[0].split('?')[0];
-    var page=(cle.split('/').pop()||'');
     event.respondWith(caches.open(CACHE_NAME).then(function(cache){
-      return cache.match(cle).then(function(cached){
-        var reseau=fetch(new Request(cle, { cache: 'no-store', credentials: 'same-origin' })).then(function(response){
-          if (response && response.status === 200) {
-            var neuf=swSignature(response), ancien=swSignature(cached);
-            cache.put(cle, response.clone());
-            if (cached && neuf!==ancien && (event.request.mode === 'navigate')) {
-              // on laisse la page finir de s'ouvrir avant de prévenir
-              setTimeout(function(){ swPrevenir(page); }, 6000); setTimeout(function(){ swPrevenir(page); }, 20000);
-            }
-          }
-          return response;
-        });
-        if (cached) { event.waitUntil(reseau.catch(function(){})); return cached; }
-        return reseau.catch(function(){ return caches.match(cle, { ignoreSearch: true }); });
+      var reseau=fetch(new Request(cle, { cache: 'no-store', credentials: 'same-origin' })).then(function(response){
+        if (response && response.status === 200) cache.put(cle, response.clone());
+        return response;
       });
+      var delai=new Promise(function(ok){ setTimeout(ok, 3000); }).then(function(){ return cache.match(cle); });
+      return Promise.race([reseau.catch(function(){ return null; }), delai]).then(function(r){
+        if (r) return r;
+        return reseau.catch(function(){ return cache.match(cle, { ignoreSearch: true }); });
+      }).then(function(r){ return r || reseau; });
     }));
     return;
   }
