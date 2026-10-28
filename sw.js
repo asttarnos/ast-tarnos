@@ -18,7 +18,7 @@ try{
     if(payload && payload.notification) return;
     var d=(payload&&payload.data)||{};
     self.registration.showNotification(d.titre||'AST Tarnos',{
-      body:d.corps||'', icon:'./icons/icon-192.png', badge:'./icons/icon-192.png',
+      body:d.corps||'', icon:'./icon-192.png', badge:'./icon-192.png',
       tag:d.tag||undefined, data:{lien:d.lien||'./JOUEUR.html'}
     });
   });
@@ -36,7 +36,7 @@ self.addEventListener('notificationclick', function(event){
   }));
 });
 
-const CACHE_NAME = 'ast-tarnos-v236';
+const CACHE_NAME = 'ast-tarnos-v237';
 const URLS_TO_CACHE = [
   './',
   './index.html',

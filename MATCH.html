@@ -6,8 +6,8 @@
 <title>AST Tarnos · le match</title>
 <meta name="description" content="Le match de l'AST Tarnos en direct : score, minute, buteurs.">
 <meta name="theme-color" content="#0B0A09">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="match.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="AST Match">
@@ -72,7 +72,7 @@ html.live .score{border-color:var(--or)}
 </head>
 <body>
 <div class="w" id="app">
-  <div class="top"><img src="icons/icon-192.png" alt="" onerror="this.style.display='none'"><b>AST Tarnos</b><span id="etat">…</span></div>
+  <div class="top"><img src="icon-192.png" alt="" onerror="this.style.display='none'"><b>AST Tarnos</b><span id="etat">…</span></div>
   <div class="vide">Chargement du match…</div>
 </div>
 <script>
@@ -107,7 +107,7 @@ function partager(){
 function alertCopie(){ var b=document.getElementById('bp'); if(b){ b.textContent='Lien copié ✓'; setTimeout(function(){ b.textContent='Partager le lien'; }, 2000); } }
 function rendre(){
   var app=document.getElementById('app');
-  var top='<div class="top"><img src="icons/icon-192.png" alt="" onerror="this.style.display=\'none\'"><b>AST Tarnos</b>';
+  var top='<div class="top"><img src="icon-192.png" alt="" onerror="this.style.display=\'none\'"><b>AST Tarnos</b>';
   if(!D || !D.s){
     document.documentElement.classList.remove('live');
     app.innerHTML=top+'<span id="etat">'+(ERREUR?'hors ligne':'')+'</span></div>'
