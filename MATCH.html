@@ -245,5 +245,35 @@ function clubHtml(){
 (function(){ var st=document.createElement('style'); st.textContent='.club{display:flex;flex-direction:column;gap:14px}.vote .vj{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vote button.j{min-height:44px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--fond);color:var(--ink);font:700 15px "Barlow",sans-serif;cursor:pointer}.vote button.j.on{background:var(--or);border-color:var(--or);color:#14130F}.vote .btn{width:100%}.vote .btn:disabled{opacity:.5}.parts .pl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 6px}.parts .pl span{padding:8px 12px;border-radius:10px;background:var(--fond);font:700 15px "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em}'; document.head.appendChild(st); })();
 chargerClub(); setInterval(chargerClub, 60000);
 </script>
+<script>
+// ===== v318 : le fantasy, les messages pour l'équipe, le musée du club =====
+var FAN_CHOIX={};
+function fanCle(){ return CLUB&&CLUB.fantasy?CLUB.fantasy.j:''; }
+function fanFait(){ try{ return localStorage.getItem('ast-fan-'+fanCle())||''; }catch(x){ return ''; } }
+function fanClic(n){ if(FAN_CHOIX[n]) delete FAN_CHOIX[n]; else if(Object.keys(FAN_CHOIX).length<5) FAN_CHOIX[n]=1; rendre(); }
+async function fanEnvoyer(){ var p=(document.getElementById('fanp')||{}).value||''; p=p.trim(); var L=Object.keys(FAN_CHOIX); if(!p || L.length!==5) return; var b=document.getElementById('bfan'); if(b){ b.disabled=true; b.textContent='Envoi…'; }
+  try{ var r=await fetch('https://firestore.googleapis.com/v1/projects/notes-match-ast/databases/(default)/documents/fantasy_public',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{j:{stringValue:fanCle()}, pseudo:{stringValue:p.slice(0,38)}, picks:{stringValue:L.join('|')}, cree:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw 0; try{ localStorage.setItem('ast-fan-'+fanCle(), L.join(', ')); localStorage.setItem('ast-fan-pseudo', p); }catch(x){} rendre(); }catch(x){ if(b){ b.disabled=false; b.textContent='Réessayer'; } } }
+function msgFait(){ try{ return localStorage.getItem('ast-msg-'+((CLUB&&CLUB.messages)||{}).m)||''; }catch(x){ return ''; } }
+async function msgEnvoyer(){ var n=((document.getElementById('msgn')||{}).value||'').trim(), t=((document.getElementById('msgt')||{}).value||'').trim(); if(!n||!t) return; var b=document.getElementById('bmsg'); if(b){ b.disabled=true; b.textContent='Envoi…'; }
+  try{ var r=await fetch('https://firestore.googleapis.com/v1/projects/notes-match-ast/databases/(default)/documents/messages_public',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{m:{stringValue:CLUB.messages.m}, nom:{stringValue:n.slice(0,38)}, txt:{stringValue:t.slice(0,190)}, cree:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw 0; try{ localStorage.setItem('ast-msg-'+CLUB.messages.m, t); }catch(x){} rendre(); }catch(x){ if(b){ b.disabled=false; b.textContent='Réessayer'; } } }
+function plusHtml(){
+  if(!CLUB) return ''; var h='';
+  var M=CLUB.messages; if(M && M.ouvert){ var f=msgFait(); h+='<div class="carte"><span class="k">Un mot pour l’équipe</span><b>Avant le match, laisse un message aux joueurs</b>'+(f?'<p>Merci ! Ton message sera lu dans le vestiaire avant l’échauffement.</p>':'<p>Il sera affiché dans le vestiaire juste avant l’échauffement.</p><input class="inp" id="msgn" maxlength="38" placeholder="Ton prénom (ou « Les Anciens »)"><textarea class="inp" id="msgt" maxlength="190" rows="3" placeholder="Allez les gars, on est derrière vous !"></textarea><button class="btn" id="bmsg" onclick="msgEnvoyer()">Envoyer mon message</button>')+'</div>'; }
+  var F=CLUB.fantasy; if(F && F.ouvert && (F.joueurs||[]).length){ var fait=fanFait(), n=Object.keys(FAN_CHOIX).length, ps=''; try{ ps=localStorage.getItem('ast-fan-pseudo')||''; }catch(x){}
+    h+='<div class="carte fan"><span class="k">Le fantasy du club</span><b>Ton équipe de 5'+(F.adv?' · vs '+e(F.adv):'')+'</b>'
+      +(fait?'<p>Ton équipe est enregistrée : <b>'+e(fait)+'</b>. Les points arrivent après le match : 4 par but, 3 par passe décisive, et des bonus.</p>'
+        :'<p>Choisis 5 joueurs. 1 point s’il joue, 4 par but, 3 par passe décisive, des bonus pour les meilleures notes et l’homme du match.</p><div class="vj">'+F.joueurs.map(function(x){ return '<button class="j'+(FAN_CHOIX[x]?' on':'')+'" data-n="'+e(x)+'" onclick="fanClic(this.getAttribute(\'data-n\'))">'+e(x)+'</button>'; }).join('')+'</div><input class="inp" id="fanp" maxlength="38" placeholder="Ton pseudo pour le classement" value="'+e(ps)+'"><button class="btn" id="bfan" '+(n===5?'':'disabled')+' onclick="fanEnvoyer()">'+(n===5?'Valider mon équipe':'Encore '+(5-n)+' joueur'+(5-n>1?'s':'')+' à choisir')+'</button>')+'</div>'; }
+  var Mu=CLUB.musee; if(Mu && ((Mu.legendes||[]).length || (Mu.dates||[]).length || (Mu.records||[]).length)){
+    h+='<details class="carte musee"><summary><span class="k">Le musée du club</span><b>Notre histoire</b><small style="color:var(--or);font-weight:700">Touche pour ouvrir ›</small></summary>'
+      +((Mu.dates||[]).length?'<div class="tl">'+Mu.dates.map(function(x){ return '<div><em>'+e(x.an)+'</em><span>'+e(x.txt)+'</span></div>'; }).join('')+'</div>':'')
+      +((Mu.legendes||[]).length?'<span class="k">Nos légendes</span>'+Mu.legendes.map(function(x){ return '<p><b>'+e(x.nom)+'</b> '+e(x.annees||'')+'<br>'+e(x.txt||'')+'</p>'; }).join(''):'')
+      +((Mu.records||[]).length?'<span class="k">Les records</span>'+Mu.records.map(function(x){ return '<p><b>'+e(x.t)+'</b> · '+e(x.v)+'</p>'; }).join(''):'')+'</details>'; }
+  return h;
+}
+(function(){ var r1=rendre; rendre=function(){ r1.apply(this, arguments); try{ var app=document.getElementById('app'), x=plusHtml(); if(x){ var d=document.createElement('div'); d.className='club'; d.innerHTML=x; var btns=app.querySelector('.btns'); if(btns) app.insertBefore(d, btns); else app.appendChild(d); } }catch(y){} }; })();
+(function(){ var st=document.createElement('style'); st.textContent='.inp{width:100%;box-sizing:border-box;margin:8px 0;border:1.5px solid var(--line);border-radius:12px;background:var(--fond);color:var(--ink);font:500 16px "Barlow",sans-serif;padding:12px}.fan .vj{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.fan button.j{min-height:42px;padding:0 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--fond);color:var(--ink);font:700 14px "Barlow",sans-serif;cursor:pointer}.fan button.j.on{background:var(--or);border-color:var(--or);color:#14130F}.carte .btn{width:100%}.carte .btn:disabled{opacity:.5}.musee summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:4px}.musee .tl div{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.musee .tl em{font:900 20px "Barlow Condensed",sans-serif;color:var(--or);font-style:normal;min-width:56px}.musee p{line-height:1.45}'; document.head.appendChild(st); })();
+</script>
 </body>
 </html>
