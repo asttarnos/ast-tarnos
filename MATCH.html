@@ -6,8 +6,8 @@
 <title>AST Tarnos · le match</title>
 <meta name="description" content="Le match de l'AST Tarnos en direct : score, minute, buteurs.">
 <meta name="theme-color" content="#0B0A09">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="manifest" href="match.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="AST Match">
@@ -72,7 +72,7 @@ html.live .score{border-color:var(--or)}
 </head>
 <body>
 <div class="w" id="app">
-  <div class="top"><img src="icon-192.png" alt="" onerror="this.style.display='none'"><b>AST Tarnos</b><span id="etat">…</span></div>
+  <div class="top"><img src="icons/icon-192.png" alt="" onerror="this.style.display='none'"><b>AST Tarnos</b><span id="etat">…</span></div>
   <div class="vide">Chargement du match…</div>
 </div>
 <script>
@@ -107,7 +107,7 @@ function partager(){
 function alertCopie(){ var b=document.getElementById('bp'); if(b){ b.textContent='Lien copié ✓'; setTimeout(function(){ b.textContent='Partager le lien'; }, 2000); } }
 function rendre(){
   var app=document.getElementById('app');
-  var top='<div class="top"><img src="icon-192.png" alt="" onerror="this.style.display=\'none\'"><b>AST Tarnos</b>';
+  var top='<div class="top"><img src="icons/icon-192.png" alt="" onerror="this.style.display=\'none\'"><b>AST Tarnos</b>';
   if(!D || !D.s){
     document.documentElement.classList.remove('live');
     app.innerHTML=top+'<span id="etat">'+(ERREUR?'hors ligne':'')+'</span></div>'
@@ -212,6 +212,38 @@ setInterval(function(){
   var m=document.getElementById('mn'); if(m && D && D.live) m.textContent=minute(D.live)+'’';
 }, 15000);
 document.addEventListener('visibilitychange', function(){ if(!document.hidden) charger(); });
+</script>
+<script>
+// ===== v317 : le 12e homme — la page des supporters devient la page du club =====
+// Le prochain match, le dernier résultat, les partenaires, et le vote du public pour l'homme du match.
+var URL_CLUB='https://firestore.googleapis.com/v1/projects/notes-match-ast/databases/(default)/documents/public/club';
+var CLUB=null, VOTE_CHOIX=null;
+async function chargerClub(){ try{ var r=await fetch(URL_CLUB, {cache:'no-store'}); if(!r.ok) return; var j=await r.json(); CLUB=JSON.parse(((j.fields||{}).data||{}).stringValue||'null'); rendre(); }catch(x){} }
+function aVote(cle){ try{ return localStorage.getItem('ast-vote-'+cle)||''; }catch(x){ return ''; } }
+async function voter(){
+  var V=CLUB&&CLUB.vote; if(!V || !VOTE_CHOIX) return; var b=document.getElementById('bvote'); if(b){ b.disabled=true; b.textContent='Envoi…'; }
+  try{ var r=await fetch('https://firestore.googleapis.com/v1/projects/notes-match-ast/databases/(default)/documents/votes_public',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{m:{stringValue:V.cle}, nom:{stringValue:VOTE_CHOIX}, cree:{stringValue:new Date().toISOString()}}})});
+    if(!r.ok) throw 0; try{ localStorage.setItem('ast-vote-'+V.cle, VOTE_CHOIX); }catch(x){} rendre(); }
+  catch(x){ if(b){ b.disabled=false; b.textContent='Réessayer'; } }
+}
+function choisirVote(n){ VOTE_CHOIX=n; [].forEach.call(document.querySelectorAll('.vote button.j'), function(b){ b.classList.toggle('on', b.getAttribute('data-n')===n); }); var b=document.getElementById('bvote'); if(b){ b.disabled=false; b.textContent='Voter pour '+n; } }
+function clubHtml(){
+  if(!CLUB) return ''; var h='', V=CLUB.vote;
+  if(V && V.ouvert && (V.cands||[]).length){
+    var deja=aVote(V.cle);
+    h+='<div class="carte vote"><span class="k">Le vote du public</span><b>Ton homme du match'+(V.adv?' · vs '+e(V.adv):'')+'</b>'
+      +(deja?'<p>Merci ! Tu as voté pour <b>'+e(deja)+'</b>. Le résultat sera annoncé par le club.</p>'
+        :'<div class="vj">'+V.cands.map(function(n){ return '<button class="j" data-n="'+e(n)+'" onclick="choisirVote(this.getAttribute(\'data-n\'))">'+e(n)+'</button>'; }).join('')+'</div><button class="btn" id="bvote" disabled onclick="voter()">Choisis un joueur</button>')+'</div>';
+  }
+  var P=CLUB.prochain||{}, Dn=CLUB.dernier||{};
+  if(Dn.adv && Dn.sa!=null && Dn.sa!==''){ var r=+Dn.sa>+Dn.sb?'Victoire':(+Dn.sa<+Dn.sb?'Défaite':'Match nul'); h+='<div class="carte"><span class="k">Le dernier match</span><b>'+e(r)+' '+e(Dn.sa)+'–'+e(Dn.sb)+'</b><p>contre '+e(Dn.adv)+'</p></div>'; }
+  if(P.adv && !(D && D.s && D.s.adv && D.s.adv.toLowerCase()===String(P.adv).toLowerCase())) h+='<div class="carte"><span class="k">Le prochain match</span><b>vs '+e(P.adv)+'</b><p>'+e([P.date,P.h,P.dom?'à domicile':'à l’extérieur'].filter(Boolean).join(' · '))+'</p></div>';
+  if((CLUB.partenaires||[]).length) h+='<div class="carte parts"><span class="k">Ils soutiennent le club</span><div class="pl">'+CLUB.partenaires.map(function(p){ return '<span>'+e(p.nom)+'</span>'; }).join('')+'</div><p>Merci à nos partenaires : pensez à eux !</p></div>';
+  return h;
+}
+(function(){ var r0=rendre; rendre=function(){ r0.apply(this, arguments); try{ var app=document.getElementById('app'), x=clubHtml(); if(x){ var btns=app.querySelector('.btns'); var d=document.createElement('div'); d.className='club'; d.innerHTML=x; if(btns) app.insertBefore(d, btns); else app.appendChild(d); if(VOTE_CHOIX) choisirVote(VOTE_CHOIX); } }catch(y){} }; })();
+(function(){ var st=document.createElement('style'); st.textContent='.club{display:flex;flex-direction:column;gap:14px}.vote .vj{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vote button.j{min-height:44px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--fond);color:var(--ink);font:700 15px "Barlow",sans-serif;cursor:pointer}.vote button.j.on{background:var(--or);border-color:var(--or);color:#14130F}.vote .btn{width:100%}.vote .btn:disabled{opacity:.5}.parts .pl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 6px}.parts .pl span{padding:8px 12px;border-radius:10px;background:var(--fond);font:700 15px "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em}'; document.head.appendChild(st); })();
+chargerClub(); setInterval(chargerClub, 60000);
 </script>
 </body>
 </html>
