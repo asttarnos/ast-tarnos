@@ -36,7 +36,7 @@ self.addEventListener('notificationclick', function(event){
   }));
 });
 
-const CACHE_NAME = 'ast-tarnos-v327';
+const CACHE_NAME = 'ast-tarnos-v328';
 const URLS_TO_CACHE = [
   './',
   './index.html',
